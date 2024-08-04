@@ -59,9 +59,24 @@ A smaller piece of a prompt that is used to assemble a full prompt.
 - Prompt Division
 - Prompt Piece
 
+### Reflection
+
+The result of analyzing a prompt request versus the response.
+
+- After Thought
+
 ### LLM
 
 A Large Language Model that can interpret a prompt into a text
+
+### LLM Handler
+
+The process that handles the interaction with an LLM model
+
+- Prompter
+- Broker
+- Operator
+- Driver
 
 ### Department (High Level Module)
 
