@@ -1,4 +1,4 @@
-# Terms
+# Terminology
 
 ### Appliance
 
@@ -18,11 +18,16 @@ Information and data provided by the client
 
 - Instruction
 
-### Intake
+### Processor
 
-The process of taking an input and converting it into a job
+This would have both an input and output.
 
-- Admission
+The input method would process input and convert it into a job and should return a ticket to the system.
+
+The output method would process what ever the result of the job was into the desired output for the program
+
+- Handler
+- Broker
 
 ### Output
 
@@ -138,3 +143,11 @@ The quick break down of the compute and token usages required for the task
 - Task Value
 - Task Worth
 - Task Price
+
+### Utility
+
+Functions that are internal to the library to help manage and control the flow of data.
+
+### System
+
+The central part of the whole program that will orchestrate all the operations required in this library.
