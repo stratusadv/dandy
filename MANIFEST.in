@@ -1,0 +1,9 @@
+include README.md
+include LICENSE.md
+include CHANGELOG.md
+include CONTRIBUTORS.md
+recursive-include dandy *
+exclude *.db
+recursive-exclude tests
+recursive-exclude docs
+recursive-exclude .github
