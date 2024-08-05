@@ -27,7 +27,9 @@ The input method would process input and convert it into a job and should return
 The output method would process what ever the result of the job was into the desired output for the program
 
 - Handler
-- Broker
+- Broker (This is designed for transactions that are resolved immediately like messaging)
+- Coordinator (More accurate)
+- Manager
 
 ### Output
 
@@ -60,6 +62,7 @@ The instructions for a Large Language Model created during the process
 A smaller piece of a prompt that is used to assemble a full prompt.
 
 - Prompt Sentence
+- Prompt Snippet (Think this is the closest)
 - Prompt Slice
 - Prompt Division
 - Prompt Piece
@@ -88,6 +91,7 @@ The process that handles the interaction with an LLM model
 This is the grouping used to put together agents to accomplish a task
 
 - Agency
+- Facility
 
 ### Agent
 
@@ -112,6 +116,13 @@ Specific functions to be used by agents and prompts to complete specific tasks
 - Appliance
 - Mechanism
 - Utility
+
+### Flow
+
+The order of operation for the jobs to be completed along with specific requirements.
+
+- Pipeline
+- Path
 
 ### Job
 
