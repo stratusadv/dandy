@@ -29,7 +29,7 @@ The output method would process what ever the result of the job was into the des
 - Handler
 - Broker (This is designed for transactions that are resolved immediately like messaging)
 - Coordinator (More accurate)
-- Manager
+- Manager (Probably Correct)
 
 ### Output
 
@@ -91,7 +91,7 @@ The process that handles the interaction with an LLM model
 This is the grouping used to put together agents to accomplish a task
 
 - Agency
-- Facility
+- Facility (Probably Better)
 
 ### Agent
 
