@@ -1,6 +1,6 @@
 # Terminology
 
-### Appliance
+### Appliance (Final)
 
 A class or object that can be used by an agent or prompts to complete specific tasks
 
@@ -12,52 +12,54 @@ A class or object that can be used by an agent or prompts to complete specific t
 
 A structured data storage system used to keep track of jobs, tasks and tickets
 
-### Input
+### Input (Final)
 
 Information and data provided by the client
 
 - Instruction
 
-### Processor
+### Coordinator (Final)
 
 This would have both an input and output.
 
 The input method would process input and convert it into a job and should return a ticket to the system.
 
-The output method would process what ever the result of the job was into the desired output for the program
+The output method would process what ever the result of the job was into the desired output for the program.
 
 - Handler
 - Broker (This is designed for transactions that are resolved immediately like messaging)
-- Coordinator (More accurate)
-- Manager (Probably Correct)
+- Manager (So close but this represents a point of responsibility versus )
+- Processor
 
-### Output
+### Output (Final)
 
 Result in the form of information and data provided back to the client after processing the input
 
 - Yield
 
-### Structure
+### Schema (Final)
 
-Class used to create an input or output object based on the completion of a job
+Class used to create an input or output object based on the completion of a job and structure LLM requests and responses
 
 - Complex
 - Formation
 - Blueprint
+- Structure
 
-### Structure Data
+### Schema Data / Instance (Final)
 
-The values that make up the values of a structure to be used on input or output
+The data that make up the values of a schema after it's been processed to be used in the pipeline or job
 
 - Complex Data
 - Formation Data
 - Blueprint Data
+- Structure Data
 
-### Prompt
+### Prompt (Final)
 
 The instructions for a Large Language Model created during the process
 
-### Prompt Segment
+### Prompt Snippet (Final)
 
 A smaller piece of a prompt that is used to assemble a full prompt.
 
@@ -67,17 +69,17 @@ A smaller piece of a prompt that is used to assemble a full prompt.
 - Prompt Division
 - Prompt Piece
 
-### Reflection
+### Reflection (Final)
 
 The result of analyzing a prompt request versus the response.
 
 - After Thought
 
-### LLM
+### LLM (Final)
 
 A Large Language Model that can interpret a prompt into a text
 
-### LLM Handler
+### LLM Handler (Final)
 
 The process that handles the interaction with an LLM model
 
@@ -86,21 +88,21 @@ The process that handles the interaction with an LLM model
 - Operator
 - Driver
 
-### Department (High Level Module)
+### Department (Final)
 
 This is the grouping used to put together agents to accomplish a task
 
 - Agency
-- Facility (Probably Better)
+- Facility (Probably Better But not Programmatically Verbose to me)
 
-### Agent
+### Agent (Final)
 
 Small program that has specific prompts and code that make it good at a specific set of jobs utilizing an LLM for processing
 
 - Assistant
 - Handler
 
-### Ticket
+### Ticket (Final)
 
 This object is provided from a department when ever a job is started as to reference the job progress
 
@@ -108,7 +110,7 @@ This object is provided from a department when ever a job is started as to refer
 - Record
 - Receipt
 
-### Tool
+### Tool (Final)
 
 Specific functions to be used by agents and prompts to complete specific tasks
 
@@ -117,14 +119,14 @@ Specific functions to be used by agents and prompts to complete specific tasks
 - Mechanism
 - Utility
 
-### Flow
+### Pipeline (Final)
 
 The order of operation for the jobs to be completed along with specific requirements.
 
-- Pipeline
+- Flow
 - Path
 
-### Job
+### Job (Final)
 
 The assembled set of tasks required to complete what is laid out in the input
 
@@ -133,32 +135,20 @@ The assembled set of tasks required to complete what is laid out in the input
 - Assignment
 - Project Action
 
-### Job Cost
-
-This would be a rough calculation of the token and compute time used to complete a job
-
-- Job Value
-- Job Worth
-- Job Price
-
-### Task
+### Task (Final)
 
 A smaller more specific part of a job that needs to be done to consider a job complete
 
 - Effort
 
-### Task Cost
+### Cost (Final)
 
-The quick break down of the compute and token usages required for the task
+The breakdown of anything into a compute / token / time / money cost for evaluation of a service
 
-- Task Value
-- Task Worth
-- Task Price
-
-### Utility
+### Utility (Final)
 
 Functions that are internal to the library to help manage and control the flow of data.
 
-### System
+### System (Final)
 
 The central part of the whole program that will orchestrate all the operations required in this library.
