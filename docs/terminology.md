@@ -1,13 +1,5 @@
 # Terminology
 
-### Appliance (Final)
-
-A class or object that can be used by an agent or prompts to complete specific tasks
-
-- Gadget
-- Instrument
-- Device
-
 ### Database (In Memory or Storage)
 
 A structured data storage system used to keep track of jobs, tasks and tickets
@@ -113,6 +105,7 @@ This object is provided from a department when ever a job is started as to refer
 ### Tool (Final)
 
 Specific functions to be used by agents and prompts to complete specific tasks
+or a class or object that can be used by an agent or prompts to complete specific tasks
 
 - Gadget
 - Appliance
