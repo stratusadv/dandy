@@ -1,3 +1,4 @@
+
 # Terminology
 
 ### Database (In Memory or Storage)
@@ -9,19 +10,6 @@ A structured data storage system used to keep track of jobs, tasks and tickets
 Information and data provided by the client
 
 - Instruction
-
-### Coordinator (Final)
-
-This would have both an input and output.
-
-The input method would process input and convert it into a job and should return a ticket to the system.
-
-The output method would process what ever the result of the job was into the desired output for the program.
-
-- Handler
-- Broker (This is designed for transactions that are resolved immediately like messaging)
-- Manager (So close but this represents a point of responsibility versus )
-- Processor
 
 ### Output (Final)
 
@@ -94,14 +82,6 @@ Small program that has specific prompts and code that make it good at a specific
 - Assistant
 - Handler
 
-### Ticket (Final)
-
-This object is provided from a department when ever a job is started as to reference the job progress
-
-- Voucher
-- Record
-- Receipt
-
 ### Tool (Final)
 
 Specific functions to be used by agents and prompts to complete specific tasks
@@ -114,10 +94,9 @@ or a class or object that can be used by an agent or prompts to complete specifi
 
 ### Pipeline (Final)
 
-The order of operation for the jobs to be completed along with specific requirements.
+The order of operation for the job to be completed along with specific requirements.
 
-- Flow
-- Path
+- Work Flow
 
 ### Job (Final)
 
