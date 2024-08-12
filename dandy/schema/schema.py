@@ -4,8 +4,11 @@ from dataclasses import asdict, dataclass
 from typing import Type, Union, Self, get_type_hints
 
 
-@dataclass
 class Schema(ABC):
+    def __init_subclass__(cls, **kwargs):
+        for attribute_name, attribute_type in get_type_hints(cls).items():
+            setattr(cls, attribute_name, attribute_type())
+
     @classmethod
     def empty(cls: Type[Self]) -> Self:
         default_values = {attribute_name: attribute_type() for attribute_name, attribute_type in get_type_hints(cls).items()}
@@ -36,4 +39,7 @@ class Schema(ABC):
 
     @classmethod
     def to_json_with_types(cls) -> str:
+        for attribute_name, attribute_type in get_type_hints(cls).items():
+            print(attribute_name, attribute_type)
+
         return "Need to write this properly"
