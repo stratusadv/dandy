@@ -3,6 +3,8 @@ from abc import ABC
 from dataclasses import asdict, dataclass
 from typing import Type, Union, Self, get_type_hints
 
+from dandy.schema.utils import get_json_type
+
 
 class Schema(ABC):
     def __init_subclass__(cls, **kwargs):
@@ -39,7 +41,9 @@ class Schema(ABC):
 
     @classmethod
     def to_json_with_types(cls) -> str:
-        for attribute_name, attribute_type in get_type_hints(cls).items():
-            print(attribute_name, attribute_type)
+        json_schema = dict()
 
-        return "Need to write this properly"
+        for attribute_name, attribute_type in get_type_hints(cls).items():
+            json_schema[attribute_name] = get_json_type(attribute_type)
+
+        return json.dumps(json_schema, indent=4)

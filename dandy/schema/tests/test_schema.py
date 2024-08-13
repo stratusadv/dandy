@@ -1,3 +1,4 @@
+import json
 from unittest.case import TestCase
 
 from dandy.schema.tests.schemas import PersonSchema
@@ -20,6 +21,8 @@ class TestSchema(TestCase):
         pass
 
     def test_schema(self):
-        print(self.person_1)
-        print(self.person_2)
+        self.assertEqual(self.person_1.first_name, 'Fred')
 
+    def test_json_type_schema(self):
+        person_dict = json.loads(PersonSchema.to_json_with_types())
+        self.assertEqual(person_dict['first_name'], 'string')
