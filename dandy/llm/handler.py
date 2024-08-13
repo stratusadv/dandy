@@ -13,7 +13,8 @@ class Handler(ABC):
 
     @classmethod
     def create_connection(cls) -> http.client.HTTPSConnection:
-        parsed_url = urlparse(cls.address)
+        parsed_url = urlparse(f'{cls.address}:{cls.port}')
+
         if parsed_url.scheme == "https":
             connection = http.client.HTTPSConnection(parsed_url.netloc)
         else:
