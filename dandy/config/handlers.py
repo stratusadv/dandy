@@ -3,5 +3,5 @@ from dataclasses import dataclass
 
 @dataclass
 class OllamaHandlerConfig:
-    address: str
+    url: str
     port: int

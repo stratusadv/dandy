@@ -14,8 +14,8 @@ class Config:
     def ollama(self) -> OllamaHandlerConfig:
         return self._ollama_handler_config
 
-    def setup_ollama(self, address: str, port: int):
+    def setup_ollama(self, url: str, port: int):
         self._ollama_handler_config = OllamaHandlerConfig(
-            address=address,
+            url=url,
             port=port
         )
