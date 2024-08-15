@@ -4,6 +4,8 @@ from unittest import TestCase
 from dandy.llm.ollama.handler import OllamaHandler
 from dandy import config
 
+from dandy.schema.tests.schemas import PersonSchema
+from dandy.llm.tests.prompts import cartoon_character_prompt
 
 class TestOllamaHandler(TestCase):
     def setUp(self):
@@ -12,15 +14,6 @@ class TestOllamaHandler(TestCase):
             port=int(os.getenv("OLLAMA_PORT"))
         )
 
-        self.handler = OllamaHandler()
-
     def test_get_request(self):
-        response = self.handler.post_request({
-            "model": "llama3.1",
-            "prompt": "Why is the sky blue?",
-            "stream": False
-        })
-        print(response)
-
-    def test_create_connection(self):
-        handler = OllamaHandler()
+        person = OllamaHandler().process_prompt_to_schema(cartoon_character_prompt(), PersonSchema)
+        self.assertNotEqual(person.first_name, None)

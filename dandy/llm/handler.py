@@ -1,9 +1,12 @@
 import json
 from abc import ABC, abstractmethod
 import http.client
+from typing import Type
 from urllib.parse import urlencode, urlparse
 
+from dandy.llm.prompt import Prompt
 from dandy.llm.utils import encode_parameters
+from dandy.schema import Schema
 
 
 class Handler(ABC):
@@ -16,6 +19,11 @@ class Handler(ABC):
     def __new__(cls, *args, **kwargs):
         cls.setup()
         return super().__new__(cls)
+
+    @classmethod
+    @abstractmethod
+    def process_prompt_to_schema(cls, prompt: Prompt, schema_class: Type[Schema]) -> Schema:
+        pass
 
     @classmethod
     @abstractmethod

@@ -8,9 +8,9 @@ class Prompt:
         self.snippet: List[snippet.Snippet] = []
 
     def __str__(self):
-        return self.print()
+        return self.to_str()
 
-    def print(self) -> str:
+    def to_str(self) -> str:
         return ''.join([snippet.print() for snippet in self.snippet])
 
     def divider(self) -> 'Prompt':
@@ -52,11 +52,3 @@ class Prompt:
     def unordered_list(self, items: List[str]) -> 'Prompt':
         self.snippet.append(snippet.UnorderedListSnippet(items))
         return self
-
-
-def schema_prompt(llm_schema: 'Schema') -> Prompt:
-    return (
-        Prompt()
-        .title('Return a well formatted response exactly in the following valid JSON schema')
-        .schema_with_types(llm_schema)
-    )

@@ -11,6 +11,10 @@ class Schema(ABC):
         for attribute_name, attribute_type in get_type_hints(cls).items():
             setattr(cls, attribute_name, attribute_type())
 
+    def __init__(self, **kwargs):
+        for attribute_name, attribute_value in kwargs.items():
+            setattr(self, attribute_name, attribute_value)
+
     @classmethod
     def empty(cls: Type[Self]) -> Self:
         default_values = {attribute_name: attribute_type() for attribute_name, attribute_type in get_type_hints(cls).items()}
@@ -25,10 +29,6 @@ class Schema(ABC):
     @classmethod
     def from_json(cls, json_data: str):
         return cls.from_dict(**json.loads(json_data))
-
-    @classmethod
-    def from_prompt_or_none(cls, prompt: 'Prompt') -> Union[Self, None]:
-        pass
 
     def to_dict(self) -> dict:
         return asdict(self)

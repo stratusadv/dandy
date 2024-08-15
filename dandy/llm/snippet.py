@@ -46,7 +46,7 @@ class PromptSnippet(Snippet):
     prompt: 'Prompt'
 
     def print(self) -> str:
-        return self.prompt.print()
+        return self.prompt.to_str()
 
 
 @dataclass
