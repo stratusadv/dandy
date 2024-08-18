@@ -92,11 +92,11 @@ or a class or object that can be used by an agent or prompts to complete specifi
 - Mechanism
 - Utility
 
-### Pipeline (Final)
+### Workflow (Final)
 
 The order of operation for the job to be completed along with specific requirements.
 
-- Work Flow
+- Pipeline
 
 ### Job (Final)
 

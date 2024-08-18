@@ -3,12 +3,10 @@ from typing import Type, TypeVar
 
 from dandy import config
 from dandy.llm.handler import Handler
-from dandy.llm.ollama.prompts import ollama_system_prompt
+from dandy.llm.handler.ollama.prompts import ollama_system_prompt
+from dandy.llm.handler.settings import HandlerSettings
 from dandy.llm.prompt import Prompt
-from dandy.schema import Schema
-
-
-SchemaType = TypeVar('SchemaType', bound=Schema)
+from dandy.schema.type_vars import SchemaType
 
 
 class OllamaHandler(Handler):
@@ -26,15 +24,17 @@ class OllamaHandler(Handler):
         return schema_class.from_dict(json.loads(response['response']))
 
     @classmethod
-    def setup(cls):
-        cls.url = config.ollama.url
-        cls.port = config.ollama.port
-        cls.headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-        cls.path_parameters = [
-            'api',
-            'generate',
-        ]
-        cls.query_parameters = None
+    def get_settings(cls) -> HandlerSettings:
+        return HandlerSettings(
+            url=config.ollama.url,
+            port=config.ollama.port,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            path_parameters=[
+                'api',
+                'generate',
+            ],
+            query_parameters=None
+        )

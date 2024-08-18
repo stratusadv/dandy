@@ -1,6 +1,6 @@
 from typing import List
 
-from dandy.llm import snippet
+from dandy.llm.prompt import snippet
 
 
 class Prompt:

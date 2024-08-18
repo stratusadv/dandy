@@ -5,12 +5,14 @@ from datetime import date
 from typing import Union, Tuple, List
 from urllib.parse import quote
 
+from dandy.schema import Schema
+
 
 def dict_to_str_nicely(dict_data: dict) -> str:
     return json.dumps(dict_data, indent=4)
 
 
-def encode_parameters(args: Union[List[str], Tuple[str]]):
+def encode_path_parameters(args: Union[List[str], Tuple[str]]):
     for arg in args:
         if isinstance(arg, str):
             yield quote(arg)
@@ -39,6 +41,6 @@ def print_json_nicely(json_data: str):
     print_dict_nicely(json.loads(json_data))
 
 
-def print_structure_data_nicely(structure_data: 'Schema'):
-    print_json_nicely(structure_data.to_json())
+def print_schema_nicely(schema: Schema):
+    print_json_nicely(schema.to_json())
 

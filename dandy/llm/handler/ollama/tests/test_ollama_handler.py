@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from dandy.llm.ollama.handler import OllamaHandler
+from dandy.llm.handler.ollama.handler import OllamaHandler
 from dandy import config
 
 from dandy.schema.tests.schemas import PersonSchema
@@ -15,5 +15,6 @@ class TestOllamaHandler(TestCase):
         )
 
     def test_get_request(self):
-        person = OllamaHandler().process_prompt_to_schema(cartoon_character_prompt(), PersonSchema)
+        person = OllamaHandler.process_prompt_to_schema(cartoon_character_prompt(), PersonSchema)
+        print(PersonSchema)
         self.assertNotEqual(person.first_name, None)
