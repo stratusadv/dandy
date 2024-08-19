@@ -1,15 +1,16 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
+from dandy import config
 from dandy.job.job import Job
-from dandy.job.task.task import Task
 from dandy.llm.prompt import Prompt
-from dandy.schema import Schema
-
+from dandy.agent.prompts import agent_process_job_prompt
 
 class Agent(ABC):
     role_prompt: Prompt
 
     @classmethod
-    @abstractmethod
     def process(cls, job: Job) -> Job:
-        pass
+        config.active_llm_handler.process_prompt_to_schema(
+            agent_process_job_prompt(cls.role_prompt, job.prompt),
+            job.output_schema
+        )

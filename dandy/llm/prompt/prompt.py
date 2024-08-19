@@ -4,14 +4,23 @@ from dandy.llm.prompt import snippet
 
 
 class Prompt:
-    def __init__(self):
+    def __init__(
+            self,
+            tag: str = None
+    ):
         self.snippet: List[snippet.Snippet] = []
+        self.tag = tag
 
     def __str__(self):
         return self.to_str()
 
     def to_str(self) -> str:
-        return ''.join([snippet.print() for snippet in self.snippet])
+        prompt_string = ''.join([snippet.print() for snippet in self.snippet])
+
+        if isinstance(self.tag, str):
+            return f'<{self.tag}>\n{prompt_string}\n</{self.tag}>\n'
+        else:
+            return prompt_string
 
     def divider(self) -> 'Prompt':
         self.snippet.append(snippet.DividerSnippet())
