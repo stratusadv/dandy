@@ -26,8 +26,8 @@ class OllamaHandler(Handler):
     @classmethod
     def get_settings(cls) -> HandlerSettings:
         return HandlerSettings(
-            url=config.ollama.url,
-            port=config.ollama.port,
+            url=config.ollama_handler_config.url,
+            port=config.ollama_handler_config.port,
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",

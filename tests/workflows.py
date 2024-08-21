@@ -9,7 +9,4 @@ class BusinessIdeaEvaluationWorkflow(Workflow):
         agents.BusinessFinanceAgent,
     ]
 
-    @classmethod
-    def process(cls, job: Job) -> Job:
-        pass
 

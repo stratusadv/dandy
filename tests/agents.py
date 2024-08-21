@@ -10,10 +10,6 @@ class BusinessIdeaSWATAgent(Agent):
         .text('You are an expert in business idea evaluation.')
     )
 
-    @classmethod
-    def process(cls, job: Job) -> Job:
-        pass
-
 
 class BusinessMarketingAgent(Agent):
     role_prompt = (
@@ -22,10 +18,6 @@ class BusinessMarketingAgent(Agent):
         .text('You are an expert in business marketing evaluation.')
     )
 
-    @classmethod
-    def process(cls, job: Job) -> Job:
-        pass
-
 
 class BusinessFinanceAgent(Agent):
     role_prompt = (
@@ -33,7 +25,3 @@ class BusinessFinanceAgent(Agent):
         .title('Your a business finance analyst')
         .text('You are an expert in business finance evaluation.')
     )
-
-    @classmethod
-    def process(cls, job: Job) -> Job:
-        pass

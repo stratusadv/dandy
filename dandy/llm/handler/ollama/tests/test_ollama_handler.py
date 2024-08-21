@@ -16,5 +16,4 @@ class TestOllamaHandler(TestCase):
 
     def test_get_request(self):
         person = OllamaHandler.process_prompt_to_schema(cartoon_character_prompt(), PersonSchema)
-        print(PersonSchema)
         self.assertNotEqual(person.first_name, None)

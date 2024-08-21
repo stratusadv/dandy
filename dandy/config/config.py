@@ -6,7 +6,7 @@ from dandy.llm.enums import LlmService
 
 
 class Config:
-    _ollama_handler_config: OllamaHandlerConfig
+    ollama_handler_config: OllamaHandlerConfig
     _instance = None
     _active_llm_service: LlmService
     _active_llm_model: str
@@ -24,15 +24,14 @@ class Config:
         else:
             raise Exception('Unknown LLM service')
 
-    @property
-    def ollama(self) -> OllamaHandlerConfig:
-        return self._ollama_handler_config
-
-    def setup_ollama(self, url: str, port: int):
-        self._ollama_handler_config = OllamaHandlerConfig(
+    def setup_ollama(self, url: str, port: int, model: str = None):
+        self.ollama_handler_config = OllamaHandlerConfig(
             url=url,
             port=port
         )
+
+        if model is not None:
+            self.set_llm(model=model)
 
         self._active_llm_service = LlmService.OLLAMA
 

@@ -9,8 +9,12 @@ class Agent(ABC):
     role_prompt: Prompt
 
     @classmethod
-    def process(cls, job: Job) -> Job:
-        config.active_llm_handler.process_prompt_to_schema(
-            agent_process_job_prompt(cls.role_prompt, job.prompt),
+    def process(cls, job: Job):
+        schema_data = config.active_llm_handler.process_prompt_to_schema(
+            agent_process_job_prompt(cls.role_prompt, job.input_prompt),
             job.output_schema
         )
+
+        print(schema_data.to_json_nicely())
+
+        job.agent_output_schema_data.append(schema_data)

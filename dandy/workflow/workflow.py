@@ -1,14 +1,10 @@
-from abc import abstractmethod
-from typing import Any, List, Optional
-
-from dandy.agent.agent import Agent
-from dandy.job.job import Job
+from typing import List
 
 
 class Workflow:
-    agents: List[Agent]
+    agents: List['Agent']
 
     @classmethod
-    @abstractmethod
-    def process(cls, job: Job) -> Job:
-       pass
+    def process(cls, job: 'Job'):
+       for agent in cls.agents:
+            agent.process(job)

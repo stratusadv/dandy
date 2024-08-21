@@ -54,6 +54,10 @@ class Prompt:
         self.snippet.append(snippet.PromptSnippet(prompt))
         return self
 
+    def random_choice(self, choices: List[str]) -> 'Prompt':
+        self.snippet.append(snippet.RandomChoiceSnippet(choices))
+        return self
+
     def text(self, text: str, label: str = '') -> 'Prompt':
         self.snippet.append(snippet.TextSnippet(text, label))
         return self

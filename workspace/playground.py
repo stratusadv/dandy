@@ -1,5 +1,22 @@
-from tests.workflows import TestPipeline
+import os
+from unittest import TestCase
 
-pipeline = TestPipeline('Write me an amazing and original poem about traveling to mansion full of horses.')
+from dandy import config
+from dandy.job.job import Job
 
-pipeline.run()
+from tests.prompts import business_idea_input_prompt
+from tests.schemas import BusinessIdeaEvaluationSchema
+from tests.workflows import BusinessIdeaEvaluationWorkflow
+
+config.setup_ollama(
+    url=os.getenv("OLLAMA_URL"),
+    port=int(os.getenv("OLLAMA_PORT"))
+)
+
+client_idea_job = Job(
+    input_prompt=business_idea_input_prompt(),
+    output_schema=BusinessIdeaEvaluationSchema,
+    workflow=BusinessIdeaEvaluationWorkflow,
+)
+
+client_idea_job.process()

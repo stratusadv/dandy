@@ -31,7 +31,7 @@ class Schema(ABC):
         return cls.from_dict(**json.loads(json_data))
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        return self.__dict__
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict())

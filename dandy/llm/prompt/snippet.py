@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Type
+from random import randint
+from typing import List
 
 
 @dataclass
@@ -48,21 +49,27 @@ class PromptSnippet(Snippet):
     def print(self) -> str:
         return self.prompt.to_str()
 
+@dataclass
+class RandomChoiceSnippet(Snippet):
+    choices: List[str]
+
+    def print(self) -> str:
+        return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
 
 @dataclass
 class SchemaData(Snippet):
-    llm_schema_data: 'Schema'
+    schema_data: 'Schema'
 
     def print(self) -> str:
-        return self.llm_schema_data.to_json_nicely() + '\n'
+        return self.schema_data.to_json_nicely() + '\n'
 
 
 @dataclass
 class SchemaWithTypesSnippet(Snippet):
-    llm_schema: 'Schema'
+    schema: 'Schema'
 
     def print(self) -> str:
-        return str(self.llm_schema.to_json_with_types()) + '\n'
+        return str(self.schema.to_json_with_types()) + '\n'
 
 
 @dataclass
