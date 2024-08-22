@@ -65,3 +65,7 @@ class Prompt:
     def unordered_list(self, items: List[str]) -> 'Prompt':
         self.snippet.append(snippet.UnorderedListSnippet(items))
         return self
+
+    def unordered_random_list(self, items: List[str]) -> 'Prompt':
+        self.snippet.append(snippet.UnorderedRandomListSnippet(items))
+        return self

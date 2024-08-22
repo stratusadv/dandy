@@ -4,9 +4,12 @@ from dandy import config
 from dandy.job.job import Job
 from dandy.llm.prompt import Prompt
 from dandy.agent.prompts import agent_process_job_prompt
+from dandy.schema import Schema
+
 
 class Agent(ABC):
     role_prompt: Prompt
+    instructions_prompt: Prompt
 
     @classmethod
     def process(cls, job: Job):

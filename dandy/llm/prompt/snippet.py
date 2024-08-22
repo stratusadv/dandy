@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from random import randint
+from random import randint, shuffle
 from typing import List
 
 
@@ -31,7 +31,7 @@ class TitleSnippet(Snippet):
     title: str
 
     def print(self) -> str:
-        return f'{self.title}:\n'
+        return f'{self.title}\n'
 
 
 @dataclass
@@ -92,5 +92,9 @@ class UnorderedListSnippet(Snippet):
         return '\n'.join(f'- {item}' for item in self.items) + '\n'
 
 
-
+@dataclass
+class UnorderedRandomListSnippet(UnorderedListSnippet):
+    def print(self) -> str:
+        shuffle(self.items)
+        return '\n'.join(f'- {item}' for item in self.items) + '\n'
 

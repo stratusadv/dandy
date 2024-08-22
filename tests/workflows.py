@@ -4,7 +4,7 @@ from tests import agents
 
 class BusinessIdeaEvaluationWorkflow(Workflow):
     agents = [
-        agents.BusinessIdeaSWATAgent,
+        agents.BusinessIdeaSWOTAgent,
         agents.BusinessMarketingAgent,
         agents.BusinessFinanceAgent,
     ]
