@@ -42,7 +42,7 @@ sequenceDiagram
     agent ->> agent: Process: LLM Result into Schema Data
     agent -->>- workflow: Return: Filtered Work Orders Schema Data
     workflow ->> workflow: Process: Filtered Work Orders Result
-    workflow -->>- app: Return: Work Orders
+    workflow -->>- app: Return: Work Orders 
     activate app
     app -->> user: Response: Related Work Orders
     deactivate app

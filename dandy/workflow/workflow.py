@@ -1,10 +1,15 @@
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from dandy.workflow.step import Step
 
 
 class Workflow:
-    agents: List['Agent']
+    steps: List[Step]
 
-    @classmethod
-    def process(cls, job: 'Job'):
-       for agent in cls.agents:
-            agent.process(job)
+    def __init__(self):
+        pass
+
+    def process(self, job: 'Job'):
+       for step in self.steps:
+            step.process(job)

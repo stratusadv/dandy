@@ -8,6 +8,7 @@ class BusinessIdeaSWOTAgent(Agent):
         .title('Your a business idea SWOT analyst')
         .text('You are an expert in business idea evaluation.')
     )
+
     instructions_prompt = (
         Prompt()
         .text('Your job is to evaluate a business idea and break it down into the following categories:')
