@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from dandy.agent import Agent
     from dandy.workflow.workflow import Workflow
     from dandy.tool import Tool
-    from dandy.job.job import Job
     from dandy.schema import Schema
 
 
@@ -26,6 +25,3 @@ class Step:
         self.handler = handler
         self.output_schema = output_schema
         self.retries = retries
-
-    def process(self, job: Job):
-        pass

@@ -1,13 +1,21 @@
+from __future__ import annotations
 from typing import List, TYPE_CHECKING
+
+from dandy.workflow.job import Job
+
 
 if TYPE_CHECKING:
     from dandy.workflow.step import Step
-    from dandy.job.job import Job
 
 
 class Workflow:
     steps: List[Step]
 
-    def process(self, job: Job):
+    def __init__(self):
+        self.job = Job(
+            step_count=len(self.steps)
+        )
+
+    def process(self):
        for step in self.steps:
-            step.process(job)
+            step.handler.process(self.job)

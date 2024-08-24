@@ -11,7 +11,7 @@ class TestOllamaHandler(TestCase):
     def setUp(self):
         config.setup_ollama(
             url=os.getenv("OLLAMA_URL"),
-            port=int(os.getenv("OLLAMA_PORT"))
+            port=int(os.getenv("OLLAMA_PORT", 11434))
         )
 
     def test_get_request(self):

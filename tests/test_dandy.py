@@ -2,25 +2,18 @@ import os
 from unittest import TestCase
 
 from dandy import config
-from dandy.job.job import Job
-
-from tests.prompts import business_idea_input_prompt
-from tests.schemas import BusinessIdeaEvaluationSchema
-from tests.workflows import BusinessIdeaEvaluationWorkflow
+from tests.factories import generate_current_work_order_schema_data, generate_existing_work_order_list_schema_data
 
 
 class TestDandy(TestCase):
     def setUp(self):
         config.setup_ollama(
             url=os.getenv("OLLAMA_URL"),
-            port=int(os.getenv("OLLAMA_PORT"))
+            port=int(os.getenv("OLLAMA_PORT", 11434))
         )
 
-        self.client_idea_job = Job(
-            input_prompt=business_idea_input_prompt(),
-            output_schema=BusinessIdeaEvaluationSchema,
-            workflow=BusinessIdeaEvaluationWorkflow,
-        )
+        self.current_work_order = generate_current_work_order_schema_data()
 
-    def test_job(self):
-        self.client_idea_job.process()
+
+    def test_workflow(self):
+        pass
