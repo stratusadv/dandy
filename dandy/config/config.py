@@ -24,7 +24,12 @@ class Config:
         else:
             raise Exception('Unknown LLM service')
 
-    def setup_ollama(self, url: str, port: int, model: str = None):
+    def setup_ollama(
+            self,
+            url: str,
+            port: int = 11434,
+            model: str = None
+    ):
         self.ollama_service_config = OllamaServiceConfig(
             url=url,
             port=port

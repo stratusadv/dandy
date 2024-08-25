@@ -12,97 +12,105 @@ if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Snippet(ABC):
+    triple_quote: bool = False
+
     def __str__(self):
-        return self.print()
+        return self.to_str()
+
+    def to_str(self):
+        if self.triple_quote:
+            return f'"""\n{self._to_str()}\"""\n'
+        else:
+            return self._to_str()
 
     @abstractmethod
-    def print(self) -> str:
+    def _to_str(self) -> str:
         pass
 
 
-@dataclass
+@dataclass(kw_only=True)
 class LineBreakSnippet(Snippet):
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return '\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class DividerSnippet(Snippet):
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return '----------\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TitleSnippet(Snippet):
     title: str
 
-    def print(self) -> str:
-        return f'{self.title}\n'
+    def _to_str(self) -> str:
+        return f'{self.title.capitalize()}\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class OrderedListSnippet(Snippet):
     items: List[str]
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return '\n'.join(f'{i+1}. {item}' for i, item in enumerate(self.items)) + '\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class PromptSnippet(Snippet):
     prompt: Prompt
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return self.prompt.to_str()
 
-@dataclass
+@dataclass(kw_only=True)
 class RandomChoiceSnippet(Snippet):
     choices: List[str]
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
 
-@dataclass
+@dataclass(kw_only=True)
 class ModelObject(Snippet):
     model_object: BaseModel
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return self.model_object.model_dump_json(indent=4) + '\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Model(Snippet):
     model: Type[BaseModel]
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TextSnippet(Snippet):
     text: str
     label: str = ''
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         if self.label != '':
             return f'{self.label}: {self.text}\n'
         else:
             return f'{self.text}\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class UnorderedListSnippet(Snippet):
     items: List[str]
 
-    def print(self) -> str:
+    def _to_str(self) -> str:
         return '\n'.join(f'- {item}' for item in self.items) + '\n'
 
 
-@dataclass
+@dataclass(kw_only=True)
 class UnorderedRandomListSnippet(UnorderedListSnippet):
-    def print(self) -> str:
+    def _to_str(self) -> str:
         shuffle(self.items)
         return '\n'.join(f'- {item}' for item in self.items) + '\n'
 

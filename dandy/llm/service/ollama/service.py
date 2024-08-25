@@ -4,7 +4,7 @@ from typing import Type, TypeVar
 from dandy import config
 from dandy.core.type_vars import ModelType
 from dandy.llm.service import Service
-from dandy.llm.service.ollama.prompts import ollama_system_prompt
+from dandy.llm.service.ollama.prompts import ollama_system_model_prompt, ollama_user_prompt
 from dandy.llm.service.settings import ServiceSettings
 from dandy.llm.prompt import Prompt
 
@@ -21,18 +21,30 @@ class OllamaService(Service):
             },
             path_parameters=[
                 'api',
-                'generate',
+                'chat',
             ],
             query_parameters=None
         )
 
     @classmethod
-    def process_prompt_to_model_object(cls, prompt: Prompt, model: Type[ModelType]) -> ModelType:
-        print(ollama_system_prompt(prompt, model).to_str())
+    def process_prompt_to_model_object(
+            cls,
+            prompt: Prompt,
+            model: Type[ModelType]
+    ) -> ModelType:
 
         body = {
             'model': 'llama3.1',
-            'prompt': ollama_system_prompt(prompt, model).to_str(),
+            'messages': [
+                {
+                    'role': 'system',
+                    'content': ollama_system_model_prompt(model).to_str(),
+                },
+                {
+                    'role': 'user',
+                    'content': ollama_user_prompt(prompt).to_str(),
+                }
+            ],
             'stream': False,
             'format': 'json',
             'temperature': 0.5
@@ -40,7 +52,4 @@ class OllamaService(Service):
 
         response = cls.post_request(body)
 
-        print(response['response'])
-
-        return model.model_validate_json(response['response'])
-
+        return model.model_validate_json(response['message']['content'])
