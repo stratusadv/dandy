@@ -1,11 +1,12 @@
 import os
 from unittest import TestCase
 
-from dandy.llm.handler.ollama.handler import OllamaHandler
+from dandy.llm.service.ollama.service import OllamaService
 from dandy import config
 
-from dandy.schema.tests.schemas import PersonSchema
+from dandy.llm.tests.models import PersonModel
 from dandy.llm.tests.prompts import cartoon_character_prompt
+
 
 class TestOllamaHandler(TestCase):
     def setUp(self):
@@ -15,5 +16,8 @@ class TestOllamaHandler(TestCase):
         )
 
     def test_get_request(self):
-        person = OllamaHandler.process_prompt_to_schema(cartoon_character_prompt(), PersonSchema)
+        person = OllamaService.process_prompt_to_model_object(cartoon_character_prompt(), PersonModel)
+
+        print(person.model_dump_json(indent=4))
+
         self.assertNotEqual(person.first_name, None)

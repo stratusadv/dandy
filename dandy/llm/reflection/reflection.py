@@ -1,2 +1,0 @@
-class Reflection:
-    pass

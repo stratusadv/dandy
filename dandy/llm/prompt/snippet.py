@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from random import randint, shuffle
-from typing import List
+from typing import List, Type, TYPE_CHECKING
+
+from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from dandy.llm.prompt import Prompt
 
 
 @dataclass
@@ -44,7 +52,7 @@ class OrderedListSnippet(Snippet):
 
 @dataclass
 class PromptSnippet(Snippet):
-    prompt: 'Prompt'
+    prompt: Prompt
 
     def print(self) -> str:
         return self.prompt.to_str()
@@ -57,19 +65,19 @@ class RandomChoiceSnippet(Snippet):
         return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
 
 @dataclass
-class SchemaData(Snippet):
-    schema_data: 'Schema'
+class ModelObject(Snippet):
+    model_object: BaseModel
 
     def print(self) -> str:
-        return self.schema_data.to_json_nicely() + '\n'
+        return self.model_object.model_dump_json(indent=4) + '\n'
 
 
 @dataclass
-class SchemaWithTypesSnippet(Snippet):
-    schema: 'Schema'
+class Model(Snippet):
+    model: Type[BaseModel]
 
     def print(self) -> str:
-        return str(self.schema.to_json_with_types()) + '\n'
+        return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
 
 
 @dataclass

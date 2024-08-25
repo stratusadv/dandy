@@ -1,14 +1,14 @@
 from typing import Type
 
-from dandy.llm.handler import Handler
-from dandy.llm.handler.ollama.config import OllamaHandlerConfig
-from dandy.llm.enums import LlmService
+from dandy.llm.service import Service
+from dandy.llm.service.ollama.config import OllamaServiceConfig
+from dandy.llm.service.enums import ServiceType
 
 
 class Config:
-    ollama_handler_config: OllamaHandlerConfig
+    ollama_service_config: OllamaServiceConfig
     _instance = None
-    _active_llm_service: LlmService
+    _active_llm_service: ServiceType
     _active_llm_model: str
 
     def __new__(cls):
@@ -17,15 +17,15 @@ class Config:
         return cls._instance
 
     @property
-    def active_llm_handler(self) -> Type[Handler]:
-        if self._active_llm_service == LlmService.OLLAMA:
-            from dandy.llm.handler.ollama.handler import OllamaHandler
+    def active_llm_service(self) -> Type[Service]:
+        if self._active_llm_service == ServiceType.OLLAMA:
+            from dandy.llm.service.ollama.service import OllamaHandler
             return OllamaHandler
         else:
             raise Exception('Unknown LLM service')
 
     def setup_ollama(self, url: str, port: int, model: str = None):
-        self.ollama_handler_config = OllamaHandlerConfig(
+        self.ollama_service_config = OllamaServiceConfig(
             url=url,
             port=port
         )
@@ -33,17 +33,17 @@ class Config:
         if model is not None:
             self.set_llm(model=model)
 
-        self._active_llm_service = LlmService.OLLAMA
+        self._active_llm_service = ServiceType.OLLAMA
 
     def set_llm(
             self,
             service: str = None,
             model: str = None,
     ):
-        if isinstance(service, LlmService):
+        if isinstance(service, ServiceType):
             self._active_llm_service = service
         elif isinstance(service, str):
-            self._active_llm_service = LlmService(service)
+            self._active_llm_service = ServiceType(service)
         else:
             raise Exception('Unknown LLM service')
 

@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Type
+
+from pydantic import BaseModel
 
 from dandy.llm.prompt import snippet
 
@@ -38,12 +40,12 @@ class Prompt:
         self.unordered_list(items)
         return self
 
-    def schema_data(self, schema_data: 'Schema') -> 'Prompt':
-        self.snippet.append(snippet.SchemaData(schema_data))
+    def model_object(self, model_object: BaseModel) -> 'Prompt':
+        self.snippet.append(snippet.ModelObject(model_object))
         return self
 
-    def schema_with_types(self, schema: 'Schema') -> 'Prompt':
-        self.snippet.append(snippet.SchemaWithTypesSnippet(schema))
+    def model(self, model: Type[BaseModel]) -> 'Prompt':
+        self.snippet.append(snippet.Model(model))
         return self
 
     def ordered_list(self, items: List[str]) -> 'Prompt':

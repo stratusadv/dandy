@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 
 @dataclass
-class HandlerSettings:
+class ServiceSettings:
     url: str
     port: Optional[Union[int, str]] = None
     headers: Optional[dict] = None

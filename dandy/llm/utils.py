@@ -1,15 +1,8 @@
-import json
 import traceback
 
 from datetime import date
 from typing import Union, Tuple, List
 from urllib.parse import quote
-
-from dandy.schema import Schema
-
-
-def dict_to_str_nicely(dict_data: dict) -> str:
-    return json.dumps(dict_data, indent=4)
 
 
 def encode_path_parameters(args: Union[List[str], Tuple[str]]):
@@ -33,14 +26,5 @@ def lower_dict_keys(dictionary: dict) -> dict:
     return {k.lower(): v for k, v in dictionary.items()}
 
 
-def print_dict_nicely(dict_data: dict):
-    print(dict_to_str_nicely(dict_data))
 
-
-def print_json_nicely(json_data: str):
-    print_dict_nicely(json.loads(json_data))
-
-
-def print_schema_nicely(schema: Schema):
-    print_json_nicely(schema.to_json())
 

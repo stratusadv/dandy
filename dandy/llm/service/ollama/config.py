@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class OllamaHandlerConfig:
+class OllamaServiceConfig:
     url: str
     port: int
 

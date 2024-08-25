@@ -27,5 +27,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     python_requires=">=3.10",
-    install_requires=[],
+    install_requires=[
+        "pydantic==2.8.2",
+    ],
 )

@@ -5,7 +5,7 @@ from dandy import config
 from dandy.job.job import Job
 
 from tests.prompts import business_idea_input_prompt
-from tests.schemas import BusinessIdeaEvaluationSchema
+from tests.models import BusinessIdeaEvaluationSchema
 from tests.workflows import BusinessIdeaEvaluationWorkflow
 
 config.setup_ollama(

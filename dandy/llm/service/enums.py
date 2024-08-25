@@ -1,5 +1,5 @@
 from enum import Enum
 
 
-class HandlerChoices(Enum):
+class ServiceType(Enum):
     OLLAMA = 'ollama'

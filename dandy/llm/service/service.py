@@ -1,24 +1,24 @@
+import http.client
 import json
 from abc import ABC, abstractmethod
-import http.client
 from typing import Type
 from urllib.parse import urlencode, urlparse
 
-from dandy.llm.handler.settings import HandlerSettings
+from dandy.core.type_vars import ModelType
 from dandy.llm.prompt import Prompt
+from dandy.llm.service.settings import ServiceSettings
 from dandy.llm.utils import encode_path_parameters
-from dandy.schema import Schema
 
 
-class Handler(ABC):
+class Service(ABC):
     @classmethod
     @abstractmethod
-    def process_prompt_to_schema(cls, prompt: Prompt, schema_class: Type[Schema]) -> Schema:
+    def get_settings(cls) -> ServiceSettings:
         pass
 
     @classmethod
     @abstractmethod
-    def get_settings(cls) -> HandlerSettings:
+    def process_prompt_to_model_object(cls, prompt: Prompt, schema_class: Type[ModelType]) -> ModelType:
         pass
 
     @classmethod
