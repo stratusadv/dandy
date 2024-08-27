@@ -1,5 +1,5 @@
 import json
-from typing import Type, TypeVar
+from typing import Type, TypeVar, Optional
 
 from dandy import config
 from dandy.core.type_vars import ModelType
@@ -30,7 +30,8 @@ class OllamaService(Service):
     def process_prompt_to_model_object(
             cls,
             prompt: Prompt,
-            model: Type[ModelType]
+            model: Type[ModelType],
+            prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
         body = {
@@ -38,7 +39,10 @@ class OllamaService(Service):
             'messages': [
                 {
                     'role': 'system',
-                    'content': ollama_system_model_prompt(model).to_str(),
+                    'content': ollama_system_model_prompt(
+                        model=model,
+                        prefix_system_prompt=prefix_system_prompt
+                    ).to_str(),
                 },
                 {
                     'role': 'user',
@@ -49,6 +53,8 @@ class OllamaService(Service):
             'format': 'json',
             'temperature': 0.5
         }
+
+        print(json.dumps(body, indent=4))
 
         response = cls.post_request(body)
 

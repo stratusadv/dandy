@@ -9,5 +9,5 @@ class WorkOrderModel(BaseModel):
     description: str
 
 
-class ExistingWorkOrderListModel(BaseModel):
+class WorkOrderListModel(BaseModel):
     work_orders: List[WorkOrderModel]

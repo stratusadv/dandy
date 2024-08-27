@@ -1,7 +1,7 @@
 import http.client
 import json
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Optional
 from urllib.parse import urlencode, urlparse
 
 from dandy.core.type_vars import ModelType
@@ -18,8 +18,12 @@ class Service(ABC):
 
     @classmethod
     @abstractmethod
-    def process_prompt_to_model_object(cls, prompt: Prompt, schema_class: Type[ModelType]) -> ModelType:
-        pass
+    def process_prompt_to_model_object(
+            cls,
+            prompt: Prompt,
+            schema_class: Type[ModelType],
+            prefix_system_prompt: Optional[Prompt] = None
+    ) -> ModelType: ...
 
     @classmethod
     def create_connection(cls) -> http.client.HTTPSConnection:

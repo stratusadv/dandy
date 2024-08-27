@@ -19,8 +19,8 @@ class Config:
     @property
     def active_llm_service(self) -> Type[Service]:
         if self._active_llm_service == ServiceType.OLLAMA:
-            from dandy.llm.service.ollama.service import OllamaHandler
-            return OllamaHandler
+            from dandy.llm.service.ollama.service import OllamaService
+            return OllamaService
         else:
             raise Exception('Unknown LLM service')
 

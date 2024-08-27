@@ -1,13 +1,7 @@
-from typing import Type, Union
+from abc import abstractmethod, ABCMeta
+from typing import Any
 
-from pydantic import BaseModel
-
-from dandy.handler.handler import BaseHandler
+from dandy.handler.handler import RunHandler
 
 
-class Tool(BaseHandler):
-    def process(
-            self,
-            model: Type[BaseModel],
-            model_object: BaseModel,
-    ) -> Union[Type[BaseModel], BaseModel]: ...
+class Tool(RunHandler, metaclass=ABCMeta): ...
