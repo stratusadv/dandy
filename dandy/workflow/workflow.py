@@ -1,21 +1,11 @@
 from __future__ import annotations
-from typing import List, TYPE_CHECKING
 
-from dandy.workflow.job import Job
+from abc import ABC
+from typing import Type, Union
 
-
-if TYPE_CHECKING:
-    from dandy.workflow.step import Step
+from pydantic import BaseModel
 
 
-class Workflow:
-    steps: List[Step]
-
-    def __init__(self):
-        self.job = Job(
-            step_count=len(self.steps)
-        )
-
-    def process(self):
-       for step in self.steps:
-            step.handler.process(self.job)
+class Workflow(ABC):
+    def run(self):
+        pass

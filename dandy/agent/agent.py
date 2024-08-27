@@ -1,21 +1,19 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Type, Union
 
-from dandy import config
+from pydantic import BaseModel
+
+from dandy.handler.handler import BaseHandler
 from dandy.llm.prompt import Prompt
-from dandy.agent.prompts import agent_process_job_prompt
 
 
-class Agent(ABC):
+class Agent(BaseHandler):
     role_prompt: Prompt
     instructions_prompt: Prompt
 
-    # @classmethod
-    # def process(cls, job: Job):
-    #     schema_data = config.active_llm_handler.process_prompt_to_schema(
-    #         agent_process_job_prompt(cls.role_prompt, job.input_prompt),
-    #         job.output_schema
-    #     )
-    #
-    #     print(schema_data.to_json_nicely())
-    #
-    #     job.agent_output_schema_data.append(schema_data)
+    @abstractmethod
+    def process(
+            self,
+            model: Type[BaseModel],
+            model_object: BaseModel,
+    ) -> Union[Type[BaseModel], BaseModel]: ...
