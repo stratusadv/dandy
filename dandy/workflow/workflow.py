@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from abc import ABC
-from typing import Type, Union
+from abc import ABCMeta
+from typing import List, Any
 
-from pydantic import BaseModel
+from dandy.bot.bot import Bot
 
 
-class Workflow(ABC):
-    def run(self):
+class Workflow(metaclass=ABCMeta):
+    bots: List[Bot]
+
+    def process(self, **kwargs: Any) -> Any:
         pass

@@ -1,12 +1,12 @@
 from abc import ABCMeta
 from typing import Type
 
+from dandy.bot.bot import Bot
 from dandy.core.type_vars import ModelType
-from dandy.handler.handler import RunHandler
 from dandy.llm.prompt import Prompt
 
 
-class Agent(RunHandler, metaclass=ABCMeta):
+class LlmBot(Bot, metaclass=ABCMeta):
     role_prompt: Prompt
     instructions_prompt: Prompt
 
