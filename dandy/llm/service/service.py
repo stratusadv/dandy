@@ -27,6 +27,8 @@ class Service(ABC):
 
     @classmethod
     def create_connection(cls) -> http.client.HTTPSConnection:
+        cls.validate_settings()
+
         parsed_url = urlparse(cls.get_settings().url)
 
         if parsed_url.scheme == '':
@@ -41,11 +43,7 @@ class Service(ABC):
 
     @classmethod
     def process_request(cls, method, path, encoded_body: bytes = None) -> dict:
-        if cls.get_settings().url is None:
-            raise ValueError('Url not set')
-
-        if cls.get_settings().port is None:
-            raise ValueError('Port not set')
+        cls.validate_settings()
 
         connection = cls.create_connection()
 
@@ -87,3 +85,11 @@ class Service(ABC):
             url_path += '?' + query
 
         return url_path
+
+    @classmethod
+    def validate_settings(cls):
+        if cls.get_settings().url is None:
+            raise ValueError('Url not set')
+
+        if cls.get_settings().port is None:
+            raise ValueError('Port not set')
