@@ -4,7 +4,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from random import randint, shuffle
-from typing import List, Type, TYPE_CHECKING
+from typing import List, Type, TYPE_CHECKING, Dict
 
 from pydantic import BaseModel
 
@@ -28,6 +28,14 @@ class Snippet(ABC):
     @abstractmethod
     def _to_str(self) -> str:
         pass
+
+
+@dataclass(kw_only=True)
+class DictionarySnippet(Snippet):
+    dictionary: Dict
+
+    def _to_str(self) -> str:
+        return json.dumps(self.dictionary, indent=4)
 
 
 @dataclass(kw_only=True)

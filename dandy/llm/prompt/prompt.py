@@ -1,4 +1,4 @@
-from typing import List, Type, Self
+from typing import List, Type, Self, Dict
 
 from pydantic import BaseModel
 
@@ -24,6 +24,21 @@ class Prompt:
         else:
             return prompt_string
 
+    def dict(
+            self,
+            dictionary: Dict,
+            triple_quote: bool = False
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.DictionarySnippet(
+                dictionary=dictionary,
+                triple_quote=triple_quote
+            )
+        )
+
+        return self
+
     def divider(self) -> Self:
         self.snippets.append(snippet.DividerSnippet())
 
@@ -34,7 +49,7 @@ class Prompt:
             title: str,
             triple_quote: bool = False
     ) -> Self:
-        
+
         self.snippets.append(
             snippet.TitleSnippet(
                 title=title,
