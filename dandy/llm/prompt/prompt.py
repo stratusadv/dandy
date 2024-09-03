@@ -5,6 +5,9 @@ from pydantic import BaseModel
 from dandy.llm.prompt import snippet
 
 
+CHARACTERS_PER_TOKEN = 4
+
+
 class Prompt:
     def __init__(
             self,
@@ -28,6 +31,11 @@ class Prompt:
         self.snippets.append(snippet.DividerSnippet())
 
         return self
+
+    @property
+    def estimated_token_count(self) -> int:
+        return int(len(self.to_str()) / CHARACTERS_PER_TOKEN)
+
 
     def title(
             self,

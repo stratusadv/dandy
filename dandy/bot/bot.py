@@ -1,9 +1,8 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
+from dandy.handler.handler import Handler
 
 
-class Bot(metaclass=ABCMeta):
-    @abstractmethod
-    def process(self, **kwargs: Any) -> Any:
-        pass
+class Bot(Handler, ABC):
+    ...

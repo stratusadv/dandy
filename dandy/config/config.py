@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Self
 
 from dandy.llm.service import Service
 from dandy.llm.service.ollama.config import OllamaServiceConfig
@@ -7,11 +7,12 @@ from dandy.llm.service.enums import ServiceType
 
 class Config:
     ollama_service_config: OllamaServiceConfig
-    _instance = None
+    debug: bool = False
+    _instance: Type[Self] = None
     _active_llm_service: ServiceType
     _active_llm_model: str
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
         return cls._instance

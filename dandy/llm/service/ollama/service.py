@@ -11,6 +11,17 @@ from dandy.llm.prompt import Prompt
 
 class OllamaService(Service):
     @classmethod
+    def get_estimated_token_count_for_prompt(
+            cls,
+            prompt: Prompt,
+            model: Type[ModelType],
+            prefix_system_prompt: Optional[Prompt] = None) -> int:
+        return ollama_system_model_prompt(
+            model=model,
+            prefix_system_prompt=prefix_system_prompt
+        ).estimated_token_count + ollama_user_prompt(prompt).estimated_token_count
+
+    @classmethod
     def get_settings(cls) -> ServiceSettings:
         return ServiceSettings(
             url=config.ollama_service_config.url,

@@ -12,11 +12,11 @@ def generate_current_work_order() -> WorkOrderModel:
 def generate_existing_work_order_list() -> WorkOrderListModel:
     return WorkOrderListModel(
         work_orders=[
-            WorkOrderModel(
-                id=456,
-                equipment='equipment_1',
-                description='there is a taco stuck in the machine'
-            ),
+            # WorkOrderModel(
+            #     id=456,
+            #     equipment='equipment_1',
+            #     description='there is a taco stuck in the machine'
+            # ),
             WorkOrderModel(
                 id=22,
                 equipment='equipment_1',
@@ -32,10 +32,10 @@ def generate_existing_work_order_list() -> WorkOrderListModel:
                 equipment='equipment_1',
                 description='The machine seems to have run out of grease and is making lots of noise'
             ),
-            WorkOrderModel(
-                id=1266,
-                equipment='equipment_1',
-                description='When I start this equipment it smells like chili powder and spices'
-            )
+            # WorkOrderModel(
+            #     id=1266,
+            #     equipment='equipment_1',
+            #     description='When I start this equipment it smells like chili powder and spices'
+            # )
         ]
     )

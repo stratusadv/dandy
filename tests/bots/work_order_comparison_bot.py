@@ -12,7 +12,12 @@ class WorkOrderComparisonBot(LlmBot):
 
     instructions_prompt = (
         Prompt()
-        .text('Your job is to look at the current work order description and review it against the list of existing work orders descriptions for related context and return any existing work orders that have a related context.')
+        .text('Your job is to compare the current work order with the list of existing work orders by following the rules below.')
+        .unordered_list([
+            'Use the description of the work orders for the comparison.'
+            'Match work orders by the context of the description'
+            'If the context is not closely related do not return that work order'
+        ])
     )
 
     def process(self, current_work_order: WorkOrderModel) -> WorkOrderListModel:
@@ -20,9 +25,9 @@ class WorkOrderComparisonBot(LlmBot):
             prompt=(
                 Prompt()
                 .text('This is the current work order:')
-                .model_object(current_work_order)
+                .model_object(current_work_order, triple_quote=True)
                 .text('These are the existing work orders:')
-                .model_object(ExistingWorkOrdersBot().process())
+                .model_object(ExistingWorkOrdersBot().process(), triple_quote=True)
             ),
             model=WorkOrderListModel
         )

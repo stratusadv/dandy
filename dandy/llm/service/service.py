@@ -13,17 +13,28 @@ from dandy.llm.utils import encode_path_parameters
 class Service(ABC):
     @classmethod
     @abstractmethod
+    def get_estimated_token_count_for_prompt(
+            cls,
+            prompt: Prompt,
+            model: Type[ModelType],
+            prefix_system_prompt: Optional[Prompt] = None
+    ) -> int:
+        ...
+
+    @classmethod
+    @abstractmethod
     def get_settings(cls) -> ServiceSettings:
-        pass
+        ...
 
     @classmethod
     @abstractmethod
     def process_prompt_to_model_object(
             cls,
             prompt: Prompt,
-            schema_class: Type[ModelType],
+            model: Type[ModelType],
             prefix_system_prompt: Optional[Prompt] = None
-    ) -> ModelType: ...
+    ) -> ModelType:
+        ...
 
     @classmethod
     def create_connection(cls) -> http.client.HTTPSConnection:

@@ -9,6 +9,6 @@ config.setup_ollama(
     port=int(os.getenv("OLLAMA_PORT", 11434))
 )
 
-something = WorkOrderComparisonBot().process(generate_current_work_order())
+matching_work_orders = WorkOrderComparisonBot().process(generate_current_work_order())
 
-print(something.model_dump_json(indent=4))
+print(matching_work_orders.model_dump_json(indent=4))

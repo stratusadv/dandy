@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from abc import ABCMeta
+from abc import ABC
 from typing import List, Any
 
 from dandy.bot.bot import Bot
+from dandy.handler.handler import Handler
 
 
-class Workflow(metaclass=ABCMeta):
-    bots: List[Bot]
-
-    def process(self, **kwargs: Any) -> Any:
-        pass
+class Workflow(Handler, ABC):
+    ...
