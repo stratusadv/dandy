@@ -1,0 +1,2 @@
+class DandyException(Exception):
+    pass

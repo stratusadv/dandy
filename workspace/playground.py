@@ -1,6 +1,8 @@
 import os
+from enum import Enum
 
 from dandy import config
+from dandy.contrib.bots.intent_bot import ChoiceIntentLlmBot
 from tests.bots.work_order_comparison_bot import WorkOrderComparisonBot
 from tests.factories import generate_current_work_order
 
@@ -9,6 +11,22 @@ config.setup_ollama(
     port=int(os.getenv("OLLAMA_PORT", 11434))
 )
 
-matching_work_orders = WorkOrderComparisonBot().process(generate_current_work_order())
+# matching_work_orders = WorkOrderComparisonBot.process(generate_current_work_order())
+#
+# print(matching_work_orders.model_dump_json(indent=4))
 
-print(matching_work_orders.model_dump_json(indent=4))
+class Stuff(Enum):
+    food = 'food'
+    dinosaurs = 'dinosaurs'
+    birds = 'birds'
+    gasoline = 'gasoline'
+    tacos = 'tacos'
+
+
+intent = ChoiceIntentLlmBot.process(
+    user_input='I want to get tacos for lunch',
+    choices=Stuff,
+    multiple_responses=True
+)
+
+print(intent)
