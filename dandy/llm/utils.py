@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 import traceback
 
 from datetime import date
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, TYPE_CHECKING
 from urllib.parse import quote
+
+
+if TYPE_CHECKING:
+    from dandy.llm.prompt import Prompt
 
 
 def encode_path_parameters(args: Union[List[str], Tuple[str]]):
@@ -26,5 +32,11 @@ def lower_dict_keys(dictionary: dict) -> dict:
     return {k.lower(): v for k, v in dictionary.items()}
 
 
+def get_prompt_estimated_token_count(prompt: Prompt) -> int:
+    from dandy import config
+
+    return config.active_llm_service.get_estimated_token_count_for_prompt(
+        prompt=prompt
+    )
 
 

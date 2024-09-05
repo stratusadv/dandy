@@ -1,5 +1,6 @@
 from typing import Type, Self
 
+from dandy.llm.exceptions import LlmException
 from dandy.llm.service import Service
 from dandy.llm.service.ollama.config import OllamaServiceConfig
 from dandy.llm.service.enums import ServiceType
@@ -23,7 +24,7 @@ class Config:
             from dandy.llm.service.ollama.service import OllamaService
             return OllamaService
         else:
-            raise Exception('Unknown LLM service')
+            raise LlmException('Unknown LLM service')
 
     def setup_ollama(
             self,
@@ -31,6 +32,7 @@ class Config:
             port: int = 11434,
             model: str = None
     ):
+
         self.ollama_service_config = OllamaServiceConfig(
             url=url,
             port=port
@@ -46,6 +48,7 @@ class Config:
             service: str = None,
             model: str = None,
     ):
+
         if isinstance(service, ServiceType):
             self._active_llm_service = service
         elif isinstance(service, str):

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Tuple, List, Union, overload, Type
+from typing import Tuple, List, Union, overload, Type
 
 from pydantic import BaseModel
 
@@ -24,7 +24,8 @@ class ChoiceIntentLlmBot(LlmBot):
 
     instructions_prompt = (
         Prompt()
-        .text('Your job is to identify the intent of the user input and match it to one of the provided choices. If there is no good matches in the choices reply with value "no-choice-match-found".')
+        .text('Your job is to identify the intent of the user input and match it to one of the provided choices.')
+        .text('If there is no good matches in the choices reply with value "no-choice-match-found".')
     )
 
     @classmethod
