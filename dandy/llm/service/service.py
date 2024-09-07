@@ -2,11 +2,13 @@ import http.client
 import json
 from abc import ABC, abstractmethod
 from http.client import responses
+from time import sleep
 from typing import Type, Optional, Union
 from urllib.parse import urlencode, urlparse
 
 from dandy.core.type_vars import ModelType
 from dandy.llm.prompt import Prompt
+from dandy.llm.service.exceptions import LlmServiceException
 from dandy.llm.service.settings import ServiceSettings
 from dandy.llm.utils import encode_path_parameters
 
@@ -57,11 +59,10 @@ class Service(ABC):
     def process_request(cls, method, path, encoded_body: bytes = None) -> dict:
         cls.validate_settings()
 
-        connection = cls.create_connection()
-
         response = None
 
         for _ in range(cls.get_settings().retry_count):
+            connection = cls.create_connection()
 
             if encoded_body:
                 connection.request(method, path, body=encoded_body, headers=cls.get_settings().headers)
@@ -70,15 +71,17 @@ class Service(ABC):
 
             response = connection.getresponse()
 
+
             if response.status == 200 or response.status == 201:
+                json_data = json.loads(response.read().decode("utf-8"))
+                connection.close()
                 break
 
+            connection.close()
+            sleep(0.1)
+
         else:
-            raise Exception(f"Request failed with status code {response.status}")
-
-        json_data = json.loads(response.read().decode("utf-8"))
-
-        connection.close()
+            raise LlmServiceException(f"Llm service request failed with status code {response.status} after {cls.get_settings().retry_count} attempts")
 
         return json_data
 

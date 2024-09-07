@@ -9,4 +9,4 @@ class ServiceSettings:
     headers: Optional[dict] = None
     path_parameters: Optional[list] = None
     query_parameters: Optional[dict] = None
-    retry_count: int = 3
+    retry_count: int = 10

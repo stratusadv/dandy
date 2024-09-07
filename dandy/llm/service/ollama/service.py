@@ -1,12 +1,28 @@
 import json
+from random import randint
 from typing import Type, TypeVar, Optional
+
+from pydantic import ValidationError
 
 from dandy import config
 from dandy.core.type_vars import ModelType
 from dandy.llm.service import Service
+from dandy.llm.service.messages import ServiceMessages
 from dandy.llm.service.ollama.prompts import ollama_system_model_prompt, ollama_user_prompt
+from dandy.llm.service.prompts import pydantic_validation_error_prompt
 from dandy.llm.service.settings import ServiceSettings
 from dandy.llm.prompt import Prompt
+
+
+def generate_ollama_request_body(messages: ServiceMessages) -> dict:
+    return {
+        'model': 'llama3.1',
+        'messages': messages.model_dump_list(),
+        'stream': False,
+        'format': 'json',
+        'temperature': 0.1,
+        'seed': randint(0, 99999),
+    }
 
 
 class OllamaService(Service):
@@ -45,29 +61,41 @@ class OllamaService(Service):
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        body = {
-            'model': 'llama3.1',
-            'messages': [
-                {
-                    'role': 'system',
-                    'content': ollama_system_model_prompt(
-                        model=model,
-                        prefix_system_prompt=prefix_system_prompt
-                    ).to_str(),
-                },
-                {
-                    'role': 'user',
-                    'content': ollama_user_prompt(prompt).to_str(),
-                }
-            ],
-            'stream': False,
-            'format': 'json',
-            'temperature': 0.5
-        }
+        messages = ServiceMessages()
 
+        messages.add(
+            role='system',
+            content=ollama_system_model_prompt(
+                model=model,
+                prefix_system_prompt=prefix_system_prompt
+            ).to_str()
+        )
 
-        response = cls.post_request(body)
+        messages.add(
+            role='user',
+            content=ollama_user_prompt(prompt).to_str()
+        )
 
-        # Try to catch a validate error and re run the response
+        response = cls.post_request(generate_ollama_request_body(messages))
 
-        return model.model_validate_json(response['message']['content'])
+        try:
+            print(response['message']['content'])
+            return model.model_validate_json(response['message']['content'])
+        except ValidationError as e:
+            try:
+                messages.add(
+                    role='system',
+                    content=response['message']['content']
+                )
+                messages.add(
+                    role='user',
+                    content=pydantic_validation_error_prompt(e).to_str()
+                )
+
+                print(json.dumps(messages.model_dump_list(), indent=4))
+
+                response = cls.post_request(generate_ollama_request_body(messages))
+
+                return model.model_validate_json(response['message']['content'])
+            except ValidationError as e:
+                raise ValidationError(f'Could not validate response from Ollama. {e}')

@@ -8,6 +8,9 @@ from dandy.llm.tests.models import PersonModel
 from dandy.llm.tests.prompts import cartoon_character_prompt
 
 
+TEST_COUNT = 10
+
+
 class TestOllamaHandler(TestCase):
     def setUp(self):
         config.setup_ollama(
@@ -16,8 +19,10 @@ class TestOllamaHandler(TestCase):
         )
 
     def test_get_request(self):
-        person = OllamaService.process_prompt_to_model_object(cartoon_character_prompt(), PersonModel)
+        for _ in range(TEST_COUNT):
+            print(f'test iteration {_+1} of {TEST_COUNT}')
+            person = OllamaService.process_prompt_to_model_object(cartoon_character_prompt(), PersonModel)
 
-        print(person.model_dump_json(indent=4))
+            # print(person.model_dump_json(indent=4))
 
-        self.assertNotEqual(person.first_name, None)
+            self.assertNotEqual(person.first_name, None)
