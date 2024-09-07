@@ -6,6 +6,8 @@
 - LLM Service Retries
 - LLM Prompt Validation Retries
 - Single and Multiple Choice LLM Bots added into contributions
+- Custom Exceptions that are based on the DandyException
+- Much improved testing on base LLM service
 
 # v0.0.1
 
