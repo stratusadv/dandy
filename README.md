@@ -4,7 +4,7 @@
 
 ## What
 
-Dandy is a framework for developing programmatic artificial intelligence workflows. It's opinionated, magical, and designed to be incredibly pythonic.
+Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic.
 
 ## Why
 

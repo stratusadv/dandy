@@ -5,8 +5,8 @@ from dandy import __version__
 setup(
     name="dandy",
     version=__version__,
-    description="An Agentic AI Framework",
-    long_description=open("README.md").read(),
+    description="Intelligence Bot Framework",
+    long_description="Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic.",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
