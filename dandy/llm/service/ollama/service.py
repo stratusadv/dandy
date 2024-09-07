@@ -65,8 +65,9 @@ class OllamaService(Service):
             'temperature': 0.5
         }
 
-        print(json.dumps(body, indent=4))
 
         response = cls.post_request(body)
+
+        # Try to catch a validate error and re run the response
 
         return model.model_validate_json(response['message']['content'])

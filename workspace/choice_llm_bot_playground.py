@@ -2,7 +2,7 @@ import os
 from enum import Enum
 
 from dandy import config
-from dandy.contrib.bots.intent_bot import ChoiceIntentLlmBot
+from dandy.contrib.bots import SingleChoiceLlmBot, MultipleChoiceLlmBot
 from tests.bots.work_order_comparison_bot import WorkOrderComparisonBot
 from tests.factories import generate_current_work_order
 
@@ -23,10 +23,9 @@ class Stuff(Enum):
     tacos = 'tacos'
 
 
-intent = ChoiceIntentLlmBot.process(
+choice = SingleChoiceLlmBot.process(
     user_input='I want to get tacos for lunch',
     choices=Stuff,
-    multiple_responses=True
 )
 
-print(intent)
+print(choice)

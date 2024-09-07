@@ -1,7 +1,8 @@
 import http.client
 import json
 from abc import ABC, abstractmethod
-from typing import Type, Optional
+from http.client import responses
+from typing import Type, Optional, Union
 from urllib.parse import urlencode, urlparse
 
 from dandy.core.type_vars import ModelType
@@ -37,7 +38,7 @@ class Service(ABC):
         ...
 
     @classmethod
-    def create_connection(cls) -> http.client.HTTPSConnection:
+    def create_connection(cls) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
         cls.validate_settings()
 
         parsed_url = urlparse(cls.get_settings().url)
@@ -58,16 +59,21 @@ class Service(ABC):
 
         connection = cls.create_connection()
 
-        if encoded_body:
-            connection.request(method, path, body=encoded_body, headers=cls.get_settings().headers)
+        response = None
+
+        for _ in range(cls.get_settings().retry_count):
+
+            if encoded_body:
+                connection.request(method, path, body=encoded_body, headers=cls.get_settings().headers)
+            else:
+                connection.request(method, path, headers=cls.get_settings().headers)
+
+            response = connection.getresponse()
+
+            if response.status == 200 or response.status == 201:
+                break
+
         else:
-            connection.request(method, path, headers=cls.get_settings().headers)
-
-        response = connection.getresponse()
-
-        print(response.headers)
-
-        if response.status != 200 and response.status != 201:
             raise Exception(f"Request failed with status code {response.status}")
 
         json_data = json.loads(response.read().decode("utf-8"))
