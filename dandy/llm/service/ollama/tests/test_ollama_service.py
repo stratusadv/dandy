@@ -8,7 +8,7 @@ from dandy.llm.tests.models import PersonModel
 from dandy.llm.tests.prompts import cartoon_character_prompt
 
 
-TEST_COUNT = 10
+TEST_COUNT = 20
 
 
 class TestOllamaHandler(TestCase):

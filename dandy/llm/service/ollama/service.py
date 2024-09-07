@@ -78,24 +78,27 @@ class OllamaService(Service):
 
         response = cls.post_request(generate_ollama_request_body(messages))
 
+        message_content = response['message']['content']
+
         try:
-            print(response['message']['content'])
-            return model.model_validate_json(response['message']['content'])
+            return model.model_validate_json(message_content)
+
         except ValidationError as e:
             try:
                 messages.add(
                     role='system',
-                    content=response['message']['content']
+                    content=message_content
                 )
                 messages.add(
                     role='user',
                     content=pydantic_validation_error_prompt(e).to_str()
                 )
 
-                print(json.dumps(messages.model_dump_list(), indent=4))
-
                 response = cls.post_request(generate_ollama_request_body(messages))
 
-                return model.model_validate_json(response['message']['content'])
+                message_content = response['message']['content']
+
+                return model.model_validate_json(message_content)
+
             except ValidationError as e:
                 raise ValidationError(f'Could not validate response from Ollama. {e}')
