@@ -6,38 +6,35 @@ from time import sleep
 from typing import Type, Optional, Union
 from urllib.parse import urlencode, urlparse
 
+from pydantic import ValidationError
+
+from dandy import config
 from dandy.core.type_vars import ModelType
 from dandy.llm.prompt import Prompt
-from dandy.llm.service.exceptions import LlmServiceException
+from dandy.llm.exceptions import LlmException
+from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, service_system_model_prompt
+from dandy.llm.service.request import BaseRequest
 from dandy.llm.service.settings import ServiceSettings
 from dandy.llm.utils import encode_path_parameters
 
 
 class Service(ABC):
     @classmethod
-    @abstractmethod
-    def get_estimated_token_count_for_prompt(
-            cls,
-            prompt: Prompt,
-            model: Type[ModelType],
-            prefix_system_prompt: Optional[Prompt] = None
-    ) -> int:
-        ...
-
-    @classmethod
-    @abstractmethod
     def get_settings(cls) -> ServiceSettings:
-        ...
+        return ServiceSettings(
+            url=config.ollama_service_config.url,
+            port=config.ollama_service_config.port,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            path_parameters=[
+                'api',
+                'chat',
+            ],
+            query_parameters=None
+        )
 
-    @classmethod
-    @abstractmethod
-    def process_prompt_to_model_object(
-            cls,
-            prompt: Prompt,
-            model: Type[ModelType],
-            prefix_system_prompt: Optional[Prompt] = None
-    ) -> ModelType:
-        ...
 
     @classmethod
     def create_connection(cls) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
@@ -54,6 +51,58 @@ class Service(ABC):
             connection = http.client.HTTPConnection(parsed_url.netloc, port=cls.get_settings().port)
 
         return connection
+
+    @classmethod
+    def process_prompt_to_model_object(
+            cls,
+            prompt: Prompt,
+            model: Type[ModelType],
+            prefix_system_prompt: Optional[Prompt] = None
+    ) -> ModelType:
+
+        request = BaseRequest(model='llama3.1')
+
+        request.add_message(
+            role='system',
+            content=service_system_model_prompt(
+                model=model,
+                prefix_system_prompt=prefix_system_prompt
+            ).to_str()
+        )
+
+        request.add_message(
+            role='user',
+            content=service_user_prompt(prompt).to_str()
+        )
+
+        print(request.model_dump())
+
+        response = cls.post_request(request.model_dump())
+
+        message_content = response['message']['content']
+
+        try:
+            return model.model_validate_json(message_content)
+
+        except ValidationError as e:
+            try:
+                request.add_message(
+                    role='system',
+                    content=message_content
+                )
+                request.add_message(
+                    role='user',
+                    content=service_system_validation_error_prompt(e).to_str()
+                )
+
+                response = cls.post_request(request.model_dump())
+
+                message_content = response['message']['content']
+
+                return model.model_validate_json(message_content)
+
+            except ValidationError as e:
+                raise ValidationError(f'Could not validate response from Ollama. {e}')
 
     @classmethod
     def process_request(cls, method, path, encoded_body: bytes = None) -> dict:
@@ -81,7 +130,7 @@ class Service(ABC):
             sleep(0.1)
 
         else:
-            raise LlmServiceException(f"Llm service request failed with status code {response.status} after {cls.get_settings().retry_count} attempts")
+            raise LlmException(f"Llm service request failed with status code {response.status} after {cls.get_settings().retry_count} attempts")
 
         return json_data
 

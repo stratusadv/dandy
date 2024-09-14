@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from dandy.llm.service.messages import ServiceMessage
 
 
-class OpenAiRequest(BaseModel):
+class BaseRequest(BaseModel):
     model: str
     messages: List[ServiceMessage] = Field(default_factory=list)
     stream: bool = False

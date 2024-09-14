@@ -3,9 +3,11 @@ from __future__ import annotations
 import traceback
 
 from datetime import date
-from typing import Union, Tuple, List, TYPE_CHECKING
+from typing import Union, Tuple, List, TYPE_CHECKING, Type, Optional
 from urllib.parse import quote
 
+from dandy.core.type_vars import ModelType
+from dandy.llm.service.prompts import service_system_model_prompt, service_user_prompt
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
@@ -40,3 +42,11 @@ def get_prompt_estimated_token_count(prompt: Prompt) -> int:
     )
 
 
+def get_estimated_token_count_for_prompt(
+        prompt: Prompt,
+        model: Type[ModelType],
+        prefix_system_prompt: Optional[Prompt] = None) -> int:
+    return service_system_model_prompt(
+        model=model,
+        prefix_system_prompt=prefix_system_prompt
+    ).estimated_token_count + service_user_prompt(prompt).estimated_token_count
