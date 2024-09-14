@@ -1,28 +1,15 @@
-import json
-from random import randint
-from typing import Type, TypeVar, Optional
+from typing import Type, Optional
 
 from pydantic import ValidationError
 
 from dandy import config
 from dandy.core.type_vars import ModelType
+from dandy.llm.prompt import Prompt
 from dandy.llm.service import Service
-from dandy.llm.service.messages import ServiceMessages
 from dandy.llm.service.ollama.prompts import ollama_system_model_prompt, ollama_user_prompt
+from dandy.llm.service.ollama.request import OllamaRequest
 from dandy.llm.service.prompts import pydantic_validation_error_prompt
 from dandy.llm.service.settings import ServiceSettings
-from dandy.llm.prompt import Prompt
-
-
-def generate_ollama_request_body(messages: ServiceMessages) -> dict:
-    return {
-        'model': 'llama3.1',
-        'messages': messages.model_dump_list(),
-        'stream': False,
-        'format': 'json',
-        'temperature': 0.1,
-        'seed': randint(0, 99999),
-    }
 
 
 class OllamaService(Service):
@@ -61,9 +48,9 @@ class OllamaService(Service):
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        messages = ServiceMessages()
+        ollama_request = OllamaRequest(model='llama3.1')
 
-        messages.add(
+        ollama_request.add_message(
             role='system',
             content=ollama_system_model_prompt(
                 model=model,
@@ -71,12 +58,14 @@ class OllamaService(Service):
             ).to_str()
         )
 
-        messages.add(
+        ollama_request.add_message(
             role='user',
             content=ollama_user_prompt(prompt).to_str()
         )
 
-        response = cls.post_request(generate_ollama_request_body(messages))
+        print(ollama_request.model_dump())
+
+        response = cls.post_request(ollama_request.model_dump())
 
         message_content = response['message']['content']
 
@@ -85,16 +74,16 @@ class OllamaService(Service):
 
         except ValidationError as e:
             try:
-                messages.add(
+                ollama_request.add_message(
                     role='system',
                     content=message_content
                 )
-                messages.add(
+                ollama_request.add_message(
                     role='user',
                     content=pydantic_validation_error_prompt(e).to_str()
                 )
 
-                response = cls.post_request(generate_ollama_request_body(messages))
+                response = cls.post_request(ollama_request.model_dump())
 
                 message_content = response['message']['content']
 

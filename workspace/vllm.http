@@ -1,0 +1,10 @@
+POST http://vllm.jim.stratusadv.com:9999/v1/completions/
+Content-Type: application/json
+
+{
+  "model": "facebook/opt-125m",
+  "prompt": "Write me a poem",
+  "temperature": 1.0
+}
+
+

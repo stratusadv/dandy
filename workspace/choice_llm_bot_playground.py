@@ -8,7 +8,8 @@ from tests.factories import generate_current_work_order
 
 config.setup_ollama(
     url=os.getenv("OLLAMA_URL"),
-    port=int(os.getenv("OLLAMA_PORT", 11434))
+    # port=int(9999),
+    port=int(os.getenv("OLLAMA_PORT", 11434)),
 )
 
 # matching_work_orders = WorkOrderComparisonBot.process(generate_current_work_order())
