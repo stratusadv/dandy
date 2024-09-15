@@ -1,5 +1,6 @@
 from dandy.core.singleton import Singleton
+from dandy.llm.config.config import LlmConfig
 
 
-class BaseConfig(Singleton):
-    pass
+class Config(Singleton):
+    llm = LlmConfig()

@@ -19,7 +19,7 @@ class LlmBot(Bot, metaclass=ABCMeta):
 
         from dandy import config
 
-        return config.active_llm_service.process_prompt_to_model_object(
+        return config.llm.active_service.process_prompt_to_model_object(
             prompt=prompt,
             model=model,
             prefix_system_prompt=(

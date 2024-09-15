@@ -7,9 +7,11 @@ from tests.factories import generate_current_work_order, generate_existing_work_
 
 class TestDandy(TestCase):
     def setUp(self):
-        config.setup_ollama(
+        config.llm.add_service(
+            name='ollama',
             url=os.getenv("OLLAMA_URL"),
-            port=int(os.getenv("OLLAMA_PORT", 11434))
+            port=int(os.getenv("OLLAMA_PORT", 11434)),
+            model='llama3.1',
         )
 
         self.current_work_order = generate_current_work_order()

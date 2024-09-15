@@ -20,7 +20,7 @@ def service_system_model_prompt(
     prompt.text('You must use the following rules when responding.')
     prompt.ordered_list([
         'Your response must be valid JSON.',
-        'Your response must be valid according to the schema provided below.',
+        'Your response must be valid according to the JSON schema provided below.',
         'You will always respond with a JSON object with some values.',
     ])
     prompt.line_break()

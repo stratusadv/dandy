@@ -39,23 +39,31 @@ class DictionarySnippet(Snippet):
 
 
 @dataclass(kw_only=True)
-class LineBreakSnippet(Snippet):
-    def _to_str(self) -> str:
-        return '\n'
-
-
-@dataclass(kw_only=True)
 class DividerSnippet(Snippet):
     def _to_str(self) -> str:
         return '----------\n'
 
 
 @dataclass(kw_only=True)
-class TitleSnippet(Snippet):
-    title: str
+class LineBreakSnippet(Snippet):
+    def _to_str(self) -> str:
+        return '\n'
+
+
+@dataclass(kw_only=True)
+class ModelObject(Snippet):
+    model_object: BaseModel
 
     def _to_str(self) -> str:
-        return f'{self.title.capitalize()}\n'
+        return self.model_object.model_dump_json(indent=4) + '\n'
+
+
+@dataclass(kw_only=True)
+class ModelSchema(Snippet):
+    model: Type[BaseModel]
+
+    def _to_str(self) -> str:
+        return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
 
 
 @dataclass(kw_only=True)
@@ -80,21 +88,6 @@ class RandomChoiceSnippet(Snippet):
     def _to_str(self) -> str:
         return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
 
-@dataclass(kw_only=True)
-class ModelObject(Snippet):
-    model_object: BaseModel
-
-    def _to_str(self) -> str:
-        return self.model_object.model_dump_json(indent=4) + '\n'
-
-
-@dataclass(kw_only=True)
-class Model(Snippet):
-    model: Type[BaseModel]
-
-    def _to_str(self) -> str:
-        return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
-
 
 @dataclass(kw_only=True)
 class TextSnippet(Snippet):
@@ -106,6 +99,14 @@ class TextSnippet(Snippet):
             return f'{self.label}: {self.text}\n'
         else:
             return f'{self.text}\n'
+
+
+@dataclass(kw_only=True)
+class TitleSnippet(Snippet):
+    title: str
+
+    def _to_str(self) -> str:
+        return f'{self.title.capitalize()}\n'
 
 
 @dataclass(kw_only=True)

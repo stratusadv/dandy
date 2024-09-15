@@ -1,61 +1,38 @@
-from typing import Type, Self
+from typing import Type
 
-from dandy.config.config import BaseConfig
 from dandy.llm.config.manager import LlmManager
 from dandy.llm.exceptions import LlmException
 from dandy.llm.service import Service
-from dandy.llm.service.ollama.config import OllamaServiceConfig
-from dandy.llm.service.enums import ServiceType
 
 
-class LlmConfig(BaseConfig):
-    ollama_service_config: OllamaServiceConfig
-    debug: bool = False
-    _active_llm_service: ServiceType
-    _active_llm_model: str
-
+class LlmConfig:
     def __init__(self):
         self._llm_manager = LlmManager()
 
     @property
-    def active_llm_service(self) -> Type[Service]:
-        if self._active_llm_service == ServiceType.OLLAMA:
-            from dandy.llm.service.ollama.service import OllamaService
-            return OllamaService
-        else:
-            raise LlmException('Unknown LLM service')
+    def active_service(self) -> Service:
+        return self.get_active_service()
 
-    def setup_ollama(
+    def add_service(
             self,
+            name: str,
             url: str,
-            port: int = 11434,
-            model: str = None
+            port: int,
+            model: str
     ):
 
-        self.ollama_service_config = OllamaServiceConfig(
-            url=url,
-            port=port
+        self._llm_manager.add_service_settings(
+            name,
+            url,
+            port,
+            model
         )
 
-        if model is not None:
-            self.set_llm(model=model)
+    def get_active_service(self) -> Service:
+        return self._llm_manager.get_active_service()
 
-        self._active_llm_service = ServiceType.OLLAMA
+    def get_service(self, name: str) -> Service:
+        return self._llm_manager.get_service(name)
 
-    def set_llm(
-            self,
-            service: str = None,
-            model: str = None,
-    ):
-
-        if isinstance(service, ServiceType):
-            self._active_llm_service = service
-        elif isinstance(service, str):
-            self._active_llm_service = ServiceType(service)
-        else:
-            raise Exception('Unknown LLM service')
-
-        if isinstance(model, str):
-            self._active_llm_model = model
-        else:
-            raise Exception('Unknown LLM model')
+    def set_active_service(self, name: str):
+        self._llm_manager.set_active_service_settings(name)
