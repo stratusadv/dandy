@@ -1,8 +1,9 @@
-from typing import Type
+from typing import Optional, List
 
+from dandy.core.url import Url
 from dandy.llm.config.manager import LlmManager
-from dandy.llm.exceptions import LlmException
 from dandy.llm.service import Service
+from dandy.llm.service.settings import ServiceSettings
 
 
 class LlmConfig:
@@ -16,16 +17,32 @@ class LlmConfig:
     def add_service(
             self,
             name: str,
-            url: str,
+            url_path: str,
             port: int,
-            model: str
+            model: str,
+            url_path_parameters: Optional[List[str]] = None,
+            url_query_parameters: Optional[dict] = None,
+            headers: Optional[dict] = None,
     ):
 
+        if headers is None:
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+
         self._llm_manager.add_service_settings(
-            name,
-            url,
-            port,
-            model
+            name=name,
+            settings=ServiceSettings(
+                url=Url(
+                    path=url_path,
+                    path_parameters=url_path_parameters,
+                    query_parameters=url_query_parameters,
+                ),
+                port=port,
+                model=model,
+                headers=headers
+            )
         )
 
     def get_active_service(self) -> Service:

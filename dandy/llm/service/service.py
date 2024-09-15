@@ -13,7 +13,6 @@ from dandy.llm.service.prompts import service_system_validation_error_prompt, se
     service_system_model_prompt
 from dandy.llm.service.request import BaseRequest
 from dandy.llm.service.settings import ServiceSettings
-from dandy.llm.utils import encode_path_parameters
 
 
 class Service:
@@ -23,15 +22,16 @@ class Service:
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
         self.validate_settings()
 
-        parsed_url = urlparse(self._settings.url)
-
-        if parsed_url.scheme == '':
-            parsed_url = urlparse('https://' + self._settings.url)
-
-        if parsed_url.scheme == "https":
-            connection = http.client.HTTPSConnection(parsed_url.netloc, port=self._settings.port)
+        if self._settings.url.is_https:
+            connection = http.client.HTTPSConnection(
+                self._settings.url.parsed_url.netloc,
+                port=self._settings.port
+            )
         else:
-            connection = http.client.HTTPConnection(parsed_url.netloc, port=self._settings.port)
+            connection = http.client.HTTPConnection(
+                self._settings.url.parsed_url.netloc,
+                port=self._settings.port
+            )
 
         return connection
 
@@ -42,7 +42,7 @@ class Service:
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        request = BaseRequest(model='llama3.1')
+        request = BaseRequest(model=self._settings.model)
 
         request.add_message(
             role='system',
@@ -121,17 +121,6 @@ class Service:
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')
         return self.process_request("POST", self.generate_url_path(), encoded_body)
-
-    def generate_url_path(self) -> str:
-        path_parameters = '/'.join(encode_path_parameters(self._settings.path_parameters))
-
-        url_path = f'/{path_parameters}'
-
-        if self._settings.query_parameters:
-            query = urlencode(self._settings.query_parameters)
-            url_path += '?' + query
-
-        return url_path
 
     def validate_settings(self):
         if self._settings.url is None:

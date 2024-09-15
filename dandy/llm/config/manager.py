@@ -1,5 +1,6 @@
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Type, Union, List
 
+from dandy.core.url import Url
 from dandy.llm.exceptions import LlmException, LlmServiceNotFoundException
 from dandy.llm.service import Service
 from dandy.llm.service.settings import ServiceSettings
@@ -20,24 +21,10 @@ class LlmManager:
     def add_service_settings(
             self,
             name: str,
-            url: str,
-            port: Union[str, int],
-            model: str,
+            settings: ServiceSettings
     ):
-        self._service_settings[name] = ServiceSettings(
-            url=url,
-            model=model,
-            port=port,
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
-            path_parameters=[
-                'api',
-                'chat',
-            ],
-            query_parameters=None
-        )
+
+        self._service_settings[name] = settings
 
         if self._active_service_settings is None:
             self.set_active_service_settings(name)

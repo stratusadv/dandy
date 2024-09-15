@@ -13,16 +13,6 @@ if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
 
 
-def encode_path_parameters(args: Union[List[str], Tuple[str]]):
-    for arg in args:
-        if isinstance(arg, str):
-            yield quote(arg)
-        elif isinstance(arg, date):
-            yield quote(arg.strftime("%Y-%m-%d"))
-
-    return [quote(arg) for arg in args]
-
-
 def exception_to_str_nicely(ex: Exception) -> str:
     return '\n'.join([
         ''.join(traceback.format_exception_only(None, ex)).strip(),
