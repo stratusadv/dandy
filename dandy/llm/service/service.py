@@ -20,18 +20,15 @@ class Service:
         self._settings = settings
 
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
-        self.validate_settings()
+        connection_kwargs = {
+            'host': self._settings.url.parsed_url.netloc,
+            'port': self._settings.port
+        }
 
         if self._settings.url.is_https:
-            connection = http.client.HTTPSConnection(
-                self._settings.url.parsed_url.netloc,
-                port=self._settings.port
-            )
+            connection = http.client.HTTPSConnection(**connection_kwargs)
         else:
-            connection = http.client.HTTPConnection(
-                self._settings.url.parsed_url.netloc,
-                port=self._settings.port
-            )
+            connection = http.client.HTTPConnection(**connection_kwargs)
 
         return connection
 
@@ -87,8 +84,6 @@ class Service:
                 raise ValidationError(f'Could not validate response from Ollama. {e}')
 
     def process_request(self, method, path, encoded_body: bytes = None) -> dict:
-        self.validate_settings()
-
         response = None
 
         for _ in range(self._settings.retry_count):
@@ -122,9 +117,3 @@ class Service:
         encoded_body = json.dumps(body).encode('utf-8')
         return self.process_request("POST", self.generate_url_path(), encoded_body)
 
-    def validate_settings(self):
-        if self._settings.url is None:
-            raise ValueError('Url not set')
-
-        if self._settings.port is None:
-            raise ValueError('Port not set')

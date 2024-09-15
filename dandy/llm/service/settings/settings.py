@@ -10,3 +10,4 @@ class ServiceSettings:
     port: int
     model: str
     headers: dict
+    retry_count: int = 10
