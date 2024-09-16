@@ -28,6 +28,6 @@ jobs:
 
       - name: Run Tests
         env:
-          OLLAMA_URL: ${{ secrets.OLLAMA_URL }}
+          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
         run: |
           python -m unittest discover -v --top-level .
