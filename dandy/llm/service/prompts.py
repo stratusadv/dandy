@@ -15,9 +15,8 @@ def service_system_model_prompt(
     if isinstance(prefix_system_prompt, Prompt):
         prompt.prompt(prefix_system_prompt)
 
-    prompt.text('You are a bot that helps users with all kinds of requests.')
     prompt.line_break()
-    prompt.text('You must use the following rules when responding.')
+    prompt.text('You must use the following rules when responding to the user.')
     prompt.ordered_list([
         'Your response must be valid JSON.',
         'Your response must be valid according to the JSON schema provided below.',
@@ -34,7 +33,7 @@ def service_system_validation_error_prompt(e: ValidationError) -> Prompt:
     return (
         Prompt()
         .text('The JSON response you provided was not valid.')
-        .text('Here is the validation error provided by Pydantic when it tried to parse the JSON:')
+        .text('Here is the validation error provided by Pydantic when it tried to parse the JSON object:')
         .text(f'{e}', triple_quote=True)
         .text('Please provide a valid JSON object based on my earlier request.')
     )

@@ -1,31 +1,34 @@
+from __future__ import annotations
+
 import http.client
 import json
 from time import sleep
-from typing import Type, Optional, Union
-from urllib.parse import urlencode, urlparse
+from typing import Type, Optional, Union, TYPE_CHECKING
 
 from pydantic import ValidationError
 
 from dandy.core.type_vars import ModelType
-from dandy.llm.exceptions import LlmException
+from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
 from dandy.llm.service.request import BaseRequest
-from dandy.llm.service.settings import ServiceSettings
+
+if TYPE_CHECKING:
+    from dandy.llm.config import LlmConfig
 
 
 class Service:
-    def __init__(self, settings: ServiceSettings):
-        self._settings = settings
+    def __init__(self, config: LlmConfig):
+        self._config = config
 
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
         connection_kwargs = {
-            'host': self._settings.url.parsed_url.netloc,
-            'port': self._settings.port
+            'host': self._config.url.parsed_url.netloc,
+            'port': self._config.port
         }
 
-        if self._settings.url.is_https:
+        if self._config.url.is_https:
             connection = http.client.HTTPSConnection(**connection_kwargs)
         else:
             connection = http.client.HTTPConnection(**connection_kwargs)
@@ -39,70 +42,62 @@ class Service:
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        request = BaseRequest(model=self._settings.model)
+        for _ in range(2):
 
-        request.add_message(
-            role='system',
-            content=service_system_model_prompt(
-                model=model,
-                prefix_system_prompt=prefix_system_prompt
-            ).to_str()
-        )
+            request = BaseRequest(model=self._config.model)
 
-        request.add_message(
-            role='user',
-            content=service_user_prompt(prompt).to_str()
-        )
+            request.add_message(
+                role='system',
+                content=service_system_model_prompt(
+                    model=model,
+                    prefix_system_prompt=prefix_system_prompt
+                ).to_str()
+            )
 
-        # print(request.model_dump())
+            request.add_message(
+                role='user',
+                content=service_user_prompt(prompt).to_str()
+            )
 
-        response = self.post_request(request.model_dump())
+            message_content = self._config.get_response_content(
+                self.post_request(request.model_dump())
+            )
 
-        if 'message' in response:
-            message_content = response['message']['content']
-        elif 'choices' in response:
-            message_content = response['choices'][0]['message']['content']
-        else:
-            raise LlmException(f'Did not get a valid response format from llm service')
-
-        try:
-            return model.model_validate_json(message_content)
-
-        except ValidationError as e:
             try:
-                request.add_message(
-                    role='system',
-                    content=message_content
-                )
-                request.add_message(
-                    role='user',
-                    content=service_system_validation_error_prompt(e).to_str()
-                )
-
-                response = self.post_request(request.model_dump())
-
-                if 'message' in response:
-                    message_content = response['message']['content']
-                elif 'choices' in response:
-                    message_content = response['choices'][0]['message']['content']
-                else:
-                    raise LlmException(f'Did not get a valid response format from llm service')
-
                 return model.model_validate_json(message_content)
 
             except ValidationError as e:
-                raise ValidationError(f'Could not validate response from Ollama. {e}')
+                try:
+                    request.add_message(
+                        role='system',
+                        content=message_content
+                    )
+                    request.add_message(
+                        role='user',
+                        content=service_system_validation_error_prompt(e).to_str()
+                    )
+
+                    message_content = self._config.get_response_content(
+                        self.post_request(request.model_dump())
+                    )
+
+                    return model.model_validate_json(message_content)
+
+                except ValidationError as e:
+                    pass
+        else:
+            raise LlmValidationException
 
     def process_request(self, method, path, encoded_body: bytes = None) -> dict:
         response = None
 
-        for _ in range(self._settings.retry_count):
+        for _ in range(self._config.retry_count):
             connection = self.create_connection()
 
             if encoded_body:
-                connection.request(method, path, body=encoded_body, headers=self._settings.headers)
+                connection.request(method, path, body=encoded_body, headers=self._config.headers)
             else:
-                connection.request(method, path, headers=self._settings.headers)
+                connection.request(method, path, headers=self._config.headers)
 
             response = connection.getresponse()
 
@@ -115,14 +110,14 @@ class Service:
             sleep(0.1)
 
         else:
-            raise LlmException(f"Llm service request failed with status code {response.status} after {self._settings.retry_count} attempts")
+            raise LlmException(f"Llm service request failed with status code {response.status} after {self._config.retry_count} attempts")
 
         return json_data
 
     def get_request(self) -> dict:
-        return self.process_request("GET", self._settings.url.path)
+        return self.process_request("GET", self._config.url.path)
 
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')
-        return self.process_request("POST", self._settings.url.path, encoded_body)
+        return self.process_request("POST", self._config.url.path, encoded_body)
 

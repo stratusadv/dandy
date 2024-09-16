@@ -1,4 +1,4 @@
-from abc import ABCMeta, ABC
+from abc import ABC
 from typing import Type
 
 from dandy.bot.bot import Bot
@@ -19,9 +19,7 @@ class LlmBot(Bot, ABC):
             model: Type[ModelType],
     ) -> ModelType:
 
-        from dandy import config
-
-        return config.llm.active_service.process_prompt_to_model_object(
+        return cls.llm_config.service.process_prompt_to_model_object(
             prompt=prompt,
             model=model,
             prefix_system_prompt=(

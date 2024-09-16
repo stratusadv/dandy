@@ -2,6 +2,8 @@ import os
 from enum import Enum
 
 from dandy.contrib.bots import SingleChoiceLlmBot, MultipleChoiceLlmBot
+from dandy.contrib.bots.choice_llm_bot import MultipleChoiceResponse
+from dandy.llm.tests.configs import OLLAMA_LLAMA_3_1
 from tests.bots.work_order_comparison_bot import WorkOrderComparisonBot
 from tests.factories import generate_current_work_order
 
@@ -16,11 +18,13 @@ class Stuff(Enum):
     birds = 'birds'
     gasoline = 'gasoline'
     tacos = 'tacos'
+    eating = 'eating out'
 
 
+MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
 
-choice = SingleChoiceLlmBot.process(
-    user_input='I want to get tacos for lunch',
+choice = MultipleChoiceLlmBot.process(
+    user_input='I want to get tacos for lunch today',
     choices=Stuff,
 )
 

@@ -7,6 +7,6 @@ class LlmException(DandyException):
     pass
 
 
-class LlmServiceNotFoundException(LlmException):
+class LlmValidationException(LlmException):
     def __init__(self, name: str, choices: List[str]):
-        super().__init__(f'LLM service "{name}" is not setup, choices are: {", ".join(choices)}')
+        super().__init__(f'Did not get a valid response format from llm service')
