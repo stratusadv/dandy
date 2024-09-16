@@ -1,3 +1,4 @@
+from abc import ABC
 from enum import Enum
 from typing import Tuple, List, Union, overload, Type
 
@@ -19,7 +20,7 @@ class MultipleChoiceResponse(BaseModel):
     selected_choices: List[str]
 
 
-class _ChoiceLlmBot(LlmBot):
+class _ChoiceLlmBot(LlmBot, ABC):
     role_prompt = (
         Prompt()
         .text('You are an intent bot.')

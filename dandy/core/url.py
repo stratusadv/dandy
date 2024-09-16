@@ -5,17 +5,17 @@ from urllib.parse import urlencode, urlparse, ParseResult, quote
 
 @dataclass(kw_only=True)
 class Url:
-    path: str
+    host: str
     path_parameters: List[str] = list
     query_parameters: Dict[str, str] = dict
 
 
     @property
     def parsed_url(self) -> ParseResult:
-        return urlparse(self.path)
+        return urlparse(self.host)
 
     @property
-    def full_parameters(self) -> str:
+    def path(self) -> str:
         return self.path_parameters_to_str + self.query_parameters_to_str
 
     @property

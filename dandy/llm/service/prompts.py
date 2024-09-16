@@ -25,7 +25,7 @@ def service_system_model_prompt(
     ])
     prompt.line_break()
     prompt.text('JSON Schema:')
-    prompt.model(model, triple_quote=True)
+    prompt.model_schema(model, triple_quote=True)
 
     return prompt
 

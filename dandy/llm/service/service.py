@@ -58,7 +58,12 @@ class Service:
 
         response = self.post_request(request.model_dump())
 
-        message_content = response['message']['content']
+        if 'message' in response:
+            message_content = response['message']['content']
+        elif 'choices' in response:
+            message_content = response['choices'][0]['message']['content']
+        else:
+            raise LlmException(f'Did not get a valid response format from llm service')
 
         try:
             return model.model_validate_json(message_content)
@@ -76,7 +81,12 @@ class Service:
 
                 response = self.post_request(request.model_dump())
 
-                message_content = response['message']['content']
+                if 'message' in response:
+                    message_content = response['message']['content']
+                elif 'choices' in response:
+                    message_content = response['choices'][0]['message']['content']
+                else:
+                    raise LlmException(f'Did not get a valid response format from llm service')
 
                 return model.model_validate_json(message_content)
 
@@ -96,7 +106,6 @@ class Service:
 
             response = connection.getresponse()
 
-
             if response.status == 200 or response.status == 201:
                 json_data = json.loads(response.read().decode("utf-8"))
                 connection.close()
@@ -111,9 +120,9 @@ class Service:
         return json_data
 
     def get_request(self) -> dict:
-        return self.process_request("GET", self.generate_url_path())
+        return self.process_request("GET", self._settings.url.path)
 
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')
-        return self.process_request("POST", self.generate_url_path(), encoded_body)
+        return self.process_request("POST", self._settings.url.path, encoded_body)
 
