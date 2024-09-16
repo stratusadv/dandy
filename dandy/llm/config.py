@@ -39,3 +39,13 @@ class LlmConfig:
     @property
     def service(self):
         return Service(self.settings)
+
+
+# THIS IS WHERE WE FIX RESPONSE HANDLING AND OTHER STUFF ETC!
+
+class OllamaLlmConfig(LlmConfig):
+    pass
+
+
+class OpenaiLlmConfig(LlmConfig):
+    pass
