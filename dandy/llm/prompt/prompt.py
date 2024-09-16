@@ -100,14 +100,14 @@ class Prompt:
 
         return self
 
-    def model(
+    def model_schema(
             self,
             model: Type[BaseModel],
             triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
-            snippet.Model(
+            snippet.ModelSchema(
                 model=model,
                 triple_quote=triple_quote
             )

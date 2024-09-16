@@ -3,22 +3,14 @@ from __future__ import annotations
 import traceback
 
 from datetime import date
-from typing import Union, Tuple, List, TYPE_CHECKING
+from typing import Union, Tuple, List, TYPE_CHECKING, Type, Optional
 from urllib.parse import quote
 
+from dandy.core.type_vars import ModelType
+from dandy.llm.service.prompts import service_system_model_prompt, service_user_prompt
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
-
-
-def encode_path_parameters(args: Union[List[str], Tuple[str]]):
-    for arg in args:
-        if isinstance(arg, str):
-            yield quote(arg)
-        elif isinstance(arg, date):
-            yield quote(arg.strftime("%Y-%m-%d"))
-
-    return [quote(arg) for arg in args]
 
 
 def exception_to_str_nicely(ex: Exception) -> str:
@@ -40,3 +32,11 @@ def get_prompt_estimated_token_count(prompt: Prompt) -> int:
     )
 
 
+def get_estimated_token_count_for_prompt(
+        prompt: Prompt,
+        model: Type[ModelType],
+        prefix_system_prompt: Optional[Prompt] = None) -> int:
+    return service_system_model_prompt(
+        model=model,
+        prefix_system_prompt=prefix_system_prompt
+    ).estimated_token_count + service_user_prompt(prompt).estimated_token_count

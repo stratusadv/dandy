@@ -1,3 +1,4 @@
+from abc import ABC
 from enum import Enum
 from typing import Tuple, List, Union, overload, Type
 
@@ -19,16 +20,10 @@ class MultipleChoiceResponse(BaseModel):
     selected_choices: List[str]
 
 
-class _ChoiceLlmBot(LlmBot):
+class _ChoiceLlmBot(LlmBot, ABC):
     role_prompt = (
         Prompt()
-        .text('You are an intent bot.')
-    )
-
-    instructions_prompt = (
-        Prompt()
-        .text('Your job is to identify the intent of the user input and match it to one of the provided choices.')
-        .text(f'If there is no good matches in the choices reply with value "{NO_CHOICE_FOUND_RESPONSE}".')
+        .text('You are an choice bot.')
     )
 
     @classmethod
@@ -91,6 +86,12 @@ class _ChoiceOverloadMixin:
 
 
 class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
+    instructions_prompt = (
+        Prompt()
+        .text('Your job is to identify the intent of the user input and match it to the provided choices.')
+        .text(f'If there is no good matches in the choices reply with value "{NO_CHOICE_FOUND_RESPONSE}".')
+    )
+
     @classmethod
     def process(
             cls,
@@ -116,6 +117,13 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
 
 
 class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
+    instructions_prompt = (
+        Prompt()
+        .text('Your job is to identify the intent of the user input and match it to the provided choices.')
+        .text('Return as many choices as you see relevant to the user input.')
+        .text(f'If there is no good matches in the choices reply with value "{NO_CHOICE_FOUND_RESPONSE}".')
+    )
+
     @classmethod
     def process(
             cls,

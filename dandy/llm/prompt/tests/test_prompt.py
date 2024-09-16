@@ -7,7 +7,7 @@ class TestPrompt(TestCase):
     def setUp(self):
         self.prompt = Prompt()
 
-    def test_prompt(self):
+    def test_prompt_text(self):
         self.prompt.text(
             text='Hello World',
             label='Greeting',
@@ -15,3 +15,4 @@ class TestPrompt(TestCase):
         )
 
         self.assertTrue(True)
+
