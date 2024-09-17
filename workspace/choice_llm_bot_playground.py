@@ -41,11 +41,20 @@ stuff_list = [
 ]
 
 
-MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+SingleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
 
-choice = MultipleChoiceLlmBot.process(
+choice = SingleChoiceLlmBot.process(
     user_input='I want to get tacos for lunch today',
-    choices=stuff_list,
+    choices=stuff_dict,
 )
 
-print(choice)
+print(f'{choice=}')
+
+MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+
+choices = MultipleChoiceLlmBot.process(
+    user_input='I want to get tacos for lunch today',
+    choices=stuff_dict,
+)
+
+print(f'{choices=}')

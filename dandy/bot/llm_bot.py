@@ -3,14 +3,14 @@ from typing import Type
 
 from dandy.bot.bot import Bot
 from dandy.core.type_vars import ModelType
-from dandy.llm.config import LlmConfig
+from dandy.llm.config import BaseLlmConfig
 from dandy.llm.prompt import Prompt
 
 
 class LlmBot(Bot, ABC):
     role_prompt: Prompt
     instructions_prompt: Prompt
-    llm_config: LlmConfig
+    llm_config: BaseLlmConfig
 
     @classmethod
     def process_prompt_to_model_object(

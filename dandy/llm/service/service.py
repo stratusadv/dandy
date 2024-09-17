@@ -12,14 +12,13 @@ from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
-from dandy.llm.service.request import BaseRequest
 
 if TYPE_CHECKING:
-    from dandy.llm.config import LlmConfig
+    from dandy.llm.config import BaseLlmConfig
 
 
 class Service:
-    def __init__(self, config: LlmConfig):
+    def __init__(self, config: BaseLlmConfig):
         self._config = config
 
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
@@ -39,23 +38,21 @@ class Service:
             self,
             prompt_str: str,
     ) -> str:
-        request = BaseRequest(
-            model=self._config.model,
-            format='string',
-        )
+        request_body = self._config.request_body
+        request_body.set_format_text()
 
-        request.add_message(
+        request_body.add_message(
             role='system',
             content='You are a helpful assistant.'
         )
 
-        request.add_message(
+        request_body.add_message(
             role='user',
             content=prompt_str
         )
 
         return self._config.get_response_content(
-            self.post_request(request.model_dump())
+            self.post_request(request_body.model_dump())
         )
 
 
@@ -66,11 +63,11 @@ class Service:
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        for _ in range(2):
+        for _ in range(self._config.prompt_retry_count):
 
-            request = BaseRequest(model=self._config.model)
+            request_body = self._config.request_body
 
-            request.add_message(
+            request_body.add_message(
                 role='system',
                 content=service_system_model_prompt(
                     model=model,
@@ -78,13 +75,13 @@ class Service:
                 ).to_str()
             )
 
-            request.add_message(
+            request_body.add_message(
                 role='user',
                 content=service_user_prompt(prompt).to_str()
             )
 
             message_content = self._config.get_response_content(
-                self.post_request(request.model_dump())
+                self.post_request(request_body.model_dump())
             )
 
             try:
@@ -92,17 +89,17 @@ class Service:
 
             except ValidationError as e:
                 try:
-                    request.add_message(
+                    request_body.add_message(
                         role='system',
                         content=message_content
                     )
-                    request.add_message(
+                    request_body.add_message(
                         role='user',
                         content=service_system_validation_error_prompt(e).to_str()
                     )
 
                     message_content = self._config.get_response_content(
-                        self.post_request(request.model_dump())
+                        self.post_request(request_body.model_dump())
                     )
 
                     return model.model_validate_json(message_content)
@@ -115,7 +112,7 @@ class Service:
     def process_request(self, method, path, encoded_body: bytes = None) -> dict:
         response = None
 
-        for _ in range(self._config.retry_count):
+        for _ in range(self._config.connection_retry_count):
             connection = self.create_connection()
 
             if encoded_body:

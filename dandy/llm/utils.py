@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 import traceback
-
-from datetime import date
-from typing import Union, Tuple, List, TYPE_CHECKING, Type, Optional
-from urllib.parse import quote
+from typing import TYPE_CHECKING, Type, Optional
 
 from dandy.core.type_vars import ModelType
 from dandy.llm.service.prompts import service_system_model_prompt, service_user_prompt
@@ -22,14 +19,6 @@ def exception_to_str_nicely(ex: Exception) -> str:
 
 def lower_dict_keys(dictionary: dict) -> dict:
     return {k.lower(): v for k, v in dictionary.items()}
-
-
-def get_prompt_estimated_token_count(prompt: Prompt) -> int:
-    from dandy import config
-
-    return config.active_llm_service.get_estimated_token_count_for_prompt(
-        prompt=prompt
-    )
 
 
 def get_estimated_token_count_for_prompt(

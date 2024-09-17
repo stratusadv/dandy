@@ -1,5 +1,16 @@
 # Changelog
 
+# v0.0.5
+
+### Features
+- Llm Config now has more options
+
+### Changes
+- Llm Choice Bot now returns a dictionary when using a dictionary instead of a list
+
+### Fixes
+- Remove dead utility function for counting estimated tokens in prompts
+
 # v0.0.4
 
 ### Features
