@@ -35,6 +35,30 @@ class Service:
 
         return connection
 
+    def assistant_prompt_str_to_str(
+            self,
+            prompt_str: str,
+    ) -> str:
+        request = BaseRequest(
+            model=self._config.model,
+            format='string',
+        )
+
+        request.add_message(
+            role='system',
+            content='You are a helpful assistant.'
+        )
+
+        request.add_message(
+            role='user',
+            content=prompt_str
+        )
+
+        return self._config.get_response_content(
+            self.post_request(request.model_dump())
+        )
+
+
     def process_prompt_to_model_object(
             self,
             prompt: Prompt,
