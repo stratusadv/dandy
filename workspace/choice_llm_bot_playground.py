@@ -21,11 +21,31 @@ class Stuff(Enum):
     eating = 'eating out'
 
 
+stuff_dict = {
+    'food': 'food_val',
+    'dinosaurs': 'dinosaurs_val',
+    'birds': 'birds_val',
+    'gasoline': 'gasoline_val',
+    'tacos': 'tacos_val',
+    'eating': 'eating_out_val'
+}
+
+
+stuff_list = [
+    'food',
+    'dinosaurs',
+    'birds',
+    'gasoline',
+    'tacos',
+    'eating out'
+]
+
+
 MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
 
 choice = MultipleChoiceLlmBot.process(
     user_input='I want to get tacos for lunch today',
-    choices=Stuff,
+    choices=stuff_list,
 )
 
 print(choice)
