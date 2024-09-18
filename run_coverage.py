@@ -7,18 +7,13 @@ from pathlib import Path
 
 OMITS = (
     # Directories
-    '*/system/*',
     '*/tests/*',
-    '*/migrations/*',
-    '*/static/*',
     '*/venv/*',
     '*/.venv/*',
 
     # Files
-    'apps.py',
     '__init__.py',
-    'manage.py',
-    'automation.py',
+    'setup.py',
     'run_coverage.py'
 )
 

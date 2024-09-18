@@ -24,7 +24,9 @@ def lower_dict_keys(dictionary: dict) -> dict:
 def get_estimated_token_count_for_prompt(
         prompt: Prompt,
         model: Type[ModelType],
-        prefix_system_prompt: Optional[Prompt] = None) -> int:
+        prefix_system_prompt: Optional[Prompt] = None
+) -> int:
+
     return service_system_model_prompt(
         model=model,
         prefix_system_prompt=prefix_system_prompt
