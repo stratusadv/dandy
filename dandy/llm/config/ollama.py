@@ -1,5 +1,8 @@
+from typing import Optional
+
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.request.ollama import OllamaRequestBody, OllamaRequestOptions
+from dandy.llm.request.request import BaseRequestBody
 
 
 class OllamaLlmConfig(BaseLlmConfig):
@@ -9,11 +12,17 @@ class OllamaLlmConfig(BaseLlmConfig):
             'chat',
         ]
 
-        self.request_body = OllamaRequestBody(
+    def generate_request_body(
+            self,
+            temperature: Optional[float] = None,
+            seed: Optional[int] = None
+    ) -> BaseRequestBody:
+
+        return OllamaRequestBody(
             model=self.model,
             options=OllamaRequestOptions(
-                seed=self.seed,
-                temperature=self.temperature
+                seed=self.seed if seed is None else seed,
+                temperature=self.temperature if temperature is None else temperature
             )
         )
 

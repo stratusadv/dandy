@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from dandy.core.type_vars import ModelType
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
+from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
 
@@ -18,27 +19,22 @@ if TYPE_CHECKING:
 
 
 class Service:
-    def __init__(self, config: BaseLlmConfig):
+    def __init__(
+            self,
+            config: BaseLlmConfig,
+            seed: Optional[int] = None,
+            temperature: Optional[float] = None):
+
         self._config = config
-
-    def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
-        connection_kwargs = {
-            'host': self._config.url.parsed_url.netloc,
-            'port': self._config.port
-        }
-
-        if self._config.url.is_https:
-            connection = http.client.HTTPSConnection(**connection_kwargs)
-        else:
-            connection = http.client.HTTPConnection(**connection_kwargs)
-
-        return connection
+        self._seed = seed
+        self._temperature = temperature
 
     def assistant_prompt_str_to_str(
             self,
             prompt_str: str,
     ) -> str:
-        request_body = self._config.request_body
+        request_body = self.get_request_body()
+
         request_body.set_format_text()
 
         request_body.add_message(
@@ -55,6 +51,24 @@ class Service:
             self.post_request(request_body.model_dump())
         )
 
+    def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
+        connection_kwargs = {
+            'host': self._config.url.parsed_url.netloc,
+            'port': self._config.port
+        }
+
+        if self._config.url.is_https:
+            connection = http.client.HTTPSConnection(**connection_kwargs)
+        else:
+            connection = http.client.HTTPConnection(**connection_kwargs)
+
+        return connection
+
+    def get_request_body(self) -> BaseRequestBody:
+        return self._config.generate_request_body(
+            temperature=self._temperature,
+            seed=self._seed
+        )
 
     def process_prompt_to_model_object(
             self,
@@ -65,7 +79,7 @@ class Service:
 
         for _ in range(self._config.prompt_retry_count):
 
-            request_body = self._config.request_body
+            request_body = self.get_request_body()
 
             request_body.add_message(
                 role='system',
@@ -134,9 +148,6 @@ class Service:
             raise LlmException(f"Llm service request failed with status code {response.status} after {self._config.retry_count} attempts")
 
         return json_data
-
-    def get_request(self) -> dict:
-        return self.process_request("GET", self._config.url.path)
 
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')

@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.0.6
+
+### Features
+- You can now change set llm_temperature and llm_seed in the LLL Bot for easy customization of each bot.
+
+### Fixes
+- Fixed the LlmValidationException to not have arguments
+
 # v0.0.5
 
 ### Features
@@ -15,7 +23,7 @@
 
 ### Features
 - Choice Llm Bot can now handle dictionaries Key is used for the choice and the values are returned
-- You can now use a Llm config to directly prompt an assitant with a string and return a string
+- You can now use a Llm config to directly prompt an assistant with a string and return a string
 
 # v0.0.3
 

@@ -1,5 +1,8 @@
+from typing import Optional
+
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.request.openai import OpenaiRequestBody
+from dandy.llm.request.request import BaseRequestBody
 
 
 class OpenaiLlmConfig(BaseLlmConfig):
@@ -10,10 +13,16 @@ class OpenaiLlmConfig(BaseLlmConfig):
             'completions',
         ]
 
-        self.request_body = OpenaiRequestBody(
+    def generate_request_body(
+            self,
+            temperature: Optional[float] = None,
+            seed: Optional[int] = None
+    ) -> BaseRequestBody:
+
+        return OpenaiRequestBody(
             model=self.model,
-            seed=self.seed,
-            temperature=self.temperature
+            seed=self.seed if seed is None else seed,
+            temperature=self.temperature if temperature is None else temperature,
         )
 
     def get_response_content(self, response) -> str:
