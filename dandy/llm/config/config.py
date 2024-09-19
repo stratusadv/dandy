@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from pydantic import BaseModel, Field
 
@@ -23,7 +23,6 @@ class BaseLlmConfig(BaseModel):
     temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0),
     connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100),
     prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10),
-    request_body: Optional[BaseRequestBody] = None,
 
     def __init__(
             self,
@@ -71,12 +70,30 @@ class BaseLlmConfig(BaseModel):
     def __llm_config_post_init__(self):
         ...
 
-    @property
-    def service(self):
-        return Service(self)
-
     @abstractmethod
     def get_response_content(self, response) -> str:
         ...
 
+    @abstractmethod
+    def generate_request_body(
+            self,
+            seed: Union[int, None] = None,
+            temperature: Union[float, None] = None,
+    ) -> BaseRequestBody:
+        ...
 
+    def generate_service(
+            self,
+            seed: Union[int, None] = None,
+            temperature: Union[float, None] = None,
+    ) -> Service:
+
+        return Service(
+            self,
+            seed=seed,
+            temperature=temperature,
+        )
+
+    @property
+    def service(self) -> Service:
+        return self.generate_service()

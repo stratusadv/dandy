@@ -42,6 +42,9 @@ stuff_list = [
 
 
 SingleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+print(SingleChoiceLlmBot.llm_temperature)
+SingleChoiceLlmBot.llm_temperature = 0.3
+print(SingleChoiceLlmBot.llm_temperature)
 
 choice = SingleChoiceLlmBot.process(
     user_input='I want to get tacos for lunch today',
@@ -51,6 +54,9 @@ choice = SingleChoiceLlmBot.process(
 print(f'{choice=}')
 
 MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+print(MultipleChoiceLlmBot.llm_temperature)
+MultipleChoiceLlmBot.llm_temperature = 0.6
+print(MultipleChoiceLlmBot.llm_temperature)
 
 choices = MultipleChoiceLlmBot.process(
     user_input='I want to get tacos for lunch today',
