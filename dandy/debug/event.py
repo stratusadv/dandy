@@ -1,11 +1,11 @@
 from time import time
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Event(BaseModel):
     actor: str
     action: str
-    time: float
     data: dict
+    time: float = Field(default_factory=time)
