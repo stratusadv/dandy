@@ -1,53 +1,89 @@
+import json
+from pathlib import Path
 from time import time
-from typing import List
+from typing import Dict, List, Any
+
+from pydantic import BaseModel, Field
 
 from dandy.core.singleton import Singleton
-from dandy.debug.event import Event
+from dandy.debug.event import BaseEvent
 
 
-class Debug(Singleton):
-    _running: bool = False
-    start_time: float
-    stop_time: float
-    events: List[Event]
+class Debugger(BaseModel):
+    name: str
+    is_recording: bool = False
+    start_time: float = 0.0
+    stop_time: float = 0.0
+    run_time: float = 0.0
+    events: List[Any] = Field(default_factory=list)
 
-    @classmethod
     def add_event(
-            cls,
-            actor: str,
-            action: str,
-            data: dict
+            self,
+            event: BaseEvent
     ):
-        if cls.is_running:
-            cls.events.append(
-                Event(
-                    actor=actor,
-                    action=action,
-                    data=data
-                )
+        self.events.append(event)
+
+    def clear(self):
+        self.start_time = 0.0
+        self.stop_time = 0.0
+        self.event_manager.clear()
+
+    def start(self):
+        self.start_time = time()
+        self.is_recording = True
+
+    def stop(self):
+        self.stop_time = time()
+        self.run_time = self.stop_time - self.start_time
+        self.is_recording = False
+
+    def to_html(self, path=''):
+        self.stop()
+        with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
+            new_html = debug_html.read().replace(
+                '__debug_output__',
+                json.dumps(self.model_dump(), indent=4).replace('"', "'"),
             )
 
-    @classmethod
-    def add_event_if_running(
-            cls,
-            actor: str,
-            action: str,
-            data: dict
-    ):
-        if cls.is_running:
-            cls.add_event(actor, action, data)
+        with open(Path(path, f'{self.name}_debug_output.html'), 'w') as new_debug_html:
+            new_debug_html.write(new_html)
+
+
+class DebugRecorder(Singleton):
+    debuggers: Dict[str, Debugger] = dict()
 
     @classmethod
-    def start(cls):
-        cls.start_time = time()
-        cls._running = True
+    def add_event(cls, event: BaseEvent):
+        for debugger in cls.debuggers.values():
+            if debugger.is_recording:
+                debugger.add_event(event)
 
     @classmethod
-    def stop(cls):
-        cls.stop_time = time()
-        cls._running = False
-        cls.events = []
+    def clear(cls):
+        cls.debuggers = dict()
 
     @classmethod
-    def is_running(cls):
-        return cls._running
+    def start_recording(cls, name: str = 'default'):
+        cls.debuggers[name] = Debugger(name=name)
+        cls.debuggers[name].start()
+
+    @classmethod
+    def stop_recording(cls, name: str = 'default'):
+        if name not in cls.debuggers:
+            raise ValueError(f'Debug recording "{name}" does not exist. Choices are {list(cls.debuggers.keys())}')
+
+        cls.debuggers[name].stop()
+
+    @classmethod
+    def stop_all_recording(cls):
+        for debugger in cls.debuggers.values():
+            debugger.stop()
+
+    @classmethod
+    @property
+    def is_recording(cls):
+        return any([debugger.is_recording for debugger in cls.debuggers.values()])
+
+    @classmethod
+    def to_html(cls, name: str = 'default',  path=''):
+        cls.debuggers[name].to_html(path)

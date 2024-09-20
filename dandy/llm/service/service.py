@@ -8,6 +8,9 @@ from typing import Type, Optional, Union, TYPE_CHECKING
 from pydantic import ValidationError
 
 from dandy.core.type_vars import ModelType
+from dandy.debug.debug import DebugRecorder
+from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
+    LlmServiceFailureEvent, LlmServiceRetryEvent
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
 from dandy.llm.request.request import BaseRequestBody
@@ -77,7 +80,7 @@ class Service:
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        for _ in range(self._config.prompt_retry_count):
+        for attempt in range(self._config.prompt_retry_count):
 
             request_body = self.get_request_body()
 
@@ -94,14 +97,28 @@ class Service:
                 content=service_user_prompt(prompt).to_str()
             )
 
+            if DebugRecorder.is_recording:
+                DebugRecorder.add_event(LlmServiceRequestEvent(request=request_body.model_dump()))
+
             message_content = self._config.get_response_content(
                 self.post_request(request_body.model_dump())
             )
 
+            if DebugRecorder.is_recording:
+                DebugRecorder.add_event(LlmServiceResponseEvent(response=message_content))
+
             try:
-                return model.model_validate_json(message_content)
+                model = model.model_validate_json(message_content)
+
+                if DebugRecorder.is_recording:
+                    DebugRecorder.add_event(LlmServiceSuccessEvent())
+
+                return model
 
             except ValidationError as e:
+                if DebugRecorder.is_recording:
+                    DebugRecorder.add_event(LlmServiceFailureEvent())
+
                 try:
                     request_body.add_message(
                         role='system',
@@ -112,14 +129,29 @@ class Service:
                         content=service_system_validation_error_prompt(e).to_str()
                     )
 
+                    if DebugRecorder.is_recording:
+                        DebugRecorder.add_event(LlmServiceRequestEvent(request=request_body.model_dump()))
+
                     message_content = self._config.get_response_content(
                         self.post_request(request_body.model_dump())
                     )
 
-                    return model.model_validate_json(message_content)
+                    if DebugRecorder.is_recording:
+                        DebugRecorder.add_event(LlmServiceResponseEvent(response=message_content))
+
+                    model = model.model_validate_json(message_content)
+
+                    if DebugRecorder.is_recording:
+                        DebugRecorder.add_event(LlmServiceSuccessEvent())
+
+                    return model
 
                 except ValidationError as e:
-                    pass
+                    if DebugRecorder.is_recording:
+                        DebugRecorder.add_event(LlmServiceFailureEvent())
+
+                if DebugRecorder.is_recording and attempt < self._config.prompt_retry_count - 1:
+                    DebugRecorder.add_event(LlmServiceRetryEvent())
         else:
             raise LlmValidationException
 
@@ -145,11 +177,11 @@ class Service:
             sleep(0.1)
 
         else:
-            raise LlmException(f"Llm service request failed with status code {response.status} after {self._config.retry_count} attempts")
+            raise LlmException(
+                f"Llm service request failed with status code {response.status} after {self._config.retry_count} attempts")
 
         return json_data
 
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')
         return self.process_request("POST", self._config.url.path, encoded_body)
-
