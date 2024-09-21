@@ -12,8 +12,8 @@ from tests.models.tradesman_model import GroupBase
 
 class SeedLlmBot(LlmBot):
     llm_config = OllamaLlmConfig(
-        host=os.getenv('OLLAMA_HOST', 'http://ai.jim.stratusadv.com'),
-        port=os.getenv('OLLAMA_PORT', 11434),
+        host=os.getenv('OLLAMA_HOST'),
+        port=os.getenv('OLLAMA_PORT'),
         model='llama3.1',
         temperature=1.0,
     )
