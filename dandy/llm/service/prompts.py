@@ -1,3 +1,4 @@
+import json
 from typing import Type, Optional
 
 from pydantic import BaseModel
@@ -30,11 +31,19 @@ def service_system_model_prompt(
 
 
 def service_system_validation_error_prompt(e: ValidationError) -> Prompt:
+    ve = json.loads(e.json())
+    print(ve)
+    ve_string = ''
+    for error in ve:
+        ve_string += f'{error["type"].__str__()}: {error["input"].__str__()}\n'.replace("'", '"')
+
+    print(ve_string)
+
     return (
         Prompt()
         .text('The JSON response you provided was not valid.')
         .text('Here is the validation error provided by Pydantic when it tried to parse the JSON object:')
-        .text(f'{e}', triple_quote=True)
+        .text(f'{ve_string}', triple_quote=True)
         .text('Please provide a valid JSON object based on my earlier request.')
     )
 
