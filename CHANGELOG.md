@@ -1,5 +1,10 @@
 # Changelog
 
+# v0.0.7
+
+### Features
+- Added Debug Recorder.
+
 # v0.0.6
 
 ### Features

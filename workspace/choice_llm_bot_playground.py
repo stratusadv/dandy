@@ -3,6 +3,7 @@ from enum import Enum
 
 from dandy.contrib.bots import SingleChoiceLlmBot, MultipleChoiceLlmBot
 from dandy.contrib.bots.choice_llm_bot import MultipleChoiceResponse
+from dandy.debug.debug import DebugRecorder
 from dandy.llm.tests.configs import OLLAMA_LLAMA_3_1
 from tests.bots.work_order_comparison_bot import WorkOrderComparisonBot
 from tests.factories import generate_current_work_order
@@ -40,27 +41,31 @@ stuff_list = [
     'eating out'
 ]
 
+DebugRecorder.start_recording('playground')
 
-SingleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
-print(SingleChoiceLlmBot.llm_temperature)
-SingleChoiceLlmBot.llm_temperature = 0.3
-print(SingleChoiceLlmBot.llm_temperature)
+for _ in range(3):
 
-choice = SingleChoiceLlmBot.process(
-    user_input='I want to get tacos for lunch today',
-    choices=stuff_dict,
-)
+    SingleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+    SingleChoiceLlmBot.llm_temperature = 0.3
 
-print(f'{choice=}')
+    choice = SingleChoiceLlmBot.process(
+        user_input='I want to get tacos for lunch today',
+        choices=stuff_dict,
+    )
 
-MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
-print(MultipleChoiceLlmBot.llm_temperature)
-MultipleChoiceLlmBot.llm_temperature = 0.6
-print(MultipleChoiceLlmBot.llm_temperature)
+    # print(f'{choice=}')
 
-choices = MultipleChoiceLlmBot.process(
-    user_input='I want to get tacos for lunch today',
-    choices=stuff_dict,
-)
+    MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
+    MultipleChoiceLlmBot.llm_temperature = 0.6
 
-print(f'{choices=}')
+    choices = MultipleChoiceLlmBot.process(
+        user_input='I want to get tacos for lunch today',
+        choices=stuff_dict,
+    )
+
+    # print(f'{choices=}')
+
+DebugRecorder.stop_recording('playground')
+
+DebugRecorder.to_html('playground')
+
