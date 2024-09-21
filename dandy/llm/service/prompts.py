@@ -31,6 +31,7 @@ def service_system_model_prompt(
 
 
 def service_system_validation_error_prompt(e: ValidationError) -> Prompt:
+    # TODO: use pydantic's error mapping is not the greatest ... should be improved
     ve = json.loads(e.json())
     print(ve)
     ve_string = ''
