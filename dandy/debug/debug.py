@@ -42,7 +42,7 @@ class Debugger(BaseModel):
         with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
             new_html = debug_html.read().replace(
                 '__debug_output__',
-                json.dumps(self.model_dump(), indent=4).replace('"', "'"),
+                self.model_dump_json().replace('"', "'"),
             )
 
         with open(Path(path, f'{self.name}_debug_output.html'), 'w') as new_debug_html:
