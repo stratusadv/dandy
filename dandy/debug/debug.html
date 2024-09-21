@@ -12,28 +12,53 @@
 
     <style type="text/css">
         .text-request {
-            color: #9900FF
+            color: #9900FF !important;
+        }
+
+        .bg-request {
+            background-color: #DDCCFF !important;
         }
 
         .text-response {
-            color: #0099FF
+            color: #0099FF !important;
+        }
+
+        .bg-response {
+            background-color: #CCDDFF !important;
         }
 
         .text-run {
-            color: #999999
+            color: #999999 !important;
+        }
+
+        .bg-run {
+            background-color: #E9E9E9 !important;
         }
 
         .text-retry {
-            color: #FF9900
+            color: #FF9900 !important;
+        }
+
+        .bg-retry {
+            background-color: #FFDDBB !important;
         }
 
         .text-success {
-            color: #009900
+            color: #009900 !important;
+        }
+
+        .bg-success {
+            background-color: #DDFFDD !important;
         }
 
         .text-failure {
-            color: #990000
+            color: #990000 !important;
         }
+
+        .bg-failure {
+            background-color: #FFCCCC !important;
+        }
+
     </style>
 
 </head>
@@ -42,10 +67,7 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 
 <div x-data="{
-        debug_output: __debug_output__,
-        process_message_to_html(message) {
-            return message.role + ':\n' + message.content
-        }
+        debug_output: __debug_output__
     }" class="container-fluid">
     <div class="row my-2">
         <div class="col-12 pb-3">
@@ -57,13 +79,13 @@
     <template x-for="debug_event in debug_output.events">
 
         <div class="row my-2">
-            <div class="col-auto fs-4 mt-1 pe-1">
-                <i x-show="debug_event.type === 'request'" class="bi bi-box-arrow-up-right text-request"></i>
-                <i x-show="debug_event.type === 'response'" class="bi bi-box-arrow-in-down-left text-response"></i>
-                <i x-show="debug_event.type === 'run'" class="bi bi-box-play text-run"></i>
-                <i x-show="debug_event.type === 'retry'" class="bi bi-box-arrow-clockwise text-run"></i>
-                <i x-show="debug_event.type === 'success'" class="bi bi-check-lg text-success"></i>
-                <i x-show="debug_event.type === 'failure'" class="bi bi-x-lg text-failure"></i>
+            <div class="col-auto fs-4 mt-1 pe-0 me-0">
+                <i x-show="debug_event.type === 'run'" class="bi bi-cpu text-run"></i>
+                <i x-show="debug_event.type === 'request'" class="bi bi-box-arrow-up-right text-request ps-5"></i>
+                <i x-show="debug_event.type === 'response'" class="bi bi-box-arrow-in-down-left text-response ps-5"></i>
+                <i x-show="debug_event.type === 'retry'" class="bi bi-box-arrow-clockwise text-run ps-5 ms-5"></i>
+                <i x-show="debug_event.type === 'success'" class="bi bi-check-lg text-success ps-5 ms-5"></i>
+                <i x-show="debug_event.type === 'failure'" class="bi bi-x-lg text-failure ps-5 ms-5"></i>
             </div>
             <div class="col">
 
@@ -71,36 +93,63 @@
                     show_details: false
                 }" class="card">
 
-                    <div x-on:click="show_details = !show_details" class="card-header">
+                    <div x-on:click="show_details = !show_details" class="card-header ps-2"
+                         :class="{
+                         'bg-request': debug_event.type === 'request',
+                         'bg-response': debug_event.type === 'response',
+                         'bg-run': debug_event.type === 'run',
+                         'bg-retry': debug_event.type === 'retry',
+                         'bg-success': debug_event.type === 'success',
+                         'bg-failure': debug_event.type === 'failure'
+                         }"
+                    >
                         <span x-show="!show_details"><i class="bi bi-plus-lg"></i></span>
                         <span x-show="show_details"><i class="bi bi-dash-lg"></i></span>
                         <span x-text="debug_event.actor + ' - ' + debug_event.action"></span>
                     </div>
 
-                    <div x-show="show_details" class="card-body">
 
-                        <template x-if="debug_event.request">
+                    <template x-if="debug_event.request">
 
-                            <div>
-                                <p x-text="debug_event.request.model"></p>
-                                <template x-for="message in debug_event.request.messages">
-
-                                    <div x-html="process_message_to_html(message)" class="border m-2 p-2 rounded shadow-sm" style="white-space: pre-wrap"></div>
-
-                                </template>
+                        <div x-show="show_details" class="card-body">
+                            <div class="row">
+                                <div x-text="debug_event.request.model" class="col-12">
+                                </div>
                             </div>
+                            <template x-for="message in debug_event.request.messages">
 
-                        </template>
+                                <div class="row p-2">
+                                    <div class="col border rounded shadow-sm px-3 py-2"
+                                         :class="{
+                                            'bg-light': message.role === 'system',
+                                         }"
+                                    >
+                                        <div x-html="message.role" style="white-space: pre-wrap"></div>
+                                        <hr class="my-2">
+                                        <div x-html="message.content" style="white-space: pre-wrap"></div>
+                                    </div>
+                                </div>
 
-                        <p x-text="debug_event.response"></p>
+                            </template>
 
-                    </div>
+                        </div>
+                    </template>
+
+                    <template x-if="debug_event.response">
+
+                        <div x-show="show_details" class="card-body">
+                            <p x-text="debug_event.response"></p>
+                        </div>
+
+                    </template>
+
                 </div>
-
             </div>
-        </div>
 
-    </template>
+        </div>
+</div>
+
+</template>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

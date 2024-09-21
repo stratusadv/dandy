@@ -6,7 +6,7 @@ from typing import Dict, List, Any
 from pydantic import BaseModel, Field
 
 from dandy.core.singleton import Singleton
-from dandy.debug.event import BaseEvent
+from dandy.debug.events import BaseEvent
 
 
 class Debugger(BaseModel):

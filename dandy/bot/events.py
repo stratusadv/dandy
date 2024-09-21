@@ -1,4 +1,4 @@
-from dandy.debug.event import BaseEvent, EventType
+from dandy.debug.events import BaseEvent, EventType
 
 
 class BotEvent(BaseEvent):

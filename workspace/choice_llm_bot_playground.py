@@ -63,7 +63,7 @@ for _ in range(3):
         choices=stuff_dict,
     )
 
-# print(f'{choices=}')
+    # print(f'{choices=}')
 
 DebugRecorder.stop_recording('playground')
 

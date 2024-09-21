@@ -1,6 +1,6 @@
 from enum import Enum
 from time import time
-from typing import List, Any
+from typing import List, Any, Dict
 
 from pydantic import BaseModel, Field
 
@@ -17,8 +17,12 @@ class EventType(str, Enum):
 class BaseEvent(BaseModel):
     actor: str
     action: str
-    type: EventType = EventType.RUN
+    type: EventType
     time: float = Field(default_factory=time)
+
+
+class RunEvent(BaseEvent):
+    type: EventType = EventType.RUN
 
 
 class SuccessEvent(BaseEvent):
