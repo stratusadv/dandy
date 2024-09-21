@@ -53,7 +53,7 @@ for _ in range(3):
         choices=stuff_dict,
     )
 
-    # print(f'{choice=}')
+    print(f'{choice=}')
 
     MultipleChoiceLlmBot.llm_config = OLLAMA_LLAMA_3_1
     MultipleChoiceLlmBot.llm_temperature = 0.6
@@ -63,7 +63,7 @@ for _ in range(3):
         choices=stuff_dict,
     )
 
-    # print(f'{choices=}')
+    print(f'{choices=}')
 
 DebugRecorder.stop_recording('playground')
 

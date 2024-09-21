@@ -118,6 +118,7 @@ class Service:
             except ValidationError as e:
                 if DebugRecorder.is_recording:
                     DebugRecorder.add_event(LlmServiceFailureEvent())
+                    DebugRecorder.add_event(LlmServiceRetryEvent())
 
                 try:
                     request_body.add_message(
