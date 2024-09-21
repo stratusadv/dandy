@@ -38,7 +38,7 @@ def service_system_validation_error_prompt(e: ValidationError) -> Prompt:
     for error in ve:
         ve_string += f'{error["type"].__str__()}: {error["loc"].__str__()} {error["input"].__str__()}\n'.replace("'", '"')
 
-    print(ve_string)
+    # print(ve_string)
 
     return (
         Prompt()
