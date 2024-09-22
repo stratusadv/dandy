@@ -1,6 +1,6 @@
 from enum import Enum
 from time import time
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Union, Self
 
 from pydantic import BaseModel, Field
 
@@ -19,6 +19,11 @@ class BaseEvent(BaseModel):
     action: str
     type: EventType
     time: float = Field(default_factory=time)
+    run_time: float = 0.0
+    description: Union[str, None] = None
+
+    def calculate_run_time(self, pre_event: Self):
+        self.run_time = self.time - pre_event.time
 
 
 class RunEvent(BaseEvent):
