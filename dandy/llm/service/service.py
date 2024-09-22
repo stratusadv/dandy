@@ -119,17 +119,6 @@ class Service:
             try:
                 model = model.model_validate_json(message_content)
 
-                # DELETE -------------------------------------------------------------------------
-                class Cat(BaseModel):
-                    name: str
-                    age: int
-                    breed: str
-
-                json_bad = '{"name": "Mr. Wiskers", "breed": "Maine Coon"}'
-
-                mr_wiskers_good = Cat.model_validate_json(json_bad)
-                # DELETE -------------------------------------------------------------------------
-
                 debug_record_llm_success(
                     'Validated response from prompt into model object.',
                     model=model

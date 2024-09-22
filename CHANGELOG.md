@@ -1,6 +1,6 @@
 # Changelog
 
-# v0.0.8
+# v0.0.9
 
 ### Features
 - Debug Recorder output to html drastically improved with a lot of new features.
