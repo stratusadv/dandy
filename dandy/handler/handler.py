@@ -3,7 +3,7 @@ from abc import abstractmethod, ABCMeta
 from typing import Any
 
 from dandy.debug.debug import DebugRecorder
-from dandy.debug.events import RunEvent
+from dandy.debug.events import RunEvent, ResultEvent
 
 
 class ProcessDebugABCMeta(ABCMeta):
@@ -36,6 +36,21 @@ class ProcessDebugABCMeta(ABCMeta):
                         cls._debugger_called = True
 
                     result = original_func(cls, *args, **kwargs)
+
+                    if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
+                        DebugRecorder.add_event(
+                            ResultEvent(
+                                actor=cls.__name__,
+                                action='Returned Result',
+                                description=json.dumps(
+                                    {
+                                        'result': result
+                                    },
+                                    indent=4,
+                                    default=lambda _: '<unserializable>'
+                                )
+                            )
+                        )
 
                     cls._debugger_called = False  # Reset only if this is the base class
 

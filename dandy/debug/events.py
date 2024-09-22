@@ -10,6 +10,7 @@ class EventType(str, Enum):
     RETRY = 'retry'
     REQUEST = 'request'
     RESPONSE = 'response'
+    RESULT = 'result'
     SUCCESS = 'success'
     FAILURE = 'failure'
 
@@ -24,6 +25,10 @@ class BaseEvent(BaseModel):
 
     def calculate_run_time(self, pre_event: Self):
         self.run_time = self.time - pre_event.time
+
+
+class ResultEvent(BaseEvent):
+    type: EventType = EventType.RESULT
 
 
 class RunEvent(BaseEvent):
