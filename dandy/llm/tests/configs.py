@@ -8,6 +8,7 @@ OLLAMA_LLAMA_3_1 = OllamaLlmConfig(
     port=int(os.getenv("OLLAMA_PORT", 11434)),
     model='llama3.1',
     temperature=1.0,
+    prompt_retry_count=3,
 )
 
 

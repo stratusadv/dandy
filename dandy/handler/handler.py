@@ -1,9 +1,9 @@
-from abc import abstractmethod, ABC, ABCMeta
+import json
+from abc import abstractmethod, ABCMeta
 from typing import Any
 
 from dandy.debug.debug import DebugRecorder
-from dandy.debug.events import SuccessEvent, RunEvent
-from dandy.handler.events import HandlerRunEvent
+from dandy.debug.events import RunEvent
 
 
 class ProcessDebugABCMeta(ABCMeta):
@@ -23,6 +23,14 @@ class ProcessDebugABCMeta(ABCMeta):
                             RunEvent(
                                 actor=cls.__name__,
                                 action='Process',
+                                description=json.dumps(
+                                    {
+                                        'args': args,
+                                        'kwargs': kwargs
+                                    },
+                                    indent=4,
+                                    default=lambda _: '<unserializable>'
+                                )
                             )
                         )
                         cls._debugger_called = True

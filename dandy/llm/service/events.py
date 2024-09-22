@@ -11,12 +11,15 @@ class LlmServiceFailureEvent(LlmServiceEvent):
 
 class LlmServiceRequestEvent(LlmServiceEvent):
     request: dict
+    temperature: float
+    estimated_tokens: int = 0
     action: str = 'Request'
     type: EventType = EventType.REQUEST
 
 
 class LlmServiceResponseEvent(LlmServiceEvent):
     response: str
+    estimated_tokens: int = 0
     action: str = 'Response'
     type: EventType = EventType.RESPONSE
 

@@ -13,6 +13,9 @@ class OpenaiRequestBody(BaseRequestBody):
     seed: Optional[int] = None
     temperature: Optional[float] = None
 
+    def get_temperature(self) -> float:
+        return self.temperature
+
     def set_format_to_json(self):
         self.response_format = _JSON_RESPONSE_FORMAT
 
