@@ -19,6 +19,8 @@ class OllamaRequestBody(BaseRequestBody):
     stream: bool = False
     format: str = _JSON_FORMAT
 
+    def get_temperature(self):
+        return self.options.temperature
 
     def set_format_to_json(self):
         self.format = _JSON_FORMAT

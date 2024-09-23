@@ -23,6 +23,11 @@ class Debugger(BaseModel):
     ):
         self.events.append(event)
 
+    def calculate_event_run_times(self):
+        self.events[0].run_time = 0.0
+        for i in range(1, len(self.events)):
+            self.events[i].calculate_run_time(self.events[i - 1])
+
     def clear(self):
         self.start_time = 0.0
         self.stop_time = 0.0
@@ -35,6 +40,7 @@ class Debugger(BaseModel):
     def stop(self):
         self.stop_time = time()
         self.run_time = self.stop_time - self.start_time
+        self.calculate_event_run_times()
         self.is_recording = False
 
     def to_html(self, path=''):

@@ -4,6 +4,7 @@ from typing import Type, Optional
 from pydantic import BaseModel
 from pydantic import ValidationError
 
+from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.llm.prompt import Prompt
 
 
@@ -30,17 +31,12 @@ def service_system_model_prompt(
     return prompt
 
 
-def service_system_validation_error_prompt(e: ValidationError) -> Prompt:
-    ve = json.loads(e.json())
-    ve_string = ''
-    for error in ve:
-        ve_string += f'{error["type"].__str__()}: {error["loc"].__str__()} {error["input"].__str__()}\n'.replace("'", '"')
-
+def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
     return (
         Prompt()
         .text('The JSON response you provided was not valid.')
         .text('Here is the validation error provided by Pydantic when it tried to parse the JSON object:')
-        .text(f'{ve_string}', triple_quote=True)
+        .text(f'{pydantic_validation_error_to_str(error)}', triple_quote=True)
         .text('Please provide a valid JSON object based on my earlier request.')
     )
 

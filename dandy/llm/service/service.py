@@ -5,10 +5,13 @@ import json
 from time import sleep
 from typing import Type, Optional, Union, TYPE_CHECKING
 
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 
 from dandy.core.type_vars import ModelType
+from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
+from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
+    debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
     LlmServiceFailureEvent, LlmServiceRetryEvent
 from dandy.llm.exceptions import LlmException, LlmValidationException
@@ -16,6 +19,7 @@ from dandy.llm.prompt import Prompt
 from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
+from dandy.llm.utils import str_to_token_count
 
 if TYPE_CHECKING:
     from dandy.llm.config import BaseLlmConfig
@@ -50,9 +54,16 @@ class Service:
             content=prompt_str
         )
 
-        return self._config.get_response_content(
+        debug_record_llm_request(request_body)
+
+        message_content = self._config.get_response_content(
             self.post_request(request_body.model_dump())
         )
+
+        debug_record_llm_response(message_content)
+        debug_record_llm_success('Assistant properly returned a response.')
+
+        return message_content
 
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
         connection_kwargs = {
@@ -80,7 +91,7 @@ class Service:
             prefix_system_prompt: Optional[Prompt] = None
     ) -> ModelType:
 
-        for attempt in range(self._config.prompt_retry_count):
+        for attempt in range(self._config.prompt_retry_count + 1):
 
             request_body = self.get_request_body()
 
@@ -97,28 +108,27 @@ class Service:
                 content=service_user_prompt(prompt).to_str()
             )
 
-            if DebugRecorder.is_recording:
-                DebugRecorder.add_event(LlmServiceRequestEvent(request=request_body.model_dump()))
+            debug_record_llm_request(request_body)
 
             message_content = self._config.get_response_content(
                 self.post_request(request_body.model_dump())
             )
 
-            if DebugRecorder.is_recording:
-                DebugRecorder.add_event(LlmServiceResponseEvent(response=message_content))
+            debug_record_llm_response(message_content)
 
             try:
                 model = model.model_validate_json(message_content)
 
-                if DebugRecorder.is_recording:
-                    DebugRecorder.add_event(LlmServiceSuccessEvent())
+                debug_record_llm_success(
+                    'Validated response from prompt into model object.',
+                    model=model
+                )
 
                 return model
 
             except ValidationError as e:
-                if DebugRecorder.is_recording:
-                    DebugRecorder.add_event(LlmServiceFailureEvent())
-                    DebugRecorder.add_event(LlmServiceRetryEvent())
+                debug_record_llm_validation_failure(e)
+                debug_record_llm_retry('Validation of response to model object failed retrying with validation errors prompt.')
 
                 try:
                     request_body.add_message(
@@ -131,28 +141,32 @@ class Service:
                     )
 
                     if DebugRecorder.is_recording:
-                        DebugRecorder.add_event(LlmServiceRequestEvent(request=request_body.model_dump()))
+                        debug_record_llm_request(request_body)
 
                     message_content = self._config.get_response_content(
                         self.post_request(request_body.model_dump())
                     )
 
                     if DebugRecorder.is_recording:
-                        DebugRecorder.add_event(LlmServiceResponseEvent(response=message_content))
+                        debug_record_llm_response(message_content)
 
                     model = model.model_validate_json(message_content)
 
-                    if DebugRecorder.is_recording:
-                        DebugRecorder.add_event(LlmServiceSuccessEvent())
+                    debug_record_llm_success(
+                        'Validated response from validation errors prompt into model object.',
+                        model=model
+                    )
 
                     return model
 
                 except ValidationError as e:
-                    if DebugRecorder.is_recording:
-                        DebugRecorder.add_event(LlmServiceFailureEvent())
+                    debug_record_llm_validation_failure(e)
 
-                if DebugRecorder.is_recording and attempt < self._config.prompt_retry_count - 1:
-                    DebugRecorder.add_event(LlmServiceRetryEvent())
+                if self._config.prompt_retry_count - 1:
+                    debug_record_llm_retry(
+                        'Response after validation errors prompt failed.\nRetrying with original prompt.',
+                        remaining_attempts=self._config.prompt_retry_count - attempt
+                    )
         else:
             raise LlmValidationException
 
