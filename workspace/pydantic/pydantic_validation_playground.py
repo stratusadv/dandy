@@ -19,5 +19,5 @@ try:
 
 except ValidationError as e:
     ve = e.__str__().replace("'", '"')
-    print(e)
+    print(type(e))
     print(ve)

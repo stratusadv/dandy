@@ -5,21 +5,17 @@ import json
 from time import sleep
 from typing import Type, Optional, Union, TYPE_CHECKING
 
-from pydantic import ValidationError, BaseModel
+from pydantic import ValidationError
 
 from dandy.core.type_vars import ModelType
-from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
-from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
-    debug_record_llm_validation_failure, debug_record_llm_retry
-from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
-    LlmServiceFailureEvent, LlmServiceRetryEvent
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
 from dandy.llm.request.request import BaseRequestBody
+from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
+    debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
-from dandy.llm.utils import str_to_token_count
 
 if TYPE_CHECKING:
     from dandy.llm.config import BaseLlmConfig
