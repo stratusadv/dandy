@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import List, Self, Union
+from typing import List, Self, Union, Type
 
 from dandy.bot import LlmBot
 
 
 class LlmAgent(LlmBot, ABC):
-    name: str
-    agents: Union[List[Self], None] = None
+    agents: Union[List[Type[Self]], None] = None
 
     @classmethod
     @abstractmethod
