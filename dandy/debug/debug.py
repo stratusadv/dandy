@@ -44,7 +44,9 @@ class Debugger(BaseModel):
         self.is_recording = False
 
     def to_html(self, path=''):
-        self.stop()
+        if self.is_recording:
+            self.stop()
+
         with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
             new_html = debug_html.read().replace(
                 '__debug_output__',

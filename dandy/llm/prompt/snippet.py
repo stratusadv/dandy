@@ -106,7 +106,7 @@ class TitleSnippet(Snippet):
     title: str
 
     def _to_str(self) -> str:
-        return f'{self.title.capitalize()}\n'
+        return f'**{self.title.capitalize()}**\n'
 
 
 @dataclass(kw_only=True)

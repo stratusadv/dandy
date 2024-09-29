@@ -4,6 +4,9 @@ include CHANGELOG.md
 include CONTRIBUTORS.md
 recursive-include dandy *
 exclude *.db
-recursive-exclude tests
-recursive-exclude docs
 recursive-exclude .github
+recursive-exclude .venv
+recursive-exclude docs
+recursive-exclude example
+recursive-exclude tests
+recursive-exclude workspace

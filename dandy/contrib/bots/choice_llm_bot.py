@@ -36,9 +36,9 @@ class _ChoiceLlmBot(LlmBot, ABC):
 
         prompt = (
             Prompt()
-            .text('This is the user input:')
-            .text(user_input, triple_quote=True)
-            .text('These are the choices:')
+            .text(user_input)
+            .line_break()
+            .text('These are the choices to pick from:')
         )
 
         if isinstance(choices, type) and issubclass(choices, Enum):
