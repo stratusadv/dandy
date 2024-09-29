@@ -1,6 +1,6 @@
 from unittest import TestCase
 
 
-class TestDebug(TestCase):
-    def test_debug(self):
+class TestLlmBot(TestCase):
+    def test_llm_bot(self):
         self.fail('Test is incomplete')

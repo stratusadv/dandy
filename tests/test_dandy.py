@@ -1,8 +1,5 @@
 from unittest import TestCase
 
 class TestDandy(TestCase):
-    def setUp(self):
-        ...
-
-    def test_workflow(self):
-        pass
+    def test_dandy(self):
+        self.fail('Test is incomplete')

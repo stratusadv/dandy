@@ -1,6 +1,6 @@
 from unittest import TestCase
 
 
-class TestDebug(TestCase):
-    def test_debug(self):
+class TestPrompt(TestCase):
+    def test_prompt(self):
         self.fail('Test is incomplete')
