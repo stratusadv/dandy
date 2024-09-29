@@ -80,6 +80,14 @@ OPENAI_GPT_3_5_TURBO = OpenaiLlmConfig(
     model='gpt-3.5-turbo',
     api_key=os.getenv("OPENAI_API_KEY"),
 )
+
+OPENAI_GPT_4o_MINI = OpenaiLlmConfig(
+    host=os.getenv("OPENAI_HOST"),
+    port=int(os.getenv("OPENAI_PORT", 443)),
+    model='gpt-4o-mini',
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
+
 ```
 
 ### Usage

@@ -1,16 +1,30 @@
 # Changelog
 
-# v0.0.10
+## v0.0.11
+
+### Features
+
+- Experimental agent support
+- Improved Testing
+
+### Changes
+
+### Fixes
+
+- Fixed the prompt title to use a better format.
+- Choice LLM Bot has improved default prompts.
+
+## v0.0.10
 
 ### Features
 - Debug Recorder output to html drastically improved with a lot of new features.
 
-# v0.0.7
+## v0.0.7
 
 ### Features
 - Added Debug Recorder.
 
-# v0.0.6
+## v0.0.6
 
 ### Features
 - You can now change set llm_temperature and llm_seed in the LLL Bot for easy customization of each bot.
@@ -18,7 +32,7 @@
 ### Fixes
 - Fixed the LlmValidationException to not have arguments
 
-# v0.0.5
+## v0.0.5
 
 ### Features
 - Llm Config now has more options
@@ -29,18 +43,18 @@
 ### Fixes
 - Remove dead utility function for counting estimated tokens in prompts
 
-# v0.0.4
+## v0.0.4
 
 ### Features
 - Choice Llm Bot can now handle dictionaries Key is used for the choice and the values are returned
 - You can now use a Llm config to directly prompt an assistant with a string and return a string
 
-# v0.0.3
+## v0.0.3
 
 ### Changes
 - Change the structure for Llm config, service and http to be able to handle mutiple Llm services easily
 
-# v0.0.2
+## v0.0.2
 
 ### Features
 - LLM Service Retries
