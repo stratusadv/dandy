@@ -21,7 +21,7 @@ class Snippet(ABC):
 
     def to_str(self):
         if self.triple_quote:
-            return f'"""\n{self._to_str()}\"""\n'
+            return f'"""\n{self._to_str()}"""\n'
         else:
             return self._to_str()
 

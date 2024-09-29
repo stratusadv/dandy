@@ -16,7 +16,7 @@ class PirateStoryWorkflow(Workflow):
         key, ocean = ocean_choice.popitem()
 
 
-        return OLLAMA_LLAMA_3_2.service.assistant_string_prompt_to_string(str((
+        return OLLAMA_LLAMA_3_2.service.assistant_str_prompt_to_str(str((
             Prompt()
             .text('Describe a pirate adventure in the following ocean:')
             .model_object(ocean, triple_quote=True)

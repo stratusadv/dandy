@@ -18,10 +18,6 @@ def exception_to_str_nicely(ex: Exception) -> str:
     ])
 
 
-def lower_dict_keys(dictionary: dict) -> dict:
-    return {k.lower(): v for k, v in dictionary.items()}
-
-
 def get_estimated_token_count_for_prompt(
         prompt: Prompt,
         model: Type[ModelType],

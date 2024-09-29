@@ -32,7 +32,7 @@ class Service:
         self._seed = seed
         self._temperature = temperature
 
-    def assistant_string_prompt_to_string(
+    def assistant_str_prompt_to_str(
             self,
             string_prompt: str,
     ) -> str:

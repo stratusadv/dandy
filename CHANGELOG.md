@@ -4,10 +4,12 @@
 
 ### Features
 
-- Experimental agent support
-- Improved Testing
+- Improved Testing and Debugging
 
 ### Changes
+
+- DebugRecorder method "to_html" renamed to "to_html_file"
+- LLM service method "assistant_prompt_str_to_str" renamed to "assistant_str_prompt_to_str"
 
 ### Fixes
 
