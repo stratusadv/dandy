@@ -1,12 +1,8 @@
-import os
 from enum import Enum
 
 from dandy.contrib.bots import SingleChoiceLlmBot, MultipleChoiceLlmBot
-from dandy.contrib.bots.choice_llm_bot import MultipleChoiceResponse
 from dandy.debug.debug import DebugRecorder
-from dandy.llm.tests.configs import OLLAMA_LLAMA_3_1
-from tests.bots.work_order_comparison_bot import WorkOrderComparisonBot
-from tests.factories import generate_current_work_order
+from tests.llm.config.configs import OLLAMA_LLAMA_3_1
 
 
 # matching_work_orders = WorkOrderComparisonBot.process(generate_current_work_order())

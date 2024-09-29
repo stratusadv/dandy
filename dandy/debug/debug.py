@@ -43,16 +43,20 @@ class Debugger(BaseModel):
         self.calculate_event_run_times()
         self.is_recording = False
 
-    def to_html(self, path=''):
-        self.stop()
+    def to_html_file(self, path=''):
+        with open(Path(path, f'{self.name}_debug_output.html'), 'w') as new_debug_html:
+            new_debug_html.write(self.to_html_str())
+
+    def to_html_str(self) -> str:
+        if self.is_recording:
+            self.stop()
+
         with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
-            new_html = debug_html.read().replace(
+            return debug_html.read().replace(
                 '__debug_output__',
                 self.model_dump_json().replace('"', "'"),
             )
 
-        with open(Path(path, f'{self.name}_debug_output.html'), 'w') as new_debug_html:
-            new_debug_html.write(new_html)
 
 
 class DebugRecorder(Singleton):
@@ -91,5 +95,10 @@ class DebugRecorder(Singleton):
         return any([debugger.is_recording for debugger in cls.debuggers.values()])
 
     @classmethod
-    def to_html(cls, name: str = 'default',  path=''):
-        cls.debuggers[name].to_html(path)
+    def to_html_file(cls, name: str = 'default',  path=''):
+        cls.debuggers[name].to_html_file(path)
+
+    @classmethod
+    def to_html_str(cls, name: str = 'default') -> str:
+        return cls.debuggers[name].to_html_str()
+

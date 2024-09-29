@@ -5,24 +5,20 @@ import json
 from time import sleep
 from typing import Type, Optional, Union, TYPE_CHECKING
 
-from pydantic import ValidationError, BaseModel
+from pydantic import ValidationError
 
 from dandy.core.type_vars import ModelType
-from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
-from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
-    debug_record_llm_validation_failure, debug_record_llm_retry
-from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
-    LlmServiceFailureEvent, LlmServiceRetryEvent
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
-from dandy.llm.request.request import BaseRequestBody
+from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
+    debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
-from dandy.llm.utils import str_to_token_count
 
 if TYPE_CHECKING:
     from dandy.llm.config import BaseLlmConfig
+    from dandy.llm.request.request import BaseRequestBody
 
 
 class Service:
@@ -36,13 +32,13 @@ class Service:
         self._seed = seed
         self._temperature = temperature
 
-    def assistant_prompt_str_to_str(
+    def assistant_str_prompt_to_str(
             self,
-            prompt_str: str,
+            string_prompt: str,
     ) -> str:
-        request_body = self.get_request_body()
+        request_body: BaseRequestBody = self.get_request_body()
 
-        request_body.set_format_text()
+        request_body.set_format_to_text()
 
         request_body.add_message(
             role='system',
@@ -51,7 +47,7 @@ class Service:
 
         request_body.add_message(
             role='user',
-            content=prompt_str
+            content=string_prompt
         )
 
         debug_record_llm_request(request_body)
@@ -60,7 +56,7 @@ class Service:
             self.post_request(request_body.model_dump())
         )
 
-        debug_record_llm_response(message_content)
+        debug_record_llm_response(message_content.replace("'", '"'))
         debug_record_llm_success('Assistant properly returned a response.')
 
         return message_content

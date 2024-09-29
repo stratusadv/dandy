@@ -21,7 +21,7 @@ class Snippet(ABC):
 
     def to_str(self):
         if self.triple_quote:
-            return f'"""\n{self._to_str()}\"""\n'
+            return f'"""\n{self._to_str()}"""\n'
         else:
             return self._to_str()
 
@@ -106,7 +106,7 @@ class TitleSnippet(Snippet):
     title: str
 
     def _to_str(self) -> str:
-        return f'{self.title.capitalize()}\n'
+        return f'**{self.title.capitalize()}**\n'
 
 
 @dataclass(kw_only=True)

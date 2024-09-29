@@ -1,12 +1,28 @@
 from unittest import TestCase
 
-from tests.factories import generate_current_work_order, generate_existing_work_order_list
+from dandy.debug.debug import DebugRecorder
+from example.pirate.intelligence.workflow.pirate_story_workflow import PirateStoryWorkflow
 
 
 class TestDandy(TestCase):
     def setUp(self):
-        self.current_work_order = generate_current_work_order()
-        self.existing_work_order_list = generate_existing_work_order_list()
+        self.pirate_story = ''
 
-    def test_workflow(self):
-        pass
+    def test_dandy(self):
+        try:
+            DebugRecorder.start_recording()
+            self.pirate_story = PirateStoryWorkflow.process('N/A')
+
+        except:
+            import traceback
+            traceback.print_exc()
+
+            self.assertTrue(False)
+
+        finally:
+            DebugRecorder.stop_recording()
+
+            if self.pirate_story != '':
+                self.assertTrue(True)
+            else:
+                self.assertTrue(False)
