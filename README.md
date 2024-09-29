@@ -1,4 +1,4 @@
-from dandy.llm.tests.configs import OPENAI_GPT_3_5_TURBO<p align="center">
+<p align="center">
   <img src="./docs/images/dandy_logo_512.png" alt="Dandy AI Framework">
 </p>
 
@@ -70,15 +70,17 @@ OPENAI_GPT_4o_MINI = OpenaiLlmConfig(
     model='gpt-4o-mini',
     api_key=os.getenv("OPENAI_API_KEY"),
 )
-
 ```
 
 ### Usage
 
 ```python
 from pydantic import BaseModel
+
 from dandy.bot import LlmBot
 from dandy.llm import Prompt
+
+from your_module.intelligence.config import OPENAI_GPT_3_5_TURBO
 
 class CookieRecipe(BaseModel):
     name: str
@@ -95,6 +97,7 @@ class CookieRecipeLlmBot(LlmBot):
         'Names of recipe should be as short as possible',
       ])
     )
+    llm_config = OPENAI_GPT_3_5_TURBO
 
 cookie_recipe = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli!'),
@@ -102,5 +105,4 @@ cookie_recipe = CookieRecipeLlmBot.process(
 )
 
 print(cookie_recipe.instructions)
-
 ```
