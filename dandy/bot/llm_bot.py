@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Type, Union
+from typing import Type, Union, Any
 
 from dandy.bot.bot import Bot
 from dandy.core.type_vars import ModelType
@@ -13,6 +13,13 @@ class LlmBot(Bot, ABC):
     llm_config: BaseLlmConfig
     llm_temperature: Union[float, None] = None
     llm_seed: Union[int, None] = None
+
+    @classmethod
+    def process(cls, prompt: Prompt, model: Type[ModelType]) -> ModelType:
+        return cls.process_prompt_to_model_object(
+            prompt=prompt,
+            model=model
+        )
 
     @classmethod
     def process_prompt_to_model_object(

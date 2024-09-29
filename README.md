@@ -2,20 +2,7 @@ from dandy.llm.tests.configs import OPENAI_GPT_3_5_TURBO<p align="center">
   <img src="./docs/images/dandy_logo_512.png" alt="Dandy AI Framework">
 </p>
 
-## What
-
-Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic.
-
-## Why
-
-In the pursuit of delivering incredible outcomes to our client we felt we needed a framework that could handle the demands of the future when it comes to artificial intelligence.
-
-## Pillars of This Project
-
-- Opinionated design with specific ways of building intelligence.
-- Pythonic design that had recommended patterns and idioms.
-
-## Getting Started
+Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic putting the project and developers first.
 
 ### Installation
 
@@ -48,10 +35,6 @@ module_a/
 
 ### Modules
 
-#### Agent
-
-- Used to complete more complex though process with a specific output.
-
 #### Bot
 
 - Should accomplish one single task.
@@ -72,7 +55,7 @@ module_a/
 
 ```python
 import os
-from dandy import OpenaiLlmConfig, OllamaLlmConfig
+from dandy.llm.config import OpenaiLlmConfig
 
 OPENAI_GPT_3_5_TURBO = OpenaiLlmConfig(
     host=os.getenv("OPENAI_HOST"),
@@ -92,5 +75,32 @@ OPENAI_GPT_4o_MINI = OpenaiLlmConfig(
 
 ### Usage
 
-### Other Information
+```python
+from pydantic import BaseModel
+from dandy.bot import LlmBot
+from dandy.llm import Prompt
 
+class CookieRecipe(BaseModel):
+    name: str
+    instructions: str
+
+class CookieRecipeLlmBot(LlmBot):
+    role_prompt = Prompt().text('You are a cookie receipe bot.')
+    instructions_prompt = (
+      Prompt()
+      .text('Your job is to follow the instructions provided below.')
+      .unordered_random_list([
+        'Create a cookie based on the users input',
+        'Make sure the instructions are easy to follow',
+        'Names of recipe should be as short as possible',
+      ])
+    )
+
+cookie_recipe = CookieRecipeLlmBot.process(
+    prompt=Prompt().text('I love broccoli!'),
+    model=CookieRecipe
+)
+
+print(cookie_recipe.instructions)
+
+```
