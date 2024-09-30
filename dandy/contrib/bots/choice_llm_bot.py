@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing_extensions import Tuple, List, Union, overload, Type, Dict
+from typing import Tuple, List, Union, overload, Type, Dict
 
 from pydantic import BaseModel
 

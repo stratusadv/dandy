@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing_extensions import List, Dict
+from typing import List, Dict
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
 

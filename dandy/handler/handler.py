@@ -1,6 +1,5 @@
 import json
 from abc import abstractmethod, ABCMeta
-from typing_extensions import Any
 
 from dandy.core.utils import json_default
 from dandy.debug.debug import DebugRecorder

@@ -10,7 +10,6 @@
 
 - DebugRecorder method "to_html" renamed to "to_html_file"
 - LLM service method "assistant_prompt_str_to_str" renamed to "assistant_str_prompt_to_str"
-- Changed from using the typing standard library to using the typing_extensions library for better backwards compatibility
 
 ### Fixes
 

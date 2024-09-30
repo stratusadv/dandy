@@ -1,4 +1,4 @@
-from typing_extensions import List, Type, Self, Dict
+from typing import List, Type, Self, Dict
 
 from pydantic import BaseModel
 

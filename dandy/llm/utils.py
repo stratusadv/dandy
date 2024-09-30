@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import traceback
-from typing_extensions import TYPE_CHECKING, Type, Optional
+from typing import TYPE_CHECKING, Type, Optional
 
 from dandy.core.type_vars import ModelType
 from dandy.llm.prompt.prompt import CHARACTERS_PER_TOKEN

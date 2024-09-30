@@ -1,4 +1,4 @@
-from typing_extensions import Optional
+from typing import Optional
 
 from dandy.llm.request.request import BaseRequestBody
 

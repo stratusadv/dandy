@@ -2,7 +2,7 @@ from enum import Enum
 from time import time
 
 from pydantic import BaseModel, Field
-from typing_extensions import Union, Self
+from typing import Union, Self
 
 
 class EventType(str, Enum):
