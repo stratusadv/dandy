@@ -4,7 +4,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from random import randint, shuffle
-from typing_extensions_extensions import List, Type, TYPE_CHECKING, Dict
+from typing_extensions import List, Type, TYPE_CHECKING, Dict
 
 from pydantic import BaseModel
 
