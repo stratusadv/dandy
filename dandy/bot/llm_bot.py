@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Type, Union
+from typing_extensions import Type, Union
 
 from dandy.bot.bot import Bot
 from dandy.core.type_vars import ModelType

@@ -3,7 +3,7 @@ from __future__ import annotations
 import http.client
 import json
 from time import sleep
-from typing import Type, Optional, Union, TYPE_CHECKING
+from typing_extensions import Type, Optional, Union, TYPE_CHECKING
 
 from pydantic import ValidationError
 

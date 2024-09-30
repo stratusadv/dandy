@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing_extensions_extensions import TypeVar
 
 from pydantic import BaseModel
 

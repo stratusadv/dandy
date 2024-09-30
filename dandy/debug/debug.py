@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from time import time
-from typing import Dict, List
+from typing_extensions import Dict, List
 
 from pydantic import BaseModel, Field
 

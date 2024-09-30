@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing_extensions import List
 
 from pydantic import BaseModel, Field
 
