@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tests.llm.config.configs import OLLAMA_LLAMA_3_1
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1
 
 
 class TestService(TestCase):

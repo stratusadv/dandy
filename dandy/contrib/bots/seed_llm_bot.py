@@ -1,10 +1,8 @@
-import os
-
-from pydantic import BaseModel
 from typing import Any, Type
 
+from pydantic import BaseModel
+
 from dandy.bot import LlmBot
-from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.llm.prompt import Prompt
 
 

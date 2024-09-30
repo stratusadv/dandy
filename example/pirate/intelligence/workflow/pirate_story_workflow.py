@@ -2,7 +2,7 @@ from dandy.llm.prompt import Prompt
 from dandy.workflow import Workflow
 from example.pirate.world.datasets import OCEANS
 from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
-from tests.llm.config.configs import OLLAMA_LLAMA_3_2
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_2
 
 
 class PirateStoryWorkflow(Workflow):
