@@ -60,8 +60,7 @@ class ProcessDebugABCMeta(ABCMeta):
 
 
 class Handler(metaclass=ProcessDebugABCMeta):
-
     @classmethod
     @abstractmethod
-    def process(cls, **kwargs: Any) -> Any:
+    def process(cls, **kwargs):
         ...
