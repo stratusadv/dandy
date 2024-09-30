@@ -1,6 +1,6 @@
 from enum import Enum
 from time import time
-from typing import List, Any, Dict, Union, Self
+from typing_extensions import List, Any, Dict, Union, Self
 
 from pydantic import BaseModel, Field
 

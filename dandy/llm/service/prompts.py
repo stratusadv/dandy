@@ -1,5 +1,5 @@
 import json
-from typing import Type, Optional
+from typing_extensions import Type, Optional
 
 from pydantic import BaseModel
 from pydantic import ValidationError
