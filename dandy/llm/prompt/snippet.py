@@ -45,6 +45,21 @@ class DividerSnippet(Snippet):
 
 
 @dataclass(kw_only=True)
+class ArraySnippet(Snippet):
+    items: List[str]
+
+    def _to_str(self) -> str:
+        return '[\n'+',\n'.join(f'"{item}"' for item in self.items) + '\n]'
+
+
+@dataclass(kw_only=True)
+class ArrayRandomOrderSnippet(ArraySnippet):
+    def _to_str(self) -> str:
+        shuffle(self.items)
+        return super()._to_str()
+
+
+@dataclass(kw_only=True)
 class LineBreakSnippet(Snippet):
     def _to_str(self) -> str:
         return '\n'
@@ -121,5 +136,5 @@ class UnorderedListSnippet(Snippet):
 class UnorderedRandomListSnippet(UnorderedListSnippet):
     def _to_str(self) -> str:
         shuffle(self.items)
-        return '\n'.join(f'- {item}' for item in self.items) + '\n'
+        return super()._to_str()
 

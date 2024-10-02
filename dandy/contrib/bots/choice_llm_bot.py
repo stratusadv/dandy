@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing_extensions import Tuple, List, Union, overload, Type, Dict
+from typing_extensions import Tuple, List, Union, overload, Type, Dict, Any
 
 from pydantic import BaseModel
 
@@ -30,7 +30,7 @@ class _ChoiceLlmBot(LlmBot, ABC):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Union[str, int, float, bool]]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Any]],
             choice_response_model: Union[Type[SingleChoiceResponse], Type[MultipleChoiceResponse]]
     ) -> Union[SingleChoiceResponse, MultipleChoiceResponse]:
 
@@ -42,11 +42,11 @@ class _ChoiceLlmBot(LlmBot, ABC):
         )
 
         if isinstance(choices, type) and issubclass(choices, Enum):
-            prompt.unordered_random_list([choice.value for choice in choices], triple_quote=True)
+            prompt.array_random_order([choice.value for choice in choices])
         elif isinstance(choices, (list, tuple)):
-            prompt.unordered_random_list(choices, triple_quote=True)
+            prompt.array_random_order(choices)
         elif isinstance(choices, dict):
-            prompt.unordered_random_list(list(choices.keys()), triple_quote=True)
+            prompt.array_random_order(list(choices.keys()))
         else:
             raise BotException('Choices must be an Enum, a list or a tuple.')
 
@@ -62,9 +62,9 @@ class _ChoiceOverloadMixin:
     def process(
             cls,
             user_input: str,
-            choices: Dict[str, Union[str, int, float, bool]],
+            choices: Dict[str, Any],
             choice_response_model: Type[BaseModel]
-    ) -> Union[Dict[str, Union[str, int, float, bool]], None]:
+    ) -> Union[Dict[str, Any], None]:
         ...
 
     @classmethod
@@ -91,7 +91,7 @@ class _ChoiceOverloadMixin:
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Union[str, int, float, bool]]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Any]],
             **kwargs
     ) -> Union[Enum, List[Enum], str, List[Union[str, int, float, bool]], None]:
         ...
@@ -108,9 +108,9 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Union[str, int, float, bool]]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Any]],
             **kwargs
-    ) -> Union[Enum, str, int, float, bool, Dict[str, Union[str, int, float, bool]], None]:
+    ) -> Union[Enum, str, int, float, bool, Dict[str, Any], None]:
 
         choice_response = super().process(
             user_input=user_input,
@@ -142,9 +142,9 @@ class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Union[str, int, float, bool]]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, Any]],
             **kwargs
-    ) -> Union[List[Enum], List[Union[str, int, float, bool]], Dict[str, Union[str, int, float, bool]], None]:
+    ) -> Union[List[Enum], List[Union[str, int, float, bool]], Dict[str, Any], None]:
 
         choice_response = super().process(
             user_input=user_input,

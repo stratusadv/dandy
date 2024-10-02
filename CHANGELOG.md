@@ -5,11 +5,13 @@
 ### Features
 
 - Improved Testing and Debugging
+- Prompts now support array and array_random_order
 
 ### Changes
 
 - DebugRecorder method "to_html" renamed to "to_html_file"
 - LLM service method "assistant_prompt_str_to_str" renamed to "assistant_str_prompt_to_str"
+- Choice LLM Bot now uses array_random_order snippet
 
 ### Fixes
 

@@ -15,13 +15,6 @@ class LlmBot(Bot, ABC):
     llm_seed: Union[int, None] = None
 
     @classmethod
-    def process(cls, prompt: Prompt, model: Type[ModelType]) -> ModelType:
-        return cls.process_prompt_to_model_object(
-            prompt=prompt,
-            model=model
-        )
-
-    @classmethod
     def process_prompt_to_model_object(
             cls,
             prompt: Prompt,

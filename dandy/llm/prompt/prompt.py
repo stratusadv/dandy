@@ -47,6 +47,16 @@ class Prompt:
 
         return self
 
+    def array(self, items: List[str]) -> Self:
+        self.snippets.append(snippet.ArraySnippet(items=items))
+
+        return self
+
+    def array_random_order(self, items: List[str]) -> Self:
+        self.snippets.append(snippet.ArrayRandomOrderSnippet(items=items))
+
+        return self
+
     @property
     def estimated_token_count(self) -> int:
         return int(len(self.to_str()) / CHARACTERS_PER_TOKEN)

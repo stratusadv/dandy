@@ -15,4 +15,4 @@ if __name__ == '__main__':
     finally:
         DebugRecorder.stop_recording()
 
-        DebugRecorder.to_html()
+        DebugRecorder.to_html_file()
