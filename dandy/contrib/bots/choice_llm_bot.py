@@ -30,7 +30,7 @@ class _ChoiceLlmBot(LlmBot, ABC):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, ...]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             choice_response_model: Union[Type[SingleChoiceResponse], Type[MultipleChoiceResponse]]
     ) -> Union[SingleChoiceResponse, MultipleChoiceResponse]:
 
@@ -62,9 +62,9 @@ class _ChoiceOverloadMixin:
     def process(
             cls,
             user_input: str,
-            choices: Dict[str, ...],
+            choices: Dict[str, object],
             choice_response_model: Type[BaseModel]
-    ) -> Union[Dict[str, ...], None]:
+    ) -> Union[Dict[str, object], None]:
         ...
 
     @classmethod
@@ -91,7 +91,7 @@ class _ChoiceOverloadMixin:
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, ...]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
     ) -> Union[Enum, List[Enum], str, List[Union[str, int, float, bool]], None]:
         ...
@@ -108,9 +108,9 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, ...]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
-    ) -> Union[Enum, str, int, float, bool, Dict[str, ...], None]:
+    ) -> Union[Enum, str, int, float, bool, Dict[str, object], None]:
 
         choice_response = super().process(
             user_input=user_input,
@@ -142,9 +142,9 @@ class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     def process(
             cls,
             user_input: str,
-            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, ...]],
+            choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
-    ) -> Union[List[Enum], List[Union[str, int, float, bool]], Dict[str, ...], None]:
+    ) -> Union[List[Enum], List[Union[str, int, float, bool]], Dict[str, object], None]:
 
         choice_response = super().process(
             user_input=user_input,
