@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from time import time
-from typing_extensions import Dict, List, Any
+from typing_extensions import Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -15,7 +15,7 @@ class Debugger(BaseModel):
     start_time: float = 0.0
     stop_time: float = 0.0
     run_time: float = 0.0
-    events: List[Any] = Field(default_factory=list)
+    events: List = Field(default_factory=list)
 
     def add_event(
             self,

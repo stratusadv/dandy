@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Type
 
 from pydantic import BaseModel
 
@@ -21,7 +21,7 @@ class SeedLlmBot(LlmBot):
     )
 
     @classmethod
-    def process(cls, model: Type[BaseModel], **kwargs: Any) -> BaseModel:
+    def process(cls, model: Type[BaseModel], **kwargs) -> BaseModel:
         prompt = (
             cls.instructions_prompt
             .text('Generate the data for the following Pydantic model:')
