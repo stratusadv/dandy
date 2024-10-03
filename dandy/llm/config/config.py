@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing_extensions import Optional, List, Union
+from typing_extensions import List, Union
 
 from pydantic import BaseModel, Field
 
@@ -17,27 +17,27 @@ class BaseLlmConfig(BaseModel):
     url: Url
     port: int
     model: str
-    headers: Optional[dict] = None,
-    api_key: Optional[str] = None,
-    seed: Optional[int] = _DEFAULT_SEED,
-    temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0),
-    connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100),
-    prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10),
+    headers: Union[dict, None] = None,
+    api_key: Union[str, None] = None,
+    seed: Union[int, None] = _DEFAULT_SEED,
+    temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0)
+    connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100)
+    prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10)
 
     def __init__(
             self,
             host: str,
             port: int,
             model: str,
-            path_parameters: Optional[List[str]] = None,
-            query_parameters: Optional[dict] = None,
-            headers: Optional[dict] = None,
-            api_key: Optional[str] = None,
-            seed: Optional[int] = _DEFAULT_SEED,
+            path_parameters: Union[List[str], None] = None,
+            query_parameters: Union[dict, None] = None,
+            headers: Union[dict, None] = None,
+            api_key: Union[str, None] = None,
+            seed: Union[int, None] = _DEFAULT_SEED,
             temperature: float = _DEFAULT_TEMPERATURE,
             connection_retry_count: int = _DEFAULT_CONNECTION_RETRY_COUNT,
             prompt_retry_count: int = _DEFAULT_PROMPT_RETRY_COUNT,
-            request_body: Optional[BaseRequestBody] = None,
+            request_body: Union[BaseRequestBody, None] = None,
     ):
         if headers is None:
             headers = {

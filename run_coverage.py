@@ -30,7 +30,7 @@ def main() -> None:
     virtual_env = cwd / 'venv' / 'Scripts' / 'activate'
     virtual_env_alternate = cwd / '.venv' / 'Scripts' / 'activate'
 
-    parser = argparse.ArgumentParser(description='Run coverage with Django tests.')
+    parser = argparse.ArgumentParser(description='Run coverage with tests.')
 
     apps_help = (
         'The specific app(s) to run coverage on. '
@@ -44,19 +44,6 @@ def main() -> None:
         '-a', '--apps',
         nargs='*',
         help=apps_help,
-    )
-
-    settings_help = (
-        'The Django settings module. '
-        'This is a Python module path that is relative to the project root. '
-        'e.g., system.testing.settings'
-    )
-
-    parser.add_argument(
-        '-s', '--settings',
-        type=str,
-        default='system.testing.settings',
-        help=settings_help
     )
 
     venv_help = (
@@ -103,8 +90,6 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    django_app_paths = ' '.join(args.apps) if args.apps else ''
-
     if Path(args.venv).is_file():
         activate_virtualenv_cmd = virtual_env
     elif virtual_env_alternate.is_file():
@@ -119,18 +104,8 @@ def main() -> None:
 
     pip_install_coverage_cmd = 'pip install coverage'
 
-    django_settings = args.settings
 
-    django_settings_path = cwd.joinpath(
-        *django_settings.split('.')[:-1],
-        f'{django_settings.split(".")[-1]}.py'
-    )
-
-    if not django_settings_path.is_file():
-        message = f'Django test settings "{django_settings_path}" not found.'
-        raise Exception(message)
-
-    print('Running coverage with django tests ...\n')
+    print('Running coverage with tests ...\n')
 
     omits = ','.join(OMITS)
 
@@ -140,11 +115,9 @@ def main() -> None:
         '--branch',
         '--source=.',
         f'--omit={omits}',
-        'manage.py',
-        'test',
-        f'{django_app_paths}',
-        f'--settings={django_settings}',
-        '--noinput'
+        '-m',
+        'unittest',
+        'discover',
     ]
 
     coverage_run_cmd = ' '.join(coverage_run_cmd)

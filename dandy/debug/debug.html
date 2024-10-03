@@ -74,6 +74,10 @@
             white-space: pre-wrap;
         }
 
+        .cursor-pointer {
+            cursor: pointer !important;
+        }
+
     </style>
 
 </head>
@@ -82,11 +86,37 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <div x-data="{
+        init(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = false
+            }
+        },
+
+        open_all(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = true
+            }
+        },
+
+        close_all(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = false
+            }
+        },
+
         debug_output: __debug_output__
     }" class="container-fluid">
-    <div class="row mt-2">
-        <div class="col-12 px-4">
+    <div class="row sticky-top bg-run py-2 border-bottom">
+        <div class="col-auto px-4">
             <span class="fs-4 text-muted">Dandy Debug Recording Output </span>
+        </div>
+        <div class="col-auto">
+            <a class="bg-success card text-decoration-none cursor-pointer rounded me-2 p-2" @click="open_all()">Open All</a>
+        </div>
+        <div class="col-auto">
+            <a class="bg-result card text-decoration-none cursor-pointer rounded p-2" @click="close_all()">Close All</a>
+        </div>
+        <div class="col text-end ">
             <span x-html="'Total Run Time<br>' + debug_output.run_time.toFixed(3) + 's'"
                   class="float-end text-end pe-1"></span>
         </div>
@@ -111,9 +141,9 @@
 
                 <div x-data="{
                     show_details: false
-                }" class="card">
+                }" x-model="debug_event.show_details" x-modelable="show_details" class="card">
 
-                    <div x-on:click="show_details = !show_details" class="card-header ps-2"
+                    <div x-on:click="show_details = !show_details" class="card-header cursor-pointer ps-2"
                          :class="{
                          'bg-request': debug_event.type === 'request',
                          'bg-response': debug_event.type === 'response',

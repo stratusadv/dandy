@@ -3,7 +3,7 @@ from __future__ import annotations
 import http.client
 import json
 from time import sleep
-from typing_extensions import Type, Optional, Union, TYPE_CHECKING
+from typing_extensions import Type, Union, TYPE_CHECKING
 
 from pydantic import ValidationError
 
@@ -25,8 +25,8 @@ class Service:
     def __init__(
             self,
             config: BaseLlmConfig,
-            seed: Optional[int] = None,
-            temperature: Optional[float] = None):
+            seed: Union[int, None] = None,
+            temperature: Union[float, None] = None):
 
         self._config = config
         self._seed = seed
@@ -84,7 +84,7 @@ class Service:
             self,
             prompt: Prompt,
             model: Type[ModelType],
-            prefix_system_prompt: Optional[Prompt] = None
+            prefix_system_prompt: Union[Prompt, None] = None
     ) -> ModelType:
 
         for attempt in range(self._config.prompt_retry_count + 1):

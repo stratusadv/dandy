@@ -1,5 +1,5 @@
 import json
-from typing_extensions import Type, Optional
+from typing_extensions import Type, Union
 
 from pydantic import BaseModel
 from pydantic import ValidationError
@@ -10,7 +10,7 @@ from dandy.llm.prompt import Prompt
 
 def service_system_model_prompt(
         model: Type[BaseModel],
-        prefix_system_prompt: Optional[Prompt] = None
+        prefix_system_prompt: Union[Prompt, None] = None
 ) -> Prompt:
     prompt = Prompt()
 

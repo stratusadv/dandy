@@ -101,4 +101,3 @@ class DebugRecorder(Singleton):
     @classmethod
     def to_html_str(cls, name: str = 'default') -> str:
         return cls.debuggers[name].to_html_str()
-

@@ -1,4 +1,4 @@
-from typing_extensions import Optional
+from typing_extensions import Union
 
 from dandy.llm.request.request import BaseRequestBody
 
@@ -10,8 +10,8 @@ _TEXT_RESPONSE_FORMAT = {'type': 'text'}
 class OpenaiRequestBody(BaseRequestBody):
     stream: bool = False
     response_format: dict = _JSON_RESPONSE_FORMAT
-    seed: Optional[int] = None
-    temperature: Optional[float] = None
+    seed: Union[int, None] = None
+    temperature: Union[float, None] = None
 
     def get_temperature(self) -> float:
         return self.temperature
