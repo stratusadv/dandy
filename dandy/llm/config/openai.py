@@ -1,4 +1,4 @@
-from typing_extensions import Optional
+from typing_extensions import Union
 
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.request.openai import OpenaiRequestBody
@@ -15,8 +15,8 @@ class OpenaiLlmConfig(BaseLlmConfig):
 
     def generate_request_body(
             self,
-            temperature: Optional[float] = None,
-            seed: Optional[int] = None
+            temperature: Union[float, None] = None,
+            seed: Union[int, None] = None
     ) -> BaseRequestBody:
 
         return OpenaiRequestBody(

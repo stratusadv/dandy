@@ -1,4 +1,4 @@
-from typing_extensions import List, Optional
+from typing_extensions import List, Union
 
 from pydantic import BaseModel
 
@@ -10,8 +10,8 @@ _TEXT_FORMAT = 'text'
 
 
 class OllamaRequestOptions(BaseModel):
-    seed: Optional[int] = None
-    temperature: Optional[float] = None
+    seed: Union[int, None] = None
+    temperature: Union[float, None] = None
 
 
 class OllamaRequestBody(BaseRequestBody):

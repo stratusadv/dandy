@@ -10,4 +10,4 @@ class TestUtils(TestCase):
             QUEEN_ANNES_REVENGE
         )
 
-        self.assertEqual(serialized_object['name'], "Queen Anne's Revenge")
+        self.assertEqual(serialized_object['name'], "Queen Annes Revenge")

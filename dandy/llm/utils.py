@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import traceback
-from typing_extensions import TYPE_CHECKING, Type, Optional
+from typing_extensions import TYPE_CHECKING, Type, Union
 
 from dandy.core.type_vars import ModelType
 from dandy.llm.prompt.prompt import CHARACTERS_PER_TOKEN
@@ -21,7 +21,7 @@ def exception_to_str_nicely(ex: Exception) -> str:
 def get_estimated_token_count_for_prompt(
         prompt: Prompt,
         model: Type[ModelType],
-        prefix_system_prompt: Optional[Prompt] = None
+        prefix_system_prompt: Union[Prompt, None] = None
 ) -> int:
 
     return service_system_model_prompt(

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1
+
+### Changes
+- DebugRecorder html file improvements
+
+### Fixes
+- Fixed pydantic not enforcing field validation
+
 ## v0.1.0
 
 ### Features

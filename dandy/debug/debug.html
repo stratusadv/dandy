@@ -74,6 +74,10 @@
             white-space: pre-wrap;
         }
 
+        .cursor-pointer {
+            cursor: pointer !important;
+        }
+
     </style>
 
 </head>
@@ -82,13 +86,36 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <div x-data="{
+        init(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = false
+            }
+        },
+
+        open_all(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = true
+            }
+        },
+
+        close_all(){
+            for (let i = 0; i < this.debug_output.events.length; i++) {
+                this.debug_output.events[i].show_details = false
+            }
+        },
+
         debug_output: __debug_output__
     }" class="container-fluid">
-    <div class="row mt-2">
-        <div class="col-12 px-4">
-            <span class="fs-4 text-muted">Dandy Debug Recording Output </span>
+
+    <div class="row sticky-top bg-light py-2 border-bottom shadow">
+        <div class="col-auto px-4 pt-1">
+            <span class="fs-4 text-muted fw-bold">Dandy Debug Recording Output </span>
+        </div>
+        <div class="col text-end pe-3 me-2">
+            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i class="bi bi-arrows-expand"></i> Open All</a>
+            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i class="bi bi-arrows-collapse"></i> Close All</a>
             <span x-html="'Total Run Time<br>' + debug_output.run_time.toFixed(3) + 's'"
-                  class="float-end text-end pe-1"></span>
+                  class="float-end text-end pe-1 fw-bold text-muted"></span>
         </div>
     </div>
 
@@ -111,9 +138,9 @@
 
                 <div x-data="{
                     show_details: false
-                }" class="card">
+                }" x-model="debug_event.show_details" x-modelable="show_details" class="card">
 
-                    <div x-on:click="show_details = !show_details" class="card-header ps-2"
+                    <div x-on:click="show_details = !show_details" class="card-header cursor-pointer ps-2"
                          :class="{
                          'bg-request': debug_event.type === 'request',
                          'bg-response': debug_event.type === 'response',

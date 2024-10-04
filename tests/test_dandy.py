@@ -21,7 +21,8 @@ class TestDandy(TestCase):
 
         finally:
             DebugRecorder.stop_recording()
-
+            DebugRecorder.to_html_file()
+            print(self.pirate_story)
             if self.pirate_story != '':
                 self.assertTrue(True)
             else:
