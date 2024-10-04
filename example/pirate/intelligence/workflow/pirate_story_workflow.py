@@ -23,7 +23,6 @@ class PirateStoryWorkflow(Workflow):
 
         sea_monster = SeaMonsterWorkflow.process('N/A')
         sea_monster.name = sea_monster.name.replace("'", "")
-        print(sea_monster)
 
         crew_choices = CrewSelectionLlmBot.process('I would like a random selection of exactly one captain, one navigator, and one engineer.', CREW_MEMBERS)
 
