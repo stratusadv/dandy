@@ -22,6 +22,8 @@ class PirateStoryWorkflow(Workflow):
         key, ship = ship_choice.popitem()
 
         sea_monster = SeaMonsterWorkflow.process('N/A')
+        sea_monster.name = sea_monster.name.replace("'", "")
+        print(sea_monster)
 
         crew_choices = CrewSelectionLlmBot.process('I would like a random selection of exactly one captain, one navigator, and one engineer.', CREW_MEMBERS)
 
@@ -33,4 +35,6 @@ class PirateStoryWorkflow(Workflow):
             .model_object(ocean, triple_quote=True)
             .text('With the following ship:')
             .model_object(ship, triple_quote=True)
+            .text('That has to face this sea monster:')
+            .model_object(sea_monster, triple_quote=True)
         )))

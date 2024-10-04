@@ -13,7 +13,7 @@ class MonsterSelectionLlmBot(SingleChoiceLlmBot):
 
 
 class MonsterNamingLlmBot(LlmBot):
-    llm_temperature = 0.0
+    llm_temperature = 0.7
     llm_config = OLLAMA_LLAMA_3_1
 
     role_prompt = Prompt().text('You are an monster selection bot.')
@@ -22,9 +22,11 @@ class MonsterNamingLlmBot(LlmBot):
         Prompt()
         .text('Your job is to name the following monster.')
         .text('Your response should only contain the name you have chosen.')
+        .text('The name you have chose can not have any apostrophes.')
     )
 
-    def process(self, monster: SeaMonster) -> str:
+    @classmethod
+    def process(cls, monster: SeaMonster) -> str:
         prompt = (
             Prompt()
             .text('Your job is to name the following monster.')
