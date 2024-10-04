@@ -189,7 +189,7 @@ class Service:
 
         else:
             raise LlmException(
-                f"Llm service request failed with status code {response.status} after {self._config.retry_count} attempts")
+                f"Llm service request failed with status code {response.status} after {self._config.connection_retry_count} attempts")
 
         return json_data
 
