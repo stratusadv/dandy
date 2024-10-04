@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2
+
+### Fixes
+
+- Fixed retry count exception to use correct variable in message string.
+
 ## v0.1.1
 
 ### Changes
