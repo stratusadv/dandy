@@ -3,7 +3,7 @@ from example.pirate.ship.models import Ship
 
 QUEEN_ANNES_REVENGE = Ship(
     name="Queen Annes Revenge",
-    description="The Queen Annes Revenge is the biggest ship in the world.",
+    description="The Queen Anne's Revenge is the biggest ship in the world.",
 )
 
 PIRATE_SHIPS = {

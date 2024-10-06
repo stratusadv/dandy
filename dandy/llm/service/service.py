@@ -56,7 +56,7 @@ class Service:
             self.post_request(request_body.model_dump())
         )
 
-        debug_record_llm_response(message_content.replace("'", '"'))
+        debug_record_llm_response(message_content)
         debug_record_llm_success('Assistant properly returned a response.')
 
         return message_content

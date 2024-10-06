@@ -2,8 +2,13 @@
 
 ## v0.1.2
 
+### Changes
+
+- Debug Recorder html output has improved and more condensed formating.
+
 ### Fixes
 
+- Fixed the Debug Recorder to handle quotes and different data types more consistently.
 - Fixed retry count exception to use correct variable in message string.
 
 ## v0.1.1
