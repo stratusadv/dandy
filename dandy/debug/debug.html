@@ -83,49 +83,61 @@
 </head>
 
 <body>
+
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div x-data="{
-        init(){
-            for (let i = 0; i < this.debug_output.events.length; i++) {
-                this.debug_output.events[i].show_details = false
-            }
-        },
+<script defer>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dandy_debug', () => ({
+            init() {
+                for (let i = 0; i < this.debug_output.events.length; i++) {
+                    this.debug_output.events[i].show_details = false
+                }
+            },
 
-        open_all(){
-            for (let i = 0; i < this.debug_output.events.length; i++) {
-                this.debug_output.events[i].show_details = true
-            }
-        },
+            open_all() {
+                for (let i = 0; i < this.debug_output.events.length; i++) {
+                    this.debug_output.events[i].show_details = true
+                }
+            },
 
-        close_all(){
-            for (let i = 0; i < this.debug_output.events.length; i++) {
-                this.debug_output.events[i].show_details = false
-            }
-        },
+            close_all() {
+                for (let i = 0; i < this.debug_output.events.length; i++) {
+                    this.debug_output.events[i].show_details = false
+                }
+            },
 
-        debug_output: __debug_output__
-    }" class="container-fluid">
+            debug_output: __debug_output__
+        }))
+    })
+</script>
 
-    <div class="row sticky-top bg-light py-2 border-bottom shadow">
+<div x-data="dandy_debug" class="container-fluid">
+
+    <div class="row sticky-top bg-light py-1 border-bottom border-2 shadow">
         <div class="col-auto px-4 pt-1">
-            <span class="fs-4 text-muted fw-bold">Dandy Debug Recording Output </span>
+            <span class="fs-4 fw-bold">Dandy Debug Recording Output </span>
         </div>
         <div class="col text-end pe-3 me-2">
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i class="bi bi-arrows-expand"></i> Open All</a>
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i class="bi bi-arrows-collapse"></i> Close All</a>
+            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i
+                    class="bi bi-arrows-expand"></i> Open All</a>
+            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i
+                    class="bi bi-arrows-collapse"></i> Close All</a>
             <span x-html="'Total Run Time<br>' + debug_output.run_time.toFixed(3) + 's'"
-                  class="float-end text-end pe-1 fw-bold text-muted"></span>
+                  class="float-end text-end pe-1 fw-bold"></span>
         </div>
     </div>
 
     <template x-for="debug_event in debug_output.events">
 
-        <div class="row my-2"
-             :class="{
-                'mt-4': debug_event.type === 'run'
-             }">
-            <div class="col-auto fs-4 mt-1 pe-0 me-0">
+        <div class="row mb-1">
+            <div x-show="debug_event.type === 'run'" class="col-12 text-center text-run pb-1">
+                <i class="bi bi-caret-down-fill"></i>
+                <i class="bi bi-caret-down-fill"></i>
+                <i class="bi bi-caret-down-fill"></i>
+            </div>
+
+            <div class="col-auto fs-4 pe-0 me-0">
                 <i x-show="debug_event.type === 'run'" class="bi bi-cpu text-run"></i>
                 <i x-show="debug_event.type === 'request'" class="bi bi-box-arrow-up-right text-request ps-5"></i>
                 <i x-show="debug_event.type === 'response'" class="bi bi-box-arrow-in-down-left text-response ps-5"></i>
@@ -134,13 +146,14 @@
                 <i x-show="debug_event.type === 'success'" class="bi bi-check-lg text-success ps-5 ms-5"></i>
                 <i x-show="debug_event.type === 'failure'" class="bi bi-x-lg text-failure ps-5 ms-5"></i>
             </div>
+
             <div class="col">
 
                 <div x-data="{
                     show_details: false
                 }" x-model="debug_event.show_details" x-modelable="show_details" class="card">
 
-                    <div x-on:click="show_details = !show_details" class="card-header cursor-pointer ps-2"
+                    <div x-on:click="show_details = !show_details" class="card-header cursor-pointer ps-2 py-1"
                          :class="{
                          'bg-request': debug_event.type === 'request',
                          'bg-response': debug_event.type === 'response',
@@ -153,63 +166,73 @@
                     >
                         <span x-show="!show_details"><i class="bi bi-plus-lg"></i></span>
                         <span x-show="show_details"><i class="bi bi-dash-lg"></i></span>
-                        <span x-text="debug_event.actor + ' - ' + debug_event.action"></span>
+                        <span x-text="debug_event.actor"></span>
+                        <span><i class="bi bi-arrow-right"></i></span>
+                        <span x-text="debug_event.action"></span>
                         <span x-text="debug_event.run_time.toFixed(3) + 's'" class="float-end"></span>
                     </div>
 
-                    <template x-if="debug_event.description">
+                    <div x-show="show_details" class="card-body">
 
-                        <div x-show="show_details" class="card-body">
-                            <p x-text="debug_event.description" class="white-space-pre-wrap"></p>
-                        </div>
+                        <template x-if="debug_event.description">
 
-                    </template>
-
-                    <template x-if="debug_event.request">
-
-                        <div x-show="show_details" class="card-body">
-                            <div class="row">
-                                <div x-text="'Model: ' + debug_event.request.model" class="col-12"></div>
+                            <div>
+                                <p x-text="debug_event.description" class="white-space-pre-wrap"></p>
                             </div>
-                            <div class="row">
-                                <div x-text="'Temperature: ' + debug_event.temperature" class="col-12"></div>
-                            </div>
-                            <div class="row">
-                                <div x-text="'Estimated Tokens: ' + debug_event.estimated_tokens" class="col-12"></div>
-                            </div>
-                            <template x-for="message in debug_event.request.messages">
 
-                                <div class="row p-2">
-                                    <div class="col border rounded shadow-sm px-3 py-2"
-                                         :class="{
-                                            'bg-light': message.role === 'system'
-                                         }"
-                                    >
-                                        <div x-html="message.role" class="white-space-pre-wrap"></div>
-                                        <hr class="my-2">
-                                        <div x-html="message.content" class="white-space-pre-wrap"></div>
-                                    </div>
+                        </template>
+
+                        <template x-if="debug_event.request">
+
+                            <div>
+                                <div class="row">
+                                    <div x-text="'Model: ' + debug_event.request.model" class="col-12"></div>
+                                </div>
+                                <div class="row">
+                                    <div x-text="'Temperature: ' + debug_event.temperature" class="col-12"></div>
+                                </div>
+                                <div class="row">
+                                    <div x-text="'Estimated Tokens: ' + debug_event.estimated_tokens"
+                                         class="col-12"></div>
                                 </div>
 
-                            </template>
+                                <template x-for="message in debug_event.request.messages">
 
-                        </div>
-                    </template>
+                                    <div class="row p-2">
+                                        <div class="col border rounded shadow-sm px-3 py-2"
+                                             :class="{
+                                            'bg-light': message.role === 'system'
+                                         }"
+                                        >
+                                            <div x-html="message.role" class="white-space-pre-wrap"></div>
+                                            <hr class="my-2">
+                                            <div x-html="message.content" class="white-space-pre-wrap"></div>
+                                        </div>
+                                    </div>
 
-                    <template x-if="debug_event.response">
-
-                        <div x-show="show_details" class="card-body">
-                            <div class="row">
-                                <div x-text="'Estimated Tokens: ' + debug_event.estimated_tokens" class="col-12"></div>
+                                </template>
                             </div>
-                            <div class="row">
-                                <div x-text="debug_event.response" class="col-12 white-space-pre-wrap"></div>
-                            </div>
-                        </div>
 
-                    </template>
+                        </template>
+
+                        <template x-if="debug_event.response">
+
+                            <div>
+                                <div class="row">
+                                    <div x-text="'Estimated Tokens: ' + debug_event.estimated_tokens"
+                                         class="col-12"></div>
+                                </div>
+                                <div class="row">
+                                    <div x-text="debug_event.response" class="col-12 white-space-pre-wrap"></div>
+                                </div>
+                            </div>
+
+                        </template>
+
+                    </div>
 
                 </div>
+
             </div>
 
         </div>

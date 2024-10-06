@@ -42,7 +42,7 @@ def debug_record_llm_success(description: str, model: BaseModel = None):
         model_json = None
 
         if model:
-            model_json = model.model_dump_json(indent=4).replace("'", '"')
+            model_json = model.model_dump_json(indent=4)
 
         DebugRecorder.add_event(LlmServiceSuccessEvent(
             description=f'{description}\n\n{model.__class__.__name__}: {model_json}' if model_json else description
