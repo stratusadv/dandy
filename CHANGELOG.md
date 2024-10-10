@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.3
+
+### Fixes
+
+- Fixed prompt list to handle indention and nested lists, tuples and sets.
+
 ## v0.1.2
 
 ### Changes
