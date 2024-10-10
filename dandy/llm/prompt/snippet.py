@@ -4,16 +4,18 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from random import randint, shuffle
-from typing_extensions import List, Type, TYPE_CHECKING, Dict
+from typing_extensions import List, Type, TYPE_CHECKING, Dict, Any, Set, Union, Tuple
 
 from pydantic import BaseModel
+
+from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
 
 
 @dataclass(kw_only=True)
-class Snippet(ABC):
+class BaseSnippet(ABC):
     triple_quote: bool = False
 
     def __str__(self):
@@ -31,7 +33,7 @@ class Snippet(ABC):
 
 
 @dataclass(kw_only=True)
-class DictionarySnippet(Snippet):
+class DictionarySnippet(BaseSnippet):
     dictionary: Dict
 
     def _to_str(self) -> str:
@@ -39,13 +41,13 @@ class DictionarySnippet(Snippet):
 
 
 @dataclass(kw_only=True)
-class DividerSnippet(Snippet):
+class DividerSnippet(BaseSnippet):
     def _to_str(self) -> str:
         return '----------\n'
 
 
 @dataclass(kw_only=True)
-class ArraySnippet(Snippet):
+class ArraySnippet(BaseSnippet):
     items: List[str]
 
     def _to_str(self) -> str:
@@ -60,13 +62,13 @@ class ArrayRandomOrderSnippet(ArraySnippet):
 
 
 @dataclass(kw_only=True)
-class LineBreakSnippet(Snippet):
+class LineBreakSnippet(BaseSnippet):
     def _to_str(self) -> str:
         return '\n'
 
 
 @dataclass(kw_only=True)
-class ModelObject(Snippet):
+class ModelObject(BaseSnippet):
     model_object: BaseModel
 
     def _to_str(self) -> str:
@@ -74,7 +76,7 @@ class ModelObject(Snippet):
 
 
 @dataclass(kw_only=True)
-class ModelSchema(Snippet):
+class ModelSchema(BaseSnippet):
     model: Type[BaseModel]
 
     def _to_str(self) -> str:
@@ -82,22 +84,22 @@ class ModelSchema(Snippet):
 
 
 @dataclass(kw_only=True)
-class OrderedListSnippet(Snippet):
-    items: List[str]
+class OrderedListSnippet(BaseSnippet):
+    items: List
 
     def _to_str(self) -> str:
-        return '\n'.join(f'{i+1}. {item}' for i, item in enumerate(self.items)) + '\n'
+        return f'\n{list_to_str(items=self.items, ordered=True)}\n'
 
 
 @dataclass(kw_only=True)
-class PromptSnippet(Snippet):
+class PromptSnippet(BaseSnippet):
     prompt: Prompt
 
     def _to_str(self) -> str:
         return self.prompt.to_str()
 
 @dataclass(kw_only=True)
-class RandomChoiceSnippet(Snippet):
+class RandomChoiceSnippet(BaseSnippet):
     choices: List[str]
 
     def _to_str(self) -> str:
@@ -105,7 +107,7 @@ class RandomChoiceSnippet(Snippet):
 
 
 @dataclass(kw_only=True)
-class TextSnippet(Snippet):
+class TextSnippet(BaseSnippet):
     text: str
     label: str = ''
 
@@ -117,7 +119,7 @@ class TextSnippet(Snippet):
 
 
 @dataclass(kw_only=True)
-class TitleSnippet(Snippet):
+class TitleSnippet(BaseSnippet):
     title: str
 
     def _to_str(self) -> str:
@@ -125,11 +127,11 @@ class TitleSnippet(Snippet):
 
 
 @dataclass(kw_only=True)
-class UnorderedListSnippet(Snippet):
-    items: List[str]
+class UnorderedListSnippet(BaseSnippet):
+    items: List
 
     def _to_str(self) -> str:
-        return '\n'.join(f'- {item}' for item in self.items) + '\n'
+        return f'\n{list_to_str(items=self.items, ordered=False)}\n'
 
 
 @dataclass(kw_only=True)
