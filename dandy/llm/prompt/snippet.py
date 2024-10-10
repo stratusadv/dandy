@@ -110,10 +110,11 @@ class RandomChoiceSnippet(BaseSnippet):
 class TextSnippet(BaseSnippet):
     text: str
     label: str = ''
+    text: str
 
     def _to_str(self) -> str:
         if self.label != '':
-            return f'{self.label}: {self.text}\n'
+            return f'**{self.label}**: {self.text}\n'
         else:
             return f'{self.text}\n'
 

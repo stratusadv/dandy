@@ -2,6 +2,10 @@
 
 ## v0.1.3
 
+### Changes
+
+- Prompt formatting is now slightly changed to improve prompt inference quality.
+
 ### Fixes
 
 - Fixed prompt list to handle indention and nested lists, tuples and sets.

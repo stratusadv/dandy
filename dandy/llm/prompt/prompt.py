@@ -62,21 +62,6 @@ class Prompt:
         return int(len(self.to_str()) / CHARACTERS_PER_TOKEN)
 
 
-    def title(
-            self,
-            title: str,
-            triple_quote: bool = False
-    ) -> Self:
-
-        self.snippets.append(
-            snippet.TitleSnippet(
-                title=title,
-                triple_quote=triple_quote
-            )
-        )
-
-        return self
-
     def line_break(self) -> Self:
         self.snippets.append(snippet.LineBreakSnippet())
 
@@ -172,7 +157,7 @@ class Prompt:
 
     def text(
             self,
-            text: str,
+            text: str = '',
             label: str = '',
             triple_quote: bool = False
     ) -> Self:
@@ -181,6 +166,21 @@ class Prompt:
             snippet.TextSnippet(
                 text=text,
                 label=label,
+                triple_quote=triple_quote
+            )
+        )
+
+        return self
+
+    def title(
+            self,
+            title: str,
+            triple_quote: bool = False
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.TitleSnippet(
+                title=title,
                 triple_quote=triple_quote
             )
         )
