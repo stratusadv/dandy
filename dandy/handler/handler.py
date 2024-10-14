@@ -4,7 +4,7 @@ from abc import abstractmethod, ABCMeta
 from dandy.core.utils import json_default
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.events import RunEvent, ResultEvent
-from dandy.future.executor import AsyncExecutorFuture
+from dandy.future.future import AsyncFuture
 
 
 class ProcessDebugABCMeta(ABCMeta):
@@ -67,4 +67,4 @@ class Handler(metaclass=ProcessDebugABCMeta):
 
     @classmethod
     def process_to_future(cls, *args, **kwargs):
-        return AsyncExecutorFuture(cls.process, *args, **kwargs)
+        return AsyncFuture(cls.process, *args, **kwargs)

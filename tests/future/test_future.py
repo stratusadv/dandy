@@ -1,7 +1,7 @@
 from time import time, sleep
 from unittest import TestCase
 
-from dandy.future.executor import AsyncExecutorFuture
+from dandy.future.future import AsyncFuture
 from example.pirate.crew.datasets import CREW_MEMBERS
 from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
 
@@ -15,16 +15,16 @@ class TestFuture(TestCase):
         self.start_time = time()
 
     def test_future(self):
-        def my_function(x):
+        def square_number(x):
             import time
             time.sleep(TEST_FUTURE_SLEEP_TIME / 2)
             return x * x
 
-        future = AsyncExecutorFuture(my_function, 5)
+        squared_future = AsyncFuture(square_number, 5)
 
         sleep(TEST_FUTURE_SLEEP_TIME)
 
-        _ = future.result
+        self.assertTrue(squared_future.result >= 25)
 
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
@@ -36,6 +36,6 @@ class TestFuture(TestCase):
 
         sleep(TEST_FUTURE_SLEEP_TIME)
 
-        _ = crew_choices_future.result
+        self.assertTrue(len(crew_choices_future.result.keys()) == 3)
 
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
