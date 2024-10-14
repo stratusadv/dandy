@@ -21,10 +21,12 @@ class TestFuture(TestCase):
             return x * x
 
         squared_future = AsyncFuture(square_number, 5)
+        another_squared_future = AsyncFuture(square_number, 10)
 
         sleep(TEST_FUTURE_SLEEP_TIME)
 
-        self.assertTrue(squared_future.result >= 25)
+        self.assertTrue(squared_future.result == 25)
+        self.assertTrue(another_squared_future.result == 100)
 
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
