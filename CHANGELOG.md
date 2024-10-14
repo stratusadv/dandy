@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.0
+
+### Features
+
+- Added support for async using the thread pool executor to create a future were you can process things into futures.
+- use the future.result to get the result of the future.
+- Added datetime to the debug recorder output.
+
+### Changes
+
+- Handler, Bots, and Workflow now have a process_to_future method that can be used to process things into futures.
+
+### Fixes
+
+- Fixed testing to not output large blocks of text.
+
 ## v0.1.3
 
 ### Changes

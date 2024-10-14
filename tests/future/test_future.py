@@ -2,30 +2,40 @@ from time import time, sleep
 from unittest import TestCase
 
 from dandy.future.executor import AsyncExecutorFuture
+from example.pirate.crew.datasets import CREW_MEMBERS
+from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
+
+
+TEST_FUTURE_SLEEP_TIME = 2.0
+TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + 0.05
+
 
 class TestFuture(TestCase):
+    def setUp(self):
+        self.start_time = time()
+
     def test_future(self):
         def my_function(x):
             import time
-            time.sleep(1)
-            return x * x  # Function to compute square of input
-
-        start_time = time()
+            time.sleep(TEST_FUTURE_SLEEP_TIME / 2)
+            return x * x
 
         future = AsyncExecutorFuture(my_function, 5)
 
-        print("Doing some other tasks...")
-        sleep(0.3)
+        sleep(TEST_FUTURE_SLEEP_TIME)
 
-        print("Doing some more tasks...")
-        sleep(0.3)
+        _ = future.result
 
-        end_time = time()
+        self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
-        print(f"Function completed and returned: {future.result}")
+    def test_llmbot_future(self):
+        crew_choices_future = CrewSelectionLlmBot.process_to_future(
+            'I would like a random selection of exactly one captain, one navigator, and one engineer.',
+            CREW_MEMBERS
+        )
 
-        execution_time = end_time - start_time
+        sleep(TEST_FUTURE_SLEEP_TIME)
 
-        print(f"Execution time: {execution_time:.2f} seconds")
+        _ = crew_choices_future.result
 
-        self.assertTrue(execution_time <= 1.2)
+        self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
