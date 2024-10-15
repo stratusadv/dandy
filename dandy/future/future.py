@@ -11,7 +11,7 @@ ASYNC_EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 FutureResultType = TypeVar('FutureResultType')
 
 
-class AsyncFuture:
+class AsyncFuture(Generic[FutureResultType]):
     def __init__(self, func: Callable[..., FutureResultType], *args, **kwargs):
         self._future = ASYNC_EXECUTOR.submit(func, *args, **kwargs)
         self._future_start_time = time()
@@ -19,14 +19,16 @@ class AsyncFuture:
         self._result_timeout = 0.0
         self._using_result_timeout = False
 
-    def _fetch_result(self) -> FutureResultType:
+    def _check_result_timeout(self):
+        if self._using_result_timeout:
+            if self._result_timeout >= (time() - self._future_start_time):
+                raise FutureException(f'Future timed out after {self._result_timeout} seconds')
+
+    def _fetch_result(self):
         if self._result is None:
             while not self._future.done():
                 sleep(ASYNC_EXECUTOR_RESULT_CHECK_INTERVAL)
-
-                if self._using_result_timeout:
-                    if self._result_timeout >= (time() - self._future_start_time):
-                        raise FutureException(f'Future timed out after {self._result_timeout} seconds')
+                self._check_result_timeout()
 
             try:
                 self._result: FutureResultType = self._future.result()

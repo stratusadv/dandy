@@ -15,12 +15,12 @@ class TestFuture(TestCase):
         self.start_time = time()
 
     def test_future(self):
-        def square_number(x):
+        def square_number(x) -> int:
             import time
             time.sleep(TEST_FUTURE_SLEEP_TIME / 2)
             return x * x
 
-        squared_future = AsyncFuture(square_number, 5)
+        squared_future= AsyncFuture(square_number, 5)
         another_squared_future = AsyncFuture(square_number, 10)
 
         sleep(TEST_FUTURE_SLEEP_TIME)
