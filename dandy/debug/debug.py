@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 from time import time
 from typing_extensions import Dict, List
@@ -52,9 +53,13 @@ class Debugger(BaseModel):
             self.stop()
 
         with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
-            return debug_html.read().replace(
+            return debug_html.read(
+            ).replace(
                 '__debug_output__',
                 self.model_dump_json(),
+            ).replace(
+                '__debug_datetime__',
+                f'{datetime.now()}'
             )
 
 
