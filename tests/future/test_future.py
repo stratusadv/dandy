@@ -17,7 +17,7 @@ class TestFuture(TestCase):
     def test_future(self):
         def square_number(x) -> int:
             import time
-            time.sleep(TEST_FUTURE_SLEEP_TIME / 2)
+            time.sleep(TEST_FUTURE_SLEEP_TIME)
             return x * x
 
         squared_future= AsyncFuture(square_number, 5)
@@ -36,7 +36,14 @@ class TestFuture(TestCase):
             CREW_MEMBERS
         )
 
+        engineer_choices_future = CrewSelectionLlmBot.process_to_future(
+            'I would like a random selection of exactly one engineer.',
+            CREW_MEMBERS
+        )
+
         sleep(TEST_FUTURE_SLEEP_TIME)
+
+        _ = engineer_choices_future.result
 
         self.assertTrue(len(crew_choices_future.result.keys()) == 3)
 

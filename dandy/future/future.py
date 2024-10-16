@@ -12,9 +12,10 @@ FutureResultType = TypeVar('FutureResultType')
 
 
 class AsyncFuture(Generic[FutureResultType]):
-    def __init__(self, func: Callable[..., FutureResultType], *args, **kwargs):
-        self._future = ASYNC_EXECUTOR.submit(func, *args, **kwargs)
+    def __init__(self, callable_: Callable[..., FutureResultType], *args, **kwargs):
+        self._future = ASYNC_EXECUTOR.submit(callable_, *args, **kwargs)
         self._future_start_time = time()
+
         self._result: Union[FutureResultType, None] = None
         self._result_timeout = 0.0
         self._using_result_timeout = False

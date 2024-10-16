@@ -66,5 +66,5 @@ class Handler(metaclass=ProcessDebugABCMeta):
         ...
 
     @classmethod
-    def process_to_future(cls, *args, **kwargs):
+    def process_to_future(cls, *args, **kwargs) -> AsyncFuture:
         return AsyncFuture(cls.process, *args, **kwargs)
