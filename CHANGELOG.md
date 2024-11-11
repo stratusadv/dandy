@@ -9,7 +9,8 @@
 
 ### Changes
 
-- 
+- Single Choice LLM Bots now return only the value when the choices are from a dictionary.
+- Multiple Choice LLM Bots now return a list of only the values when the choices are from a dictionary.
 
 ### Fixes
 
