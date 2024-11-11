@@ -15,6 +15,12 @@ class BaseRequestBody(BaseModel):
         self.messages.append(RequestMessage(role=role, content=content))
 
     @abstractmethod
+    def get_context_length(self) -> int: ...
+
+    @abstractmethod
+    def get_max_completion_tokens(self) -> int: ...
+
+    @abstractmethod
     def get_temperature(self) -> float: ...
 
     @property

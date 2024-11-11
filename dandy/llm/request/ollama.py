@@ -10,6 +10,8 @@ _TEXT_FORMAT = 'text'
 
 
 class OllamaRequestOptions(BaseModel):
+    num_ctx: Union[int, None] = None
+    num_predict: Union[int, None] = None
     seed: Union[int, None] = None
     temperature: Union[float, None] = None
 
@@ -18,6 +20,12 @@ class OllamaRequestBody(BaseRequestBody):
     options: OllamaRequestOptions
     stream: bool = False
     format: str = _JSON_FORMAT
+
+    def get_context_length(self) -> int:
+        return self.options.num_ctx
+
+    def get_max_completion_tokens(self) -> int:
+        return self.options.num_predict
 
     def get_temperature(self):
         return self.options.temperature

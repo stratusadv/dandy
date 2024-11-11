@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+.idea
+build/
+django_spire.egg-info/
+inspectionProfiles/
+.python-version
+.env
+*.bat
+*.db
+*.sql
+default_debug_output.html

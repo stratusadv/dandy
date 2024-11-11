@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.3.0
+
+### Features
+
+- Ollama config now supports max_completion_tokens (num_predict on ollama api) and context_length (num_ctx on ollama api)
+- Openai config now supports max_completion_tokens
+
+### Changes
+
+- 
+
+### Fixes
+
+- Improved validation on llm configs.
+
 ## v0.2.0
 
 ### Features
