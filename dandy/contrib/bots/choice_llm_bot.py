@@ -64,7 +64,7 @@ class _ChoiceOverloadMixin:
             user_input: str,
             choices: Dict[str, object],
             choice_response_model: Type[BaseModel]
-    ) -> Union[Dict[str, object], None]:
+    ) -> Union[List[object], None]:
         ...
 
     @classmethod
@@ -93,7 +93,7 @@ class _ChoiceOverloadMixin:
             user_input: str,
             choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
-    ) -> Union[Enum, List[Enum], str, List[Union[str, int, float, bool]], None]:
+    ) -> Union[Enum, List[Enum], str, List[Union[str, int, float, bool]], List[object], None]:
         ...
 
 
@@ -110,7 +110,7 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
             user_input: str,
             choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
-    ) -> Union[Enum, str, int, float, bool, Dict[str, object], None]:
+    ) -> Union[Enum, str, int, float, bool, object, None]:
 
         choice_response = super().process(
             user_input=user_input,
@@ -125,7 +125,7 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
             if isinstance(choices, type) and issubclass(choices, Enum):
                 return choices(selected_choice)
             elif isinstance(choices, dict):
-                return {selected_choice: choices[selected_choice]}
+                return choices[selected_choice]
             else:
                 return selected_choice
 
@@ -144,7 +144,7 @@ class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
             user_input: str,
             choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
             **kwargs
-    ) -> Union[List[Enum], List[Union[str, int, float, bool]], Dict[str, object], None]:
+    ) -> Union[List[Enum], List[Union[str, int, float, bool]], List[object], None]:
 
         choice_response = super().process(
             user_input=user_input,
@@ -159,6 +159,6 @@ class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
             if isinstance(choices, type) and issubclass(choices, Enum):
                 return [choices(choice) for choice in select_choices]
             elif isinstance(choices, dict):
-                return {choice: choices[choice] for choice in select_choices}
+                return [choices[choice] for choice in select_choices]
             else:
                 return select_choices

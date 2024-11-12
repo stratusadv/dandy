@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0
+
+### Features
+
+- Ollama config now supports max_completion_tokens (num_predict on ollama api) and context_length (num_ctx on ollama api)
+- Openai config now supports max_completion_tokens
+
+### Changes
+
+- Single Choice LLM Bots now return only the value when the choices are from a dictionary.
+- Multiple Choice LLM Bots now return a list of only the values when the choices are from a dictionary.
+
+### Fixes
+
+- Improved validation on llm configs.
+
 ## v0.2.0
 
 ### Features
