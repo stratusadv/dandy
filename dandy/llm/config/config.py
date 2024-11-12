@@ -55,9 +55,9 @@ class BaseLlmConfig(BaseModel):
         if api_key is not None:
             headers["Authorization"] = f"Bearer {api_key}"
 
-        self.validate_value(host, str)
-        self.validate_value(port, int)
-        self.validate_value(model, str)
+        self.validate_value(host, 'host', str)
+        self.validate_value(port, 'port', int)
+        self.validate_value(model, 'model', str)
 
         super().__init__(
             url=Url(
@@ -117,11 +117,11 @@ class BaseLlmConfig(BaseModel):
     def service(self) -> Service:
         return self.generate_service()
 
-    def validate_value(self, value: Union[str, int], value_type: type):
-        exception_postfix = f'{self.__class__.__name__}: {value.__name__}'
+    def validate_value(self, value: Union[str, int], value_name: str, value_type: type):
+        exception_postfix = f'{self.__class__.__name__}: {value_name}'
         if not isinstance(value, value_type):
             raise LlmException(f'"{exception_postfix}" must be type {value_type.__class__.__name__}')
         elif value is None:
-            raise LlmException(f'"{exception_postfix}: {value.__name__}" cannot be None')
+            raise LlmException(f'"{exception_postfix}" cannot be None')
         elif value == '' or value == 0:
-            raise LlmException(f'"{exception_postfix}: {value.__name__}" cannot be empty')
+            raise LlmException(f'"{exception_postfix}" cannot be empty')

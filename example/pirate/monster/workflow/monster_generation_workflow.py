@@ -8,7 +8,7 @@ class SeaMonsterWorkflow(Workflow):
     @classmethod
     def process(cls, user_input: str) -> SeaMonster:
         monster_choice = MonsterSelectionLlmBot.process('I would like a random sea monster for a pirate adventure', MONSTERS)
-        key, monster = monster_choice.popitem()
+        monster = monster_choice
 
         monster_name = MonsterNamingLlmBot.process(monster=monster)
         monster.name = monster_name

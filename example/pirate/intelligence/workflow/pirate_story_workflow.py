@@ -25,7 +25,7 @@ class PirateStoryWorkflow(Workflow):
 
         crew_choices = CrewSelectionLlmBot.process('I would like a random selection of exactly one captain, one navigator, and one engineer.', CREW_MEMBERS)
 
-        ship.crew_members = list(crew_choices.values())
+        ship.crew_members = crew_choices
 
         return OLLAMA_LLAMA_3_2.service.assistant_str_prompt_to_str(str((
             Prompt()
