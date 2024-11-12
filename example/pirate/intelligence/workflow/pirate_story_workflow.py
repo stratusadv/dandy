@@ -17,9 +17,9 @@ class PirateStoryWorkflow(Workflow):
 
         # if ocean_choice is None:
         ocean_choice = OceanSelectionLlmBot.process('I would like a random ocean for a pirate adventure', OCEANS)
-        key, ocean = ocean_choice.popitem()
+        ocean = ocean_choice
         ship_choice = PirateShipSelectionLlmBot.process('I would like a random ship for a pirate adventure', PIRATE_SHIPS)
-        key, ship = ship_choice.popitem()
+        ship = ship_choice
 
         sea_monster = SeaMonsterWorkflow.process('N/A')
 

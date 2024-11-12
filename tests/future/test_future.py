@@ -45,6 +45,6 @@ class TestFuture(TestCase):
 
         _ = engineer_choices_future.result
 
-        self.assertTrue(len(crew_choices_future.result.keys()) == 3)
+        self.assertTrue(len(crew_choices_future.result) == 3)
 
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
