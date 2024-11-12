@@ -118,10 +118,10 @@ class BaseLlmConfig(BaseModel):
         return self.generate_service()
 
     def validate_value(self, value: Union[str, int], value_type: type):
-        exception_postfix = f'{self.__class__.__name__}: {value.__class__.__name__}'
+        exception_postfix = f'{self.__class__.__name__}: {value.__name__}'
         if not isinstance(value, value_type):
-            raise LlmException(f'"{exception_postfix}" must be type {value_type.__name__}')
+            raise LlmException(f'"{exception_postfix}" must be type {value_type.__class__.__name__}')
         elif value is None:
-            raise LlmException(f'"{exception_postfix}: {value}" cannot be None')
+            raise LlmException(f'"{exception_postfix}: {value.__name__}" cannot be None')
         elif value == '' or value == 0:
-            raise LlmException(f'"{exception_postfix}: {value}" cannot be empty')
+            raise LlmException(f'"{exception_postfix}: {value.__name__}" cannot be empty')
