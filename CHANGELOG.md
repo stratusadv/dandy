@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1
+
+### Fixes
+
+- Fixed the debug recorder erroring out when no events are recordered.
+- Changed the debug recorder exception types to DandyException.
+
 ## v0.3.0
 
 ### Features
