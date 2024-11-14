@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
+from random import choices
 from time import time
 from typing_extensions import Dict, List
 
@@ -8,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
+from dandy.debug.exceptions import DebugException
 
 
 class Debugger(BaseModel):
@@ -25,9 +27,10 @@ class Debugger(BaseModel):
         self.events.append(event)
 
     def calculate_event_run_times(self):
-        self.events[0].run_time = 0.0
-        for i in range(1, len(self.events)):
-            self.events[i].calculate_run_time(self.events[i - 1])
+        if len(self.events) > 0:
+            self.events[0].run_time = 0.0
+            for i in range(1, len(self.events)):
+                self.events[i].calculate_run_time(self.events[i - 1])
 
     def clear(self):
         self.start_time = 0.0
@@ -85,7 +88,12 @@ class DebugRecorder(Singleton):
     @classmethod
     def stop_recording(cls, name: str = 'default'):
         if name not in cls.debuggers:
-            raise ValueError(f'Debug recording "{name}" does not exist. Choices are {list(cls.debuggers.keys())}')
+            choices_message = ''
+
+            if len(cls.debuggers.keys()) == 0:
+                choices_message = f' Choices are {list(cls.debuggers.keys())}'
+
+            raise DebugException(f'Debug recording "{name}" does not exist. {choices_message}')
 
         cls.debuggers[name].stop()
 
