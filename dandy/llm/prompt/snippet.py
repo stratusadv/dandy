@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import importlib
+import inspect
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
 from random import randint, shuffle
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Any, Set, Union, Tuple
 
 from pydantic import BaseModel
 
+from dandy.llm.exceptions import LlmException
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
@@ -17,12 +21,16 @@ if TYPE_CHECKING:
 @dataclass(kw_only=True)
 class BaseSnippet(ABC):
     triple_quote: bool = False
+    triple_quote_label: Union[str, None] = None
 
     def __str__(self):
         return self.to_str()
 
     def to_str(self):
         if self.triple_quote:
+            if self.triple_quote_label:
+                return f'""" {self.triple_quote_label}\n{self._to_str()}"""\n'
+
             return f'"""\n{self._to_str()}"""\n'
         else:
             return self._to_str()
@@ -62,13 +70,24 @@ class ArrayRandomOrderSnippet(ArraySnippet):
 
 
 @dataclass(kw_only=True)
+class FileSnippet(BaseSnippet):
+    file_path: str
+
+    def _to_str(self) -> str:
+        if Path(self.file_path).is_file():
+            with open(self.file_path, 'r') as f:
+                return f.read() + '\n'
+        else:
+            raise LlmException(f'File "{self.file_path}" does not exist')
+
+@dataclass(kw_only=True)
 class LineBreakSnippet(BaseSnippet):
     def _to_str(self) -> str:
         return '\n'
 
 
 @dataclass(kw_only=True)
-class ModelObject(BaseSnippet):
+class ModelObjectSnippet(BaseSnippet):
     model_object: BaseModel
 
     def _to_str(self) -> str:
@@ -76,11 +95,22 @@ class ModelObject(BaseSnippet):
 
 
 @dataclass(kw_only=True)
-class ModelSchema(BaseSnippet):
+class ModelSchemaSnippet(BaseSnippet):
     model: Type[BaseModel]
 
     def _to_str(self) -> str:
         return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
+
+@dataclass(kw_only=True)
+class ModuleSourceSnippet(BaseSnippet):
+    module_name: str
+
+    def _to_str(self) -> str:
+        source = inspect.getsource(
+            importlib.import_module(self.module_name)
+        )
+
+        return f'\n{source}\n'
 
 
 @dataclass(kw_only=True)

@@ -3,10 +3,10 @@ venv/
 __pycache__/
 .idea
 build/
-django_spire.egg-info/
+dandy.egg-info/
 inspectionProfiles/
 .python-version
-.env
+*.env
 *.bat
 *.db
 *.sql

@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.4.0
+
+### Features
+
+- Added a dandy command line interface.
+  - you can use the -g --generate flag to generate a new llm bots.
+  - you can use the -d --description flag to describe the llm bot you want to generate.
+  - more generation features coming in the future 
+- Prompts now have support for module source and files.
+
+### Changes
+
+- Change the method behavior for services to have more options when prompting
+
+### Fixes
+
+- Corrected incorrectly named snippets being used in the prompt. 
+
 ## v0.3.1
 
 ### Fixes

@@ -38,32 +38,13 @@ class Service:
 
     def assistant_str_prompt_to_str(
             self,
-            string_prompt: str,
+            user_prompt_str: str,
     ) -> str:
-        request_body: BaseRequestBody = self.get_request_body()
-
-        request_body.set_format_to_text()
-
-        request_body.add_message(
-            role='system',
-            content='You are a helpful assistant.'
+        return self.process_str_to_str(
+            system_prompt_str='You are a helpful assistant.',
+            user_prompt_str=user_prompt_str,
+            llm_success_message='Assistant properly returned a response.'
         )
-
-        request_body.add_message(
-            role='user',
-            content=string_prompt
-        )
-
-        debug_record_llm_request(request_body)
-
-        message_content = self._config.get_response_content(
-            self.post_request(request_body.model_dump())
-        )
-
-        debug_record_llm_response(message_content)
-        debug_record_llm_success('Assistant properly returned a response.')
-
-        return message_content
 
     def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
         connection_kwargs = {
@@ -171,6 +152,39 @@ class Service:
                     )
         else:
             raise LlmValidationException
+
+    def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
+        request_body: BaseRequestBody = self.get_request_body()
+
+        request_body.set_format_to_text()
+
+        request_body.add_message(
+            role='system',
+            content=system_prompt_str
+        )
+
+        request_body.add_message(
+            role='user',
+            content=user_prompt_str
+        )
+
+        debug_record_llm_request(request_body)
+
+        message_content = self._config.get_response_content(
+            self.post_request(request_body.model_dump())
+        )
+
+        debug_record_llm_response(message_content)
+        debug_record_llm_success(llm_success_message)
+
+        return message_content
+
+    def process_prompts_to_str(self, system_prompt: Prompt, user_prompt: Prompt) -> str:
+        return self.process_str_to_str(
+            system_prompt_str=system_prompt.to_str(),
+            user_prompt_str=user_prompt.to_str(),
+            llm_success_message='Prompt properly returned a response.'
+        )
 
     def process_request(self, method, path, encoded_body: bytes = None) -> dict:
         response = None

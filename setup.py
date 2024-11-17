@@ -1,6 +1,9 @@
 from setuptools import find_packages, setup
 
-from dandy import __version__
+__version__ = "0.4.0"
+
+with open('LICENSE.md', encoding="utf-8") as license_handle:
+    license_file = license_handle.read()
 
 setup(
     name="dandy",
@@ -21,7 +24,7 @@ setup(
     author="Nathan Johnson",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/dandy",
-    license="MIT",
+    license=license_file,
     packages=find_packages(exclude=["docs"]),
     include_package_data=True,
     zip_safe=False,
@@ -29,4 +32,9 @@ setup(
     install_requires=[
         "pydantic==2.8.2",
     ],
+    entry_points = {
+        "console_scripts": [
+            "dandy = dandy.cli.main:main",
+        ]
+    }
 )
