@@ -9,7 +9,7 @@ from dandy.llm.service import Service
 from dandy.llm.request.request import BaseRequestBody
 
 _DEFAULT_CONTEXT_LENGTH = 4096
-_DEFAULT_MAX_COMPLETION_TOKENS = 512
+_DEFAULT_MAX_COMPLETION_TOKENS = 1024
 _DEFAULT_SEED = 77
 _DEFAULT_TEMPERATURE = 0.7
 _DEFAULT_CONNECTION_RETRY_COUNT = 10

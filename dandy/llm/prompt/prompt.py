@@ -13,7 +13,7 @@ class Prompt:
             self,
             tag: str = None
     ):
-        self.snippets: List[snippet.Snippet] = []
+        self.snippets: List[snippet.BaseSnippet] = []
         self.tag = tag
 
     def __str__(self) -> str:
@@ -61,6 +61,19 @@ class Prompt:
     def estimated_token_count(self) -> int:
         return int(len(self.to_str()) / CHARACTERS_PER_TOKEN)
 
+    def file(
+            self,
+            file_path: str,
+            triple_quote: bool = False
+    ) -> Self:
+        self.snippets.append(
+            snippet.FileSnippet(
+                file_path=file_path,
+                triple_quote=triple_quote
+            )
+        )
+
+        return self
 
     def line_break(self) -> Self:
         self.snippets.append(snippet.LineBreakSnippet())
@@ -87,7 +100,7 @@ class Prompt:
     ) -> Self:
 
         self.snippets.append(
-            snippet.ModelObject(
+            snippet.ModelObjectSnippet(
                 model_object=model_object,
                 triple_quote=triple_quote
             )
@@ -102,9 +115,25 @@ class Prompt:
     ) -> Self:
 
         self.snippets.append(
-            snippet.ModelSchema(
+            snippet.ModelSchemaSnippet(
                 model=model,
                 triple_quote=triple_quote
+            )
+        )
+
+        return self
+
+    def module_source(
+            self,
+            module_name: str,
+            triple_quote: bool = True
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.ModuleSourceSnippet(
+                module_name=module_name,
+                triple_quote=triple_quote,
+                triple_quote_label=module_name
             )
         )
 
