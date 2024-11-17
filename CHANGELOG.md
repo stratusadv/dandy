@@ -22,7 +22,7 @@
 
 ### Fixes
 
-- Fixed the debug recorder erroring out when no events are recordered.
+- Fixed the debug recorder when no events are recorded.
 - Changed the debug recorder exception types to DandyException.
 
 ## v0.3.0
