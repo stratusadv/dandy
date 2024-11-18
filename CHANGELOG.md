@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.1
+
+### Features
+
+- You can now run simple assistant prompts with the -a --assistant argument for the dandy cli.
+  - Example: dandy -a "Hello, how are you?"
+
 ## v0.4.0
 
 ### Features

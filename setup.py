@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
     license_file = license_handle.read()

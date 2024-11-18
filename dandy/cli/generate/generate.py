@@ -14,13 +14,11 @@ class LlmBotSource(BaseModel):
     source: str
 
 
-def generate(choice: str, description: Union[str, None] = None):
+def generate(choice: str, description: Union[str, None] = None) -> Union[LlmBotSource, None]:
     if description:
         user_input = description
     else:
         user_input = input(f'Describe the {choice} you want to generate: ')
-
-    print(f'Generating {choice} ... depending on your llm configuration this may take up to a couple minutes')
 
     if choice == 'llmbot':
         llm_bot_source = settings.DEFAULT_LLM_CONFIG.service.process_prompt_to_model_object(
@@ -29,8 +27,6 @@ def generate(choice: str, description: Union[str, None] = None):
             prefix_system_prompt=generate_llm_bot_system_prompt(),
         )
 
-        with open(llm_bot_source.file_name, 'w') as f:
-            f.write(llm_bot_source.source)
+        return llm_bot_source
 
-        print(f'Done ... saved to "{settings.CURRENT_PATH / llm_bot_source.file_name}"')
-
+    return None
