@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.2
+
+### Features
+
+- You can now run simple assistant prompts with the -t --test argument for the dandy cli.
+  - Example: dandy -t "some.module.cool_llm_bot.CoolLlmBot"
+
 ## v0.4.1
 
 ### Features
