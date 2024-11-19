@@ -3,6 +3,7 @@ import argparse
 from dandy.cli.generate.generate import GENERATE_CHOICES, generate
 from dandy.cli.assistant.assistant import assistant
 from dandy.cli import settings
+from dandy.cli.test.test import test_handler
 
 
 def main():
@@ -19,6 +20,12 @@ def main():
         '-a', '--assistant',
         type=str,
         help='Prompt an a generic assistant to quickly test a prompt.',
+    )
+
+    parser.add_argument(
+        '-t', '--test',
+        type=str,
+        help='Test an llm_bot.',
     )
 
     parser.add_argument(
@@ -53,6 +60,9 @@ def main():
 
         else:
             print('Failed to get response from the assistant ... try again')
+
+    elif args.test:
+        test_handler(module_and_class=args.test, user_prompt=args.prompt if args.prompt else None)
 
     else:
         parser.print_help()

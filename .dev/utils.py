@@ -9,3 +9,10 @@ def load_environment_variables():
             for line in f:
                 key, value = line.strip().split("=", 1)
                 os.environ[key] = value
+
+
+def set_python_path():
+    pass
+
+def unset_python_path():
+    pass

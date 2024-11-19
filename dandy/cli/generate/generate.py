@@ -20,6 +20,8 @@ def generate(choice: str, description: Union[str, None] = None) -> Union[LlmBotS
     else:
         user_input = input(f'Describe the {choice} you want to generate: ')
 
+    print(generate_llm_bot_system_prompt().to_str())
+
     if choice == 'llmbot':
         llm_bot_source = settings.DEFAULT_LLM_CONFIG.service.process_prompt_to_model_object(
             prompt=generate_llm_bot_user_prompt(user_input),

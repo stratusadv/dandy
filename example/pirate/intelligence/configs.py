@@ -20,7 +20,7 @@ OLLAMA_LLAMA_3_1 = OllamaLlmConfig(
 )
 
 OPENAI_GPT_3_5_TURBO = OpenaiLlmConfig(
-    host=os.getenv("OPENAI_HOST"),
+    host='https://api.openai.com',
     port=int(os.getenv("OPENAI_PORT", 443)),
     model='gpt-3.5-turbo',
     api_key=os.getenv("OPENAI_API_KEY"),
