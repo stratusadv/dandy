@@ -3,7 +3,7 @@ from unittest import TestCase
 from dandy.llm import Prompt
 from dandy.llm.utils import get_estimated_token_count_for_prompt
 
-from example.pirate.ship.models import Ship
+from example.pirate.ship.models import ShipIntel
 
 
 class TestUtils(TestCase):
@@ -13,7 +13,7 @@ class TestUtils(TestCase):
                 Prompt()
                 .text('Hello World')
             ),
-            model=Ship,
+            model=ShipIntel,
         )
 
         self.assertGreater(token_count, 0)

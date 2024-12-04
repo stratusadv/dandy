@@ -11,10 +11,10 @@ class SeaMonsterType(Enum):
     HYDRA = "Hydra"
     CTHULHU = "Cthulhu"
 
-class SeaMonster(BaseModel):
+class SeaMonsterIntel(BaseModel):
     name: Union[str, None] = None
     type: SeaMonsterType
 
 
-class SeaMonsterNameStructure(BaseModel):
+class SeaMonsterNameStructureIntel(BaseModel):
     name: str

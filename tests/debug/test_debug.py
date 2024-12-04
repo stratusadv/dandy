@@ -1,6 +1,6 @@
 from unittest import TestCase
 from dandy.debug.debug import DebugRecorder
-from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
+from example.pirate.world.intel.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
 from example.pirate.world.datasets import OCEANS
 
 class TestDebug(TestCase):

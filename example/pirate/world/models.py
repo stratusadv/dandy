@@ -3,16 +3,16 @@ from typing_extensions import List
 from pydantic import BaseModel
 
 
-class Island(BaseModel):
+class IslandIntel(BaseModel):
     name: str
     description: str
     size: int
 
 
-class Ocean(BaseModel):
+class OceanIntel(BaseModel):
     name: str
     description: str
     size: int
     depth: int
-    islands: List[Island]
+    islands: List[IslandIntel]
 

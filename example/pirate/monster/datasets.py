@@ -1,19 +1,19 @@
-from example.pirate.monster.models import SeaMonster, SeaMonsterType
+from example.pirate.monster.models import SeaMonsterIntel, SeaMonsterType
 
 MONSTERS = {
-    'kraken': SeaMonster(
+    'kraken': SeaMonsterIntel(
         type=SeaMonsterType.KRAKEN
     ),
-    'sea_serpent': SeaMonster(
+    'sea_serpent': SeaMonsterIntel(
         type=SeaMonsterType.SEA_SERPENT
     ),
-    'leviathan': SeaMonster(
+    'leviathan': SeaMonsterIntel(
         type=SeaMonsterType.LEVIATHAN
     ),
-    'hydra': SeaMonster(
+    'hydra': SeaMonsterIntel(
         type=SeaMonsterType.HYDRA
     ),
-    'cthulhu': SeaMonster(
+    'cthulhu': SeaMonsterIntel(
         type=SeaMonsterType.CTHULHU
     ),
 }

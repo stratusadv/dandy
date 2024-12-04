@@ -2,66 +2,77 @@
   <img src="./docs/images/dandy_logo_512.png" alt="Dandy AI Framework">
 </p>
 
-Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic putting the project and developers first.
 
-### Installation
+# Dandy AI Framework
+Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 
+It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 
-```
+## Read First
+
+This project critically relies on the use of pydantic to handle the flow and validation of data with your artificial intelligence models. 
+Make sure you have a good foundation on the use of pydantic before continuing.
+
+Please visit https://docs.pydantic.dev/latest/ for more information on pydantic and how to utilize it.
+
+## Installation
+
+``` bash
 pip install dandy
 ```
 
-### Project Structure
+## Project Structure
 
 ```
-module_a/
+cookie_recipe/ <-- This would be for each of your modules
+    __init__.py
     your_code.py
     ...
     ...
-    intelligence/ <-- Dandy Intelligence Should be in this Directory
-        config.py <-- Contains LLM Configs
-        agent/
-            module_a_analysis_llm_agent.py
+    intel/ <-- Dandy related code should be in this directory
+        __init__.py
+        config.py <-- Contains LLM configs for this module (can be shared accross project or live elsewhere)
         bots/
-            module_a_select_bot.py
-            module_a_data_process_bot.py
-            module_a_intent_llm_bot.py
+            __init__.py
+            cookie_recipe_select_bot.py <-- Should contain one bot alone (can include, models and prompts specific to this bot)
+            cookie_recipe_data_process_bot.py
+            cookie_recipe_intent_llm_bot.py
             ...
             ...
+        models/
+            __init__.py
+            cookie_recipe_select_models.py <-- Pydantic Model Classes in these files must be postfixed with "Intel" ex: "SelectIntel"
+            cookie_recipe_data_process_models.py
+            cookie_recipe_intent_llm_models.py
+            ...
+            ...
+        prompts/
+            __init__.py
+            cookie_recipe_select_prompts.py <-- This would contain prompts that would be shared across the project
+            cookie_recipe_data_process_prompts.py
+            cookie_recipe_intent_llm_prompts.py
+            ...
+            ...     
         workflows/
-            module_a_chat_workflow.py
+            __init__.py
+            cookie_recipe_chat_workflow.py <-- In most cases this workflow would be used to interact with the user
             ...
             ...
 ```
 
-### Modules
-
-#### Bot
-
-- Should accomplish one single task.
-
-#### LLM Bots
-
-- Should use LLMs to accomplish one single task.
-
-#### Workflows
-
-- Structure for combining multiple agents, bots, llm_bots, or other workflows together.
-
-### Setup
-
-#### Llm Config
-
-- OpenAI & Ollama are currently supported.
+## Setup
 
 ```python
+# config.py
+
 import os
-from dandy.llm.config import OpenaiLlmConfig
+from dandy.llm.config import OpenaiLlmConfig, OllamaLlmConfig
 
 OPENAI_GPT_3_5_TURBO = OpenaiLlmConfig(
     host=os.getenv("OPENAI_HOST"),
     port=int(os.getenv("OPENAI_PORT", 443)),
     model='gpt-3.5-turbo',
     api_key=os.getenv("OPENAI_API_KEY"),
+    max_completion_tokens=512,
 )
 
 OPENAI_GPT_4o_MINI = OpenaiLlmConfig(
@@ -69,23 +80,42 @@ OPENAI_GPT_4o_MINI = OpenaiLlmConfig(
     port=int(os.getenv("OPENAI_PORT", 443)),
     model='gpt-4o-mini',
     api_key=os.getenv("OPENAI_API_KEY"),
+    temperature=0.7,
+)
+
+OLLAMA_LLAMA_3_2 = OllamaLlmConfig(
+    host=os.getenv("OLLAMA_HOST"),
+    port=int(os.getenv("OLLAMA_PORT", 11434)),
+    model='llama3.2:3b-instruct',
+    temperature=0.1,
+)
+
+OLLAMA_LLAMA_3_1 = OllamaLlmConfig(
+    host=os.getenv("OLLAMA_HOST"),
+    port=int(os.getenv("OLLAMA_PORT", 11434)),
+    model='llama3.1:8b-instruct',
+    max_completion_tokens=2048,
 )
 ```
 
-### Usage
+## Usage
 
 ```python
+# cookie_recipe_llm_bot.py
+
 from pydantic import BaseModel
 
 from dandy.bot import LlmBot
 from dandy.llm import Prompt
 
-from your_module.intelligence.config import OPENAI_GPT_3_5_TURBO
+from cookie_recipe.intel.config import OPENAI_GPT_3_5_TURBO
+
 
 class CookieRecipe(BaseModel):
     name: str
     instructions: str
 
+    
 class CookieRecipeLlmBot(LlmBot):
     role_prompt = Prompt().text('You are a cookie receipe bot.')
     instructions_prompt = (
@@ -99,9 +129,11 @@ class CookieRecipeLlmBot(LlmBot):
     )
     llm_config = OPENAI_GPT_3_5_TURBO
 
+    
 cookie_recipe = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli!'),
-    model=CookieRecipe
+    model=CookieRecipe,
+    temperature=0.5,
 )
 
 print(cookie_recipe.instructions)
