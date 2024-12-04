@@ -14,6 +14,8 @@ Make sure you have a good foundation on the use of pydantic before continuing.
 
 Please visit https://docs.pydantic.dev/latest/ for more information on pydantic and how to utilize it.
 
+For bigger examples please check out the [example](https://github.com/stratusadv/dandy/tree/main/example) directory in this repository.
+
 ## Installation
 
 ``` bash
