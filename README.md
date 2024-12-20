@@ -113,7 +113,7 @@ from dandy.llm import Prompt
 from cookie_recipe.intel.config import OPENAI_GPT_3_5_TURBO
 
 
-class CookieRecipe(BaseModel):
+class CookieRecipeIntel(BaseModel):
     name: str
     instructions: str
 
@@ -132,11 +132,11 @@ class CookieRecipeLlmBot(LlmBot):
     llm_config = OPENAI_GPT_3_5_TURBO
 
     
-cookie_recipe = CookieRecipeLlmBot.process(
+cookie_recipe_intel = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli!'),
-    model=CookieRecipe,
+    model=CookieRecipeIntel,
     temperature=0.5,
 )
 
-print(cookie_recipe.instructions)
+print(cookie_recipe_intel.instructions)
 ```
