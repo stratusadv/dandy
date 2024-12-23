@@ -33,4 +33,4 @@ class OllamaRequestBody(BaseRequestBody):
         self.format = _JSON_FORMAT
 
     def set_format_to_text(self):
-        self.format = _JSON_FORMAT
+        self.format = ''
