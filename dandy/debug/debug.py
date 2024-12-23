@@ -23,8 +23,10 @@ class Debugger(BaseModel):
     def add_event(
             self,
             event: BaseEvent
-    ):
+    ) -> str:
         self.events.append(event)
+
+        return event.id
 
     def calculate_event_run_times(self):
         if len(self.events) > 0:
@@ -55,7 +57,7 @@ class Debugger(BaseModel):
         if self.is_recording:
             self.stop()
 
-        with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
+        with open(Path(Path(__file__).parent.resolve(), 'html', 'debug_recorder_output_template.html'), 'r') as debug_html:
             return debug_html.read(
             ).replace(
                 '__debug_output__',

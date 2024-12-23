@@ -6,7 +6,6 @@ from dandy.llm.request.request import BaseRequestBody
 
 
 _JSON_FORMAT = 'json'
-_TEXT_FORMAT = 'text'
 
 
 class OllamaRequestOptions(BaseModel):
@@ -34,4 +33,4 @@ class OllamaRequestBody(BaseRequestBody):
         self.format = _JSON_FORMAT
 
     def set_format_to_text(self):
-        self.format = _TEXT_FORMAT
+        self.format = _JSON_FORMAT

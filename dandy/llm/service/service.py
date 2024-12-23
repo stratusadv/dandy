@@ -188,6 +188,7 @@ class Service:
 
     def process_request(self, method, path, encoded_body: bytes = None) -> dict:
         response = None
+        response_body = ''
 
         for _ in range(self._config.connection_retry_count):
             connection = self.create_connection()
@@ -199,8 +200,10 @@ class Service:
 
             response = connection.getresponse()
 
+            response_body = response.read().decode("utf-8")
+
             if response.status == 200 or response.status == 201:
-                json_data = json.loads(response.read().decode("utf-8"))
+                json_data = json.loads(response_body)
                 connection.close()
                 break
 
@@ -209,7 +212,7 @@ class Service:
 
         else:
             raise LlmException(
-                f"Llm service request failed with status code {response.status} after {self._config.connection_retry_count} attempts")
+                f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.connection_retry_count} attempts')
 
         return json_data
 
