@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from dandy.core.type_vars import ModelType
 from dandy.debug.debug import DebugRecorder
+from dandy.debug.utils import generate_new_debug_event_id
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
@@ -74,6 +75,8 @@ class Service:
             prefix_system_prompt: Union[Prompt, None] = None
     ) -> ModelType:
 
+        event_id = generate_new_debug_event_id()
+
         for attempt in range(self._config.prompt_retry_count + 1):
 
             request_body = self.get_request_body()
@@ -91,26 +94,27 @@ class Service:
                 content=service_user_prompt(prompt).to_str()
             )
 
-            debug_record_llm_request(request_body)
+            debug_record_llm_request(request_body, event_id)
 
             message_content = self._config.get_response_content(
                 self.post_request(request_body.model_dump())
             )
 
-            debug_record_llm_response(message_content)
+            debug_record_llm_response(message_content, event_id)
 
             try:
                 model = model.model_validate_json(message_content)
 
                 debug_record_llm_success(
                     'Validated response from prompt into model object.',
+                    event_id,
                     model=model
                 )
 
                 return model
 
             except ValidationError as e:
-                debug_record_llm_validation_failure(e)
+                debug_record_llm_validation_failure(e, event_id)
                 debug_record_llm_retry('Validation of response to model object failed retrying with validation errors prompt.')
 
                 try:
@@ -124,36 +128,40 @@ class Service:
                     )
 
                     if DebugRecorder.is_recording:
-                        debug_record_llm_request(request_body)
+                        debug_record_llm_request(request_body, event_id)
 
                     message_content = self._config.get_response_content(
                         self.post_request(request_body.model_dump())
                     )
 
                     if DebugRecorder.is_recording:
-                        debug_record_llm_response(message_content)
+                        debug_record_llm_response(message_content, event_id)
 
                     model = model.model_validate_json(message_content)
 
                     debug_record_llm_success(
                         'Validated response from validation errors prompt into model object.',
+                        event_id,
                         model=model
                     )
 
                     return model
 
                 except ValidationError as e:
-                    debug_record_llm_validation_failure(e)
+                    debug_record_llm_validation_failure(e, event_id)
 
                 if self._config.prompt_retry_count - 1:
                     debug_record_llm_retry(
                         'Response after validation errors prompt failed.\nRetrying with original prompt.',
+                        event_id,
                         remaining_attempts=self._config.prompt_retry_count - attempt
                     )
         else:
             raise LlmValidationException
 
     def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
+        event_id = generate_new_debug_event_id()
+
         request_body: BaseRequestBody = self.get_request_body()
 
         request_body.set_format_to_text()
@@ -168,14 +176,14 @@ class Service:
             content=user_prompt_str
         )
 
-        debug_record_llm_request(request_body)
+        debug_record_llm_request(request_body, event_id)
 
         message_content = self._config.get_response_content(
             self.post_request(request_body.model_dump())
         )
 
-        debug_record_llm_response(message_content)
-        debug_record_llm_success(llm_success_message)
+        debug_record_llm_response(message_content, event_id)
+        debug_record_llm_success(llm_success_message, event_id)
 
         return message_content
 

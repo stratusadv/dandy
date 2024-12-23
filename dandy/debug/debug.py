@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
+from dandy.debug.utils import generate_new_debug_event_id
 
 
 class Debugger(BaseModel):
@@ -65,8 +66,10 @@ class Debugger(BaseModel):
             ).replace(
                 '__debug_datetime__',
                 f'{datetime.now()}'
+            ).replace(
+                '__debug_event_id__',
+                f'{generate_new_debug_event_id()}'
             )
-
 
 
 class DebugRecorder(Singleton):
