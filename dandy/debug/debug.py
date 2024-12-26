@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
+from dandy.debug.utils import generate_new_debug_event_id
 
 
 class Debugger(BaseModel):
@@ -23,8 +24,10 @@ class Debugger(BaseModel):
     def add_event(
             self,
             event: BaseEvent
-    ):
+    ) -> str:
         self.events.append(event)
+
+        return event.id
 
     def calculate_event_run_times(self):
         if len(self.events) > 0:
@@ -55,7 +58,7 @@ class Debugger(BaseModel):
         if self.is_recording:
             self.stop()
 
-        with open(Path(Path(__file__).parent.resolve(), 'debug.html'), 'r') as debug_html:
+        with open(Path(Path(__file__).parent.resolve(), 'html', 'debug_recorder_output_template.html'), 'r') as debug_html:
             return debug_html.read(
             ).replace(
                 '__debug_output__',
@@ -63,8 +66,10 @@ class Debugger(BaseModel):
             ).replace(
                 '__debug_datetime__',
                 f'{datetime.now()}'
+            ).replace(
+                '__debug_event_id__',
+                f'{generate_new_debug_event_id()}'
             )
-
 
 
 class DebugRecorder(Singleton):

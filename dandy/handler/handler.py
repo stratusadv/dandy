@@ -1,9 +1,11 @@
 import json
+import re
 from abc import abstractmethod, ABCMeta
 
 from dandy.core.utils import json_default
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.events import RunEvent, ResultEvent
+from dandy.debug.utils import generate_new_debug_event_id
 from dandy.future.future import AsyncFuture
 
 
@@ -16,10 +18,13 @@ class ProcessDebugABCMeta(ABCMeta):
                 original_func = original_process.__func__
 
                 def wrapped_process(cls, *args, **kwargs):
+                    if getattr(cls, "_debugger_called", None) is None:
+                        cls._debugger_event_id = generate_new_debug_event_id()
+
                     if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
                         DebugRecorder.add_event(
                             RunEvent(
-                                actor=cls.__name__,
+                                actor=' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', cls.__name__)),
                                 action='Process',
                                 description=json.dumps(
                                     {
@@ -28,17 +33,18 @@ class ProcessDebugABCMeta(ABCMeta):
                                     },
                                     indent=4,
                                     default=json_default
-                                )
+                                ),
+                                id=cls._debugger_event_id
                             )
                         )
                         cls._debugger_called = True
 
                     result = original_func(cls, *args, **kwargs)
 
-                    if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
+                    if DebugRecorder.is_recording and getattr(cls, "_debugger_called", True):
                         DebugRecorder.add_event(
                             ResultEvent(
-                                actor=cls.__name__,
+                                actor=' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', cls.__name__)),
                                 action='Process Returned Result',
                                 description=json.dumps(
                                     {
@@ -46,7 +52,8 @@ class ProcessDebugABCMeta(ABCMeta):
                                     },
                                     indent=4,
                                     default=json_default
-                                )
+                                ),
+                                id=cls._debugger_event_id
                             )
                         )
 

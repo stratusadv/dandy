@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dandy Debug Recording Output</title>
+    <title>Dandy Debug: __debug_event_id__</title>
     <link rel="icon"
           href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJyZWQiIC8+Cjwvc3ZnPg=="
           type="image/svg+xml">
@@ -31,7 +31,7 @@
         }
 
         .text-run {
-            color: #999999 !important;
+            color: #99AA99 !important;
         }
 
         .bg-run {
@@ -39,19 +39,19 @@
         }
 
         .text-result {
-            color: #999999 !important;
+            color: #AA9999 !important;
         }
 
         .bg-result {
-            background-color: #EEEEEE !important;
+            background-color: #CCCCCC !important;
         }
 
         .text-retry {
-            color: #FF9900 !important;
+            color: #999900 !important;
         }
 
         .bg-retry {
-            background-color: #FFDDAA !important;
+            background-color: #DDDDAA !important;
         }
 
         .text-success {
@@ -62,12 +62,32 @@
             background-color: #DDFFDD !important;
         }
 
+        .text-warning {
+            color: #FF9900 !important;
+        }
+
+        .bg-warning {
+            background-color: #FFDDAA !important;
+        }
+
         .text-failure {
             color: #BB0000 !important;
         }
 
         .bg-failure {
             background-color: #FFCCCC !important;
+        }
+
+        .text-other {
+            color: #333333 !important;
+        }
+
+        .bg-other {
+            background-color: #EEEEEE !important;
+        }
+
+        .bg-top {
+            background-color: #F3F3F3 !important;
         }
 
         .white-space-pre-wrap {
@@ -112,11 +132,11 @@
     })
 </script>
 
-<div x-data="dandy_debug" class="container-fluid">
+<div x-data="dandy_debug" class="container-fluid bg-light">
 
-    <div class="row sticky-top bg-light py-1 mb-1 border-bottom border-dark shadow-sm">
+    <div class="row sticky-top bg-top py-1 mb-1 border-bottom border-dark shadow-sm">
         <div class="col-auto px-4 pb-1">
-            <span class="fw-bold">Dandy Debug Recording Output </span>
+            <span class="fw-bold">Dandy Debug Recording Output: __debug_event_id__</span>
             <span class="text-muted"><br>__debug_datetime__</span>
         </div>
         <div class="col text-end pe-3 me-2">
@@ -142,10 +162,13 @@
                 <i x-show="debug_event.type === 'run'" class="bi bi-cpu text-run"></i>
                 <i x-show="debug_event.type === 'request'" class="bi bi-box-arrow-up-right text-request ps-5"></i>
                 <i x-show="debug_event.type === 'response'" class="bi bi-box-arrow-in-down-left text-response ps-5"></i>
-                <i x-show="debug_event.type === 'result'" class="bi bi-arrow-return-left text-result ps-5 ms-5"></i>
+                <i x-show="debug_event.type === 'result'" class="bi bi-arrow-return-left text-result"></i>
                 <i x-show="debug_event.type === 'retry'" class="bi bi-arrow-clockwise text-retry ps-5 ms-5"></i>
                 <i x-show="debug_event.type === 'success'" class="bi bi-check-lg text-success ps-5 ms-5"></i>
+                <i x-show="debug_event.type === 'warning'"
+                   class="bi bi-exclamation-triangle text-warning ps-5 ms-5"></i>
                 <i x-show="debug_event.type === 'failure'" class="bi bi-x-lg text-failure ps-5 ms-5"></i>
+                <i x-show="debug_event.type === 'other'" class="bi bi-question-circle text-other"></i>
             </div>
 
             <div class="col">
@@ -162,7 +185,9 @@
                          'bg-result': debug_event.type === 'result',
                          'bg-retry': debug_event.type === 'retry',
                          'bg-success': debug_event.type === 'success',
-                         'bg-failure': debug_event.type === 'failure'
+                         'bg-warning': debug_event.type === 'warning',
+                         'bg-failure': debug_event.type === 'failure',
+                         'bg-other': debug_event.type === 'other'
                          }"
                     >
                         <span x-show="!show_details"><i class="bi bi-plus-lg"></i></span>
@@ -170,15 +195,16 @@
                         <span x-text="debug_event.actor"></span>
                         <span><i class="bi bi-arrow-right"></i></span>
                         <span x-text="debug_event.action"></span>
-                        <span x-text="debug_event.run_time.toFixed(3) + 's'" class="float-end"></span>
+                        <span x-text="debug_event.run_time.toFixed(3) + 's'" class="float-end text-end" width="130px;"></span>
+                        <span x-text="debug_event.id" class="float-end text-center" style="width: 100px;"></span>
                     </div>
 
-                    <div x-show="show_details" class="card-body">
+                    <div x-show="show_details" class="card-body py-2" style="font-size: 0.85rem; font-family: 'Courier New', serif">
 
                         <template x-if="debug_event.description">
 
                             <div>
-                                <p x-text="debug_event.description" class="white-space-pre-wrap"></p>
+                                <p x-html="debug_event.description" class="white-space-pre-wrap mb-0"></p>
                             </div>
 
                         </template>
@@ -236,17 +262,15 @@
 
             </div>
 
+            <div x-show="debug_event.type === 'result'" class="col-12 text-center text-result pb-1">
+                <i class="bi bi-stop-fill"></i>
+                <i class="bi bi-stop-fill"></i>
+                <i class="bi bi-stop-fill"></i>
+            </div>
+
         </div>
 
     </template>
-
-    <div class="row">
-        <div class="col-12 text-center text-run pb-1">
-            <i class="bi bi-stop-fill"></i>
-            <i class="bi bi-stop-fill"></i>
-            <i class="bi bi-stop-fill"></i>
-        </div>
-    </div>
 
 </div>
 
