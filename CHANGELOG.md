@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.5.0
+
+### Features
+
+- Improved the debug recorder html output to be more user friendly and easier to read.
+- Added ID's to all the tracked events in the debug recorder.
+
+### Changes
+
+- Changed the service controls for ollama to match the new format structure in the request json.
+
+### Fixes
+
+- Fixed the work flow process return display in the debug recorder.
+- Fixed all the process control displays in the debug recorder to display properly.
+
 ## v0.4.2
 
 ### Features

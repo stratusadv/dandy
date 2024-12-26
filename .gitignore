@@ -10,4 +10,4 @@ inspectionProfiles/
 *.bat
 *.db
 *.sql
-default_debug_output.html
+*_debug_output.html
