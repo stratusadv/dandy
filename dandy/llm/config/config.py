@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from base64 import b64encode
 from typing_extensions import List, Union
 
 from pydantic import BaseModel, Field, field_validator
@@ -53,7 +54,7 @@ class BaseLlmConfig(BaseModel):
             }
 
         if api_key is not None:
-            headers["Authorization"] = f"Basic Bearer {api_key}"
+            headers["Authorization"] = f'Basic {b64encode(f"Bearer:{api_key}".encode()).decode()}'
 
         self.validate_value(host, 'host', str)
         self.validate_value(port, 'port', int)
