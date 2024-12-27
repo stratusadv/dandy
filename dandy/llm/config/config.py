@@ -53,7 +53,7 @@ class BaseLlmConfig(BaseModel):
             }
 
         if api_key is not None:
-            headers["Authorization"] = f"Bearer {api_key}"
+            headers["Authorization"] = f"Basic Bearer {api_key}"
 
         self.validate_value(host, 'host', str)
         self.validate_value(port, 'port', int)

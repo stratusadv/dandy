@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.1
+
+### Fixes
+
+- Fixed the bearer token usage for use with ollama and reverse proxy servers.
+
 ## v0.5.0
 
 ### Features
