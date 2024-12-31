@@ -24,8 +24,8 @@ class BaseLlmConfig(BaseModel):
     headers: Union[dict, None] = None,
     api_key: Union[str, None] = None,
     seed: Union[int, None] = _DEFAULT_SEED,
-    context_length: int = Field(_DEFAULT_CONTEXT_LENGTH, ge=0, le=8192)
-    max_completion_tokens: int = Field(_DEFAULT_MAX_COMPLETION_TOKENS, ge=0, le=2048)
+    context_length: int = Field(_DEFAULT_CONTEXT_LENGTH, ge=0, le=128_000)
+    max_completion_tokens: int = Field(_DEFAULT_MAX_COMPLETION_TOKENS, ge=0, le=128_000)
     temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0)
     connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100)
     prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10)

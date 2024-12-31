@@ -7,13 +7,9 @@ from dandy.llm.prompt import Prompt
 
 
 class SeedLlmBot(LlmBot):
-    role_prompt = (
-        Prompt()
-        .text('You are a data generation bot tasked with generating realistic data for Pydantic models.')
-    )
-
     instructions_prompt = (
         Prompt()
+        .text('You are a data generation bot tasked with generating realistic data for Pydantic models.')
         .text('Your job is to create data for seeding the database of Tradesman Manufacturing, a Canadian HVAC sheet metal product manufacturer.')
         .text('Generate realistic information for each field in the provided Pydantic model, including products, client names, and facility details.')
         .text('The data should reflect real-world manufacturing operations and is specific to HVAC systems.')

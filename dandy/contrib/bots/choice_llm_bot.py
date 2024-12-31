@@ -21,11 +21,6 @@ class MultipleChoiceResponse(BaseModel):
 
 
 class _ChoiceLlmBot(LlmBot, ABC):
-    role_prompt = (
-        Prompt()
-        .text('You are an choice bot.')
-    )
-
     @classmethod
     def process(
             cls,
@@ -100,6 +95,7 @@ class _ChoiceOverloadMixin:
 class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     instructions_prompt = (
         Prompt()
+        .text('You are an choice bot.')
         .text('Your job is to identify the intent of the user input and match it to the provided choices.')
         .text(f'If there is no good matches in the choices reply with value "{NO_CHOICE_FOUND_RESPONSE}".')
     )
@@ -133,6 +129,7 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
 class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
     instructions_prompt = (
         Prompt()
+        .text('You are an choice bot.')
         .text('Your job is to identify the intent of the user input and match it to the provided choices.')
         .text('Return as many choices as you see relevant to the user input.')
         .text(f'If there is no good matches in the choices reply with value "{NO_CHOICE_FOUND_RESPONSE}".')

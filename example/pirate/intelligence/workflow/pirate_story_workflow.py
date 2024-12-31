@@ -1,38 +1,72 @@
 from dandy.llm.prompt import Prompt
 from dandy.workflow import Workflow
-from example.pirate.crew.datasets import CREW_MEMBERS
+from example.pirate.intelligence.prompts import pirate_story_prompt
 from example.pirate.monster.workflow.monster_generation_workflow import SeaMonsterWorkflow
 from example.pirate.world.datasets import OCEANS
 from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
-from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_2, OLLAMA_LLAMA_3_1
-from example.pirate.ship.intelligence.bots.ship_selection_llm_bot import PirateShipSelectionLlmBot
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_2_3B, OLLAMA_LLAMA_3_1_8B
+from example.pirate.ship.intelligence.bots.ship_selection_llm_bot import ShipSelectionLlmBot
 from example.pirate.ship.datasets import PIRATE_SHIPS
-from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
+from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGenerationLlmBot
 
 
 class PirateStoryWorkflow(Workflow):
     @classmethod
     def process(cls, user_input: str) -> str:
-        # ocean_choice = OceanSelectionLlmBot.process('Select the Ocean with the biggest islands', OCEANS)
+        ocean = OceanSelectionLlmBot.process(
+            'I would like a random ocean for a pirate adventure',
+            OCEANS
+        )
 
-        # if ocean_choice is None:
-        ocean_choice = OceanSelectionLlmBot.process('I would like a random ocean for a pirate adventure', OCEANS)
-        ocean = ocean_choice
-        ship_choice = PirateShipSelectionLlmBot.process('I would like a random ship for a pirate adventure', PIRATE_SHIPS)
-        ship = ship_choice
+        ship = ShipSelectionLlmBot.process(
+            'I would like a random ship for a pirate adventure',
+            PIRATE_SHIPS
+        )
 
         sea_monster = SeaMonsterWorkflow.process('N/A')
 
-        crew_choices = CrewSelectionLlmBot.process('I would like a random selection of exactly one captain, one navigator, and one engineer.', CREW_MEMBERS)
+        crew = CrewGenerationLlmBot.process(
+            'I would like my crew to be a dark and grumpy bunch of seasoned pirates'
+        )
 
-        ship.crew_members = crew_choices
+        ship.crew = crew
 
-        return OLLAMA_LLAMA_3_1.service.assistant_str_prompt_to_str(str((
-            Prompt()
-            .text('Describe a pirate adventure in the following ocean:')
-            .model_object(ocean, triple_quote=True)
-            .text('With the following ship:')
-            .model_object(ship, triple_quote=True)
-            .text('That has to face this sea monster:')
-            .model_object(sea_monster, triple_quote=True)
-        )))
+        return OLLAMA_LLAMA_3_1_8B.assistant_str_prompt_to_str(
+            pirate_story_prompt(
+                ocean,
+                ship,
+                sea_monster
+            ).to_str()
+        )
+
+
+class PirateStoryWithFuturesWorkflow(Workflow):
+    @classmethod
+    def process(cls, user_input: str) -> str:
+        ocean_future = OceanSelectionLlmBot.process_to_future(
+            'I would like a random ocean for a pirate adventure',
+            OCEANS
+        )
+
+        ship_future = ShipSelectionLlmBot.process_to_future(
+            'I would like a random ship for a pirate adventure',
+            PIRATE_SHIPS
+        )
+
+        sea_monster_future = SeaMonsterWorkflow.process_to_future('N/A')
+
+        crew_future = CrewGenerationLlmBot.process_to_future(
+            'I would like my crew to be a happy and future thinking bunch of unskilled pirates'
+        )
+
+        ship = ship_future.result
+
+        ship.crew = crew_future.result
+
+        return OLLAMA_LLAMA_3_1_8B.assistant_str_prompt_to_str(
+            pirate_story_prompt(
+                ocean_future.result,
+                ship,
+                sea_monster_future.result,
+            ).to_str()
+        )

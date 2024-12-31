@@ -1,20 +1,20 @@
 from dandy.bot import LlmBot
 from dandy.contrib.bots import SingleChoiceLlmBot
 from dandy.llm.prompt import Prompt
-from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
 from example.pirate.monster.intel import SeaMonsterNameStructureIntel, SeaMonsterIntel
 
 
 class MonsterSelectionLlmBot(SingleChoiceLlmBot):
     role_prompt = Prompt().text('You are an monster selection bot.')
-    llm_config = OLLAMA_LLAMA_3_1
+    llm_config = OLLAMA_LLAMA_3_1_8B
     llm_temperature = 0.0
 
 
 
 class MonsterNamingLlmBot(LlmBot):
     llm_temperature = 0.7
-    llm_config = OLLAMA_LLAMA_3_1
+    llm_config = OLLAMA_LLAMA_3_1_8B
 
     role_prompt = Prompt().text('You are an monster selection bot.')
 

@@ -16,14 +16,8 @@ class AsyncFuture(Generic[FutureResultType]):
         self._future_start_time = time()
 
         self._result: Union[FutureResultType, None] = None
-        self._result_timeout = 0.0
+        self._result_timeout = None
         self._using_result_timeout = False
-
-    def _check_result_timeout(self):
-        if self._using_result_timeout:
-            elapsed_time = time() - self._future_start_time
-            if elapsed_time > self._result_timeout:
-                raise_future_timeout_exception(self._result_timeout)
 
     def cancel(self):
         if not self._future.done():

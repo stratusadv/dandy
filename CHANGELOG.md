@@ -5,16 +5,19 @@
 ### Features
 
 - You can now cancel futures using the cancel method.
+- LLmBots can now be configured with llm_context_length and llm_max_completion_tokens
 
 ### Changes
 
 - Removed the role attribute from the llm bot class.
 - Updated the readme to match the new project structure.
+- Example changed to use more features and provide a better example of usage.
 
 ### Fixes
 
 - Fixed futures to properly use the thread pool executor to wait for results.
 - Fixed the examples to properly match the new project structure.
+- Fixed bug with futures not timing out properly.
 
 ## v0.5.2
 
