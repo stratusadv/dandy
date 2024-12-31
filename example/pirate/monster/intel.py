@@ -1,15 +1,9 @@
-from enum import Enum
 from typing import Union
 
 from pydantic import BaseModel
 
+from example.pirate.monster.enums import SeaMonsterType
 
-class SeaMonsterType(Enum):
-    KRAKEN = "Kraken"
-    SEA_SERPENT = "Sea Serpent"
-    LEVIATHAN = "Leviathan"
-    HYDRA = "Hydra"
-    CTHULHU = "Cthulhu"
 
 class SeaMonsterIntel(BaseModel):
     name: Union[str, None] = None

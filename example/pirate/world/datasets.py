@@ -1,4 +1,4 @@
-from example.pirate.world.models import OceanIntel, IslandIntel
+from example.pirate.world.intel import OceanIntel, IslandIntel
 
 OCEANS = {
     "Pacific": OceanIntel(

@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.6.0
+
+### Features
+
+- You can now cancel futures using the cancel method.
+
+### Changes
+
+- Removed the role attribute from the llm bot class.
+- Updated the readme to match the new project structure.
+
+### Fixes
+
+- Fixed futures to properly use the thread pool executor to wait for results.
+- Fixed the examples to properly match the new project structure.
+
 ## v0.5.2
 
 ### Fixes

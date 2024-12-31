@@ -11,13 +11,13 @@ from dandy.core.type_vars import ModelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.llm.exceptions import LlmException, LlmValidationException
-from dandy.llm.prompt import Prompt
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_model_prompt
 
 if TYPE_CHECKING:
+    from dandy.llm.prompt import Prompt
     from dandy.llm.config import BaseLlmConfig
     from dandy.llm.request.request import BaseRequestBody
 

@@ -30,35 +30,39 @@ cookie_recipe/ <-- This would be for each of your modules
     your_code.py
     ...
     ...
-    intel/ <-- Dandy related code should be in this directory
+    intelligence/ <-- Dandy related code should be in this directory
         __init__.py
         config.py <-- Contains LLM configs for this module (can be shared accross project or live elsewhere)
         bots/
             __init__.py
-            cookie_recipe_select_bot.py <-- Should contain one bot alone (can include, models and prompts specific to this bot)
-            cookie_recipe_data_process_bot.py
-            cookie_recipe_intent_llm_bot.py
+            cookie_recipe_llm_bot.py <-- Should contain one bot alone (can include, models and prompts specific to this bot)
+            cookie_recipe_safety_llm_bot.py
+            cookie_recipe_review_llm_bot.py
             ...
             ...
-        models/
+        intel/
             __init__.py
-            cookie_recipe_select_models.py <-- Pydantic Model Classes in these files must be postfixed with "Intel" ex: "SelectIntel"
-            cookie_recipe_data_process_models.py
-            cookie_recipe_intent_llm_models.py
+            cookie_recipe_intel.py <-- Pydantic Model Classes in all of these files must be postfixed with "Intel" ex: "SelectIntel"
+            cookie_recipe_story_intel.py
+            cookie_recipe_marketing_intel.py
             ...
             ...
         prompts/
             __init__.py
-            cookie_recipe_select_prompts.py <-- This would contain prompts that would be shared across the project
-            cookie_recipe_data_process_prompts.py
-            cookie_recipe_intent_llm_prompts.py
+            cookie_recipe_prompts.py <-- All of these files would contain prompts that would be shared across the project
+            cookie_recipe_email_prompts.py
+            cookie_recipe_instructions_prompts.py
             ...
             ...     
         workflows/
             __init__.py
-            cookie_recipe_chat_workflow.py <-- In most cases this workflow would be used to interact with the user
+            cookie_recipe_generation_workflow.py <-- In most cases this workflow would be used to interact with the user
             ...
             ...
+            
+intelligence/ <-- Project Root where dandy related code for your entire project would live
+    __init__.py
+    config.py <-- Contains LLM configs for this entire project
 ```
 
 ## Setup
@@ -68,6 +72,8 @@ cookie_recipe/ <-- This would be for each of your modules
 
 import os
 from dandy.llm.config import OpenaiLlmConfig, OllamaLlmConfig
+
+# These are some example LLM configs you may only need one of these
 
 OPENAI_GPT_3_5_TURBO = OpenaiLlmConfig(
     host=os.getenv("OPENAI_HOST"),
@@ -105,6 +111,7 @@ OLLAMA_LLAMA_3_1 = OllamaLlmConfig(
 ```python
 # cookie_recipe_llm_bot.py
 
+from typing import List
 from pydantic import BaseModel
 
 from dandy.bot import LlmBot
@@ -113,15 +120,22 @@ from dandy.llm import Prompt
 from cookie_recipe.intel.config import OPENAI_GPT_3_5_TURBO
 
 
+class CookieRecipeIngredientIntel(BaseModel):
+    name: str
+    unit_type: str
+    quantity: float
+
 class CookieRecipeIntel(BaseModel):
     name: str
+    description: str
+    ingredients: List[CookieRecipeIngredientIntel]
     instructions: str
 
     
 class CookieRecipeLlmBot(LlmBot):
-    role_prompt = Prompt().text('You are a cookie receipe bot.')
     instructions_prompt = (
       Prompt()
+      .title('You are a cookie recipe bot.')
       .text('Your job is to follow the instructions provided below.')
       .unordered_random_list([
         'Create a cookie based on the users input',
@@ -133,7 +147,7 @@ class CookieRecipeLlmBot(LlmBot):
 
     
 cookie_recipe_intel = CookieRecipeLlmBot.process(
-    prompt=Prompt().text('I love broccoli!'),
+    prompt=Prompt().text('I love broccoli and oatmeal!'),
     model=CookieRecipeIntel,
     temperature=0.5,
 )

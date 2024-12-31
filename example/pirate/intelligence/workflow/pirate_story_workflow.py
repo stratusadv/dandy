@@ -3,11 +3,11 @@ from dandy.workflow import Workflow
 from example.pirate.crew.datasets import CREW_MEMBERS
 from example.pirate.monster.workflow.monster_generation_workflow import SeaMonsterWorkflow
 from example.pirate.world.datasets import OCEANS
-from example.pirate.world.intel.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
-from example.pirate.intel.configs import OLLAMA_LLAMA_3_2, OLLAMA_LLAMA_3_1
-from example.pirate.ship.intel.bots.ship_selection_llm_bot import PirateShipSelectionLlmBot
+from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_2, OLLAMA_LLAMA_3_1
+from example.pirate.ship.intelligence.bots.ship_selection_llm_bot import PirateShipSelectionLlmBot
 from example.pirate.ship.datasets import PIRATE_SHIPS
-from example.pirate.crew.intel.bots.crew_selection_llm_bot import CrewSelectionLlmBot
+from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
 
 
 class PirateStoryWorkflow(Workflow):

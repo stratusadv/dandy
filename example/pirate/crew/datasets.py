@@ -1,5 +1,5 @@
 from example.pirate.crew.enums import CrewRole
-from example.pirate.crew.models import CrewMemberIntel
+from example.pirate.crew.intel import CrewMemberIntel
 
 CREW_MEMBERS = {
     'captain_1': CrewMemberIntel(

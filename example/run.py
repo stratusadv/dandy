@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dandy.debug.debug import DebugRecorder
-from example.pirate.intel.workflow.pirate_story_workflow import PirateStoryWorkflow
+from example.pirate.intelligence.workflow.pirate_story_workflow import PirateStoryWorkflow
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from example.pirate.monster.models import SeaMonsterIntel, SeaMonsterType
+from example.pirate.monster.intel import SeaMonsterIntel, SeaMonsterType
 
 MONSTERS = {
     'kraken': SeaMonsterIntel(

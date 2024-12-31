@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from dandy.future.future import AsyncFuture
 from example.pirate.crew.datasets import CREW_MEMBERS
-from example.pirate.crew.intel.bots.crew_selection_llm_bot import CrewSelectionLlmBot
+from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
 
 
 TEST_FUTURE_SLEEP_TIME = 2.0

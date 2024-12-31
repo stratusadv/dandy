@@ -3,7 +3,7 @@ from unittest import TestCase
 from dandy.llm import Prompt
 from dandy.llm.utils import get_estimated_token_count_for_prompt
 
-from example.pirate.ship.models import ShipIntel
+from example.pirate.ship.intel import ShipIntel
 
 
 class TestUtils(TestCase):

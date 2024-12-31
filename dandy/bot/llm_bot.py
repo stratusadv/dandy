@@ -8,7 +8,6 @@ from dandy.llm.prompt import Prompt
 
 
 class LlmBot(Bot, ABC):
-    role_prompt: Prompt
     instructions_prompt: Prompt
     llm_config: BaseLlmConfig
     llm_temperature: Union[float, None] = None
@@ -29,7 +28,6 @@ class LlmBot(Bot, ABC):
             model=model,
             prefix_system_prompt=(
                 Prompt()
-                .prompt(cls.role_prompt)
                 .prompt(cls.instructions_prompt)
             )
         )

@@ -4,7 +4,7 @@ from typing_extensions import List
 
 from pydantic import BaseModel
 
-from example.pirate.crew.models import CrewMemberIntel
+from example.pirate.crew.intel import CrewMemberIntel
 
 
 class ShipIntel(BaseModel):

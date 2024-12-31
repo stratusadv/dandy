@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from base64 import b64encode
-from typing_extensions import List, Union
+from typing_extensions import List, Union, TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -83,6 +83,9 @@ class BaseLlmConfig(BaseModel):
     @abstractmethod
     def __llm_config_post_init__(self):
         ...
+
+    def assistant_str_prompt_to_str(self, user_prompt_str: str) -> str:
+        return self.service.assistant_str_prompt_to_str(user_prompt_str=user_prompt_str)
 
     @abstractmethod
     def get_response_content(self, response) -> str:

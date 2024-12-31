@@ -3,9 +3,8 @@ from time import sleep, time
 
 from typing_extensions import Callable, TypeVar, Generic, Union
 
-from dandy.future.exceptions import FutureException
+from dandy.future.exceptions import raise_future_timeout_exception
 
-ASYNC_EXECUTOR_RESULT_CHECK_INTERVAL = 0.001
 ASYNC_EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 
 FutureResultType = TypeVar('FutureResultType')
@@ -22,26 +21,27 @@ class AsyncFuture(Generic[FutureResultType]):
 
     def _check_result_timeout(self):
         if self._using_result_timeout:
-            if self._result_timeout >= (time() - self._future_start_time):
-                raise FutureException(f'Future timed out after {self._result_timeout} seconds')
+            elapsed_time = time() - self._future_start_time
+            if elapsed_time > self._result_timeout:
+                raise_future_timeout_exception(self._result_timeout)
 
-    def _fetch_result(self):
-        if self._result is None:
-            while not self._future.done():
-                sleep(ASYNC_EXECUTOR_RESULT_CHECK_INTERVAL)
-                self._check_result_timeout()
-
-            try:
-                self._result: FutureResultType = self._future.result()
-            except concurrent.futures.TimeoutError:
-                raise FutureException(f'Future timed out')
-            finally:
-                self._future = None
+    def cancel(self):
+        if not self._future.done():
+            self._future.cancel()
 
     @property
     def result(self) -> FutureResultType:
-        self._fetch_result()
-
+        if self._result is None:
+            try:
+                done, not_done = concurrent.futures.wait([self._future], timeout=self._result_timeout)
+                if self._future in done:
+                    self._result = self._future.result()
+                else:
+                    raise concurrent.futures.TimeoutError
+            except concurrent.futures.TimeoutError:
+                raise_future_timeout_exception(self._result_timeout)
+            finally:
+                self._future = None
         return self._result
 
     def set_timeout(self, seconds: int):

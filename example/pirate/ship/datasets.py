@@ -1,5 +1,5 @@
 from example.pirate.crew.datasets import CREW_MEMBERS
-from example.pirate.ship.models import ShipIntel
+from example.pirate.ship.intel import ShipIntel
 
 QUEEN_ANNES_REVENGE = ShipIntel(
     name="Queen Annes Revenge",
