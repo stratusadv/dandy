@@ -24,8 +24,8 @@ class BaseLlmConfig(BaseModel):
     headers: Union[dict, None] = None,
     api_key: Union[str, None] = None,
     seed: Union[int, None] = _DEFAULT_SEED,
-    context_length: int = Field(_DEFAULT_CONTEXT_LENGTH, ge=0, le=128_000)
-    max_completion_tokens: int = Field(_DEFAULT_MAX_COMPLETION_TOKENS, ge=0, le=128_000)
+    max_input_tokens: int = Field(_DEFAULT_CONTEXT_LENGTH, ge=0, le=128_000)
+    max_output_tokens: int = Field(_DEFAULT_MAX_COMPLETION_TOKENS, ge=0, le=128_000)
     temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0)
     connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100)
     prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10)
@@ -39,8 +39,8 @@ class BaseLlmConfig(BaseModel):
             query_parameters: Union[dict, None] = None,
             headers: Union[dict, None] = None,
             api_key: Union[str, None] = None,
-            context_length: int = _DEFAULT_CONTEXT_LENGTH,
-            max_completion_tokens: int = _DEFAULT_MAX_COMPLETION_TOKENS,
+            max_input_tokens: int = _DEFAULT_CONTEXT_LENGTH,
+            max_output_tokens: int = _DEFAULT_MAX_COMPLETION_TOKENS,
             seed: Union[int, None] = _DEFAULT_SEED,
             temperature: float = _DEFAULT_TEMPERATURE,
             connection_retry_count: int = _DEFAULT_CONNECTION_RETRY_COUNT,
@@ -71,8 +71,8 @@ class BaseLlmConfig(BaseModel):
             headers=headers,
             connection_retry_count=connection_retry_count,
             prompt_retry_count=prompt_retry_count,
-            context_length=context_length,
-            max_completion_tokens=max_completion_tokens,
+            max_input_tokens=max_input_tokens,
+            max_output_tokens=max_output_tokens,
             seed=seed,
             temperature=temperature,
             request_body=request_body,
@@ -94,8 +94,8 @@ class BaseLlmConfig(BaseModel):
     @abstractmethod
     def generate_request_body(
             self,
-            context_length: Union[int, None] = None,
-            max_completion_tokens: Union[int, None] = None,
+            max_input_tokens: Union[int, None] = None,
+            max_output_tokens: Union[int, None] = None,
             seed: Union[int, None] = None,
             temperature: Union[float, None] = None,
     ) -> BaseRequestBody:
@@ -103,16 +103,16 @@ class BaseLlmConfig(BaseModel):
 
     def generate_service(
             self,
-            context_length: Union[int, None] = None,
-            max_completion_tokens: Union[int, None] = None,
+            max_input_tokens: Union[int, None] = None,
+            max_output_tokens: Union[int, None] = None,
             seed: Union[int, None] = None,
             temperature: Union[float, None] = None,
     ) -> Service:
 
         return Service(
             self,
-            context_length=context_length,
-            max_completion_tokens=max_completion_tokens,
+            max_input_tokens=max_input_tokens,
+            max_output_tokens=max_output_tokens,
             seed=seed,
             temperature=temperature,
         )

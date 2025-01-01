@@ -26,14 +26,14 @@ class Service:
     def __init__(
             self,
             config: BaseLlmConfig,
-            context_length: Union[int, None] = None,
-            max_completion_tokens: Union[int, None] = None,
+            max_input_tokens: Union[int, None] = None,
+            max_output_tokens: Union[int, None] = None,
             seed: Union[int, None] = None,
             temperature: Union[float, None] = None):
 
         self._config = config
-        self._context_length = context_length
-        self._max_completion_tokens = max_completion_tokens
+        self._max_input_tokens = max_input_tokens
+        self._max_output_tokens = max_output_tokens
         self._seed = seed
         self._temperature = temperature
 
@@ -62,8 +62,8 @@ class Service:
 
     def get_request_body(self) -> BaseRequestBody:
         return self._config.generate_request_body(
-            context_length=self._context_length,
-            max_completion_tokens=self._max_completion_tokens,
+            max_input_tokens=self._max_input_tokens,
+            max_output_tokens=self._max_output_tokens,
             seed=self._seed,
             temperature=self._temperature,
         )

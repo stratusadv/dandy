@@ -12,8 +12,8 @@ class LlmBot(Bot, ABC):
     llm_config: BaseLlmConfig
     llm_temperature: Union[float, None] = None
     llm_seed: Union[int, None] = None
-    llm_context_length: Union[int, None] = None
-    llm_max_completion_tokens: Union[int, None] = None
+    llm_max_input_tokens: Union[int, None] = None
+    llm_max_output_tokens: Union[int, None] = None
 
     @classmethod
     def process_prompt_to_model_object(
@@ -25,8 +25,8 @@ class LlmBot(Bot, ABC):
         return cls.llm_config.generate_service(
             seed=cls.llm_seed,
             temperature=cls.llm_temperature,
-            context_length=cls.llm_context_length,
-            max_completion_tokens=cls.llm_max_completion_tokens
+            max_input_tokens=cls.llm_max_input_tokens,
+            max_output_tokens=cls.llm_max_output_tokens
         ).process_prompt_to_model_object(
             prompt=prompt,
             model=model,
