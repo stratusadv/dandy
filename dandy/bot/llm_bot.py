@@ -9,11 +9,11 @@ from dandy.llm.prompt import Prompt
 
 class LlmBot(Bot, ABC):
     instructions_prompt: Prompt
-    llm_config: BaseLlmConfig
-    llm_temperature: Union[float, None] = None
-    llm_seed: Union[int, None] = None
-    llm_max_input_tokens: Union[int, None] = None
-    llm_max_output_tokens: Union[int, None] = None
+    config: BaseLlmConfig
+    temperature: Union[float, None] = None
+    seed: Union[int, None] = None
+    max_input_tokens: Union[int, None] = None
+    max_output_tokens: Union[int, None] = None
 
     @classmethod
     def process_prompt_to_model_object(
@@ -22,11 +22,11 @@ class LlmBot(Bot, ABC):
             model: Type[ModelType],
     ) -> ModelType:
 
-        return cls.llm_config.generate_service(
-            seed=cls.llm_seed,
-            temperature=cls.llm_temperature,
-            max_input_tokens=cls.llm_max_input_tokens,
-            max_output_tokens=cls.llm_max_output_tokens
+        return cls.config.generate_service(
+            seed=cls.seed,
+            temperature=cls.temperature,
+            max_input_tokens=cls.max_input_tokens,
+            max_output_tokens=cls.max_output_tokens
         ).process_prompt_to_model_object(
             prompt=prompt,
             model=model,

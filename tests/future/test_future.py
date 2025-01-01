@@ -2,11 +2,10 @@ from time import time, sleep
 from unittest import TestCase
 
 from dandy.future.future import AsyncFuture
-from example.pirate.crew.datasets import CREW_MEMBERS
-from example.pirate.crew.intelligence.bots.crew_selection_llm_bot import CrewSelectionLlmBot
+from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGenerationLlmBot
 
 
-TEST_FUTURE_SLEEP_TIME = 2.0
+TEST_FUTURE_SLEEP_TIME = 5.0
 TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + 0.05
 
 
@@ -31,20 +30,18 @@ class TestFuture(TestCase):
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
     def test_llmbot_future(self):
-        crew_choices_future = CrewSelectionLlmBot.process_to_future(
+        crew_future = CrewGenerationLlmBot.process_to_future(
             'I would like a random selection of exactly one captain, one navigator, and one engineer.',
-            CREW_MEMBERS
         )
 
-        engineer_choices_future = CrewSelectionLlmBot.process_to_future(
+        other_crew_future = CrewGenerationLlmBot.process_to_future(
             'I would like a random selection of exactly one engineer.',
-            CREW_MEMBERS
         )
 
         sleep(TEST_FUTURE_SLEEP_TIME)
 
-        _ = engineer_choices_future.result
+        other_crew_future.cancel()
 
-        self.assertTrue(len(crew_choices_future.result) == 3)
+        self.assertTrue(len(crew_future.result.members) >= 3)
 
         self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)

@@ -15,8 +15,8 @@ class CrewGenerationLlmBot(LlmBot):
             'Generate a minimum of 5 crew members.',
         ])
     )
-    llm_config = OLLAMA_LLAMA_3_1_8B
-    llm_temperature = 0.2
+    config = OLLAMA_LLAMA_3_1_8B
+    temperature = 0.2
 
     @classmethod
     def process(cls, crew_description: str) -> CrewIntel:

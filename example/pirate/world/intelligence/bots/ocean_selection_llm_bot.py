@@ -5,5 +5,5 @@ from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
 
 class OceanSelectionLlmBot(SingleChoiceLlmBot):
     role_prompt = Prompt().text('You are an ocean selection bot.')
-    llm_config = OLLAMA_LLAMA_3_1_8B
-    llm_temperature = 0.0
+    config = OLLAMA_LLAMA_3_1_8B
+    temperature = 0.0

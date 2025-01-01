@@ -7,14 +7,14 @@ from example.pirate.monster.intel import SeaMonsterNameStructureIntel, SeaMonste
 
 class MonsterSelectionLlmBot(SingleChoiceLlmBot):
     role_prompt = Prompt().text('You are an monster selection bot.')
-    llm_config = OLLAMA_LLAMA_3_1_8B
-    llm_temperature = 0.0
+    config = OLLAMA_LLAMA_3_1_8B
+    temperature = 0.0
 
 
 
 class MonsterNamingLlmBot(LlmBot):
-    llm_temperature = 0.7
-    llm_config = OLLAMA_LLAMA_3_1_8B
+    temperature = 0.7
+    config = OLLAMA_LLAMA_3_1_8B
 
     role_prompt = Prompt().text('You are an monster selection bot.')
 
