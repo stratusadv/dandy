@@ -11,6 +11,7 @@ class CrewMemberIntel(BaseModel):
     role: CrewRole
     description: str
     age: int
+    name_of_hat: str
 
 
 class CrewIntel(BaseModel):
