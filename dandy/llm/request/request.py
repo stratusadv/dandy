@@ -4,7 +4,7 @@ from typing_extensions import List
 from pydantic import BaseModel, Field
 
 from dandy.llm.request.message import RequestMessage
-from dandy.llm.utils import str_to_token_count
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 class BaseRequestBody(BaseModel):
@@ -25,7 +25,7 @@ class BaseRequestBody(BaseModel):
 
     @property
     def messages_estimated_tokens(self) -> int:
-        return int(sum([str_to_token_count(message.content) for message in self.messages]))
+        return int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
 
     @abstractmethod
     def set_format_to_json(self): ...

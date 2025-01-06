@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.6.1
+
+### Features
+
+- Added heading and sub headings to the prompt class.
+
+### Changes
+
+- Improved testing across the whole project.
+- Prompt assembly is more reliable and consistent if you want empty lines you need to use the .line_break method.
+
+### Fixes
+
+- Fixed lots of prompt formatting issues.
+- Futures properly raise an exception when they time out.
+
 ## v0.6.0
 
 ### Features

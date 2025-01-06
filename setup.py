@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
     license_file = license_handle.read()
@@ -9,18 +9,18 @@ setup(
     name="dandy",
     version=__version__,
     description="Intelligence Bot Framework",
-    long_description="Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, magical, and designed to be incredibly pythonic.",
+    long_description="Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, usefully magical, and designed to be incredibly pythonic.",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords=["dandy", "ai", "llm", "agent", "prompt", "gpt"],
+    keywords=["dandy", "ai", "llm", "agent", "prompt", "gpt", "boty"],
     author="Nathan Johnson",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/dandy",

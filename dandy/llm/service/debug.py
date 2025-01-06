@@ -5,7 +5,7 @@ from dandy.debug.debug import DebugRecorder
 from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
     LlmServiceFailureEvent, LlmServiceRetryEvent
-from dandy.llm.utils import str_to_token_count
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 def debug_record_llm_validation_failure(error: ValidationError, event_id: str):
@@ -37,7 +37,7 @@ def debug_record_llm_response(message_content: str, event_id: str):
     if DebugRecorder.is_recording:
         DebugRecorder.add_event(LlmServiceResponseEvent(
             response=message_content,
-            estimated_tokens=str_to_token_count(message_content),
+            estimated_tokens=get_estimated_token_count_for_string(message_content),
             id=event_id
         ))
 

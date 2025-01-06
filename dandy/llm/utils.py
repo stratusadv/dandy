@@ -4,7 +4,6 @@ import traceback
 from typing_extensions import TYPE_CHECKING, Type, Union
 
 from dandy.core.type_vars import ModelType
-from dandy.llm.prompt.prompt import CHARACTERS_PER_TOKEN
 from dandy.llm.service.prompts import service_system_model_prompt, service_user_prompt
 
 if TYPE_CHECKING:
@@ -28,7 +27,3 @@ def get_estimated_token_count_for_prompt(
         model=model,
         prefix_system_prompt=prefix_system_prompt
     ).estimated_token_count + service_user_prompt(prompt).estimated_token_count
-
-
-def str_to_token_count(string: str) -> int:
-    return int(len(string) / CHARACTERS_PER_TOKEN)

@@ -7,9 +7,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
-from typing_extensions import List, Type, TYPE_CHECKING, Dict, Any, Set, Union, Tuple
 
 from pydantic import BaseModel
+from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
 from dandy.llm.exceptions import LlmException
 from dandy.llm.prompt.utils import list_to_str
@@ -41,25 +41,11 @@ class BaseSnippet(ABC):
 
 
 @dataclass(kw_only=True)
-class DictionarySnippet(BaseSnippet):
-    dictionary: Dict
-
-    def _to_str(self) -> str:
-        return json.dumps(self.dictionary, indent=4)
-
-
-@dataclass(kw_only=True)
-class DividerSnippet(BaseSnippet):
-    def _to_str(self) -> str:
-        return '----------\n'
-
-
-@dataclass(kw_only=True)
 class ArraySnippet(BaseSnippet):
     items: List[str]
 
     def _to_str(self) -> str:
-        return '[\n'+',\n'.join(f'"{item}"' for item in self.items) + '\n]'
+        return '[\n'+',\n'.join(f'"{item}"' for item in self.items) + '\n]\n'
 
 
 @dataclass(kw_only=True)
@@ -70,8 +56,22 @@ class ArrayRandomOrderSnippet(ArraySnippet):
 
 
 @dataclass(kw_only=True)
+class DictionarySnippet(BaseSnippet):
+    dictionary: Dict
+
+    def _to_str(self) -> str:
+        return json.dumps(self.dictionary, indent=4) + '\n'
+
+
+@dataclass(kw_only=True)
+class DividerSnippet(BaseSnippet):
+    def _to_str(self) -> str:
+        return '----------\n'
+
+
+@dataclass(kw_only=True)
 class FileSnippet(BaseSnippet):
-    file_path: str
+    file_path: Union[str, Path]
 
     def _to_str(self) -> str:
         if Path(self.file_path).is_file():
@@ -79,6 +79,15 @@ class FileSnippet(BaseSnippet):
                 return f.read() + '\n'
         else:
             raise LlmException(f'File "{self.file_path}" does not exist')
+
+
+@dataclass(kw_only=True)
+class HeadingSnippet(BaseSnippet):
+    heading: str
+
+    def _to_str(self) -> str:
+        return f'## {self.heading}\n'
+
 
 @dataclass(kw_only=True)
 class LineBreakSnippet(BaseSnippet):
@@ -118,7 +127,7 @@ class OrderedListSnippet(BaseSnippet):
     items: List
 
     def _to_str(self) -> str:
-        return f'\n{list_to_str(items=self.items, ordered=True)}\n'
+        return f'{list_to_str(items=self.items, ordered=True)}'
 
 
 @dataclass(kw_only=True)
@@ -134,6 +143,14 @@ class RandomChoiceSnippet(BaseSnippet):
 
     def _to_str(self) -> str:
         return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
+
+
+@dataclass(kw_only=True)
+class SubHeadingSnippet(BaseSnippet):
+    sub_heading: str
+
+    def _to_str(self) -> str:
+        return f'### {self.sub_heading}\n'
 
 
 @dataclass(kw_only=True)
@@ -154,7 +171,7 @@ class TitleSnippet(BaseSnippet):
     title: str
 
     def _to_str(self) -> str:
-        return f'**{self.title.capitalize()}**\n'
+        return f'# {self.title}\n'
 
 
 @dataclass(kw_only=True)
@@ -162,7 +179,7 @@ class UnorderedListSnippet(BaseSnippet):
     items: List
 
     def _to_str(self) -> str:
-        return f'\n{list_to_str(items=self.items, ordered=False)}\n'
+        return f'{list_to_str(items=self.items, ordered=False)}'
 
 
 @dataclass(kw_only=True)

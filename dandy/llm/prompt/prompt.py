@@ -1,11 +1,12 @@
+from pathlib import Path
+from typing import Union
+
 from typing_extensions import List, Type, Self, Dict
 
 from pydantic import BaseModel
 
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.llm.prompt import snippet
-
-
-CHARACTERS_PER_TOKEN = 4
 
 
 class Prompt:
@@ -59,17 +60,32 @@ class Prompt:
 
     @property
     def estimated_token_count(self) -> int:
-        return int(len(self.to_str()) / CHARACTERS_PER_TOKEN)
+        return get_estimated_token_count_for_string(self.to_str())
+
 
     def file(
             self,
-            file_path: str,
+            file_path: Union[str, Path],
             triple_quote: bool = False
     ) -> Self:
+
         self.snippets.append(
             snippet.FileSnippet(
                 file_path=file_path,
                 triple_quote=triple_quote
+            )
+        )
+
+        return self
+
+    def heading(
+            self,
+            heading: str,
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.HeadingSnippet(
+                heading=heading,
             )
         )
 
@@ -184,6 +200,19 @@ class Prompt:
 
         return self
 
+    def sub_heading(
+            self,
+            sub_heading: str,
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.SubHeadingSnippet(
+                sub_heading=sub_heading,
+            )
+        )
+
+        return self
+
     def text(
             self,
             text: str = '',
@@ -204,13 +233,11 @@ class Prompt:
     def title(
             self,
             title: str,
-            triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
             snippet.TitleSnippet(
                 title=title,
-                triple_quote=triple_quote
             )
         )
 
