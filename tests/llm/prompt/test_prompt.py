@@ -50,6 +50,4 @@ class TestPrompt(TestCase):
             .unordered_random_list(items=['item1', 'item2'])
         )
 
-        print(new_prompt.to_str())
-
         self.assertTrue(new_prompt.to_str() != '')
