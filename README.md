@@ -157,22 +157,19 @@ class CookieRecipeLlmBot(LlmBot):
       ])
     )
     
-    # If you do not set a config, the "DEFAULT" config will be used.
+    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used.
     
     config = llm_configs.OPENAI_GPT_3_5_TURBO
 
     # You can also override settings per bot.
     
     seed = 25
+    max_output_tokens = 1000
 
     
 cookie_recipe_intel = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli and oatmeal!'),
     model=CookieRecipeIntel,
-    
-    # You can also override settings per prompt call.
-    
-    temperature=0.5,
 )
 
 print(cookie_recipe_intel.instructions)
