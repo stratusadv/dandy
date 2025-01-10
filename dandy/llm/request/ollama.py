@@ -26,6 +26,9 @@ class OllamaRequestBody(BaseRequestBody):
     def get_max_completion_tokens(self) -> int:
         return self.options.num_predict
 
+    def get_seed(self):
+        return self.options.seed
+
     def get_temperature(self):
         return self.options.temperature
 

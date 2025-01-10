@@ -19,6 +19,5 @@ if __name__ == '__main__':
         DebugRecorder.stop_all_recording()
 
         DebugRecorder.to_html_file(
-            name='pirate_story_example',
-            path=str(Path(__file__).parent.parent)
+            debugger_name='pirate_story_example',
         )

@@ -1,6 +1,6 @@
 from typing import Union
 
-from dandy.cli import settings
+from dandy.llm.conf import llm_configs
 
 
 def assistant(user_prompt: str) -> Union[str, None]:
@@ -9,6 +9,6 @@ def assistant(user_prompt: str) -> Union[str, None]:
     else:
         user_input = input(f'Assistant Prompt: ')
 
-    return settings.DEFAULT_LLM_CONFIG.service.assistant_str_prompt_to_str(
+    return llm_configs.DEFAULT.service.assistant_str_prompt_to_str(
         user_prompt_str=user_input
     )

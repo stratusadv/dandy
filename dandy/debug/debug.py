@@ -1,16 +1,18 @@
-import json
 from datetime import datetime
 from pathlib import Path
-from random import choices
 from time import time
-from typing_extensions import Dict, List
 
 from pydantic import BaseModel, Field
+from typing_extensions import Dict, List, Union
 
+from dandy.conf import settings
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
 from dandy.debug.utils import generate_new_debug_event_id
+
+
+_DEFAULT_DEBUG_OUTPUT_PATH = Path(settings.BASE_PATH, '.dandy_debug_output')
 
 
 class Debugger(BaseModel):
@@ -50,15 +52,31 @@ class Debugger(BaseModel):
         self.calculate_event_run_times()
         self.is_recording = False
 
-    def to_html_file(self, path=''):
-        with open(Path(path, f'{self.name}_debug_output.html'), 'w') as new_debug_html:
-            new_debug_html.write(self.to_html_str())
+    @staticmethod
+    def to_file(
+            path: Union[str, Path],
+            file_name: str,
+            value: str
+    ):
+
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+        with open(Path(path, file_name), 'w') as new_file:
+            new_file.write(value)
+
+    def to_html_file(self, path: Union[str, Path] = _DEFAULT_DEBUG_OUTPUT_PATH):
+        self.to_file(
+            path=path,
+            file_name=f'{self.name}_debug_output.html',
+            value=self.to_html_str()
+        )
 
     def to_html_str(self) -> str:
         if self.is_recording:
             self.stop()
 
-        with open(Path(Path(__file__).parent.resolve(), 'html', 'debug_recorder_output_template.html'), 'r') as debug_html:
+        with open(Path(Path(__file__).parent.resolve(), 'html', 'debug_recorder_output_template.html'),
+                  'r') as debug_html:
             return debug_html.read(
             ).replace(
                 '__debug_output__',
@@ -70,6 +88,16 @@ class Debugger(BaseModel):
                 '__debug_event_id__',
                 f'{generate_new_debug_event_id()}'
             )
+
+    def to_json_file(self, path: Union[str, Path] = _DEFAULT_DEBUG_OUTPUT_PATH):
+        self.to_file(
+            path=path,
+            file_name=f'{self.name}_debug_output.json',
+            value=self.to_json_str()
+        )
+
+    def to_json_str(self) -> str:
+        return self.model_dump_json(indent=4)
 
 
 class DebugRecorder(Singleton):
@@ -86,21 +114,21 @@ class DebugRecorder(Singleton):
         cls.debuggers = dict()
 
     @classmethod
-    def start_recording(cls, name: str = 'default'):
-        cls.debuggers[name] = Debugger(name=name)
-        cls.debuggers[name].start()
+    def start_recording(cls, debugger_name: str = 'default'):
+        cls.debuggers[debugger_name] = Debugger(name=debugger_name)
+        cls.debuggers[debugger_name].start()
 
     @classmethod
-    def stop_recording(cls, name: str = 'default'):
-        if name not in cls.debuggers:
+    def stop_recording(cls, debugger_name: str = 'default'):
+        if debugger_name not in cls.debuggers:
             choices_message = ''
 
             if len(cls.debuggers.keys()) == 0:
                 choices_message = f' Choices are {list(cls.debuggers.keys())}'
 
-            raise DebugException(f'Debug recording "{name}" does not exist. {choices_message}')
+            raise DebugException(f'Debug recording "{debugger_name}" does not exist. {choices_message}')
 
-        cls.debuggers[name].stop()
+        cls.debuggers[debugger_name].stop()
 
     @classmethod
     def stop_all_recording(cls):
@@ -113,9 +141,17 @@ class DebugRecorder(Singleton):
         return any([debugger.is_recording for debugger in cls.debuggers.values()])
 
     @classmethod
-    def to_html_file(cls, name: str = 'default',  path=''):
-        cls.debuggers[name].to_html_file(path)
+    def to_html_file(cls, debugger_name: str = 'default', path=_DEFAULT_DEBUG_OUTPUT_PATH):
+        cls.debuggers[debugger_name].to_html_file(path)
 
     @classmethod
-    def to_html_str(cls, name: str = 'default') -> str:
-        return cls.debuggers[name].to_html_str()
+    def to_html_str(cls, debugger_name: str = 'default') -> str:
+        return cls.debuggers[debugger_name].to_html_str()
+
+    @classmethod
+    def to_json_file(cls, debugger_name: str = 'default', path=_DEFAULT_DEBUG_OUTPUT_PATH):
+        cls.debuggers[debugger_name].to_json_file(path)
+
+    @classmethod
+    def to_json_str(cls, debugger_name: str = 'default') -> str:
+        return cls.debuggers[debugger_name].to_json_str()

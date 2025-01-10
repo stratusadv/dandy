@@ -1,12 +1,24 @@
 import argparse
 
-from dandy.cli.generate.generate import GENERATE_CHOICES, generate
-from dandy.cli.assistant.assistant import assistant
-from dandy.cli import settings
-from dandy.cli.test.test import test_handler
+from pathlib import Path
+import sys
 
+cwd_path = Path.cwd()
+
+sys.path.append(str(cwd_path))
 
 def main():
+    from dandy.constants import DANDY_SETTINGS_FILE_NAME
+
+    if not Path(cwd_path, DANDY_SETTINGS_FILE_NAME).exists():
+        print(f'You need a "{DANDY_SETTINGS_FILE_NAME}" in your current directory.')
+        return
+
+    from dandy.cli.generate.generate import GENERATE_CHOICES, generate
+    from dandy.cli.assistant.assistant import assistant
+    from dandy.conf import settings
+    from dandy.cli.test.test import test_handler
+
     parser = argparse.ArgumentParser(description='Dandy CLI')
 
     parser.add_argument(
@@ -45,7 +57,7 @@ def main():
             with open(llm_bot_source.file_name, 'w') as f:
                 f.write(llm_bot_source.source)
 
-            print(f'Done ... saved to "{settings.CURRENT_PATH / llm_bot_source.file_name}"')
+            print(f'Done ... saved to "{settings.BASE_PATH / llm_bot_source.file_name}"')
 
         else:
             print('Failed to generate ... try again')

@@ -20,6 +20,9 @@ class OpenaiRequestBody(BaseRequestBody):
     def get_max_completion_tokens(self) -> int:
         return self.max_completion_tokens
 
+    def get_seed(self) -> int:
+        return self.seed
+
     def get_temperature(self) -> float:
         return self.temperature
 

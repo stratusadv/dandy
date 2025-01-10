@@ -20,22 +20,18 @@ if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
     from dandy.llm.config import BaseLlmConfig
     from dandy.llm.request.request import BaseRequestBody
+    from dandy.llm.config.options import LlmConfigOptions
 
 
-class Service:
+class LlmService:
     def __init__(
             self,
             config: BaseLlmConfig,
-            max_input_tokens: Union[int, None] = None,
-            max_output_tokens: Union[int, None] = None,
-            seed: Union[int, None] = None,
-            temperature: Union[float, None] = None):
+            options: LlmConfigOptions,
+    ):
 
         self._config = config
-        self._max_input_tokens = max_input_tokens
-        self._max_output_tokens = max_output_tokens
-        self._seed = seed
-        self._temperature = temperature
+        self._options = options
 
     def assistant_str_prompt_to_str(
             self,
@@ -62,10 +58,10 @@ class Service:
 
     def get_request_body(self) -> BaseRequestBody:
         return self._config.generate_request_body(
-            max_input_tokens=self._max_input_tokens,
-            max_output_tokens=self._max_output_tokens,
-            seed=self._seed,
-            temperature=self._temperature,
+            max_input_tokens=self._options.max_input_tokens,
+            max_output_tokens=self._options.max_output_tokens,
+            seed=self._options.seed,
+            temperature=self._options.temperature,
         )
 
     def process_prompt_to_model_object(
@@ -77,7 +73,7 @@ class Service:
 
         event_id = generate_new_debug_event_id()
 
-        for attempt in range(self._config.prompt_retry_count + 1):
+        for attempt in range(self._config.options.prompt_retry_count + 1):
 
             request_body = self.get_request_body()
 
@@ -150,11 +146,11 @@ class Service:
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)
 
-                if self._config.prompt_retry_count - 1:
+                if self._config.options.prompt_retry_count - 1:
                     debug_record_llm_retry(
                         'Response after validation errors prompt failed.\nRetrying with original prompt.',
                         event_id,
-                        remaining_attempts=self._config.prompt_retry_count - attempt
+                        remaining_attempts=self._config.options.prompt_retry_count - attempt
                     )
         else:
             raise LlmValidationException
@@ -198,7 +194,7 @@ class Service:
         response = None
         response_body = ''
 
-        for _ in range(self._config.connection_retry_count):
+        for _ in range(self._config.options.connection_retry_count):
             connection = self.create_connection()
 
             if encoded_body:
@@ -220,7 +216,7 @@ class Service:
 
         else:
             raise LlmException(
-                f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.connection_retry_count} attempts')
+                f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.options.connection_retry_count} attempts')
 
         return json_data
 

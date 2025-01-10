@@ -4,8 +4,6 @@ import sys
 
 from pathlib import Path
 
-from utils import load_environment_variables
-
 OMITS = (
     # Directories
     '*/venv/*',
@@ -26,9 +24,8 @@ def main() -> None:
         message = 'This script must run on Windows platform.'
         raise Exception(message)
 
-    load_environment_variables()
-
     cwd = Path(__file__).parent.parent
+
     virtual_env = cwd / 'venv' / 'Scripts' / 'activate'
     virtual_env_alternate = cwd / '.venv' / 'Scripts' / 'activate'
 

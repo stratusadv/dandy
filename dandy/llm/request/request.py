@@ -21,6 +21,9 @@ class BaseRequestBody(BaseModel):
     def get_max_completion_tokens(self) -> int: ...
 
     @abstractmethod
+    def get_seed(self) -> int: ...
+
+    @abstractmethod
     def get_temperature(self) -> float: ...
 
     @property

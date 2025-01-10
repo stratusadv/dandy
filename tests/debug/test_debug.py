@@ -23,3 +23,14 @@ class TestDebug(TestCase):
 
         self.assertTrue(DebugRecorder.to_html_str(DEBUG_RECORDING_NAME) != '')
 
+    def test_debug_recording_json_to_str(self):
+        DEBUG_RECORDING_NAME = 'test_json'
+
+        DebugRecorder.start_recording(DEBUG_RECORDING_NAME)
+
+        _ = OceanSelectionLlmBot.process('Select the Ocean with the biggest islands', OCEANS)
+
+        DebugRecorder.stop_recording(DEBUG_RECORDING_NAME)
+
+        self.assertTrue(DebugRecorder.to_json_str(DEBUG_RECORDING_NAME) != '')
+

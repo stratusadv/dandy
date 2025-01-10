@@ -1,19 +1,17 @@
 import argparse
+import os
 import subprocess
 import sys
 
 from pathlib import Path
-
-from utils import load_environment_variables
 
 def main() -> None:
     if sys.platform != 'win32':
         message = 'This script must run on Windows platform.'
         raise Exception(message)
 
-    load_environment_variables()
-
     cwd = Path(__file__).parent.parent
+
     virtual_env = cwd / 'venv' / 'Scripts' / 'activate'
     virtual_env_alternate = cwd / '.venv' / 'Scripts' / 'activate'
 
@@ -70,7 +68,11 @@ def main() -> None:
         '-m',
         'unittest',
         'discover',
-        '-v'
+        '-v',
+        '-s',
+        f'{cwd}',
+        '-t',
+        f'{cwd}',
     ]
 
     run_testing_cmd = ' '.join(run_testing_cmd)

@@ -1,6 +1,7 @@
 from typing_extensions import Union
 
 from dandy.llm.config import BaseLlmConfig
+from dandy.llm.config.utils import generate_random_seed
 from dandy.llm.request.openai import OpenaiRequestBody
 from dandy.llm.request.request import BaseRequestBody
 
@@ -23,9 +24,9 @@ class OpenaiLlmConfig(BaseLlmConfig):
 
         return OpenaiRequestBody(
             model=self.model,
-            max_completion_tokens=self.max_output_tokens if max_output_tokens is None else max_output_tokens,
-            seed=self.seed if seed is None else seed,
-            temperature=self.temperature if temperature is None else temperature,
+            max_completion_tokens=self.options.max_output_tokens if max_output_tokens is None else max_output_tokens,
+            seed=self.options.seed if seed is None else seed,
+            temperature=self.options.temperature if temperature is None else temperature,
         )
 
     def get_response_content(self, response) -> str:

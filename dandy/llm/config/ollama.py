@@ -23,10 +23,10 @@ class OllamaLlmConfig(BaseLlmConfig):
         return OllamaRequestBody(
             model=self.model,
             options=OllamaRequestOptions(
-                num_ctx=self.max_input_tokens if max_input_tokens is None else max_input_tokens,
-                num_predict=self.max_output_tokens if max_output_tokens is None else max_output_tokens,
-                seed=self.seed if seed is None else seed,
-                temperature=self.temperature if temperature is None else temperature
+                num_ctx=self.options.max_input_tokens if max_input_tokens is None else max_input_tokens,
+                num_predict=self.options.max_output_tokens if max_output_tokens is None else max_output_tokens,
+                seed=self.options.seed if seed is None else seed,
+                temperature=self.options.temperature if temperature is None else temperature
             )
         )
 

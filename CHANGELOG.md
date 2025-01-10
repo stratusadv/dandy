@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.7.0
+
+### Features
+
+- Project structure improvement with new settings file.
+- All projects going forward will require a "dandy_settings.py" file in the root of your project.
+  - This file will also need a "BASE_PATH" str variable set to the root of your project.
+  - This file will also need a "LLM_CONFIGS" dict variable with a "DEFAULT" llm config.
+- Debug recorder can now output to a json string or file.
+- Added randomize seed to LLM config that will randomize the seed every time the config is used.
+
+### Changes
+
+- Updated the readme to match the new project structure.
+- All settings and llm configs are now managed through the "dandy_settings.py" file.
+
+### Fixes
+
+- Fixed the user "dandy_settings.py" not loading properly with in the internal dandy modules.
+- Fixed readme to match new project structure and configuration setup.
+- Fixed the cli to properly use the dandy_settings.py file in the current working directory.
+
+
 ## v0.6.1
 
 ### Features

@@ -5,8 +5,8 @@ from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
 class TestRequest(TestCase):
     def test_ollama_config_request_body(self):
         request_body = OLLAMA_LLAMA_3_1_8B.generate_request_body(
-            temperature=OLLAMA_LLAMA_3_1_8B.temperature,
-            seed=OLLAMA_LLAMA_3_1_8B.seed,
+            temperature=OLLAMA_LLAMA_3_1_8B.options.temperature,
+            seed=OLLAMA_LLAMA_3_1_8B.options.seed,
         )
 
         request_body.add_message(

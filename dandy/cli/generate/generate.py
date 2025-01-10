@@ -2,10 +2,9 @@ from typing import Union
 
 from pydantic import BaseModel
 
-from dandy.cli import settings
 from dandy.cli.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
     generate_llm_bot_user_prompt
-
+from dandy.llm.conf import llm_configs
 
 GENERATE_CHOICES = ['llmbot']
 
@@ -23,7 +22,7 @@ def generate(choice: str, description: Union[str, None] = None) -> Union[LlmBotS
     print(generate_llm_bot_system_prompt().to_str())
 
     if choice == 'llmbot':
-        llm_bot_source = settings.DEFAULT_LLM_CONFIG.service.process_prompt_to_model_object(
+        llm_bot_source = llm_configs.DEFAULT.service.process_prompt_to_model_object(
             prompt=generate_llm_bot_user_prompt(user_input),
             model=LlmBotSource,
             prefix_system_prompt=generate_llm_bot_system_prompt(),

@@ -1,35 +1,16 @@
 from abc import abstractmethod
 from base64 import b64encode
-from typing_extensions import List, Union, TYPE_CHECKING
 
-from pydantic import BaseModel, Field, field_validator
+from typing_extensions import List, Union
 
 from dandy.core.url import Url
+from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.exceptions import LlmException
-from dandy.llm.service import Service
 from dandy.llm.request.request import BaseRequestBody
-
-_DEFAULT_CONTEXT_LENGTH = 4096
-_DEFAULT_MAX_COMPLETION_TOKENS = 1024
-_DEFAULT_SEED = 77
-_DEFAULT_TEMPERATURE = 0.7
-_DEFAULT_CONNECTION_RETRY_COUNT = 10
-_DEFAULT_PROMPT_RETRY_COUNT = 2
+from dandy.llm.service import LlmService
 
 
-class BaseLlmConfig(BaseModel):
-    url: Url
-    port: int
-    model: str
-    headers: Union[dict, None] = None,
-    api_key: Union[str, None] = None,
-    seed: Union[int, None] = _DEFAULT_SEED,
-    max_input_tokens: int = Field(_DEFAULT_CONTEXT_LENGTH, ge=0, le=128_000)
-    max_output_tokens: int = Field(_DEFAULT_MAX_COMPLETION_TOKENS, ge=0, le=128_000)
-    temperature: float = Field(_DEFAULT_TEMPERATURE, ge=0.0, le=1.0)
-    connection_retry_count: int = Field(_DEFAULT_CONNECTION_RETRY_COUNT, ge=1, le=100)
-    prompt_retry_count: int = Field(_DEFAULT_PROMPT_RETRY_COUNT, ge=1, le=10)
-
+class BaseLlmConfig:
     def __init__(
             self,
             host: str,
@@ -39,13 +20,13 @@ class BaseLlmConfig(BaseModel):
             query_parameters: Union[dict, None] = None,
             headers: Union[dict, None] = None,
             api_key: Union[str, None] = None,
-            max_input_tokens: int = _DEFAULT_CONTEXT_LENGTH,
-            max_output_tokens: int = _DEFAULT_MAX_COMPLETION_TOKENS,
-            seed: Union[int, None] = _DEFAULT_SEED,
-            temperature: float = _DEFAULT_TEMPERATURE,
-            connection_retry_count: int = _DEFAULT_CONNECTION_RETRY_COUNT,
-            prompt_retry_count: int = _DEFAULT_PROMPT_RETRY_COUNT,
-            request_body: Union[BaseRequestBody, None] = None,
+            seed: Union[int, None] = None,
+            randomize_seed: Union[bool, None] = None,
+            max_input_tokens: Union[int, None] = None,
+            max_output_tokens: Union[int, None] = None,
+            temperature: Union[float, None] = None,
+            connection_retry_count: Union[int, None] = None,
+            prompt_retry_count: Union[int, None] = None,
     ):
         if headers is None:
             headers = {
@@ -56,26 +37,24 @@ class BaseLlmConfig(BaseModel):
         if api_key is not None:
             headers["Authorization"] = f'Basic {b64encode(f"Bearer:{api_key}".encode()).decode()}'
 
-        self.validate_value(host, 'host', str)
-        self.validate_value(port, 'port', int)
-        self.validate_value(model, 'model', str)
+        self.url = Url(
+            host=host,
+            path_parameters=path_parameters,
+            query_parameters=query_parameters,
+        )
 
-        super().__init__(
-            url=Url(
-                host=host,
-                path_parameters=path_parameters,
-                query_parameters=query_parameters,
-            ),
-            port=port,
-            model=model,
-            headers=headers,
+        self.port = port
+        self.model = model
+        self.headers = headers
+
+        self.options = LlmConfigOptions(
             connection_retry_count=connection_retry_count,
             prompt_retry_count=prompt_retry_count,
             max_input_tokens=max_input_tokens,
             max_output_tokens=max_output_tokens,
             seed=seed,
+            randomize_seed=randomize_seed,
             temperature=temperature,
-            request_body=request_body,
         )
 
         self.__llm_config_post_init__()
@@ -103,22 +82,15 @@ class BaseLlmConfig(BaseModel):
 
     def generate_service(
             self,
-            max_input_tokens: Union[int, None] = None,
-            max_output_tokens: Union[int, None] = None,
-            seed: Union[int, None] = None,
-            temperature: Union[float, None] = None,
-    ) -> Service:
-
-        return Service(
+            llm_options: Union[LlmConfigOptions, None] = None,
+    ):
+        return LlmService(
             self,
-            max_input_tokens=max_input_tokens,
-            max_output_tokens=max_output_tokens,
-            seed=seed,
-            temperature=temperature,
+            options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
         )
 
     @property
-    def service(self) -> Service:
+    def service(self) -> LlmService:
         return self.generate_service()
 
     def validate_value(self, value: Union[str, int], value_name: str, value_type: type):

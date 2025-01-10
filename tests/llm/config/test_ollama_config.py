@@ -10,9 +10,9 @@ class TestConfig(TestCase):
     def test_ollama_config_request_body(self):
         self.assertEqual(
             OLLAMA_LLAMA_3_1_8B.generate_request_body(
-                temperature=OLLAMA_LLAMA_3_1_8B.temperature,
-                seed=OLLAMA_LLAMA_3_1_8B.seed,
-            ).get_temperature(), OLLAMA_LLAMA_3_1_8B.temperature)
+                temperature=OLLAMA_LLAMA_3_1_8B.options.temperature,
+                seed=OLLAMA_LLAMA_3_1_8B.options.seed,
+            ).get_temperature(), OLLAMA_LLAMA_3_1_8B.options.temperature)
 
     def test_ollama_max_completion_tokens(self):
         ollama_config = OllamaLlmConfig(
@@ -26,6 +26,7 @@ class TestConfig(TestCase):
         )
 
         response = ollama_config.service.assistant_str_prompt_to_str('Tell me what you think about hamburgers?')
+
         self.assertTrue(len(response) <= 16)
 
     def test_ollama_config_empty_host(self):
