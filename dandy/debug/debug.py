@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pathlib import Path
 from time import time
@@ -6,13 +7,14 @@ from pydantic import BaseModel, Field
 from typing_extensions import Dict, List, Union
 
 from dandy.conf import settings
+from dandy.const import DEBUG_OUTPUT_DIRECTORY
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
 from dandy.debug.utils import generate_new_debug_event_id
 
 
-_DEFAULT_DEBUG_OUTPUT_PATH = Path(settings.BASE_PATH, '.dandy_debug_output')
+_DEFAULT_DEBUG_OUTPUT_PATH = Path(settings.BASE_PATH, DEBUG_OUTPUT_DIRECTORY)
 
 
 class Debugger(BaseModel):
@@ -104,54 +106,72 @@ class DebugRecorder(Singleton):
     debuggers: Dict[str, Debugger] = dict()
 
     @classmethod
+    def _recording_allowed(cls) -> bool:
+        return settings.ALLOW_DEBUG_RECORDING
+
+    @classmethod
     def add_event(cls, event: BaseEvent):
-        for debugger in cls.debuggers.values():
-            if debugger.is_recording:
-                debugger.add_event(event)
+        if cls._recording_allowed():
+            for debugger in cls.debuggers.values():
+                if debugger.is_recording:
+                    debugger.add_event(event)
 
     @classmethod
     def clear(cls):
-        cls.debuggers = dict()
+        if cls._recording_allowed():
+            cls.debuggers = dict()
 
     @classmethod
     def start_recording(cls, debugger_name: str = 'default'):
-        cls.debuggers[debugger_name] = Debugger(name=debugger_name)
-        cls.debuggers[debugger_name].start()
+        if cls._recording_allowed():
+            cls.debuggers[debugger_name] = Debugger(name=debugger_name)
+            cls.debuggers[debugger_name].start()
 
     @classmethod
     def stop_recording(cls, debugger_name: str = 'default'):
-        if debugger_name not in cls.debuggers:
-            choices_message = ''
+        if cls._recording_allowed():
+            if debugger_name not in cls.debuggers:
+                choices_message = ''
 
-            if len(cls.debuggers.keys()) == 0:
-                choices_message = f' Choices are {list(cls.debuggers.keys())}'
+                if len(cls.debuggers.keys()) == 0:
+                    choices_message = f' Choices are {list(cls.debuggers.keys())}'
 
-            raise DebugException(f'Debug recording "{debugger_name}" does not exist. {choices_message}')
+                raise DebugException(f'Debug recording "{debugger_name}" does not exist. {choices_message}')
 
-        cls.debuggers[debugger_name].stop()
+            cls.debuggers[debugger_name].stop()
 
     @classmethod
     def stop_all_recording(cls):
-        for debugger in cls.debuggers.values():
-            debugger.stop()
+        if cls._recording_allowed():
+            for debugger in cls.debuggers.values():
+                debugger.stop()
 
     @classmethod
     @property
     def is_recording(cls):
-        return any([debugger.is_recording for debugger in cls.debuggers.values()])
+        if cls._recording_allowed():
+            return any([debugger.is_recording for debugger in cls.debuggers.values()])
 
     @classmethod
     def to_html_file(cls, debugger_name: str = 'default', path=_DEFAULT_DEBUG_OUTPUT_PATH):
-        cls.debuggers[debugger_name].to_html_file(path)
+        if cls._recording_allowed():
+            cls.debuggers[debugger_name].to_html_file(path)
 
     @classmethod
     def to_html_str(cls, debugger_name: str = 'default') -> str:
-        return cls.debuggers[debugger_name].to_html_str()
+        if cls._recording_allowed():
+            return cls.debuggers[debugger_name].to_html_str()
+        else:
+            return 'DEBUG RECORDING DISABLED'
 
     @classmethod
     def to_json_file(cls, debugger_name: str = 'default', path=_DEFAULT_DEBUG_OUTPUT_PATH):
-        cls.debuggers[debugger_name].to_json_file(path)
+        if cls._recording_allowed():
+            cls.debuggers[debugger_name].to_json_file(path)
 
     @classmethod
     def to_json_str(cls, debugger_name: str = 'default') -> str:
-        return cls.debuggers[debugger_name].to_json_str()
+        if cls._recording_allowed():
+            return cls.debuggers[debugger_name].to_json_str()
+        else:
+            return json.dumps({'output': 'DEBUG RECORDING DISABLED'}, indent=4)

@@ -4,7 +4,7 @@ from dandy.llm import Prompt
 def generate_llm_bot_system_prompt() -> Prompt:
     return (
         Prompt()
-        .title("Your a coder that needs to write a large language model bot using the dandy framework.")
+        .title('Your a coder that needs to write a large language model bot using the dandy framework.')
         .divider()
         .text(
             'Follow the rules below and the provided code to create a llm bot based on the users input')
@@ -16,6 +16,7 @@ def generate_llm_bot_system_prompt() -> Prompt:
             'The new llm bot must use the process method for all its logic and can call the process_prompt_to_model_object for llm interactions.',
             'Return only python code in a string with no triple quotes or explanations as this code will be used directly in a python file to be run.',
             'Make sure to be explict with the keyword arguments in the process method.',
+            'Include all required imports for all the required modules used.'
             'the file name for this bot should end in "_llm_bot" with the extension ".py"',
         ])
         .line_break()

@@ -33,6 +33,10 @@ class LlmConfigOptions:
         return self._seed if self._seed is not None else settings.DEFAULT_LLM_SEED
 
     @property
+    def randomize_seed(self) -> Union[bool, None]:
+        return self._randomize_seed if self._randomize_seed is not None else settings.DEFAULT_LLM_RANDOMIZE_SEED
+
+    @property
     def max_input_tokens(self) -> Union[int, None]:
         return self._max_input_tokens if self._max_input_tokens is not None else settings.DEFAULT_LLM_MAX_INPUT_TOKENS
 
@@ -46,16 +50,35 @@ class LlmConfigOptions:
 
     @property
     def connection_retry_count(self) -> Union[int, None]:
-        return self._connection_retry_count if self._connection_retry_count is not None else settings.CONNECTION_RETRY_COUNT
+        return self._connection_retry_count if self._connection_retry_count is not None else settings.DEFAULT_LLM_CONNECTION_RETRY_COUNT
 
     @property
     def prompt_retry_count(self) -> Union[int, None]:
-        return self._prompt_retry_count if self._prompt_retry_count is not None else settings.PROMPT_RETRY_COUNT
+        return self._prompt_retry_count if self._prompt_retry_count is not None else settings.DEFAULT_LLM_PROMPT_RETRY_COUNT
 
     def merge_to_copy(self, secondary_options: Self) -> Self:
+        """
+        Merges the current instance with another secondary instance
+
+        Current instance attributes that are not none will take precedence over the secondary instance
+        """
+
         merged_dict = {
-            **{k: v for k, v in secondary_options.__dict__.items() if v is not None},
-            **{k: v for k, v in self.__dict__.items() if v is not None}
+            **{
+                key: value
+                for key, value in secondary_options.__dict__.items()
+                if value is not None
+            },
+            **{
+                key: value
+                for key, value in self.__dict__.items()
+                if value is not None
+            }
         }
 
-        return self.__class__(**{k[1:] if k.startswith('_') else k: v for k, v in merged_dict.items()})
+        return self.__class__(
+            **{
+                key[1:] if key.startswith('_') else key: value
+                for key, value in merged_dict.items()
+            }
+        )

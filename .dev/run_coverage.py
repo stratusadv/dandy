@@ -8,6 +8,8 @@ OMITS = (
     # Directories
     '*/venv/*',
     '*/.venv/*',
+    '*/example/*',
+    '*/docs/*',
 
     # Files
     '__init__.py',

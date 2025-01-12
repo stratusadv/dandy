@@ -217,14 +217,16 @@ class Prompt:
             self,
             text: str = '',
             label: str = '',
-            triple_quote: bool = False
+            triple_quote: bool = False,
+            triple_quote_label: Union[str, None] = None,
     ) -> Self:
 
         self.snippets.append(
             snippet.TextSnippet(
                 text=text,
                 label=label,
-                triple_quote=triple_quote
+                triple_quote=triple_quote,
+                triple_quote_label=triple_quote_label,
             )
         )
 

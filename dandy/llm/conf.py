@@ -1,8 +1,7 @@
 from dandy.conf import settings
-from dandy.constants import DANDY_SETTINGS_FILE_NAME
+from dandy.const import USER_SETTINGS_FILE_NAME
 from dandy.core.exceptions import DandyException
-from dandy.llm.config import OllamaLlmConfig, OpenaiLlmConfig
-
+from dandy.llm.config import OllamaLlmConfig, OpenaiLlmConfig, BaseLlmConfig
 
 _LLM_CONFIG_MAP = {
     'openai': OpenaiLlmConfig,
@@ -25,7 +24,7 @@ class LlmConfigs:
 
             setattr(
                 self,
-                llm_config_name,
+                f'_{llm_config_name}',
                 _LLM_CONFIG_MAP[kwargs['TYPE']](
                     **{
                         key.lower(): value
@@ -36,7 +35,19 @@ class LlmConfigs:
             )
 
         if not hasattr(self, 'DEFAULT'):
-            raise DandyException(f'You need a "DEFAULT" in your "LLM_CONFIGS" in your "{DANDY_SETTINGS_FILE_NAME}".')
+            raise DandyException(f'You need a "DEFAULT" in your "LLM_CONFIGS" in your "{USER_SETTINGS_FILE_NAME}".')
 
+        self.choices = list(settings.LLM_CONFIGS.keys())
+
+
+
+    def __getattr__(self, item) -> BaseLlmConfig:
+        if hasattr(self, f'_{item}'):
+            return getattr(self, f'_{item}')
+
+        raise DandyException(f'No attribute "{item}" found in llm configs, check your "{USER_SETTINGS_FILE_NAME}" file.')
+
+    def __getitem__(self, item) -> BaseLlmConfig:
+        return getattr(self, item)
 
 llm_configs = LlmConfigs()

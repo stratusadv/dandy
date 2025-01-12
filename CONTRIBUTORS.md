@@ -1,7 +1,9 @@
 # Contibutors
 
-## Austin Sauer
+### Austin Sauer
 
-## Nathan Johnson
+### Nathan Johnson
 
-## Wesley Howery
+### Wesley Howery
+
+### Brayden Carlson

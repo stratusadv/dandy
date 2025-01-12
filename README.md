@@ -3,26 +3,33 @@
 </p>
 
 
-# Dandy AI Framework
 Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 
-## Read First
+### Why Did We Create Another AI Framework?
 
-This project critically relies on the use of pydantic to handle the flow and validation of data with your artificial intelligence models. 
+Artificial intelligence programming is a very different experience than conventional programming as it's very probabilistic.
+Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion beneficial. 
+
+We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of artificial intelligence.
+Our approach is to focus on batteries included with strong tooling to help build great interactions and lower the barrier to entry for developers.
+
+### Pydantic is Everyones Friend
+
+This project critically relies on the use of pydantic to handle the flow and validation of data with your artificial intelligence systems. 
 Make sure you have a good foundation on the use of pydantic before continuing.
 
 Please visit https://docs.pydantic.dev/latest/ for more information on pydantic and how to utilize it.
 
 For bigger examples please check out the [example](https://github.com/stratusadv/dandy/tree/main/example) directory in this repository.
 
-## Installation
+### Installation
 
 ``` bash
 pip install dandy
 ```
 
-## Project Structure
+### Recommended Project Structure
 
 ```
 cookie_recipe/ <-- This would be for each of your modules
@@ -62,7 +69,7 @@ cookie_recipe/ <-- This would be for each of your modules
 dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 ```
 
-## Setup
+### Setting Up Dandy
 
 ```python
 # dandy_settings.py
@@ -70,18 +77,23 @@ dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 import os
 from pathlib import Path
 
+# This is used for controlling the debug recorder in development and should be set to false in production
+
+ALLOW_DEBUG_RECORDING: bool = True
+
+# You should set this to the root directory of your project the default will be the current working directory
+
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
 # Other DEFAULT Settings - See dandy/settings.py for all options
 
-# DEFAULT_LLM_TEMPERATURE = 0.7
-# DEFAULT_LLM_SEED = 77
-# DEFAULT_LLM_RANDOMIZE_SEED = False
-# DEFAULT_LLM_MAX_INPUT_TOKENS = 8000
-# DEFAULT_LLM_MAX_OUTPUT_TOKENS = 4000
-
-# CONNECTION_RETRY_COUNT = 10
-# PROMPT_RETRY_COUNT = 2
+DEFAULT_LLM_TEMPERATURE: float = 0.7
+DEFAULT_LLM_SEED: int = 77
+DEFAULT_LLM_RANDOMIZE_SEED: bool = False
+DEFAULT_LLM_MAX_INPUT_TOKENS: int = 8000
+DEFAULT_LLM_MAX_OUTPUT_TOKENS: int = 4000
+DEFAULT_LLM_CONNECTION_RETRY_COUNT: int = 10
+DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 
 # These are some example LLM configs you may only need one of these, you must have a "DEFAULT" LLM config
 
@@ -119,7 +131,7 @@ LLM_CONFIGS = {
 
 ```
 
-## Usage
+### Basic Usage Example
 
 ```python
 # cookie_recipe_llm_bot.py
@@ -146,6 +158,17 @@ class CookieRecipeIntel(BaseModel):
 
     
 class CookieRecipeLlmBot(LlmBot):
+    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used.
+    
+    config = llm_configs.OPENAI_GPT_3_5_TURBO
+
+    # You can also override settings per bot.
+    
+    seed = 25
+    max_output_tokens = 1000
+    
+    # This is the instructions used by the system message when the llm is prompted
+    
     instructions_prompt = (
       Prompt()
       .title('You are a cookie recipe bot.')
@@ -157,14 +180,6 @@ class CookieRecipeLlmBot(LlmBot):
       ])
     )
     
-    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used.
-    
-    config = llm_configs.OPENAI_GPT_3_5_TURBO
-
-    # You can also override settings per bot.
-    
-    seed = 25
-    max_output_tokens = 1000
 
     
 cookie_recipe_intel = CookieRecipeLlmBot.process(

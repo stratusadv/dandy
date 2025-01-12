@@ -2,6 +2,10 @@
 
 ## v0.7.0
 
+### Major Improvement
+
+- All the changes in v0.7.0 should reduce the over all code required to work with dandy by up to 50%.
+
 ### Features
 
 - Project structure improvement with new settings file.
@@ -10,17 +14,24 @@
   - This file will also need a "LLM_CONFIGS" dict variable with a "DEFAULT" llm config.
 - Debug recorder can now output to a json string or file.
 - Added randomize seed to LLM config that will randomize the seed every time the config is used.
+- Added new evaluate cli command for evaluating your dandy code -e --evaluate.
+  - Currently only supports Prompt evaluation.
+- ALLOW_DEBUG_RECORDING was added to the settings for project wide control of the debug recorder.
+  - defaulted to False.
+- You can now select your llm config from the cli using the -l --llm-config flag.
 
 ### Changes
 
 - Updated the readme to match the new project structure.
 - All settings and llm configs are now managed through the "dandy_settings.py" file.
+- Moved a lot of project wide constants into the "const.py" file.
 
 ### Fixes
 
 - Fixed the user "dandy_settings.py" not loading properly with in the internal dandy modules.
 - Fixed readme to match new project structure and configuration setup.
 - Fixed the cli to properly use the dandy_settings.py file in the current working directory.
+- Improved testing coverage across the whole project.
 
 
 ## v0.6.1

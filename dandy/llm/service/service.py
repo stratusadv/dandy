@@ -111,7 +111,10 @@ class LlmService:
 
             except ValidationError as e:
                 debug_record_llm_validation_failure(e, event_id)
-                debug_record_llm_retry('Validation of response to model object failed retrying with validation errors prompt.')
+                debug_record_llm_retry(
+                    'Validation of response to model object failed retrying with validation errors prompt.',
+                    event_id
+                )
 
                 try:
                     request_body.add_message(
