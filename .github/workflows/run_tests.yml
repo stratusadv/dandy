@@ -8,14 +8,13 @@ on:
 
   workflow_dispatch:
 
-concurrency: test-workflow
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
+        max-parallel: 1
         python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
