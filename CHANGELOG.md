@@ -23,7 +23,9 @@
 ### Changes
 
 - Updated the readme to match the new project structure.
-- All settings and llm configs are now managed through the "dandy_settings.py" file.
+- All settings and llm configs are now managed through the dandy settings module.
+  - The environment variable "DANDY_SETTINGS_MODULE" can be used to specify the settings module to be used.
+  - The system will default to look for a "dandy_settings.py" file in the current working directory or sys.path.
 - Moved a lot of project wide constants into the "const.py" file.
 
 ### Fixes
@@ -32,7 +34,6 @@
 - Fixed readme to match new project structure and configuration setup.
 - Fixed the cli to properly use the dandy_settings.py file in the current working directory.
 - Improved testing coverage across the whole project.
-
 
 ## v0.6.1
 

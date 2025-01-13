@@ -18,6 +18,8 @@ def generate_llm_bot_system_prompt() -> Prompt:
             'Make sure to be explict with the keyword arguments in the process method.',
             'Include all required imports for all the required modules used.'
             'the file name for this bot should end in "_llm_bot" with the extension ".py"',
+            'All the pydantic objects needed should be post-fixed with "Intel" ex: "SelectIntel"'
+            'You do not need to add the model schema or instructions about it to the prompt its automatically handled by eh process_prompt_to_model_object method.'
         ])
         .line_break()
         .module_source('dandy.llm.prompt.prompt')
@@ -34,5 +36,6 @@ def generate_llm_bot_system_prompt() -> Prompt:
 def generate_llm_bot_user_prompt(user_input: str) -> Prompt:
     return (
         Prompt()
+        .heading('Llm Bot Description')
         .text(user_input)
     )

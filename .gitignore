@@ -5,6 +5,9 @@ __pycache__/
 build/
 dandy.egg-info/
 inspectionProfiles/
+.coverage_html_report/
+.dandy_cli_output/
+.dandy_debug_output/
 .python-version
 *.env
 *.bat

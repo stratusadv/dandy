@@ -13,6 +13,8 @@ from dandy.llm.config import BaseLlmConfig
 class EvaluatedSourceIntel(BaseModel):
     file_name: str
     source: str
+    source_changed: bool
+    evaluator_comments: str
 
 
 class EvaluateChoices(Enum):
@@ -57,7 +59,9 @@ def evaluate(
         )
 
         if evaluated_source_intel:
-            print(evaluated_source_intel.source)
+            print(f'{evaluated_source_intel.source_changed=}')
+            print(evaluated_source_intel.source + '\n')
+            print(evaluated_source_intel.evaluator_comments + '\n')
 
         else:
             print('Failed to get response from the assistant ... try again')

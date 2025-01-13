@@ -71,6 +71,8 @@ dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 
 ### Setting Up Dandy
 
+You must have "DANDY_SETTINGS_MODULE" set in your environment variables pointed towards your dandy settings file.
+
 ```python
 # dandy_settings.py
 

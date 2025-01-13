@@ -6,7 +6,7 @@ ALLOW_DEBUG_RECORDING = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
-# Other DEFAULT Settings - See dandy/settings.py for all options
+# Other DEFAULT Settings - See dandy.default_settings for all options
 
 # DEFAULT_LLM_TEMPERATURE: Union[float, None] = 0.7
 # DEFAULT_LLM_SEED: Union[int, None] = 77
