@@ -8,6 +8,8 @@ on:
 
   workflow_dispatch:
 
+concurrency: test-workflow
+
 jobs:
   build:
     runs-on: ubuntu-latest
