@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import perf_counter, sleep
 from unittest import TestCase
 
 from dandy.future.future import AsyncFuture
@@ -11,7 +11,7 @@ TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + 1.0
 
 class TestFuture(TestCase):
     def setUp(self):
-        self.start_time = time()
+        self.start_time = perf_counter()
 
     def test_future(self):
         def square_number(x) -> int:
@@ -27,7 +27,7 @@ class TestFuture(TestCase):
         self.assertTrue(squared_future.result == 25)
         self.assertTrue(another_squared_future.result == 100)
 
-        self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
+        self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
     def test_llmbot_future(self):
         crew_future = CrewGenerationLlmBot.process_to_future(
@@ -44,4 +44,4 @@ class TestFuture(TestCase):
 
         self.assertTrue(len(crew_future.result.members) >= 3)
 
-        self.assertTrue(time() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
+        self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
