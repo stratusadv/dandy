@@ -12,7 +12,7 @@ Artificial intelligence programming is a very different experience than conventi
 Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion beneficial. 
 
 We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of artificial intelligence.
-Our approach is to focus on batteries included with strong tooling to help build great interactions and lower the barrier to entry for developers.
+Our approach is to focus on batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
 
 ### Pydantic is Everyones Friend
 
@@ -71,7 +71,8 @@ dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 
 ### Setting Up Dandy
 
-You must have "DANDY_SETTINGS_MODULE" set in your environment variables pointed towards your dandy settings file.
+It's recommended that you use "DANDY_SETTINGS_MODULE" set in your environment variables pointed towards your dandy settings file.
+If no environment variable is set, it will look for "dandy_settings.py" in the current working directory or sys.path.
 
 ```python
 # dandy_settings.py
