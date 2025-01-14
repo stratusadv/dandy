@@ -1,11 +1,11 @@
 from typing import List
 
-from pydantic import BaseModel
+from dandy.intel import Intel
 
 from example.pirate.crew.enums import CrewRole
 
 
-class CrewMemberIntel(BaseModel):
+class CrewMemberIntel(Intel):
     first_name: str
     last_name: str
     role: CrewRole
@@ -14,5 +14,5 @@ class CrewMemberIntel(BaseModel):
     name_of_hat: str
 
 
-class CrewIntel(BaseModel):
+class CrewIntel(Intel):
     members: List[CrewMemberIntel]

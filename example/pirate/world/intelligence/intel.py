@@ -1,15 +1,15 @@
 from typing_extensions import List
 
-from pydantic import BaseModel
+from dandy.intel import Intel
 
 
-class IslandIntel(BaseModel):
+class IslandIntel(Intel):
     name: str
     description: str
     size: int
 
 
-class OceanIntel(BaseModel):
+class OceanIntel(Intel):
     name: str
     description: str
     size: int

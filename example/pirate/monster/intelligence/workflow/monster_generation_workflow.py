@@ -1,7 +1,7 @@
 from dandy.workflow import Workflow
 from example.pirate.monster.intelligence.bots.monster_llm_bots import MonsterNamingLlmBot, MonsterSelectionLlmBot
 from example.pirate.monster.datasets import MONSTERS
-from example.pirate.monster.intel import SeaMonsterIntel
+from example.pirate.monster.intelligence.intel import SeaMonsterIntel
 
 
 class SeaMonsterWorkflow(Workflow):

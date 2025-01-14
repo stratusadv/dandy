@@ -1,7 +1,8 @@
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
+from dandy.intel import Intel
 from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
     LlmServiceFailureEvent, LlmServiceRetryEvent
@@ -41,15 +42,15 @@ def debug_record_llm_response(message_content: str, event_id: str):
             id=event_id
         ))
 
-def debug_record_llm_success(description: str, event_id: str, model: BaseModel = None):
+def debug_record_llm_success(description: str, event_id: str, intel: Intel = None):
     if DebugRecorder.is_recording:
-        model_json = None
+        intel_json = None
 
-        if model:
-            model_json = model.model_dump_json(indent=4)
+        if intel:
+            intel_json = intel.model_dump_json(indent=4)
 
         DebugRecorder.add_event(LlmServiceSuccessEvent(
-            description=f'{description}\n\n{model.__class__.__name__}: {model_json}' if model_json else description,
+            description=f'{description}\n\n{intel.__class__.__name__}: {intel_json}' if intel_json else description,
             id=event_id
         ))
 

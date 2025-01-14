@@ -2,21 +2,20 @@ from abc import ABC
 from enum import Enum
 from typing_extensions import Tuple, List, Union, overload, Type, Dict
 
-from pydantic import BaseModel
-
 from dandy.bot import LlmBot
 from dandy.bot.exceptions import BotException
+from dandy.intel import Intel
 from dandy.llm.prompt import Prompt
 
 
 NO_CHOICE_FOUND_RESPONSE = 'no-choice-match-found'
 
 
-class SingleChoiceResponse(BaseModel):
+class SingleChoiceResponse(Intel):
     selected_choice: str
 
 
-class MultipleChoiceResponse(BaseModel):
+class MultipleChoiceResponse(Intel):
     selected_choices: List[str]
 
 
@@ -26,7 +25,7 @@ class _ChoiceLlmBot(LlmBot, ABC):
             cls,
             user_input: str,
             choices: Union[Type[Enum], List[str], Tuple[str], Dict[str, object]],
-            choice_response_model: Union[Type[SingleChoiceResponse], Type[MultipleChoiceResponse]]
+            choice_response_intel: Union[Type[SingleChoiceResponse], Type[MultipleChoiceResponse]]
     ) -> Union[SingleChoiceResponse, MultipleChoiceResponse]:
 
         prompt = (
@@ -45,9 +44,9 @@ class _ChoiceLlmBot(LlmBot, ABC):
         else:
             raise BotException('Choices must be an Enum, a list or a tuple.')
 
-        return cls.process_prompt_to_model_object(
+        return cls.process_prompt_to_intel(
             prompt=prompt,
-            model=choice_response_model
+            intel_class=choice_response_intel
         )
 
 
@@ -58,7 +57,7 @@ class _ChoiceOverloadMixin:
             cls,
             user_input: str,
             choices: Dict[str, object],
-            choice_response_model: Type[BaseModel]
+            choice_response_intel: Type[Intel]
     ) -> Union[List[object], None]:
         ...
 
@@ -68,7 +67,7 @@ class _ChoiceOverloadMixin:
             cls,
             user_input: str,
             choices: Union[List[str], Tuple[str]],
-            choice_response_model: Type[BaseModel]
+            choice_response_intel: Type[Intel]
     ) -> Union[str, List[Union[str, int, float, bool]], None]:
         ...
 
@@ -78,7 +77,7 @@ class _ChoiceOverloadMixin:
             cls,
             user_input: str,
             choices: Type[Enum],
-            choice_response_model: Type[BaseModel]
+            choice_response_intel: Type[Intel]
     ) -> Union[Enum, List[Enum], None]:
         ...
 
@@ -111,7 +110,7 @@ class SingleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
         choice_response = super().process(
             user_input=user_input,
             choices=choices,
-            choice_response_model=SingleChoiceResponse,
+            choice_response_intel=SingleChoiceResponse,
         )
 
         selected_choice = choice_response.selected_choice
@@ -146,7 +145,7 @@ class MultipleChoiceLlmBot(_ChoiceLlmBot, _ChoiceOverloadMixin):
         choice_response = super().process(
             user_input=user_input,
             choices=choices,
-            choice_response_model=MultipleChoiceResponse
+            choice_response_intel=MultipleChoiceResponse
         )
 
         select_choices = choice_response.selected_choices

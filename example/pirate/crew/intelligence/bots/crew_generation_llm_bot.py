@@ -20,11 +20,11 @@ class CrewGenerationLlmBot(LlmBot):
 
     @classmethod
     def process(cls, crew_description: str) -> CrewIntel:
-        return cls.process_prompt_to_model_object(
+        return cls.process_prompt_to_intel(
             prompt=(
                 Prompt()
                 .text('The user has provided the following crew description:')
                 .text(crew_description)
             ),
-            model=CrewIntel
+            intel_class=CrewIntel
         )

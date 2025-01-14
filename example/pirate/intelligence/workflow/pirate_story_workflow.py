@@ -1,10 +1,9 @@
-from dandy.llm.prompt import Prompt
 from dandy.workflow import Workflow
 from example.pirate.intelligence.prompts import pirate_story_prompt
-from example.pirate.monster.workflow.monster_generation_workflow import SeaMonsterWorkflow
+from example.pirate.monster.intelligence.workflow.monster_generation_workflow import SeaMonsterWorkflow
 from example.pirate.world.datasets import OCEANS
 from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
-from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_2_3B, OLLAMA_LLAMA_3_1_8B
+from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
 from example.pirate.ship.intelligence.bots.ship_selection_llm_bot import ShipSelectionLlmBot
 from example.pirate.ship.datasets import PIRATE_SHIPS
 from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGenerationLlmBot

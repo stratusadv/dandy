@@ -1,6 +1,6 @@
 from typing_extensions import TypeVar
 
-from pydantic import BaseModel
+from dandy.intel import Intel
 
 
-ModelType = TypeVar('ModelType', bound=BaseModel)
+IntelType = TypeVar('IntelType', bound=Intel)

@@ -1,4 +1,6 @@
-from pydantic import ValidationError, BaseModel
+from pydantic import ValidationError
+
+from dandy.intel import Intel
 
 
 def pydantic_validation_error_to_str(error: ValidationError) -> str:
@@ -6,7 +8,7 @@ def pydantic_validation_error_to_str(error: ValidationError) -> str:
 
 
 def json_default(obj):
-    if isinstance(obj, BaseModel):
+    if isinstance(obj, Intel):
         return obj.model_dump()
     else:
         try:

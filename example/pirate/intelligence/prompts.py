@@ -5,9 +5,9 @@ from typing_extensions import TYPE_CHECKING
 from dandy.llm import Prompt
 
 if TYPE_CHECKING:
-    from example.pirate.monster.intel import SeaMonsterIntel
+    from example.pirate.monster.intelligence.intel import SeaMonsterIntel
     from example.pirate.ship.intelligence.intel import ShipIntel
-    from example.pirate.world.intel import OceanIntel
+    from example.pirate.world.intelligence.intel import OceanIntel
 
 
 def pirate_story_prompt(
@@ -18,13 +18,13 @@ def pirate_story_prompt(
     return (
         Prompt()
         .text('Create a pirate short story in the following ocean:')
-        .model_object(ocean, triple_quote=True)
+        .intel(ocean, triple_quote=True)
         .line_break()
         .text('With the following ship:')
-        .model_object(ship, triple_quote=True)
+        .intel(ship, triple_quote=True)
         .line_break()
         .text('That has to face this sea monster:')
-        .model_object(sea_monster, triple_quote=True)
+        .intel(sea_monster, triple_quote=True)
         .line_break()
         .random_choice([
             'At the end of the story the crew fails and dies.',

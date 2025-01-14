@@ -2,14 +2,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Union
 
-from pydantic import BaseModel
-
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
     generate_llm_bot_user_prompt
+from dandy.intel import Intel
 from dandy.llm.config import BaseLlmConfig
 
 
-class LlmBotSourceIntel(BaseModel):
+class LlmBotSourceIntel(Intel):
     file_name: str
     source: str
 
@@ -32,9 +31,9 @@ def generate(
     if choice == GenerateChoices.LLM_BOT:
         print(f'Generating {choice} ... depending on your llm configuration this may take up to a couple minutes')
 
-        llm_bot_source_intel = llm_config.service.process_prompt_to_model_object(
+        llm_bot_source_intel = llm_config.service.process_prompt_to_intel(
             prompt=generate_llm_bot_user_prompt(generate_description),
-            model=LlmBotSourceIntel,
+            intel_class=LlmBotSourceIntel,
             prefix_system_prompt=generate_llm_bot_system_prompt(),
         )
 

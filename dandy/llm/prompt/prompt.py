@@ -3,10 +3,9 @@ from typing import Union
 
 from typing_extensions import List, Type, Self, Dict
 
-from pydantic import BaseModel
-
-from dandy.llm.tokens.utils import get_estimated_token_count_for_string
+from dandy.intel import Intel
 from dandy.llm.prompt import snippet
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 class Prompt:
@@ -109,30 +108,30 @@ class Prompt:
 
         return self
 
-    def model_object(
+    def intel(
             self,
-            model_object: BaseModel,
+            intel: Intel,
             triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
-            snippet.ModelObjectSnippet(
-                model_object=model_object,
+            snippet.IntelSnippet(
+                intel=intel,
                 triple_quote=triple_quote
             )
         )
 
         return self
 
-    def model_schema(
+    def intel_schema(
             self,
-            model: Type[BaseModel],
+            intel_class: Type[Intel],
             triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
-            snippet.ModelSchemaSnippet(
-                model=model,
+            snippet.IntelSchemaSnippet(
+                intel_class=intel_class,
                 triple_quote=triple_quote
             )
         )

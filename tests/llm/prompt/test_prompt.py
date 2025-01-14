@@ -2,8 +2,7 @@ import pathlib
 
 from unittest import TestCase
 
-from pydantic import BaseModel
-
+from dandy.intel import Intel
 from dandy.llm import Prompt
 
 class TestPrompt(TestCase):
@@ -16,11 +15,11 @@ class TestPrompt(TestCase):
         self.assertEqual(new_prompt.to_str(), 'Hello World\n')
 
     def test_prompt_snippets(self):
-        class Person(BaseModel):
+        class PersonIntel(Intel):
             name: str
             age: int
 
-        person = Person(name='John', age=30)
+        person_intel = PersonIntel(name='John', age=30)
 
         another_prompt = (
             Prompt()
@@ -37,8 +36,8 @@ class TestPrompt(TestCase):
             .heading(heading='Heading Followed by a line break')
             .line_break()
             .list(items=['item1 after a line break', 'item2'])
-            .model_object(model_object=person)
-            .model_schema(model=Person)
+            .intel(intel=person_intel)
+            .intel_schema(intel_class=PersonIntel)
             .module_source(module_name='dandy.bot.llm_bot')
             .ordered_list(items=['item1', 'item2'])
             .prompt(prompt=another_prompt)

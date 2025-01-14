@@ -3,7 +3,7 @@ from typing_extensions import Type, Union
 
 from dandy.bot.bot import Bot
 from dandy.bot.exceptions import BotException
-from dandy.core.type_vars import ModelType
+from dandy.core.type_vars import IntelType
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.prompt import Prompt
@@ -29,11 +29,11 @@ class LlmBot(Bot, ABC):
         return super().__new__(cls)
 
     @classmethod
-    def process_prompt_to_model_object(
+    def process_prompt_to_intel(
             cls,
             prompt: Prompt,
-            model: Type[ModelType],
-    ) -> ModelType:
+            intel_class: Type[IntelType],
+    ) -> IntelType:
 
         return cls.config.generate_service(
             llm_options=LlmConfigOptions(
@@ -43,9 +43,9 @@ class LlmBot(Bot, ABC):
                 max_input_tokens=cls.max_input_tokens,
                 max_output_tokens=cls.max_output_tokens
             )
-        ).process_prompt_to_model_object(
+        ).process_prompt_to_intel(
             prompt=prompt,
-            model=model,
+            intel_class=intel_class,
             prefix_system_prompt=(
                 Prompt()
                 .prompt(cls.instructions_prompt)

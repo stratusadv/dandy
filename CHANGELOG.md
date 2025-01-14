@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.8.0
+
+### Major Changes
+
+- We have created a new class called "Intel" that is the pydantic "BaseModel" class renamed to give more separation of concerns between dandy code and your code.
+- For the most part of this project the word "Model" has been refactored to "Intel" to create more separation of concerns in projects.
+- The word "Model" has a lot of meaning in the context of dandy, artificial intelligence, databases, libraries and other frameworks.
+- Our hope is this creates a very clear line between these specific objects and the rest of your code.
+
 ## v0.7.0
 
 ### Major Improvement

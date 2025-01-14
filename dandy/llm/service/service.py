@@ -7,14 +7,14 @@ from typing_extensions import Type, Union, TYPE_CHECKING
 
 from pydantic import ValidationError
 
-from dandy.core.type_vars import ModelType
+from dandy.core.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
-    service_system_model_prompt
+    service_system_intel_prompt
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
@@ -64,12 +64,12 @@ class LlmService:
             temperature=self._options.temperature,
         )
 
-    def process_prompt_to_model_object(
+    def process_prompt_to_intel(
             self,
             prompt: Prompt,
-            model: Type[ModelType],
+            intel_class: Type[IntelType],
             prefix_system_prompt: Union[Prompt, None] = None
-    ) -> ModelType:
+    ) -> IntelType:
 
         event_id = generate_new_debug_event_id()
 
@@ -79,8 +79,8 @@ class LlmService:
 
             request_body.add_message(
                 role='system',
-                content=service_system_model_prompt(
-                    model=model,
+                content=service_system_intel_prompt(
+                    intel_class=intel_class,
                     prefix_system_prompt=prefix_system_prompt
                 ).to_str()
             )
@@ -99,20 +99,20 @@ class LlmService:
             debug_record_llm_response(message_content, event_id)
 
             try:
-                model = model.model_validate_json(message_content)
+                intel = intel_class.model_validate_json(message_content)
 
                 debug_record_llm_success(
-                    'Validated response from prompt into model object.',
+                    'Validated response from prompt into intel object.',
                     event_id,
-                    model=model
+                    intel=intel
                 )
 
-                return model
+                return intel
 
             except ValidationError as e:
                 debug_record_llm_validation_failure(e, event_id)
                 debug_record_llm_retry(
-                    'Validation of response to model object failed retrying with validation errors prompt.',
+                    'Validation of response to intel object failed retrying with validation errors prompt.',
                     event_id
                 )
 
@@ -136,15 +136,15 @@ class LlmService:
                     if DebugRecorder.is_recording:
                         debug_record_llm_response(message_content, event_id)
 
-                    model = model.model_validate_json(message_content)
+                    intel = intel_class.model_validate_json(message_content)
 
                     debug_record_llm_success(
-                        'Validated response from validation errors prompt into model object.',
+                        'Validated response from validation errors prompt into intel object.',
                         event_id,
-                        model=model
+                        intel=intel
                     )
 
-                    return model
+                    return intel
 
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)

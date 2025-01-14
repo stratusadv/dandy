@@ -1,14 +1,14 @@
 from typing import Union
 
-from pydantic import BaseModel
+from dandy.intel import Intel
 
 from example.pirate.monster.enums import SeaMonsterType
 
 
-class SeaMonsterIntel(BaseModel):
+class SeaMonsterIntel(Intel):
     name: Union[str, None] = None
     type: SeaMonsterType
 
 
-class SeaMonsterNameStructureIntel(BaseModel):
+class SeaMonsterNameStructureIntel(Intel):
     name: str

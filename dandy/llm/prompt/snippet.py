@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
 
-from pydantic import BaseModel
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
 from dandy.llm.exceptions import LlmException
+from dandy.intel import Intel
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
@@ -96,19 +96,19 @@ class LineBreakSnippet(BaseSnippet):
 
 
 @dataclass(kw_only=True)
-class ModelObjectSnippet(BaseSnippet):
-    model_object: BaseModel
+class IntelSnippet(BaseSnippet):
+    intel: Intel
 
     def _to_str(self) -> str:
-        return self.model_object.model_dump_json(indent=4) + '\n'
+        return self.intel.model_dump_json(indent=4) + '\n'
 
 
 @dataclass(kw_only=True)
-class ModelSchemaSnippet(BaseSnippet):
-    model: Type[BaseModel]
+class IntelSchemaSnippet(BaseSnippet):
+    intel_class: Type[Intel]
 
     def _to_str(self) -> str:
-        return str(json.dumps(self.model.model_json_schema(), indent=4)) + '\n'
+        return str(json.dumps(self.intel_class.model_json_schema(), indent=4)) + '\n'
 
 @dataclass(kw_only=True)
 class ModuleSourceSnippet(BaseSnippet):

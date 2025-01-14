@@ -1,15 +1,15 @@
 import json
 from typing_extensions import Type, Union
 
-from pydantic import BaseModel
 from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
+from dandy.intel import Intel
 from dandy.llm.prompt import Prompt
 
 
-def service_system_model_prompt(
-        model: Type[BaseModel],
+def service_system_intel_prompt(
+        intel_class: Type[Intel],
         prefix_system_prompt: Union[Prompt, None] = None
 ) -> Prompt:
     prompt = Prompt()
@@ -26,7 +26,7 @@ def service_system_model_prompt(
     ])
     prompt.line_break()
     prompt.text('JSON Schema:')
-    prompt.model_schema(model, triple_quote=True)
+    prompt.intel_schema(intel_class, triple_quote=True)
 
     return prompt
 

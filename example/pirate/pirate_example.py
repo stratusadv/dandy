@@ -1,14 +1,13 @@
-from pathlib import Path
-
 from dandy.debug.debug import DebugRecorder
 from example.pirate.intelligence.workflow.pirate_story_workflow import PirateStoryWorkflow, PirateStoryWithFuturesWorkflow
 
 
 if __name__ == '__main__':
-    DebugRecorder.start_recording('pirate_story_example')
+    DebugRecorder.start_recording('pirate_example')
 
     try:
         print(PirateStoryWorkflow.process('N/A'))
+
         # print(PirateStoryWithFuturesWorkflow.process('N/A'))
 
     except:
@@ -19,5 +18,5 @@ if __name__ == '__main__':
         DebugRecorder.stop_all_recording()
 
         DebugRecorder.to_html_file(
-            debugger_name='pirate_story_example',
+            debugger_name='pirate_example',
         )

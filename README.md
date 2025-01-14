@@ -16,6 +16,8 @@ Our approach is to focus on batteries included with strong tooling to help build
 
 ### Pydantic is Everyones Friend
 
+We have a class called "Intel" that is the pydantic "BaseModel" class renamed to give more separation of concerns between dandy code and your code.
+
 This project critically relies on the use of pydantic to handle the flow and validation of data with your artificial intelligence systems. 
 Make sure you have a good foundation on the use of pydantic before continuing.
 
@@ -41,14 +43,14 @@ cookie_recipe/ <-- This would be for each of your modules
         __init__.py
         bots/
             __init__.py
-            cookie_recipe_llm_bot.py <-- Should contain one bot alone (can include, models and prompts specific to this bot)
+            cookie_recipe_llm_bot.py <-- Should contain one bot alone (can include, intels and prompts specific to this bot)
             cookie_recipe_safety_llm_bot.py
             cookie_recipe_review_llm_bot.py
             ...
             ...
         intel/
             __init__.py
-            cookie_recipe_intel.py <-- Pydantic Model Classes in all of these files must be postfixed with "Intel" ex: "SelectIntel"
+            cookie_recipe_intel.py <-- Intel Classes in all of these files must be postfixed with "Intel" ex: "SelectIntel"
             cookie_recipe_story_intel.py
             cookie_recipe_marketing_intel.py
             ...
@@ -139,21 +141,21 @@ LLM_CONFIGS = {
 ```python
 # cookie_recipe_llm_bot.py
 
-from typing import List
-from pydantic import BaseModel
+from typing_extensions import List
 
+from dandy.intel import Intel
 from dandy.bot import LlmBot
 from dandy.llm import Prompt
 from dandy.llm.conf import llm_configs
 
 
-class CookieRecipeIngredientIntel(BaseModel):
+class CookieRecipeIngredientIntel(Intel):
     name: str
     unit_type: str
     quantity: float
 
     
-class CookieRecipeIntel(BaseModel):
+class CookieRecipeIntel(Intel):
     name: str
     description: str
     ingredients: List[CookieRecipeIngredientIntel]
@@ -161,7 +163,7 @@ class CookieRecipeIntel(BaseModel):
 
     
 class CookieRecipeLlmBot(LlmBot):
-    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used.
+    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used
     
     config = llm_configs.OPENAI_GPT_3_5_TURBO
 
@@ -183,12 +185,72 @@ class CookieRecipeLlmBot(LlmBot):
       ])
     )
     
+    # the process function is required for all dandy handlers (bots and workflows) for debug and exception handling
+    
+    @classmethod
+    def process(cls, prompt: Prompt) -> CookieRecipeIntel:
+        return cls.process_prompt_to_intel(
+            prompt=prompt,
+            intel_class=CookieRecipeIntel,
+        )
+
 
     
 cookie_recipe_intel = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli and oatmeal!'),
-    model=CookieRecipeIntel,
 )
 
-print(cookie_recipe_intel.instructions)
+print(cookie_recipe_intel.model_dump_json(indent=4))
+```
+
+```json
+// Output (We cannot validate the quality of this recipe, you're more then welcome to try it!)
+
+{
+  "name": "Broccoli Oatmeal Cookies",
+  "description": "A delicious cookie recipe featuring the flavors of broccoli and oatmeal.",
+  "ingredients": [
+    {
+      "name": "All-purpose flour",
+      "unit_type": "cups",
+      "quantity": 2.5
+    },
+    {
+      "name": "Rolled oats",
+      "unit_type": "cups",
+      "quantity": 1.0
+    },
+    {
+      "name": "Brown sugar",
+      "unit_type": "cups",
+      "quantity": 0.5
+    },
+    {
+      "name": "Granulated sugar",
+      "unit_type": "cups",
+      "quantity": 0.25
+    },
+    {
+      "name": "Large eggs",
+      "unit_type": "pieces",
+      "quantity": 1.0
+    },
+    {
+      "name": "Melted butter",
+      "unit_type": "tablespoons",
+      "quantity": 1.0
+    },
+    {
+      "name": "Steamed broccoli florets",
+      "unit_type": "cups",
+      "quantity": 0.5
+    },
+    {
+      "name": "Vanilla extract",
+      "unit_type": "teaspoons",
+      "quantity": 1.0
+    }
+  ],
+  "instructions": "Preheat oven to 375°F (190°C). Line a baking sheet with parchment paper. In a medium bowl, whisk together flour, oats, brown sugar, and granulated sugar. In a large bowl, whisk together eggs, melted butter, steamed broccoli florets, and vanilla extract. Add the dry ingredients to the wet ingredients and stir until combined. Scoop tablespoon-sized balls of dough onto the prepared baking sheet, leaving 2 inches of space between each cookie. Bake for 10-12 minutes or until lightly golden brown."
+}
 ```

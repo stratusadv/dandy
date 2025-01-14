@@ -2,20 +2,20 @@ from pathlib import Path
 
 import dotenv
 
-from dandy.const import USER_SETTINGS_FILE_NAME, CLI_DEFAULT_ENV_FILE_NAMES
+from dandy.const import DANDY_SETTINGS_MODULE, CLI_DEFAULT_ENV_FILE_NAMES
 
 
 def check_or_create_settings(cwd_path: Path) -> None:
-    if Path(cwd_path, USER_SETTINGS_FILE_NAME).exists():
+    if Path(cwd_path, DANDY_SETTINGS_MODULE).exists():
         return
 
-    print(f'Could not find "{USER_SETTINGS_FILE_NAME}" in your current directory. Creating one for you...')
+    print(f'Could not find "{DANDY_SETTINGS_MODULE}" in your current directory. Creating one for you...')
 
     with open(Path(Path(__file__).parent.parent.resolve(), 'default_settings.py'), 'r') as default_settings:
         with open(Path(cwd_path, 'dandy_settings.py'), 'w') as user_settings:
             user_settings.write(default_settings.read())
 
-    print(f'Created "{USER_SETTINGS_FILE_NAME}" in your current directory.')
+    print(f'Created "{DANDY_SETTINGS_MODULE}" in your current directory.')
     print(f'You need to configure the "BASE_PATH" and "LLM_CONFIGS".')
 
 def load_environment_variables(cwd_path: Path) -> None:

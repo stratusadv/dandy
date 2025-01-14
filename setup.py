@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
     license_file = license_handle.read()
@@ -20,7 +20,7 @@ setup(
         "Programming Language :: Python :: 3.13",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords=["dandy", "ai", "llm", "agent", "prompt", "gpt", "boty"],
+    keywords=["dandy", "ai", "llm", "agent", "prompt", "gpt", "bot", "workflow", "automation", "artificial intelligence"],
     author="Nathan Johnson",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/dandy",
@@ -30,7 +30,7 @@ setup(
     zip_safe=False,
     python_requires=">=3.10",
     install_requires=[
-        "pydantic==2.8.2",
+        "pydantic>=2.8.2",
     ],
     entry_points = {
         "console_scripts": [

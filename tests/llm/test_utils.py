@@ -13,7 +13,7 @@ class TestUtils(TestCase):
                 Prompt()
                 .text('Hello World')
             ),
-            model=ShipIntel,
+            intel_class=ShipIntel,
         )
 
         self.assertGreater(token_count, 0)

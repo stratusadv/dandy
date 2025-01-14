@@ -2,15 +2,15 @@ import importlib
 import inspect
 from enum import Enum
 
-from pydantic import BaseModel
 from typing_extensions import Union
 
 from dandy.cli.llm.evaluate.intelligence.prompts.prompt_evaluation_prompts import evaluate_prompt_system_prompt, \
     evaluate_prompt_user_prompt
+from dandy.intel import Intel
 from dandy.llm.config import BaseLlmConfig
 
 
-class EvaluatedSourceIntel(BaseModel):
+class EvaluatedSourceIntel(Intel):
     file_name: str
     source: str
     source_changed: bool
@@ -48,13 +48,13 @@ def evaluate(
     source_code = inspect.getsource(obj)
 
     if choice == EvaluateChoices.PROMPT:
-        evaluated_source_intel = llm_config.service.process_prompt_to_model_object(
+        evaluated_source_intel = llm_config.service.process_prompt_to_intel(
             prompt=evaluate_prompt_user_prompt(
                 prompt_name=obj_name,
                 prompt_source=source_code,
                 prompt_description=evaluate_description,
             ),
-            model=EvaluatedSourceIntel,
+            intel_class=EvaluatedSourceIntel,
             prefix_system_prompt=evaluate_prompt_system_prompt(),
         )
 

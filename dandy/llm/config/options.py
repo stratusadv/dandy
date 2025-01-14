@@ -1,7 +1,5 @@
 from typing_extensions import Union, Self
 
-from pydantic import BaseModel, Field
-
 from dandy.conf import settings
 from dandy.llm.config.utils import generate_random_seed
 
