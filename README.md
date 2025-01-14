@@ -73,8 +73,8 @@ dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 
 ### Setting Up Dandy
 
-It's recommended that you use "DANDY_SETTINGS_MODULE" set in your environment variables pointed towards your dandy settings file.
-If no environment variable is set, it will look for "dandy_settings.py" in the current working directory or sys.path.
+It's recommended that you have a "DANDY_SETTINGS_MODULE" in your environment variables pointed towards your dandy settings.
+If no environment variable is set, it will look for "dandy_settings" module in the current working directory or sys.path.
 
 ```python
 # dandy_settings.py
