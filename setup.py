@@ -1,13 +1,13 @@
 from setuptools import find_packages, setup
 
-__version__ = "0.8.0"
+from dandy.const import VERSION
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
     license_file = license_handle.read()
 
 setup(
     name="dandy",
-    version=__version__,
+    version=VERSION,
     description="Intelligence Bot Framework",
     long_description="Dandy is a framework for developing programmatic intelligent bots and workflows. It's opinionated, usefully magical, and designed to be incredibly pythonic.",
     classifiers=[

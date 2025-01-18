@@ -10,7 +10,7 @@ class DandySettings:
         from dandy import default_settings
         self.default_settings = default_settings
 
-        DANDY_SETTINGS_MODULE = os.getenv('DANDY_SETTINGS_MODULE')
+        # DANDY_SETTINGS_MODULE = os.getenv('DANDY_SETTINGS_MODULE')
 
         if DANDY_SETTINGS_MODULE is not None:
             try:

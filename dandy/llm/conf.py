@@ -50,4 +50,5 @@ class LlmConfigs:
     def __getitem__(self, item) -> BaseLlmConfig:
         return getattr(self, item)
 
+
 llm_configs = LlmConfigs()

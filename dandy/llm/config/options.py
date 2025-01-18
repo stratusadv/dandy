@@ -57,7 +57,6 @@ class LlmConfigOptions:
     def merge_to_copy(self, secondary_options: Self) -> Self:
         """
         Merges the current instance with another secondary instance
-
         Current instance attributes that are not none will take precedence over the secondary instance
         """
 
