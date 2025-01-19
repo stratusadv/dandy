@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Dict, List, Union
 
 from dandy.conf import settings
-from dandy.const import DEBUG_OUTPUT_DIRECTORY
+from dandy.const import DEBUG_OUTPUT_DIRECTORY, VERSION
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
@@ -83,6 +83,9 @@ class Debugger(BaseModel):
             ).replace(
                 '__debug_output__',
                 self.model_dump_json(),
+            ).replace(
+                '__debug_version__',
+                f'{VERSION}'
             ).replace(
                 '__debug_datetime__',
                 f'{datetime.now()}'

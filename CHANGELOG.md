@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.1
+
+### Fixes
+
+- Fixed the settings module validation to be much easier to implement and debug.
+
 ## v0.8.0
 
 ### Major Changes

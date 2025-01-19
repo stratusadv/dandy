@@ -1,22 +1,26 @@
+import importlib
 from pathlib import Path
 
 import dotenv
 
-from dandy.const import DANDY_SETTINGS_MODULE, CLI_DEFAULT_ENV_FILE_NAMES
+from dandy.const import CLI_DEFAULT_ENV_FILE_NAMES, DEFAULT_SETTINGS_FILE_NAME
+from dandy.utils import get_settings_module_name
 
 
 def check_or_create_settings(cwd_path: Path) -> None:
-    if Path(cwd_path, DANDY_SETTINGS_MODULE).exists():
+    dandy_settings_module_name = get_settings_module_name()
+    try:
+        importlib.import_module(dandy_settings_module_name)
         return
+    except ImportError:
+        print(f'Could not find "{dandy_settings_module_name}" in your current directory. Creating one for you...')
 
-    print(f'Could not find "{DANDY_SETTINGS_MODULE}" in your current directory. Creating one for you...')
+        with open(Path(Path(__file__).parent.parent.resolve(), 'default_settings.py'), 'r') as default_settings:
+            with open(Path(cwd_path, DEFAULT_SETTINGS_FILE_NAME), 'w') as user_settings:
+                user_settings.write(default_settings.read())
 
-    with open(Path(Path(__file__).parent.parent.resolve(), 'default_settings.py'), 'r') as default_settings:
-        with open(Path(cwd_path, 'dandy_settings.py'), 'w') as user_settings:
-            user_settings.write(default_settings.read())
-
-    print(f'Created "{DANDY_SETTINGS_MODULE}" in your current directory.')
-    print(f'You need to configure the "BASE_PATH" and "LLM_CONFIGS".')
+        print(f'Created "{dandy_settings_module_name}" in your current directory.')
+        print(f'You need to configure the "BASE_PATH" and "LLM_CONFIGS".')
 
 def load_environment_variables(cwd_path: Path) -> None:
     for env_file_name in CLI_DEFAULT_ENV_FILE_NAMES:

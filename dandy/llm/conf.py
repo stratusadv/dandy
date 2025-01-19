@@ -1,7 +1,7 @@
 from dandy.conf import settings
-from dandy.const import DANDY_SETTINGS_MODULE
 from dandy.core.exceptions import DandyException
 from dandy.llm.config import OllamaLlmConfig, OpenaiLlmConfig, BaseLlmConfig
+from dandy.utils import get_settings_module_name
 
 _LLM_CONFIG_MAP = {
     'openai': OpenaiLlmConfig,
@@ -11,6 +11,9 @@ _LLM_CONFIG_MAP = {
 
 class LlmConfigs:
     def __init__(self):
+        if not isinstance(settings.LLM_CONFIGS, dict) or not settings.LLM_CONFIGS:
+            raise DandyException(f'Your "LLM_CONFIGS" in your "{get_settings_module_name()}" module is configured incorrectly.')
+
         for llm_config_name, kwargs in settings.LLM_CONFIGS.items():
             if (not isinstance(llm_config_name, str) and
                     not isinstance(kwargs, dict)):
@@ -35,7 +38,7 @@ class LlmConfigs:
             )
 
         if not hasattr(self, 'DEFAULT'):
-            raise DandyException(f'You need a "DEFAULT" in your "LLM_CONFIGS" in your "{DANDY_SETTINGS_MODULE}".')
+            raise DandyException(f'You need a "DEFAULT" in your "LLM_CONFIGS" in your "{get_settings_module_name()}" module.')
 
         self.choices = list(settings.LLM_CONFIGS.keys())
 
