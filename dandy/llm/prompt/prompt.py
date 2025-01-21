@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing_extensions import Union
 
 from typing_extensions import List, Type, Self, Dict
 

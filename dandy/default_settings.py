@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Union
+from typing_extensions import Union
 
 
 ALLOW_DEBUG_RECORDING: bool = False

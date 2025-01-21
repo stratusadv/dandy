@@ -1,10 +1,13 @@
+import re
 import os
 from enum import Enum
-from typing import Type
-
-from typing_extensions import List
+from typing_extensions import List, Type
 
 from dandy.const import DEFAULT_SETTINGS_MODULE
+
+
+def pascal_to_title_case(pascal_case_string: str) -> str:
+    return ' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', pascal_case_string))
 
 
 def enum_to_list(enum_type: Type[Enum]) -> List:

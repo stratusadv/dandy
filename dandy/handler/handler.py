@@ -1,5 +1,4 @@
 import json
-import re
 from abc import abstractmethod, ABCMeta
 
 from dandy.core.utils import json_default
@@ -7,6 +6,7 @@ from dandy.debug.debug import DebugRecorder
 from dandy.debug.events import RunEvent, ResultEvent
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.future.future import AsyncFuture
+from dandy.utils import pascal_to_title_case
 
 
 class ProcessDebugABCMeta(ABCMeta):
@@ -24,7 +24,7 @@ class ProcessDebugABCMeta(ABCMeta):
                     if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
                         DebugRecorder.add_event(
                             RunEvent(
-                                actor=' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', cls.__name__)),
+                                actor=pascal_to_title_case(cls.__name__),
                                 action='Process',
                                 description=json.dumps(
                                     {
@@ -44,7 +44,7 @@ class ProcessDebugABCMeta(ABCMeta):
                     if DebugRecorder.is_recording and getattr(cls, "_debugger_called", True):
                         DebugRecorder.add_event(
                             ResultEvent(
-                                actor=' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', cls.__name__)),
+                                actor=pascal_to_title_case(cls.__name__),
                                 action='Process Returned Result',
                                 description=json.dumps(
                                     {

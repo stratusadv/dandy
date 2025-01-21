@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fixed the settings module validation to be much easier to implement and debug.
+- Fixed but that accidentally overwrote settings files for the user.
 
 ## v0.8.0
 
