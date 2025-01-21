@@ -6,7 +6,7 @@ from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGe
 
 
 TEST_FUTURE_SLEEP_TIME = 5.0
-TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + 1.0
+TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + (TEST_FUTURE_SLEEP_TIME * 0.1)
 
 
 class TestFuture(TestCase):

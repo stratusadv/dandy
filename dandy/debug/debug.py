@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from time import time
+from time import perf_counter
 
 from pydantic import BaseModel, Field
 from typing_extensions import Dict, List, Union
@@ -12,7 +12,6 @@ from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
 from dandy.debug.exceptions import DebugException
 from dandy.debug.utils import generate_new_debug_event_id
-
 
 _DEFAULT_DEBUG_OUTPUT_PATH = Path(settings.BASE_PATH, DEBUG_OUTPUT_DIRECTORY)
 
@@ -45,11 +44,11 @@ class Debugger(BaseModel):
         self.event_manager.clear()
 
     def start(self):
-        self.start_time = time()
+        self.start_time = perf_counter()
         self.is_recording = True
 
     def stop(self):
-        self.stop_time = time()
+        self.stop_time = perf_counter()
         self.run_time = self.stop_time - self.start_time
         self.calculate_event_run_times()
         self.is_recording = False

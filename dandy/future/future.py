@@ -1,5 +1,5 @@
 import concurrent.futures
-from time import time
+from time import time, perf_counter
 
 from typing_extensions import Callable, TypeVar, Generic, Union
 
@@ -13,7 +13,7 @@ FutureResultType = TypeVar('FutureResultType')
 class AsyncFuture(Generic[FutureResultType]):
     def __init__(self, callable_: Callable[..., FutureResultType], *args, **kwargs):
         self._future = ASYNC_EXECUTOR.submit(callable_, *args, **kwargs)
-        self._future_start_time = time()
+        self._future_start_time = perf_counter()
 
         self._result: Union[FutureResultType, None] = None
         self._result_timeout = None
