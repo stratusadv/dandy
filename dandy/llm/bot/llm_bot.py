@@ -4,6 +4,7 @@ from typing_extensions import Type, Union
 from dandy.bot.bot import Bot
 from dandy.bot.exceptions import BotException
 from dandy.core.type_vars import IntelType
+from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.prompt import Prompt
@@ -13,6 +14,7 @@ from dandy.llm.conf import llm_configs
 class LlmBot(Bot, ABC):
     instructions_prompt: Prompt
     config: BaseLlmConfig = llm_configs.DEFAULT
+    intel_class: Type[IntelType] = DefaultLlmIntel
 
     max_input_tokens: Union[int, None] = None
     max_output_tokens: Union[int, None] = None
@@ -27,6 +29,18 @@ class LlmBot(Bot, ABC):
             raise BotException(f'{cls.__name__} instructions_prompt is not set')
 
         return super().__new__(cls)
+
+    @classmethod
+    def process(
+            cls,
+            prompt: Prompt,
+            intel_class: Type[IntelType] = None,
+    ) -> IntelType:
+
+        return cls.process_prompt_to_intel(
+            prompt,
+            intel_class or cls.intel_class
+        )
 
     @classmethod
     def process_prompt_to_intel(

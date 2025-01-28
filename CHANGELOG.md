@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.9.0
+
+### Features
+
+- LlmBots now have a default built in process method that takes in a prompt and returns an intel object.
+
+### Changes
+
+- Moved llm_bot from "dandy.bot" to "dandy.llm.bot"
+
+### Fixes
+
+- There is now a "DefaultLlmIntel" class that is used as the default intel class for LlmBots that has one attribute called "text".
+
+
 ## v0.8.1
 
 ### Fixes
