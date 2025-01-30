@@ -1,6 +1,8 @@
 import json
 from abc import abstractmethod, ABCMeta
 
+from typing_extensions import Any
+
 from dandy.core.utils import json_default
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.events import RunEvent, ResultEvent
@@ -69,7 +71,7 @@ class ProcessDebugABCMeta(ABCMeta):
 class Handler(metaclass=ProcessDebugABCMeta):
     @classmethod
     @abstractmethod
-    def process(cls, **kwargs):
+    def process(cls, *args, **kwargs) -> Any:
         ...
 
     @classmethod

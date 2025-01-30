@@ -1,4 +1,5 @@
 import concurrent.futures
+from concurrent.futures import Future
 from time import time, perf_counter
 
 from typing_extensions import Callable, TypeVar, Generic, Union
@@ -12,10 +13,9 @@ FutureResultType = TypeVar('FutureResultType')
 
 class AsyncFuture(Generic[FutureResultType]):
     def __init__(self, callable_: Callable[..., FutureResultType], *args, **kwargs):
-        self._future = ASYNC_EXECUTOR.submit(callable_, *args, **kwargs)
+        self._future: Future = ASYNC_EXECUTOR.submit(callable_, *args, **kwargs)
         self._future_start_time = perf_counter()
 
-        self._result: Union[FutureResultType, None] = None
         self._result_timeout = None
         self._using_result_timeout = False
 
@@ -25,19 +25,18 @@ class AsyncFuture(Generic[FutureResultType]):
 
     @property
     def result(self) -> FutureResultType:
-        if self._result is None:
-            try:
-                done, not_done = concurrent.futures.wait([self._future], timeout=self._result_timeout)
-                if self._future in done:
-                    self._result = self._future.result()
-                else:
-                    raise concurrent.futures.TimeoutError
-            except concurrent.futures.TimeoutError:
-                raise FutureException(f'Future timed out after {self._result_timeout} seconds')
-            finally:
-                self._future = None
-        return self._result
-
+        try:
+            done, not_done = concurrent.futures.wait([self._future], timeout=self._result_timeout)
+            if self._future in done:
+                result: FutureResultType = self._future.result()
+                return result
+            else:
+                raise concurrent.futures.TimeoutError
+        except concurrent.futures.TimeoutError:
+            raise FutureException(f'Future timed out after {self._result_timeout} seconds')
+        finally:
+            del self._future
+                
     def set_timeout(self, seconds: int):
         self._using_result_timeout = True
         self._result_timeout = seconds

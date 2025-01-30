@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing_extensions import List, Dict
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
@@ -6,8 +6,8 @@ from urllib.parse import urlencode, urlparse, ParseResult, quote
 @dataclass(kw_only=True)
 class Url:
     host: str
-    path_parameters: List[str] = list
-    query_parameters: Dict[str, str] = dict
+    path_parameters: List[str] = field(default_factory=list)
+    query_parameters: Dict[str, str] = field(default_factory=dict)
 
 
     @property

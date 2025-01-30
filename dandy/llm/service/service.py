@@ -7,7 +7,7 @@ from typing_extensions import Type, Union, TYPE_CHECKING
 
 from pydantic import ValidationError
 
-from dandy.core.type_vars import IntelType
+from dandy.intel.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.llm.exceptions import LlmException, LlmValidationException

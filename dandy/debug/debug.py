@@ -41,7 +41,6 @@ class Debugger(BaseModel):
     def clear(self):
         self.start_time = 0.0
         self.stop_time = 0.0
-        self.event_manager.clear()
 
     def start(self):
         self.start_time = perf_counter()

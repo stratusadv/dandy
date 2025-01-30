@@ -3,7 +3,7 @@ from __future__ import annotations
 import traceback
 from typing_extensions import TYPE_CHECKING, Type, Union
 
-from dandy.core.type_vars import IntelType
+from dandy.intel.type_vars import IntelType
 from dandy.llm.service.prompts import service_system_intel_prompt, service_user_prompt
 
 if TYPE_CHECKING:

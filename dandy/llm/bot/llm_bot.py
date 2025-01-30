@@ -1,9 +1,10 @@
 from abc import ABC
-from typing_extensions import Type, Union
+from typing_extensions import Type, Union, Generic
 
 from dandy.bot.bot import Bot
 from dandy.bot.exceptions import BotException
-from dandy.core.type_vars import IntelType
+from dandy.intel import Intel
+from dandy.intel.type_vars import IntelType
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.config import BaseLlmConfig
 from dandy.llm.config.options import LlmConfigOptions
@@ -11,10 +12,10 @@ from dandy.llm.prompt import Prompt
 from dandy.llm.conf import llm_configs
 
 
-class LlmBot(Bot, ABC):
+class LlmBot(Bot, ABC, Generic[IntelType]):
     instructions_prompt: Prompt
     config: BaseLlmConfig = llm_configs.DEFAULT
-    intel_class: Type[IntelType] = DefaultLlmIntel
+    intel_class: Type[Intel] = DefaultLlmIntel
 
     max_input_tokens: Union[int, None] = None
     max_output_tokens: Union[int, None] = None
@@ -22,7 +23,7 @@ class LlmBot(Bot, ABC):
     seed: Union[int, None] = None
     temperature: Union[float, None] = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         if cls.config is None:
             raise BotException(f'{cls.__name__} config is not set')
         if cls.instructions_prompt is None:
@@ -34,7 +35,7 @@ class LlmBot(Bot, ABC):
     def process(
             cls,
             prompt: Prompt,
-            intel_class: Type[IntelType] = None,
+            intel_class: Type[IntelType] = DefaultLlmIntel,
     ) -> IntelType:
 
         return cls.process_prompt_to_intel(
