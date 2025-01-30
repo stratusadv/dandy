@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from dandy.handler.handler import Handler
+from dandy.processor.processor import BaseProcessor
 
 
 class TestWorkflow(TestCase):
     def test_workflow_import(self):
         from dandy.workflow import Workflow
-        self.assertTrue(type(Workflow) is type(Handler))
+        self.assertTrue(type(Workflow) is type(BaseProcessor))

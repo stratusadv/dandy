@@ -9,11 +9,13 @@
 ### Changes
 
 - Moved llm_bot from "dandy.bot" to "dandy.llm.bot"
+- Changed the base class from "Handler" to "BaseProcessor"
 
 ### Fixes
 
 - There is now a "DefaultLlmIntel" class that is used as the default intel class for LlmBots that has one attribute called "text".
-
+- Fixed a bunch of Generic Type handling through out the project.
+- Connection retry count of zero no longer causes an error.
 
 ## v0.8.1
 

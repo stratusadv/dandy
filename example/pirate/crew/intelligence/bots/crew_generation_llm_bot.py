@@ -1,4 +1,4 @@
-from dandy.bot import LlmBot
+from dandy.llm.bot import LlmBot
 from dandy.llm.prompt import Prompt
 from example.pirate.crew.intelligence.intel import CrewIntel
 from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B

@@ -1,17 +1,14 @@
 import json
-from abc import abstractmethod, ABCMeta
-
-from typing_extensions import Any
+from abc import ABCMeta
 
 from dandy.core.utils import json_default
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.events import RunEvent, ResultEvent
 from dandy.debug.utils import generate_new_debug_event_id
-from dandy.future.future import AsyncFuture
 from dandy.utils import pascal_to_title_case
 
 
-class ProcessDebugABCMeta(ABCMeta):
+class ProcessorABCMeta(ABCMeta):
     def __new__(cls, name, bases, dct):
         if 'process' in dct:
             original_process = dct['process']
@@ -67,13 +64,3 @@ class ProcessDebugABCMeta(ABCMeta):
 
         return super().__new__(cls, name, bases, dct)
 
-
-class Handler(metaclass=ProcessDebugABCMeta):
-    @classmethod
-    @abstractmethod
-    def process(cls, *args, **kwargs) -> Any:
-        ...
-
-    @classmethod
-    def process_to_future(cls, *args, **kwargs) -> AsyncFuture:
-        return AsyncFuture(cls.process, *args, **kwargs)

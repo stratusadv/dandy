@@ -1,8 +1,9 @@
 from abc import ABC
 from typing_extensions import Type, Union, Generic
 
-from dandy.bot.bot import Bot
+from dandy.bot import Bot
 from dandy.bot.exceptions import BotException
+from dandy.future.future import AsyncFuture
 from dandy.intel import Intel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.intel import DefaultLlmIntel
@@ -36,6 +37,7 @@ class LlmBot(Bot, ABC, Generic[IntelType]):
             cls,
             prompt: Prompt,
             intel_class: Type[IntelType] = DefaultLlmIntel,
+            **kwargs
     ) -> IntelType:
 
         return cls.process_prompt_to_intel(
@@ -66,3 +68,7 @@ class LlmBot(Bot, ABC, Generic[IntelType]):
                 .prompt(cls.instructions_prompt)
             )
         )
+
+    @classmethod
+    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[IntelType]:
+        return AsyncFuture[IntelType](cls.process, *args, **kwargs)

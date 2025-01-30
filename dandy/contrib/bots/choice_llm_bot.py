@@ -2,7 +2,7 @@ from abc import ABC
 from enum import Enum
 from typing_extensions import Tuple, List, Union, overload, Type, Dict
 
-from dandy.bot import LlmBot
+from dandy.llm.bot import LlmBot
 from dandy.bot.exceptions import BotException
 from dandy.intel import Intel
 from dandy.llm.prompt import Prompt

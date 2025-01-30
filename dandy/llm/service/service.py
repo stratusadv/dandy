@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import http.client
 import json
+from http.client import HTTPResponse
 from time import sleep
 from typing_extensions import Type, Union, TYPE_CHECKING
 
@@ -193,11 +194,11 @@ class LlmService:
             llm_success_message='Prompt properly returned a response.'
         )
 
-    def process_request(self, method, path, encoded_body: bytes = None) -> dict:
-        response = None
+    def process_request(self, method, path, encoded_body: bytes) -> dict:
+        response: Union[HTTPResponse, None] = None
         response_body = ''
 
-        for _ in range(self._config.options.connection_retry_count):
+        for _ in range(self._config.options.connection_retry_count + 1):
             connection = self.create_connection()
 
             if encoded_body:
@@ -209,19 +210,21 @@ class LlmService:
 
             response_body = response.read().decode("utf-8")
 
+            connection.close()
+
             if response.status == 200 or response.status == 201:
                 json_data = json.loads(response_body)
-                connection.close()
-                break
+                return json_data
 
-            connection.close()
             sleep(0.1)
 
         else:
-            raise LlmException(
-                f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.options.connection_retry_count} attempts')
-
-        return json_data
+            if response is not None: 
+                raise LlmException(
+                    f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.options.connection_retry_count} attempts')
+            else:
+                raise LlmException(
+                    f'Llm service request failed after {self._config.options.connection_retry_count} attempts for unknown reasons')
 
     def post_request(self, body) -> dict:
         encoded_body = json.dumps(body).encode('utf-8')

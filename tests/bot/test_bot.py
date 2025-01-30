@@ -1,14 +1,14 @@
 from unittest import TestCase
 
-from dandy.handler.handler import Handler
+from dandy.processor.processor import BaseProcessor
 
 
 class TestBot(TestCase):
     def test_bot_import(self):
         from dandy.bot import Bot
-        self.assertTrue(type(Bot) is type(Handler))
+        self.assertTrue(type(Bot) is type(BaseProcessor))
 
     def test_llm_bot_import(self):
-        from dandy.bot import LlmBot
-        self.assertTrue(type(LlmBot) is type(Handler))
+        from dandy.llm.bot import LlmBot
+        self.assertTrue(type(LlmBot) is type(BaseProcessor))
 

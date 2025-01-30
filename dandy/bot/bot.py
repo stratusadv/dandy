@@ -1,7 +1,7 @@
 from abc import ABC
 
-from dandy.handler.handler import Handler
+from dandy.processor.processor import BaseProcessor
 
 
-class Bot(Handler, ABC):
+class Bot(BaseProcessor, ABC):
     ...

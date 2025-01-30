@@ -38,7 +38,7 @@ class TestPrompt(TestCase):
             .list(items=['item1 after a line break', 'item2'])
             .intel(intel=person_intel)
             .intel_schema(intel_class=PersonIntel)
-            .module_source(module_name='dandy.bot.llm_bot')
+            .module_source(module_name='dandy.llm.bot.llm_bot')
             .ordered_list(items=['item1', 'item2'])
             .prompt(prompt=another_prompt)
             .random_choice(choices=['choice1', 'choice2'])

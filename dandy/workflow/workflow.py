@@ -1,7 +1,7 @@
 from abc import ABC
 
-from dandy.handler.handler import Handler
+from dandy.processor.processor import BaseProcessor
 
 
-class Workflow(Handler, ABC):
+class Workflow(BaseProcessor, ABC):
     ...
