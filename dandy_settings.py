@@ -15,6 +15,7 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 # DEFAULT_LLM_MAX_OUTPUT_TOKENS: Union[int, None] = 4000
 # DEFAULT_LLM_CONNECTION_RETRY_COUNT: int = 10
 # DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
+# DEFAULT_LLM_REQUEST_TIMEOUT: Union[int, None] = None
 
 
 LLM_CONFIGS = {

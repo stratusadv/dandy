@@ -6,9 +6,12 @@ from urllib.parse import urlencode, urlparse, ParseResult, quote
 @dataclass(kw_only=True)
 class Url:
     host: str
+    port: int = 443
     path_parameters: List[str] = field(default_factory=list)
     query_parameters: Dict[str, str] = field(default_factory=dict)
 
+    def __str__(self):
+        self.to_str()
 
     @property
     def parsed_url(self) -> ParseResult:
@@ -36,3 +39,6 @@ class Url:
             return '?' + query
 
         return ''
+    
+    def to_str(self) -> str:
+        return f'{self.parsed_url.scheme}://{self.parsed_url.netloc}:{self.port}{self.path}'

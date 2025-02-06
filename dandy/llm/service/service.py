@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-import http.client
 import json
-from http.client import HTTPResponse
 from time import sleep
+
+from httpx import Response
 from typing_extensions import Type, Union, TYPE_CHECKING
 
+import httpx 
 from pydantic import ValidationError
 
+from dandy.conf import settings
 from dandy.intel.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
@@ -43,19 +45,6 @@ class LlmService:
             user_prompt_str=user_prompt_str,
             llm_success_message='Assistant properly returned a response.'
         )
-
-    def create_connection(self) -> Union[http.client.HTTPConnection, http.client.HTTPSConnection]:
-        connection_kwargs = {
-            'host': self._config.url.parsed_url.netloc,
-            'port': self._config.port
-        }
-
-        if self._config.url.is_https:
-            connection = http.client.HTTPSConnection(**connection_kwargs)
-        else:
-            connection = http.client.HTTPConnection(**connection_kwargs)
-
-        return connection
 
     def get_request_body(self) -> BaseRequestBody:
         return self._config.generate_request_body(
@@ -194,26 +183,21 @@ class LlmService:
             llm_success_message='Prompt properly returned a response.'
         )
 
-    def process_request(self, method, path, encoded_body: bytes) -> dict:
-        response: Union[HTTPResponse, None] = None
-        response_body = ''
+    def post_request(self, json_body: bytes) -> dict:
+        response: Response = Response(status_code=0)
 
         for _ in range(self._config.options.connection_retry_count + 1):
-            connection = self.create_connection()
 
-            if encoded_body:
-                connection.request(method, path, body=encoded_body, headers=self._config.headers)
-            else:
-                connection.request(method, path, headers=self._config.headers)
+            response = httpx.request(
+                'POST', 
+                self._config.url.to_str(), 
+                headers=self._config.headers, 
+                content=json.dumps(json_body).encode('utf-8'),
+                timeout=settings.DEFAULT_LLM_REQUEST_TIMEOUT
+            )
 
-            response = connection.getresponse()
-
-            response_body = response.read().decode("utf-8")
-
-            connection.close()
-
-            if response.status == 200 or response.status == 201:
-                json_data = json.loads(response_body)
+            if response.status_code == 200 or response.status_code == 201:
+                json_data = json.loads(response.text)
                 return json_data
 
             sleep(0.1)
@@ -221,11 +205,7 @@ class LlmService:
         else:
             if response is not None: 
                 raise LlmException(
-                    f'Llm service request failed with status code {response.status} and the following message "{response_body}" after {self._config.options.connection_retry_count} attempts')
+                    f'Llm service request failed with status code {response.status_code} and the following message "{response.text}" after {self._config.options.connection_retry_count} attempts')
             else:
                 raise LlmException(
                     f'Llm service request failed after {self._config.options.connection_retry_count} attempts for unknown reasons')
-
-    def post_request(self, body) -> dict:
-        encoded_body = json.dumps(body).encode('utf-8')
-        return self.process_request("POST", self._config.url.path, encoded_body)

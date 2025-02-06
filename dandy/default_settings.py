@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing_extensions import Union
 
@@ -14,6 +13,7 @@ DEFAULT_LLM_MAX_INPUT_TOKENS: int = 8000
 DEFAULT_LLM_MAX_OUTPUT_TOKENS: int = 4000
 DEFAULT_LLM_CONNECTION_RETRY_COUNT: int = 10
 DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
+DEFAULT_LLM_REQUEST_TIMEOUT: Union[int, None] = None
 
 LLM_CONFIGS = {
     # 'DEFAULT': {

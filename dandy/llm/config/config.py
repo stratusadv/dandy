@@ -39,11 +39,11 @@ class BaseLlmConfig:
 
         self.url = Url(
             host=host,
+            port=port,
             path_parameters=path_parameters,
             query_parameters=query_parameters,
         )
 
-        self.port = port
         self.model = model
         self.headers = headers
 
