@@ -1,8 +1,8 @@
 [project]
 name = "dandy"
 description = "Intelligence Bot Framework"
-readme = { file = "README.md", content-type = "text/x-rst" }
-license = { file = "LICENSE.md" }
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE.md", content-type = "text/markdown" }
 authors = [
     { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
 ]
