@@ -1,7 +1,7 @@
 from typing_extensions import Union, Self
 
 from dandy.conf import settings
-from dandy.llm.config.utils import generate_random_seed
+from dandy.llm.service.config.utils import generate_random_seed
 
 
 class LlmConfigOptions:

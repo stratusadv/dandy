@@ -1,5 +1,5 @@
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 
 
-class DefaultLlmIntel(Intel):
+class DefaultLlmIntel(BaseIntel):
     text: str

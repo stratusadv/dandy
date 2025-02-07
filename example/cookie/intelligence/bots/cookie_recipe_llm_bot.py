@@ -1,28 +1,27 @@
 from typing_extensions import List
 
-from dandy.intel import Intel
-from dandy.bot import LlmBot
-from dandy.llm import Prompt
-from dandy.llm.conf import llm_configs
+from dandy.intel import BaseIntel
+from dandy.llm import Prompt, BaseLlmBot
 
 
-class CookieRecipeIngredientIntel(Intel):
+class CookieRecipeIngredientIntel(BaseIntel):
     name: str
     unit_type: str
     quantity: float
 
 
-class CookieRecipeIntel(Intel):
+class CookieRecipeIntel(BaseIntel):
     name: str
     description: str
     ingredients: List[CookieRecipeIngredientIntel]
     instructions: str
 
 
-class CookieRecipeLlmBot(LlmBot):
+class CookieRecipeLlmBot(BaseLlmBot):
     # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used
 
-    config = llm_configs.LLAMA_3_1_8B
+    # config = 'LLAMA_3_1_8B'
+    config = 'DEEPSEEK_R1_14B'
 
     # You can also override settings per bot.
 

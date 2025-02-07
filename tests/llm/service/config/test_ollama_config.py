@@ -1,18 +1,17 @@
 import os
 from unittest import TestCase
 
-from dandy.llm.config import OllamaLlmConfig
+from dandy.llm.service.config import OllamaLlmConfig
 from dandy.llm.exceptions import LlmException
-from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
-
+from dandy.llm.conf import llm_configs
 
 class TestConfig(TestCase):
     def test_ollama_config_request_body(self):
         self.assertEqual(
-            OLLAMA_LLAMA_3_1_8B.generate_request_body(
-                temperature=OLLAMA_LLAMA_3_1_8B.options.temperature,
-                seed=OLLAMA_LLAMA_3_1_8B.options.seed,
-            ).get_temperature(), OLLAMA_LLAMA_3_1_8B.options.temperature)
+            llm_configs.DEFAULT.generate_request_body(
+                temperature=llm_configs.DEFAULT.options.temperature,
+                seed=llm_configs.DEFAULT.options.seed,
+            ).get_temperature(), llm_configs.DEFAULT.options.temperature)
 
     def test_ollama_max_completion_tokens(self):
         ollama_config = OllamaLlmConfig(

@@ -6,3 +6,4 @@ class CrewRole(str, Enum):
     ENGINEER = 'Engineer'
     NAVIGATOR = 'Navigator'
     SAILOR = 'Sailor'
+    GUNNER = 'Gunner'

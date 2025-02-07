@@ -4,12 +4,12 @@ from typing_extensions import Type, Union
 from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 from dandy.llm.prompt import Prompt
 
 
 def service_system_intel_prompt(
-        intel_class: Type[Intel],
+        intel_class: Type[BaseIntel],
         prefix_system_prompt: Union[Prompt, None] = None
 ) -> Prompt:
     prompt = Prompt()

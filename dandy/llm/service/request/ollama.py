@@ -1,8 +1,8 @@
-from typing_extensions import List, Union
+from typing_extensions import Union
 
 from pydantic import BaseModel
 
-from dandy.llm.request.request import BaseRequestBody
+from dandy.llm.service.request.request import BaseRequestBody
 
 
 _JSON_FORMAT = 'json'

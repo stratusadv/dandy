@@ -1,6 +1,6 @@
 from typing_extensions import TypeVar
 
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 
 
-IntelType = TypeVar('IntelType', bound=Intel)
+IntelType = TypeVar('IntelType', bound=BaseIntel)

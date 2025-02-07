@@ -1,1 +1,1 @@
-from dandy.intel.intel import Intel
+from dandy.intel.intel import BaseIntel

@@ -1,28 +1,23 @@
-from abc import ABC
-from typing_extensions import Type, Union, Generic
+from abc import ABC, abstractmethod
+from typing_extensions import Type, Generic, Any
 
 from dandy.bot import Bot
 from dandy.bot.exceptions import BotException
 from dandy.future.future import AsyncFuture
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.intel import DefaultLlmIntel
-from dandy.llm.config import BaseLlmConfig
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.service.config import BaseLlmConfig
+from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.llm.prompt import Prompt
 from dandy.llm.conf import llm_configs
 
 
-class LlmBot(Bot, ABC, Generic[IntelType]):
+class BaseLlmBot(Bot, ABC, Generic[IntelType]):
+    config: str = 'DEFAULT'
+    config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt
-    config: BaseLlmConfig = llm_configs.DEFAULT
-    intel_class: Type[Intel] = DefaultLlmIntel
-
-    max_input_tokens: Union[int, None] = None
-    max_output_tokens: Union[int, None] = None
-    randomize_seed: Union[bool, None] = None
-    seed: Union[int, None] = None
-    temperature: Union[float, None] = None
+    intel_class: Type[BaseIntel] = DefaultLlmIntel
 
     def __new__(cls):
         if cls.config is None:
@@ -33,33 +28,14 @@ class LlmBot(Bot, ABC, Generic[IntelType]):
         return super().__new__(cls)
 
     @classmethod
-    def process(
-            cls,
-            prompt: Prompt,
-            intel_class: Type[IntelType] = DefaultLlmIntel,
-            **kwargs
-    ) -> IntelType:
-
-        return cls.process_prompt_to_intel(
-            prompt,
-            intel_class or cls.intel_class
-        )
-
-    @classmethod
     def process_prompt_to_intel(
             cls,
             prompt: Prompt,
             intel_class: Type[IntelType],
     ) -> IntelType:
 
-        return cls.config.generate_service(
-            llm_options=LlmConfigOptions(
-                seed=cls.seed,
-                randomize_seed=cls.randomize_seed,
-                temperature=cls.temperature,
-                max_input_tokens=cls.max_input_tokens,
-                max_output_tokens=cls.max_output_tokens
-            )
+        return llm_configs[cls.config].generate_service(
+            llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt,
             intel_class=intel_class,
@@ -72,3 +48,18 @@ class LlmBot(Bot, ABC, Generic[IntelType]):
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[IntelType]:
         return AsyncFuture[IntelType](cls.process, *args, **kwargs)
+
+
+class LlmBot(BaseLlmBot, Generic[IntelType]):
+    @classmethod
+    def process(
+            cls,
+            prompt: Prompt,
+            intel_class: Type[IntelType] = DefaultLlmIntel,
+    ) -> IntelType:
+
+        return cls.process_prompt_to_intel(
+            prompt,
+            intel_class or cls.intel_class
+        )
+

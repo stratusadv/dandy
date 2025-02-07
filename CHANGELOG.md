@@ -6,17 +6,25 @@
 
 - LlmBots now have a default built in process method that takes in a prompt and returns an intel object.
 - Changed our http handling library to httpx.
+- The contrib choice llm bot has been replaced with the much simpler selector llm bot.
+- The Prompt class init now has a text argument that will create a prompt with a text snippet automatically for simple prompts.
+- New setting "DEFAULT_LLM_REQUEST_TIME_OUT" that controls the timeout for LLM requests default is "None".
 
 ### Changes
 
 - Moved "llm_bot" from "dandy.bot" to "dandy.llm.bot" to match our refactoring changes.
 - Changed the base class from "Handler" to "BaseProcessor"
+- Refactored "Intel" to "BaseIntel" to improve readability.
+- Added "BaseLlmBot" class to "dandy.llm.bot" to be used for creating all llm bots.
+- "BaseLlmBot" config now takes just a string that is one of the "LLM_CONFIGS" in the settings.
 
 ### Fixes
 
 - There is now a "DefaultLlmIntel" class that is used as the default intel class for LlmBots that has one attribute called "text".
 - Fixed a bunch of Generic Type handling through-out the project.
 - Connection retry count of zero no longer causes an error.
+- Refactor llm internal packages to match their usage better.
+- Fixed AsyncFuture to allow you to access the result after accessing it once.
 
 ## v0.8.1
 

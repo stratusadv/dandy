@@ -11,7 +11,7 @@ from random import randint, shuffle
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
 from dandy.llm.exceptions import LlmException
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
@@ -97,7 +97,7 @@ class LineBreakSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class IntelSnippet(BaseSnippet):
-    intel: Intel
+    intel: BaseIntel
 
     def _to_str(self) -> str:
         return self.intel.model_dump_json(indent=4) + '\n'
@@ -105,7 +105,7 @@ class IntelSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class IntelSchemaSnippet(BaseSnippet):
-    intel_class: Type[Intel]
+    intel_class: Type[BaseIntel]
 
     def _to_str(self) -> str:
         return str(json.dumps(self.intel_class.model_json_schema(), indent=4)) + '\n'

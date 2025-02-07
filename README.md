@@ -143,50 +143,53 @@ LLM_CONFIGS = {
 
 from typing_extensions import List
 
-from dandy.intel import Intel
-from dandy.bot import LlmBot
-from dandy.llm import Prompt
-from dandy.llm.conf import llm_configs
+from dandy.intel import BaseIntel
+from dandy.llm import Prompt, BaseLlmBot, LlmConfigOptions
 
 
-class CookieRecipeIngredientIntel(Intel):
+class CookieRecipeIngredientIntel(BaseIntel):
     name: str
     unit_type: str
     quantity: float
 
-    
-class CookieRecipeIntel(Intel):
+
+class CookieRecipeIntel(BaseIntel):
     name: str
     description: str
     ingredients: List[CookieRecipeIngredientIntel]
     instructions: str
 
-    
-class CookieRecipeLlmBot(LlmBot):
-    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used
-    
-    config = llm_configs.OPENAI_GPT_3_5_TURBO
 
-    # You can also override settings per bot.
-    
-    seed = 25
-    max_output_tokens = 1000
-    
-    # This is the instructions used by the system message when the llm is prompted
-    
-    instructions_prompt = (
-      Prompt()
-      .title('You are a cookie recipe bot.')
-      .text('Your job is to follow the instructions provided below.')
-      .unordered_random_list([
-        'Create a cookie based on the users input',
-        'Make sure the instructions are easy to follow',
-        'Names of recipe should be as short as possible',
-      ])
+class CookieRecipeLlmBot(BaseLlmBot):
+    # If you do not set a config, the "DEFAULT" config from your "dandy_settings.py" will be used
+
+    config = 'OPENAI_GPT_3_5_TURBO'
+
+    # You can also override llm config options per bot.
+
+    config_options = LlmConfigOptions(
+        temperature=0.7,
+        seed=77,
+        randomize_seed=True,
+        max_input_tokens=8000,
+        max_output_tokens=4000,
     )
-    
+
+    # This is the instructions used by the system message when the llm is prompted
+
+    instructions_prompt = (
+        Prompt()
+        .title('You are a cookie recipe bot.')
+        .text('Your job is to follow the instructions provided below.')
+        .unordered_random_list([
+            'Create a cookie based on the users input',
+            'Make sure the instructions are easy to follow',
+            'Names of recipe should be as short as possible',
+        ])
+    )
+
     # the process function is required for all dandy handlers (bots and workflows) for debug and exception handling
-    
+
     @classmethod
     def process(cls, prompt: Prompt) -> CookieRecipeIntel:
         return cls.process_prompt_to_intel(
@@ -195,7 +198,6 @@ class CookieRecipeLlmBot(LlmBot):
         )
 
 
-    
 cookie_recipe_intel = CookieRecipeLlmBot.process(
     prompt=Prompt().text('I love broccoli and oatmeal!'),
 )

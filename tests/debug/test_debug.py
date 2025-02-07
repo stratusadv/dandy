@@ -1,7 +1,9 @@
 from unittest import TestCase
+
 from dandy.debug.debug import DebugRecorder
-from example.pirate.world.intelligence.bots.ocean_selection_llm_bot import OceanSelectionLlmBot
-from example.pirate.world.datasets import OCEANS
+from dandy.contrib.llm.bots.selector_llm_bot import SelectorLlmBot
+from dandy.llm import Prompt
+
 
 class TestDebug(TestCase):
     def test_debug_recorder(self):
@@ -9,7 +11,7 @@ class TestDebug(TestCase):
 
         DebugRecorder.start_recording(DEBUG_RECORDING_NAME)
 
-        _ = OceanSelectionLlmBot.process('Select the Ocean with the biggest islands', OCEANS)
+        _ = SelectorLlmBot.process(Prompt('I would like a good letter'), ['a', 'b', 'r'])
 
         DebugRecorder.stop_recording(DEBUG_RECORDING_NAME)
 
@@ -28,7 +30,7 @@ class TestDebug(TestCase):
 
         DebugRecorder.start_recording(DEBUG_RECORDING_NAME)
 
-        _ = OceanSelectionLlmBot.process('Select the Ocean with the biggest islands', OCEANS)
+        _ = SelectorLlmBot.process(Prompt('I would like a good letter'), ['a', 'b', 'r'])
 
         DebugRecorder.stop_recording(DEBUG_RECORDING_NAME)
 

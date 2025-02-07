@@ -4,9 +4,9 @@ from base64 import b64encode
 from typing_extensions import List, Union
 
 from dandy.core.url import Url
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.llm.exceptions import LlmException
-from dandy.llm.request.request import BaseRequestBody
+from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.service import LlmService
 
 

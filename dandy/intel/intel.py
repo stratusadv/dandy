@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Intel(BaseModel):
+class BaseIntel(BaseModel):
     pass
 
 

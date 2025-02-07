@@ -21,9 +21,9 @@ from dandy.llm.service.prompts import service_system_validation_error_prompt, se
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
-    from dandy.llm.config import BaseLlmConfig
-    from dandy.llm.request.request import BaseRequestBody
-    from dandy.llm.config.options import LlmConfigOptions
+    from dandy.llm.service.config import BaseLlmConfig
+    from dandy.llm.service.request.request import BaseRequestBody
+    from dandy.llm.service.config import LlmConfigOptions
 
 
 class LlmService:

@@ -4,11 +4,11 @@ from typing_extensions import Union
 
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
     generate_llm_bot_user_prompt
-from dandy.intel import Intel
-from dandy.llm.config import BaseLlmConfig
+from dandy.intel import BaseIntel
+from dandy.llm.service.config import BaseLlmConfig
 
 
-class LlmBotSourceIntel(Intel):
+class LlmBotSourceIntel(BaseIntel):
     file_name: str
     source: str
 

@@ -2,7 +2,7 @@ import pathlib
 
 from unittest import TestCase
 
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 from dandy.llm import Prompt
 
 class TestPrompt(TestCase):
@@ -15,7 +15,7 @@ class TestPrompt(TestCase):
         self.assertEqual(new_prompt.to_str(), 'Hello World\n')
 
     def test_prompt_snippets(self):
-        class PersonIntel(Intel):
+        class PersonIntel(BaseIntel):
             name: str
             age: int
 

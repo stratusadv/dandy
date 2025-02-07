@@ -1,22 +1,10 @@
-from dandy.llm.bot import LlmBot
-from dandy.contrib.llm.bots import SingleChoiceLlmBot
+from dandy.llm.bot import BaseLlmBot
 from dandy.llm.prompt import Prompt
-from example.pirate.intelligence.configs import OLLAMA_LLAMA_3_1_8B
-from example.pirate.monster.intelligence.intel import SeaMonsterNameStructureIntel, SeaMonsterIntel
+from example.pirate.monster.intelligence.intel import SeaMonsterNameIntel, SeaMonsterIntel
 
 
-class MonsterSelectionLlmBot(SingleChoiceLlmBot):
-    role_prompt = Prompt().text('You are an monster selection bot.')
-    config = OLLAMA_LLAMA_3_1_8B
-    temperature = 0.0
-
-
-
-class MonsterNamingLlmBot(LlmBot):
-    temperature = 0.7
-    config = OLLAMA_LLAMA_3_1_8B
-
-    role_prompt = Prompt().text('You are an monster selection bot.')
+class MonsterNamingLlmBot(BaseLlmBot):
+    config = 'LLAMA_3_1_8B'
 
     instructions_prompt = (
         Prompt()
@@ -32,9 +20,11 @@ class MonsterNamingLlmBot(LlmBot):
             .text('Your job is to name the following monster.')
         )
 
-        return super().process_prompt_to_intel(
-            prompt=Prompt()
-            .text(f'The user has provided the following monster:')
-            .intel(monster, triple_quote=True),
-            intel_class=SeaMonsterNameStructureIntel
+        return cls.process_prompt_to_intel(
+            prompt=(
+                Prompt()
+                .text(f'The user has provided the following monster:')
+                .intel(monster, triple_quote=True)
+            ),
+            intel_class=SeaMonsterNameIntel
         ).name

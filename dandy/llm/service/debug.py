@@ -2,8 +2,8 @@ from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
-from dandy.intel import Intel
-from dandy.llm.request.request import BaseRequestBody
+from dandy.intel import BaseIntel
+from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
     LlmServiceFailureEvent, LlmServiceRetryEvent
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
@@ -42,7 +42,7 @@ def debug_record_llm_response(message_content: str, event_id: str):
             id=event_id
         ))
 
-def debug_record_llm_success(description: str, event_id: str, intel: Intel = None):
+def debug_record_llm_success(description: str, event_id: str, intel: BaseIntel = None):
     if DebugRecorder.is_recording:
         intel_json = None
 

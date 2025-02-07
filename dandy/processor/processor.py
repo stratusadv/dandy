@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from typing_extensions import Any
 
@@ -6,7 +6,7 @@ from dandy.future.future import AsyncFuture
 from dandy.processor.abc_meta import ProcessorABCMeta
 
 
-class BaseProcessor(metaclass=ProcessorABCMeta):
+class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
     @classmethod
     @abstractmethod
     def process(cls, *args, **kwargs) -> Any:

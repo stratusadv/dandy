@@ -3,7 +3,7 @@ from typing_extensions import Union
 
 from typing_extensions import List, Type, Self, Dict
 
-from dandy.intel import Intel
+from dandy.intel import BaseIntel
 from dandy.llm.prompt import snippet
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
@@ -11,9 +11,14 @@ from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 class Prompt:
     def __init__(
             self,
-            tag: str = None
+            text: Union[str, None] = None,
+            tag: Union[str, None] = None,
     ):
         self.snippets: List[snippet.BaseSnippet] = []
+        
+        if isinstance(text, str):
+            self.text(text=text)
+        
         self.tag = tag
 
     def __str__(self) -> str:
@@ -110,7 +115,7 @@ class Prompt:
 
     def intel(
             self,
-            intel: Intel,
+            intel: BaseIntel,
             triple_quote: bool = False
     ) -> Self:
 
@@ -125,7 +130,7 @@ class Prompt:
 
     def intel_schema(
             self,
-            intel_class: Type[Intel],
+            intel_class: Type[BaseIntel],
             triple_quote: bool = False
     ) -> Self:
 

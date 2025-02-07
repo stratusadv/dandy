@@ -6,11 +6,11 @@ from typing_extensions import Union
 
 from dandy.cli.llm.evaluate.intelligence.prompts.prompt_evaluation_prompts import evaluate_prompt_system_prompt, \
     evaluate_prompt_user_prompt
-from dandy.intel import Intel
-from dandy.llm.config import BaseLlmConfig
+from dandy.intel import BaseIntel
+from dandy.llm.service.config import BaseLlmConfig
 
 
-class EvaluatedSourceIntel(Intel):
+class EvaluatedSourceIntel(BaseIntel):
     file_name: str
     source: str
     source_changed: bool

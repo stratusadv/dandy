@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import traceback
 from typing_extensions import TYPE_CHECKING, Type, Union
 
 from dandy.intel.type_vars import IntelType
@@ -8,13 +7,6 @@ from dandy.llm.service.prompts import service_system_intel_prompt, service_user_
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
-
-
-def exception_to_str_nicely(ex: Exception) -> str:
-    return '\n'.join([
-        ''.join(traceback.format_exception_only(None, ex)).strip(),
-        ''.join(traceback.format_exception(None, ex, ex.__traceback__)).strip()
-    ])
 
 
 def get_estimated_token_count_for_prompt(

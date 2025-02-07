@@ -1,4 +1,4 @@
-from dandy.llm.config import BaseLlmConfig
+from dandy.llm.service.config import BaseLlmConfig
 
 
 def assistant(

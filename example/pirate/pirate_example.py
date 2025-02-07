@@ -6,9 +6,9 @@ if __name__ == '__main__':
     DebugRecorder.start_recording('pirate_example')
 
     try:
-        print(PirateStoryWorkflow.process('N/A'))
+        # print(PirateStoryWorkflow.process('N/A'))
 
-        # print(PirateStoryWithFuturesWorkflow.process('N/A'))
+        print(PirateStoryWithFuturesWorkflow.process('N/A'))
 
     except:
         import traceback
