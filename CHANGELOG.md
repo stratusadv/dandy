@@ -25,6 +25,7 @@
 - Connection retry count of zero no longer causes an error.
 - Refactor llm internal packages to match their usage better.
 - Fixed AsyncFuture to allow you to access the result after accessing it once.
+- Fixed CLI to properly load environment variables and settings in the correct order.
 
 ## v0.8.1
 

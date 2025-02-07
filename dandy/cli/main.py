@@ -11,8 +11,9 @@ sys.path.append(str(CWD_PATH))
 def main():
     from dandy.cli.utils import check_or_create_settings, load_environment_variables
 
-    check_or_create_settings(CWD_PATH)
     load_environment_variables(CWD_PATH)
+    
+    check_or_create_settings(CWD_PATH)
 
     from dandy.utils import enum_to_list
     from dandy.llm.conf import llm_configs

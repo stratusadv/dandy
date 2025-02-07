@@ -32,19 +32,9 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 dandy = "dandy.cli.main:main"
 
-[tool.setuptools]
-include-package-data = true
-
 [tool.setuptools.package-data]
 dandy = [
     "**/*.html",
-]
-
-[tool.setuptools.packages.find]
-exclude = [
-    "docs",
-    "example",
-    "tests",
 ]
 
 [tool.setuptools.dynamic]
