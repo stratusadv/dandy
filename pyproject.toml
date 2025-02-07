@@ -1,7 +1,52 @@
+[project]
+name = "dandy"
+description = "Intelligence Bot Framework"
+readme = { file = "README.md", content-type = "text/x-rst" }
+license = { file = "LICENSE.md" }
+authors = [
+    { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
+]
+keywords = ["dandy", "ai", "llm", "agent", "prompt", "gpt", "bot", "workflow", "automation", "artificial intelligence"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: JavaScript",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dynamic = ["version", "dependencies"]
+
 [build-system]
 requires = [
     "setuptools",
-    "wheel",
-    "pydantic"
+    "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project.scripts]
+dandy = "dandy.cli.main:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+dandy = [
+    "**/*.html",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "docs",
+    "example",
+    "tests",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "dandy.consts.VERSION" }
+dependencies = { file = "requirements.txt" }

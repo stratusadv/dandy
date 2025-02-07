@@ -3,7 +3,7 @@ import os
 from enum import Enum
 from typing_extensions import List, Type
 
-from dandy.const import DEFAULT_SETTINGS_MODULE
+from dandy.consts import DEFAULT_SETTINGS_MODULE
 
 
 def pascal_to_title_case(pascal_case_string: str) -> str:

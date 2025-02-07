@@ -20,7 +20,7 @@ def main():
     from dandy.cli.llm.assistant.assistant import assistant
     from dandy.conf import settings
     from dandy.cli.llm.evaluate.evaluate import EvaluateChoices, evaluate
-    from dandy.const import CLI_OUTPUT_DIRECTORY
+    from dandy.consts import CLI_OUTPUT_DIRECTORY
 
     CLI_OUTPUT_PATH = Path(settings.BASE_PATH, CLI_OUTPUT_DIRECTORY)
 

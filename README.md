@@ -1,7 +1,4 @@
-<p align="center">
-  <img src="./docs/images/dandy_logo_512.png" alt="Dandy AI Framework">
-</p>
-
+# Dandy
 
 Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.

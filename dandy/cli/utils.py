@@ -3,7 +3,7 @@ from pathlib import Path
 
 import dotenv
 
-from dandy.const import CLI_DEFAULT_ENV_FILE_NAMES, DEFAULT_SETTINGS_FILE_NAME
+from dandy.consts import CLI_DEFAULT_ENV_FILE_NAMES, DEFAULT_SETTINGS_FILE_NAME
 from dandy.utils import get_settings_module_name
 
 
