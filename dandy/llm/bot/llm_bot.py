@@ -1,16 +1,16 @@
-from abc import ABC, abstractmethod
-from typing_extensions import Type, Generic, Any
+from abc import ABC
+
+from typing_extensions import Type, Generic
 
 from dandy.bot import Bot
 from dandy.bot.exceptions import BotException
 from dandy.future.future import AsyncFuture
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
-from dandy.llm.intel import DefaultLlmIntel
-from dandy.llm.service.config import BaseLlmConfig
-from dandy.llm.service.config.options import LlmConfigOptions
-from dandy.llm.prompt import Prompt
 from dandy.llm.conf import llm_configs
+from dandy.llm.intel import DefaultLlmIntel
+from dandy.llm.prompt import Prompt
+from dandy.llm.service.config.options import LlmConfigOptions
 
 
 class BaseLlmBot(Bot, ABC, Generic[IntelType]):
@@ -51,6 +51,8 @@ class BaseLlmBot(Bot, ABC, Generic[IntelType]):
 
 
 class LlmBot(BaseLlmBot, Generic[IntelType]):
+    instructions_prompt: Prompt = Prompt("You're a helpful assistant.")
+
     @classmethod
     def process(
             cls,
