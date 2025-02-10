@@ -1,11 +1,16 @@
 # Changelog
 
+## v0.9.2
+
+### Fixes
+
+- Update requirements.txt
+
 ## v0.9.1
 
 ### Fixes
 
 - Added default instructions prompt to the "LlmBot" class.
-
 
 ## v0.9.0
 
