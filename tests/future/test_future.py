@@ -31,7 +31,7 @@ class TestFuture(TestCase):
 
     def test_llmbot_future(self):
         crew_future = CrewGenerationLlmBot.process_to_future(
-            'The crew should be a fun bunch of merry pirates that hold a dark secret about their past',
+            'A fun bunch of merry pirates that hold a dark secret about their past',
         )
 
         self.assertTrue(len(crew_future.result.members) >= 3)

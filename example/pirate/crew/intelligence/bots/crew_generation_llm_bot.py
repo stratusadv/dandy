@@ -4,7 +4,6 @@ from example.pirate.crew.intelligence.intel import CrewIntel
 
 
 class CrewGenerationLlmBot(BaseLlmBot):
-    config = 'LLAMA_3_1_8B'
     instructions_prompt = (
         Prompt()
         .text('You are a pirate crew generation bot.')
