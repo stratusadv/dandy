@@ -2,7 +2,7 @@ from abc import ABC
 
 from typing_extensions import Type, Generic
 
-from dandy.bot import Bot
+from dandy.bot import BaseBot
 from dandy.bot.exceptions import BotException
 from dandy.future.future import AsyncFuture
 from dandy.intel import BaseIntel
@@ -13,7 +13,7 @@ from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
 
 
-class BaseLlmBot(Bot, ABC, Generic[IntelType]):
+class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt

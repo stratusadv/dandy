@@ -1,1 +1,1 @@
-from dandy.bot.bot import Bot
+from dandy.bot.bot import BaseBot

@@ -1,7 +1,7 @@
 from dandy.contrib.llm.bots.selector_llm_bot import SelectorLlmBot
 from dandy.llm import Prompt
 from dandy.llm.conf import llm_configs
-from dandy.workflow import Workflow
+from dandy.workflow import BaseWorkflow
 from example.pirate.intelligence.prompts import pirate_story_prompt
 from example.pirate.monster.intelligence.workflow.monster_generation_workflow import SeaMonsterWorkflow
 from example.pirate.world.datasets import OCEANS
@@ -9,7 +9,7 @@ from example.pirate.ship.datasets import PIRATE_SHIPS
 from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGenerationLlmBot
 
 
-class PirateStoryWorkflow(Workflow):
+class PirateStoryWorkflow(BaseWorkflow):
     @classmethod
     def process(cls, user_input: str) -> str:
         ocean_selection = SelectorLlmBot.process(
@@ -49,7 +49,7 @@ class PirateStoryWorkflow(Workflow):
         )
 
 
-class PirateStoryWithFuturesWorkflow(Workflow):
+class PirateStoryWithFuturesWorkflow(BaseWorkflow):
     @classmethod
     def process(cls, user_input: str) -> str:
         ocean_selection_future = SelectorLlmBot.process_to_future(

@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.10.0
+
+### Features
+
+### Changes
+
+- Renamed "Bot" to "BaseBot"
+- Renamed "Workflow" to "BaseWorkflow"
+
+### Fixes
+
+
 ## v0.9.2
 
 ### Fixes

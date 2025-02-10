@@ -1,1 +1,1 @@
-from dandy.workflow.workflow import Workflow
+from dandy.workflow.workflow import BaseWorkflow

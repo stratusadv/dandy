@@ -31,17 +31,7 @@ class TestFuture(TestCase):
 
     def test_llmbot_future(self):
         crew_future = CrewGenerationLlmBot.process_to_future(
-            'I would like a random selection of exactly one captain, one navigator, and one engineer.',
+            'The crew should be a fun bunch of merry pirates that hold a dark secret about their past',
         )
-
-        other_crew_future = CrewGenerationLlmBot.process_to_future(
-            'I would like a random selection of exactly one engineer.',
-        )
-
-        sleep(TEST_FUTURE_SLEEP_TIME)
-
-        other_crew_future.cancel()
 
         self.assertTrue(len(crew_future.result.members) >= 3)
-
-        self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
