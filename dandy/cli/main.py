@@ -3,7 +3,6 @@ import argparse
 from pathlib import Path
 import sys
 
-
 CWD_PATH = Path.cwd()
 
 sys.path.append(str(CWD_PATH))
@@ -12,7 +11,7 @@ def main():
     from dandy.cli.utils import check_or_create_settings, load_environment_variables
 
     load_environment_variables(CWD_PATH)
-    
+
     check_or_create_settings(CWD_PATH)
 
     from dandy.utils import enum_to_list
@@ -21,7 +20,7 @@ def main():
     from dandy.cli.llm.assistant.assistant import assistant
     from dandy.conf import settings
     from dandy.cli.llm.evaluate.evaluate import EvaluateChoices, evaluate
-    from dandy.consts import CLI_OUTPUT_DIRECTORY
+    from dandy.consts import CLI_OUTPUT_DIRECTORY, VERSION
 
     CLI_OUTPUT_PATH = Path(settings.BASE_PATH, CLI_OUTPUT_DIRECTORY)
 
@@ -60,6 +59,12 @@ def main():
         '-p', '--prompt',
         type=str,
         help='The string prompt to be used with the generate cli command.',
+    )
+
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'%(prog)s {VERSION}',
     )
 
     args = parser.parse_args()
