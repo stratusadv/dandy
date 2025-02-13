@@ -8,4 +8,16 @@ repo_url: https://github.com/stratusadv/dandy/
 
 nav:
   - Home: index.md
+  - API Reference:
+      - BaseProcessor: api/processor.md
+  - Example: example.md
   - About: about.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            docstring_style: sphinx
