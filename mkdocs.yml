@@ -3,6 +3,8 @@ site_url: https://dandysoftware.com
 
 theme:
   name: material
+  features:
+    - navigation.tabs
 
 repo_url: https://github.com/stratusadv/dandy/
 
