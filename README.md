@@ -13,7 +13,7 @@ Our approach is to focus on batteries included with strong tooling to help build
 
 ### Pydantic is Everyones Friend
 
-We have a class called "Intel" that is the pydantic "BaseModel" class renamed to give more separation of concerns between dandy code and your code.
+We have a class called "BaseIntel" that is the pydantic "BaseModel" class renamed to give more separation of concerns between dandy code and your code.
 
 This project critically relies on the use of pydantic to handle the flow and validation of data with your artificial intelligence systems. 
 Make sure you have a good foundation on the use of pydantic before continuing.
@@ -108,10 +108,8 @@ LLM_CONFIGS = {
         'MODEL': 'llama3.1:8b-instruct-q4_K_M',
     },
     'OLLAMA_LLAMA_3_2_3B_SMALL': {
-        'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
+        # the default "TYPE", "HOST", "PORT" AND "API_KEY" from the "DEFAULT" config will flow to this config
+        
         'MODEL': 'llama3.2:3b-instruct-q4_K_M',
         
         # You can override any of the default settings for each LLM config
@@ -202,9 +200,9 @@ cookie_recipe_intel = CookieRecipeLlmBot.process(
 print(cookie_recipe_intel.model_dump_json(indent=4))
 ```
 
-```json
-// Output (We cannot validate the quality of this recipe, you're more then welcome to try it!)
+### Output
 
+```json
 {
   "name": "Broccoli Oatmeal Cookies",
   "description": "A delicious cookie recipe featuring the flavors of broccoli and oatmeal.",

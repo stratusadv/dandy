@@ -8,11 +8,20 @@ _LLM_CONFIG_MAP = {
     'ollama': OllamaLlmConfig,
 }
 
+_DEFAULT_KEY_LIST = [
+    'TYPE',
+    'HOST',
+    'PORT',
+    'API_KEY',
+]
 
 class LlmConfigs:
     def __init__(self):
         if not isinstance(settings.LLM_CONFIGS, dict) or not settings.LLM_CONFIGS:
             raise DandyException(f'Your "LLM_CONFIGS" in your "{get_settings_module_name()}" module is configured incorrectly.')
+
+        if 'DEFAULT' not in settings.LLM_CONFIGS:
+            raise DandyException(f'You need a "DEFAULT" in your "LLM_CONFIGS" in your "{get_settings_module_name()}" module.')
 
         for llm_config_name, kwargs in settings.LLM_CONFIGS.items():
             if (not isinstance(llm_config_name, str) and
@@ -24,6 +33,9 @@ class LlmConfigs:
 
             if kwargs['TYPE'] not in _LLM_CONFIG_MAP:
                 raise DandyException(f'TYPE "{kwargs["TYPE"]}" in "{llm_config_name}" is not a valid, choices are: {_LLM_CONFIG_MAP.keys()}.')
+
+            for key in _DEFAULT_KEY_LIST:
+                kwargs[key] = kwargs[key] if kwargs.get(key) else settings.LLM_CONFIGS['DEFAULT'][key]
 
             setattr(
                 self,

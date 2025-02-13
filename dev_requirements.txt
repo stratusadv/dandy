@@ -2,3 +2,5 @@ build
 twine
 setuptools
 wheel
+mkdocs
+mkdocs-material
