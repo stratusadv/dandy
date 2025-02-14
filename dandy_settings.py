@@ -30,26 +30,14 @@ LLM_CONFIGS = {
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'LLAMA_3_1_8B': {
-        'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'llama3.1:8b-instruct-q4_K_M',
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'PHI_4_14B': {
-        'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'phi4:14b-q4_K_M',
     },
     'DEEPSEEK_R1_14B': {
-        'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'deepseek-r1:14b',
     },
 }

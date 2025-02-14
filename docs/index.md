@@ -1,4 +1,4 @@
-# Dandy
+# Intelligent Development Made Easier...
 
 Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.

@@ -4,6 +4,8 @@
 
 ### Features
 
+- In the "LLM_CONFIGS" in your settings the "TYPE", "HOST", "PORT" AND "API_KEY" from the "DEFAULT" config will now flow to the other configs if they are not specificed.
+
 ### Changes
 
 - Renamed "Bot" to "BaseBot"
