@@ -3,22 +3,34 @@ site_url: https://dandysoftware.com
 
 theme:
   name: material
+  custom_dir: 'docs/theme'
+  palette:
+  - media: "(prefers-color-scheme)"
+    scheme: default
+    primary: orange
+    accent: orange
   features:
     - navigation.tabs
 
-repo_url: https://github.com/stratusadv/dandy/
+repo_name: stratusadv/dandy
+repo_url: https://github.com/stratusadv/dandy
 
 nav:
-  - Home: index.md
   - Getting Started:
+      - Welcome: index.md
       - Installation: getting_started/installation.md
   - Examples:
       - Cookie Recipe: examples/cookie_receipe.md
   - API Reference:
       - BaseProcessor: api/processor.md
+  - Exceptions:
+      - Handling: exceptions/exception_handling.md
   - About:
       - Contributors: about/contributors.md
-      - Changelog: about/changelog.md
+  - Roadmap:
+      - Current: roadmap/2025_roadmap.md
+      - 2024: roadmap/2024_roadmap.md
+  - Changelog: changelog.md
 
 plugins:
   - search
