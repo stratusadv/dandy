@@ -28,14 +28,15 @@ class LlmConfigs:
                     not isinstance(kwargs, dict)):
                 raise DandyException('the "LLM_CONFIGS" in the settings are configured incorrectly.')
 
+            for key in _DEFAULT_KEY_LIST:
+                kwargs[key] = kwargs[key] if kwargs.get(key) else settings.LLM_CONFIGS['DEFAULT'][key]
+
             if 'TYPE' not in kwargs:
                 raise DandyException(f'All "LLM_CONFIGS" must have a "TYPE", choices are: {_LLM_CONFIG_MAP.keys()}.')
 
             if kwargs['TYPE'] not in _LLM_CONFIG_MAP:
                 raise DandyException(f'TYPE "{kwargs["TYPE"]}" in "{llm_config_name}" is not a valid, choices are: {_LLM_CONFIG_MAP.keys()}.')
 
-            for key in _DEFAULT_KEY_LIST:
-                kwargs[key] = kwargs[key] if kwargs.get(key) else settings.LLM_CONFIGS['DEFAULT'][key]
 
             setattr(
                 self,
