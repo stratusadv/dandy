@@ -39,4 +39,4 @@ dandy = [
 
 [tool.setuptools.dynamic]
 version = { attr = "dandy.consts.VERSION" }
-dependencies = { file = "requirements.txt" }
+dependencies = { file = "base_requirements.txt" }

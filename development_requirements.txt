@@ -1,0 +1,7 @@
+build
+twine
+setuptools
+wheel
+
+-r mkdocs_requirements.txt
+-r base_requirements.txt
