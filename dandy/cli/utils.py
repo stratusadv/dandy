@@ -1,4 +1,6 @@
 import importlib
+import os
+import sys
 from pathlib import Path
 
 import dotenv
@@ -8,19 +10,32 @@ from dandy.utils import get_settings_module_name
 
 
 def check_or_create_settings(cwd_path: Path) -> None:
-    dandy_settings_module_name = get_settings_module_name()
+    settings_module_name = get_settings_module_name()
+
     try:
-        importlib.import_module(dandy_settings_module_name)
+        importlib.import_module(settings_module_name)
         return
     except ImportError:
-        print(f'Could not find "{dandy_settings_module_name}" in your current directory. Creating one for you...')
+        print(f'Could not find "{settings_module_name}" in your project.')
+
+        settings_module_parts = settings_module_name.split('.')
+        new_settings_module_file = f'{settings_module_parts[-1]}.py'
+        new_settings_module_path = Path(cwd_path, *settings_module_parts[:-1])
+        new_settings_module_file_path = Path(new_settings_module_path, new_settings_module_file)
+
+        print(f'Creating "{new_settings_module_file_path}" from the default settings.')
 
         with open(Path(Path(__file__).parent.parent.resolve(), 'default_settings.py'), 'r') as default_settings:
-            with open(Path(cwd_path, DEFAULT_SETTINGS_FILE_NAME), 'w') as user_settings:
+
+            new_settings_module_path.mkdir(parents=True, exist_ok=True)
+
+            with open(new_settings_module_file_path, 'w') as user_settings:
                 user_settings.write(default_settings.read())
 
-        print(f'Created "{dandy_settings_module_name}" in your current directory.')
-        print(f'You need to configure the "BASE_PATH" and "LLM_CONFIGS".')
+        print(f'You need to add "DANDY_SETTINGS_MODULE={settings_module_name}" to your environment variables.')
+        print(f'Setup of "BASE_PATH" and "LLM_CONFIGS" are required in your new settings before proceeding.')
+        
+        sys.exit(0)
 
 def load_environment_variables(cwd_path: Path) -> None:
     for env_file_name in CLI_DEFAULT_ENV_FILE_NAMES:
