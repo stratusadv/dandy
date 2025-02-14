@@ -14,6 +14,7 @@
 
 ### Fixes
 
+- Dandy CLI now properly create default settings based on your environment variables.
 
 ## v0.9.2
 
