@@ -10,10 +10,15 @@ repo_url: https://github.com/stratusadv/dandy/
 
 nav:
   - Home: index.md
+  - Getting Started:
+      - Installation: getting_started/installation.md
+  - Examples:
+      - Cookie Recipe: examples/cookie_receipe.md
   - API Reference:
       - BaseProcessor: api/processor.md
-  - Example: example.md
-  - About: about.md
+  - About:
+      - Contributors: about/contributors.md
+      - Changelog: about/changelog.md
 
 plugins:
   - search
