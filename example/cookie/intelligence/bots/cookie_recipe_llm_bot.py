@@ -1,20 +1,5 @@
-from typing_extensions import List
-
-from dandy.intel import BaseIntel
 from dandy.llm import Prompt, BaseLlmBot
-
-
-class CookieRecipeIngredientIntel(BaseIntel):
-    name: str
-    unit_type: str
-    quantity: float
-
-
-class CookieRecipeIntel(BaseIntel):
-    name: str
-    description: str
-    ingredients: List[CookieRecipeIngredientIntel]
-    instructions: str
+from example.cookie.intelligence.intel.cookie_recipe_intel import CookieRecipeIntel
 
 
 class CookieRecipeLlmBot(BaseLlmBot):

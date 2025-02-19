@@ -29,3 +29,6 @@
 
 - Prototype ✅
 
+## Legend
+
+{% include "roadmap/roadmap_legend.md" %}

@@ -4,7 +4,6 @@ from dandy.llm import Prompt
 from example.cookie.intelligence.bots.cookie_recipe_llm_bot import CookieRecipeLlmBot
 
 
-
 if __name__ == '__main__':
     DebugRecorder.start_recording('cookie_example')
 

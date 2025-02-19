@@ -6,8 +6,9 @@
 
 ## March
 
-- Text to Speech 📖
-- Speech to Text 📖
+- Text to Speech
+- Speech to Text
+- JSON Schema (Ollama & OpenAI) 📖
 
 ## February
 
@@ -19,3 +20,7 @@
 - Dandy Settings ✅
 - Intel Structure ✅
 - Project Structure ✅
+
+## Legend
+
+{% include "roadmap/roadmap_legend.md" %}
