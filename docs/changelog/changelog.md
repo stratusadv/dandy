@@ -2,6 +2,11 @@
 
 ## v0.10.0 - Coming Soon
 
+### Documentation
+
+- We have a working documentation website that can be viewed at https://dandysoftware.com
+- Our new website is powered by mkdocs, mkdocstrings, mkdocs-include-markdown-plugin and mkdocs-material.
+
 ### Features
 
 - In the "LLM_CONFIGS" in your settings the "TYPE", "HOST", "PORT" AND "API_KEY" from the "DEFAULT" config will now flow to the other configs if they are not specificed.
