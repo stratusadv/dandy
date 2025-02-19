@@ -1,9 +1,13 @@
-# Contibutors
+# Contributors
 
-### Austin Sauer
+## Active Developers
 
-### Nathan Johnson
+- Nathan Johnson
 
-### Wesley Howery
+## Contributing Developers
 
-### Brayden Carlson
+- Austin Sauer
+- Wesley Howery
+- Brayden Carlson
+- Ralph Malvin Uy
+

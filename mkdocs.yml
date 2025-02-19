@@ -1,42 +1,81 @@
 site_name: Dandy Intelligence Framework
 site_url: https://dandysoftware.com
 
-theme:
-  name: material
-  custom_dir: 'docs/theme'
-  palette:
-  - media: "(prefers-color-scheme)"
-    scheme: default
-    primary: orange
-    accent: orange
-  features:
-    - navigation.tabs
-
 repo_name: stratusadv/dandy
 repo_url: https://github.com/stratusadv/dandy
+
+copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
+
+extra_css:
+  - static/css/extra.css
+
+extra_javascript:
+  - static/js/extra.js
+
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.snippets
 
 nav:
   - Getting Started:
       - Welcome: index.md
       - Installation: getting_started/installation.md
+      - Configuration: getting_started/configuration.md
+      - Project Structure: getting_started/project_structure.md
   - Examples:
       - Cookie Recipe: examples/cookie_receipe.md
   - API Reference:
-      - BaseProcessor: api/processor.md
+      - Processor: api/processor.md
   - Exceptions:
-      - Handling: exceptions/exception_handling.md
+      - Exception Handling: exceptions/exception_handling.md
+  - Roadmap:
+      - 2025: roadmap/2025_roadmap.md
+      - 2024: roadmap/2024_roadmap.md
+      - Legend: roadmap/roadmap_legend.md
+  - Changelog:
+      - Current: changelog/changelog.md
+      - Archived: changelog/archived_changelog.md
   - About:
       - Contributors: about/contributors.md
-  - Roadmap:
-      - Current: roadmap/2025_roadmap.md
-      - 2024: roadmap/2024_roadmap.md
-  - Changelog: changelog.md
+      - Branding: about/branding.md
 
 plugins:
   - search
+  - include-markdown
   - mkdocstrings:
       handlers:
         python:
           options:
-            show_source: false
+            show_source: true
             docstring_style: sphinx
+            show_root_full_path: false
+            show_root_heading: true
+
+theme:
+  name: material
+  custom_dir: docs/templates
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    toggle:
+      icon: material/lightbulb
+      name: "Switch to dark mode"
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    toggle:
+      icon: material/lightbulb-outline
+      name: "Switch to system preference"
+  features:
+    - toc.follow
+    - navigation.tabs
+    - navigation.footer
+  logo: 'static/img/dandy_icon_white_256.png'
+  favicon: 'favicon.png'
+
