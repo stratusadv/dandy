@@ -5,12 +5,23 @@ theme:
   name: material
   custom_dir: 'docs/theme'
   palette:
-  - media: "(prefers-color-scheme)"
+  - media: "(prefers-color-scheme: light)"
     scheme: default
-    primary: orange
-    accent: orange
+    toggle:
+      icon: material/lightbulb
+      name: "Switch to dark mode"
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    toggle:
+      icon: material/lightbulb-outline
+      name: "Switch to system preference"
   features:
     - navigation.tabs
+  logo: 'images/dandy_icon_white_256.png'
+  favicon: 'favicon.png'
+
+extra_css:
+  - stylesheets/extra.css
 
 repo_name: stratusadv/dandy
 repo_url: https://github.com/stratusadv/dandy
@@ -25,15 +36,20 @@ nav:
       - BaseProcessor: api/processor.md
   - Exceptions:
       - Handling: exceptions/exception_handling.md
+  - Roadmap:
+      - 2025: roadmap/2025_roadmap.md
+      - 2024: roadmap/2024_roadmap.md
+      - Legend: roadmap/roadmap_legend.md
+  - Changelog:
+      - Current: changelog/changelog.md
+      - Archived: changelog/archived_changelog.md
   - About:
       - Contributors: about/contributors.md
-  - Roadmap:
-      - Current: roadmap/2025_roadmap.md
-      - 2024: roadmap/2024_roadmap.md
-  - Changelog: changelog.md
+      - Branding: about/branding.md
 
 plugins:
   - search
+  - include-markdown
   - mkdocstrings:
       handlers:
         python:

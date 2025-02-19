@@ -1,0 +1,4 @@
+- 📖 = Planning
+- 🚧 = In Progress
+- ✅ = Complete
+- 🚫 = Problem
