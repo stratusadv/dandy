@@ -35,5 +35,5 @@ You can also copy the default settings file from Github at [`https://github.com/
 After configuring your settings, your file should look something like this.
 
 ```py title="dandy_settings.py"
---8<-- "dandy_settings.py"
+--8<-- "tests/dandy_settings.py"
 ```

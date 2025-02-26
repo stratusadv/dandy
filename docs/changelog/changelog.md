@@ -24,6 +24,7 @@
 ### Fixes
 
 - Dandy CLI now properly create default settings based on your environment variables.
+- Fixed the way the settings are handled so they properly show error messages for missing settings.
 
 ## v0.9.2
 

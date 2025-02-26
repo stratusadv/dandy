@@ -1,4 +1,3 @@
-import os
 import importlib
 
 from dandy.core.exceptions import DandyException
@@ -19,7 +18,7 @@ class DandySettings:
                 raise DandyException(f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.')
         else:
             try:
-                import dandy_settings as user_settings
+                from tests import dandy_settings as user_settings
                 self._user_settings = user_settings
             except ImportError:
                 raise DandyException(f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project root directory or python path directory.')
