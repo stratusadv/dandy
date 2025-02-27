@@ -8,6 +8,7 @@
 
 - Text to Speech
 - Speech to Text
+- Correction Prompts
 - JSON Schema (Ollama & OpenAI) 📖
 
 ## February
