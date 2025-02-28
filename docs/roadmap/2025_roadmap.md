@@ -9,11 +9,11 @@
 - Text to Speech
 - Speech to Text
 - Correction Prompts
-- JSON Schema (Ollama & OpenAI) 📖
+- Documentation 🚧 
 
 ## February
 
-- Documentation 🚧 
+- JSON Schema (Ollama & OpenAI) ✅
 - LLM Bot Upgrade ✅
 
 ## January

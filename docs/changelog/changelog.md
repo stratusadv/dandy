@@ -4,18 +4,22 @@
 
 ### Documentation
 
-- We have a working documentation website that can be viewed at https://dandysoftware.com
+- We have a initial working documentation website that can be viewed at https://dandysoftware.com
 - Our new website is powered by mkdocs, mkdocstrings, mkdocs-include-markdown-plugin and mkdocs-material.
 
 ### Features
 
 - In the "LLM_CONFIGS" in your settings the "TYPE", "HOST", "PORT" AND "API_KEY" from the "DEFAULT" config will now flow to the other configs if they are not specificed.
 - Added --version to the CLI interface for dandy.
+- The OpenAI llm service now use json_schema for the response format.
+- The OllamaAI llm service now use json_schema for the response format.
 
 ### Breaking
 
-- Renamed "Bot" to "BaseBot"
-- Renamed "Workflow" to "BaseWorkflow"
+- Renamed `Bot` to `BaseBot`
+- Renamed `Workflow` to `BaseWorkflow`
+- The LLM API for Ollama now only works with 0.5.0 or greater.
+- The LLM API for OpenAI now only works with gpt-4o-mini or greater.
 
 ### Changes
 

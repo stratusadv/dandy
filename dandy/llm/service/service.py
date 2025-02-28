@@ -17,7 +17,7 @@ from dandy.llm.exceptions import LlmException, LlmValidationException
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
-    service_system_intel_prompt
+    service_system_prompt
 
 if TYPE_CHECKING:
     from dandy.llm.prompt import Prompt
@@ -67,10 +67,13 @@ class LlmService:
 
             request_body = self.get_request_body()
 
+            request_body.set_format_to_json_schema(
+                intel_class.model_json_schema()
+            )
+
             request_body.add_message(
                 role='system',
-                content=service_system_intel_prompt(
-                    intel_class=intel_class,
+                content=service_system_prompt(
                     prefix_system_prompt=prefix_system_prompt
                 ).to_str()
             )

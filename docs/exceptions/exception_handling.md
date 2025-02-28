@@ -1,5 +1,3 @@
-from dandy.core.exceptions import DandyException
-
 # Exception Handling
 
 The base to all exceptions in dandy is `DandyException` which is a subclass of `Exception` and can be used safely to handle errors within dandy.

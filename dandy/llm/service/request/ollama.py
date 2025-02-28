@@ -5,9 +5,6 @@ from pydantic import BaseModel
 from dandy.llm.service.request.request import BaseRequestBody
 
 
-_JSON_FORMAT = 'json'
-
-
 class OllamaRequestOptions(BaseModel):
     num_ctx: Union[int, None] = None
     num_predict: Union[int, None] = None
@@ -18,7 +15,7 @@ class OllamaRequestOptions(BaseModel):
 class OllamaRequestBody(BaseRequestBody):
     options: OllamaRequestOptions
     stream: bool = False
-    format: str = _JSON_FORMAT
+    format: Union[dict, None] = {}
 
     def get_context_length(self) -> int:
         return self.options.num_ctx
@@ -32,8 +29,8 @@ class OllamaRequestBody(BaseRequestBody):
     def get_temperature(self):
         return self.options.temperature
 
-    def set_format_to_json(self):
-        self.format = _JSON_FORMAT
+    def set_format_to_json_schema(self, json_schema: dict):
+        self.format = json_schema
 
     def set_format_to_text(self):
-        self.format = ''
+        self.format = None

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="/static/img/dandy_logo_512.png" style="margin-top: -70px; margin-bottom: -20px;" />
+</p>
+
 # Intelligent Development Made Easier...
 
 Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 

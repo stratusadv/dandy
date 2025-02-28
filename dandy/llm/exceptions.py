@@ -7,4 +7,4 @@ class LlmException(DandyException):
 
 class LlmValidationException(LlmException):
     def __init__(self):
-        super().__init__(f'Did not get a valid response format from llm service')
+        super().__init__("Did not get a valid response format from llm service")

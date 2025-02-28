@@ -1,3 +1,0 @@
-httpx>=0.28
-pydantic>=2.8
-python-dotenv>=1.0
