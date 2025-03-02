@@ -3,12 +3,14 @@
 ## April
 
 - Vision
+- Correction & Negative Prompts
+- Spelling Llm Bot (Contrib)
 
 ## March
 
 - Text to Speech
 - Speech to Text
-- Correction Prompts
+- Completely New Example
 - Documentation 🚧 
 
 ## February

@@ -1,15 +1,15 @@
 # Changelog
 
-## v0.10.0 - Coming Soon
+## v0.10.0
 
 ### Documentation
 
-- We have a initial working documentation website that can be viewed at https://dandysoftware.com
+- We have an initial working documentation website that can be viewed at https://dandysoftware.com
 - Our new website is powered by mkdocs, mkdocstrings, mkdocs-include-markdown-plugin and mkdocs-material.
 
 ### Features
 
-- In the "LLM_CONFIGS" in your settings the "TYPE", "HOST", "PORT" AND "API_KEY" from the "DEFAULT" config will now flow to the other configs if they are not specificed.
+- In the `LLM_CONFIGS` in your settings the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will now flow to the other configs if they are not specificed.
 - Added --version to the CLI interface for dandy.
 - The OpenAI llm service now use json_schema for the response format.
 - The OllamaAI llm service now use json_schema for the response format.
@@ -40,7 +40,7 @@
 
 ### Fixes
 
-- Added default instructions prompt to the "LlmBot" class.
+- Added default instructions prompt to the `LlmBot` class.
 
 ## v0.9.0
 
@@ -50,19 +50,19 @@
 - Changed our http handling library to httpx.
 - The contrib choice llm bot has been replaced with the much simpler selector llm bot.
 - The Prompt class init now has a text argument that will create a prompt with a text snippet automatically for simple prompts.
-- New setting "DEFAULT_LLM_REQUEST_TIME_OUT" that controls the timeout for LLM requests default is "None".
+- New setting `DEFAULT_LLM_REQUEST_TIME_OUT` that controls the timeout for LLM requests default is `None`.
 
 ### Changes
 
-- Moved "llm_bot" from "dandy.bot" to "dandy.llm.bot" to match our refactoring changes.
-- Changed the base class from "Handler" to "BaseProcessor"
-- Refactored "Intel" to "BaseIntel" to improve readability.
-- Added "BaseLlmBot" class to "dandy.llm.bot" to be used for creating all llm bots.
-- "BaseLlmBot" config now takes just a string that is one of the "LLM_CONFIGS" in the settings.
+- Moved `llm_bot` from `dandy.bot` to `dandy.llm.bot` to match our refactoring changes.
+- Changed the base class from `Handler` to `BaseProcessor`
+- Refactored `Intel` to `BaseIntel` to improve readability.
+- Added `BaseLlmBot` class to `dandy.llm.bot` to be used for creating all llm bots.
+- `BaseLlmBot` config now takes just a string that is one of the `LLM_CONFIGS` in the settings.
 
 ### Fixes
 
-- There is now a "DefaultLlmIntel" class that is used as the default intel class for LlmBots that has one attribute called "text".
+- There is now a `DefaultLlmIntel` class that is used as the default intel class for LlmBots that has one attribute called `text`.
 - Fixed a bunch of Generic Type handling through-out the project.
 - Connection retry count of zero no longer causes an error.
 - Refactor llm internal packages to match their usage better.
@@ -80,9 +80,9 @@
 
 ### Major Changes
 
-- We have created a new class called "Intel" that is the pydantic "BaseModel" class renamed to give more separation of concerns between dandy code and your code.
-- For the most part of this project the word "Model" has been refactored to "Intel" to create more separation of concerns in projects.
-- The word "Model" has a lot of meaning in the context of dandy, artificial intelligence, databases, libraries and other frameworks.
+- We have created a new class called `Intel` that is the pydantic `BaseModel` class renamed to give more separation of concerns between dandy code and your code.
+- For the most part of this project the word `Model` has been refactored to `Intel` to create more separation of concerns in projects.
+- The word `Model` has a lot of meaning in the context of dandy, artificial intelligence, databases, libraries and other frameworks.
 - Our hope is this creates a very clear line between these specific objects and the rest of your code.
 
 ## v0.7.0
@@ -94,9 +94,9 @@
 ### Features
 
 - Project structure improvement with new settings file.
-- All projects going forward will require a "dandy_settings.py" file in the root of your project.
-  - This file will also need a "BASE_PATH" str variable set to the root of your project.
-  - This file will also need a "LLM_CONFIGS" dict variable with a "DEFAULT" llm config.
+- All projects going forward will require a `dandy_settings.py` file in the root of your project.
+  - This file will also need a `BASE_PATH` str variable set to the root of your project.
+  - This file will also need a `LLM_CONFIGS` dict variable with a `DEFAULT` llm config.
 - Debug recorder can now output to a json string or file.
 - Added randomize seed to LLM config that will randomize the seed every time the config is used.
 - Added new evaluate cli command for evaluating your dandy code -e --evaluate.
@@ -109,13 +109,13 @@
 
 - Updated the readme to match the new project structure.
 - All settings and llm configs are now managed through the dandy settings module.
-  - The environment variable "DANDY_SETTINGS_MODULE" can be used to specify the settings module to be used.
-  - The system will default to look for a "dandy_settings.py" file in the current working directory or sys.path.
-- Moved a lot of project wide constants into the "const.py" file.
+  - The environment variable `DANDY_SETTINGS_MODULE` can be used to specify the settings module to be used.
+  - The system will default to look for a `dandy_settings.py` file in the current working directory or sys.path.
+- Moved a lot of project wide constants into the `const.py` file.
 
 ### Fixes
 
-- Fixed the user "dandy_settings.py" not loading properly with in the internal dandy modules.
+- Fixed the user `dandy_settings.py` not loading properly with in the internal dandy modules.
 - Fixed readme to match new project structure and configuration setup.
 - Fixed the cli to properly use the dandy_settings.py file in the current working directory.
 - Improved testing coverage across the whole project.
@@ -183,14 +183,14 @@
 ### Features
 
 - You can now run simple assistant prompts with the -t --test argument for the dandy cli.
-  - Example: dandy -t "some.module.cool_llm_bot.CoolLlmBot"
+  - Example: dandy -t `some.module.cool_llm_bot.CoolLlmBot`
 
 ## v0.4.1
 
 ### Features
 
 - You can now run simple assistant prompts with the -a --assistant argument for the dandy cli.
-  - Example: dandy -a "Hello, how are you?"
+  - Example: dandy -a `Hello, how are you?`
 
 ## v0.4.0
 
