@@ -13,7 +13,6 @@ class CharacterIntel(BaseIntel):
     description: str
     type: CharacterType
     alignment: CharacterAlignment
-    gender: str
     
     
 class CharactersIntel(BaseIntel):

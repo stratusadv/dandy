@@ -46,7 +46,6 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
                 prompt.text(f'Description: {character.description}')
                 prompt.text(f'Type: {character.type.value}')
                 prompt.text(f'Alignment: {character.alignment.value}')
-                prompt.text(f'Gender: {character.gender}')
     
         return cls.process_prompt_to_intel(
             prompt=prompt, 

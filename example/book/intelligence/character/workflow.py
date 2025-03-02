@@ -11,13 +11,13 @@ if TYPE_CHECKING:
     from example.book.models import Book
 
 
-class GenerateCharactersIntelWorkflow(BaseWorkflow):
+class CharactersWorkflow(BaseWorkflow):
     @classmethod
     def process(
             cls,
             book: Book
     ) -> CharactersIntel:
-        
+
         characters_intel = CharactersIntel()
 
         characters_intel.add_character(

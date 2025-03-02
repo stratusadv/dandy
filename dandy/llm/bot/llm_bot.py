@@ -30,7 +30,7 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
     @classmethod
     def process_prompt_to_intel(
             cls,
-            prompt: Prompt,
+            prompt: Union[Prompt, str],
             intel_class: Type[IntelType],
             postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
@@ -44,7 +44,7 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
-            prompt=prompt,
+            prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
             intel_class=intel_class,
             prefix_system_prompt=prefix_system_prompt
         )

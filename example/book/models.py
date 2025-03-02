@@ -10,8 +10,8 @@ class Chapter(BaseModel):
 
 class Book(BaseModel):
     title: str
-    author: str
     overview: str
     chapters: List[Chapter] = Field(default_factory=list)
+    author: str = 'Dandy McAuthor'
 
     
