@@ -4,14 +4,14 @@ from pydantic import BaseModel, Field
 
 
 class Chapter(BaseModel):
-    number: int
     title: str
+    content: str
 
 
 class Book(BaseModel):
     title: str
+    author: str
     overview: str
-    chapters: List[Chapter] = Field(default_factory=list)
-    author: str = 'Dandy McAuthor'
+    chapters: List[Chapter]
 
     

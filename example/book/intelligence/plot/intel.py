@@ -1,20 +1,13 @@
 from pydantic import Field
-from typing_extensions import List, Generator
+from typing_extensions import List, Generator, Union
 
-from dandy.intel import BaseIntel
+from dandy.intel import BaseIntel, BaseIterableIntel
 
 
-class PlotPoint(BaseIntel):
+class PlotPointIntel(BaseIntel):
     outline: str
     description: str = ''
 
 
-class PlotIntel(BaseIntel):
-    points: List[PlotPoint]
-    
-    def __iter__(self) -> Generator[PlotPoint]:
-        for point in self.points:
-            yield point
-    
-    def add_point(self, point: PlotPoint):
-        self.points.append(point)
+class PlotIntel(BaseIterableIntel[PlotPointIntel]):
+    pass

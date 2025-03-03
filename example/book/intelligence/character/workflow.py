@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING
 
 from dandy.workflow import BaseWorkflow
-from example.book.intelligence.character.bots.character_description_llm_bot import CharacterGeneratorLlmBot
+from example.book.intelligence.character.bots import CharacterGeneratorLlmBot
 from example.book.intelligence.character.enums import CharacterType
 from example.book.intelligence.character.intel import CharactersIntel
 
@@ -17,31 +17,27 @@ class CharactersWorkflow(BaseWorkflow):
             cls,
             book_intel: BookIntel
     ) -> CharactersIntel:
+        cls.characters_intel = CharactersIntel()
+        cls.book_intel = book_intel
 
-        characters_intel = CharactersIntel()
+        cls.create_character(CharacterType.PROTAGONIST)
+        cls.create_character(CharacterType.ANTAGONIST)
+        cls.create_character(CharacterType.CONFIDANT)
+        cls.create_character(CharacterType.FOIL)
+        cls.create_character(CharacterType.EXTRA)
+        cls.create_character(CharacterType.EXTRA)
 
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.PROTAGONIST)
+        return cls.characters_intel
+
+    @classmethod
+    def create_character(
+            cls,
+            character_type: CharacterType,
+    ):
+        cls.characters_intel.add_character(
+            CharacterGeneratorLlmBot.process(
+                cls.book_intel,
+                character_type,
+                cls.characters_intel
+            )
         )
-
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.ANTAGONIST, characters_intel)
-        )
-
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.FOIL, characters_intel)
-        )
-
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.CONFIDANT, characters_intel)
-        )
-
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.EXTRA, characters_intel)
-        )
-
-        characters_intel.add_character(
-            CharacterGeneratorLlmBot.process(book_intel, CharacterType.EXTRA, characters_intel)
-        )
-
-        return characters_intel

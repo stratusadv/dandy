@@ -5,11 +5,13 @@ import logging
 from typing_extensions import TYPE_CHECKING
 
 from dandy.workflow import BaseWorkflow
-from example.book.intelligence.bots.book_start_llm_bot import BookStartLlmBot
+from example.book.intelligence.bots import BookStartLlmBot
+from example.book.intelligence.chapter.workflow import ChaptersWorkflow
 from example.book.intelligence.character.workflow import CharactersWorkflow
 from example.book.intelligence.intel import BookIntel
+from example.book.intelligence.plot.workflow import PlotWorkflow
 from example.book.intelligence.world.bot import WorldLlmBot
-from example.book.models import Book
+from example.book.models import Book, Chapter
 
 if TYPE_CHECKING:
     from example.book.intelligence.character.intel import CharactersIntel
@@ -22,7 +24,7 @@ class BookWorkflow(BaseWorkflow):
             user_input: str,
     ) -> Book:
         book_intel = BookIntel()
-        
+
         logging.info('Working on book title and overview')
         book_intel.start = BookStartLlmBot.process(user_input)
 
@@ -34,9 +36,23 @@ class BookWorkflow(BaseWorkflow):
             book_intel=book_intel,
         )
 
+        logging.info('Setting up the plot')
+        book_intel.plot = PlotWorkflow.process(book_intel)
+
+        logging.info('Writing the chapters for all to read')
+        book_intel.chapters = ChaptersWorkflow.process(
+            book_intel=book_intel,
+            chapter_count=4,
+        )
+
         new_book = Book(
             title=book_intel.start.title,
-            overview=book_intel.start.overview
+            author='Dandy McAuthor',
+            overview=book_intel.start.overview,
+            chapters=[
+                Chapter(title=chapter_intel.title, content=chapter_intel.content)
+                for chapter_intel in book_intel.chapters
+            ]
         )
 
         print(new_book.model_dump_json(indent=4))

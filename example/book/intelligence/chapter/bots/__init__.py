@@ -1,0 +1,3 @@
+from example.book.intelligence.chapter.bots.chapters_structure_llm_bot import ChaptersStructureLlmBot
+from example.book.intelligence.chapter.bots.scene_llm_bot import SceneLlmBot
+from example.book.intelligence.chapter.bots.chapter_content_llm_bot import ChapterContentLlmBot

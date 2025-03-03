@@ -4,7 +4,8 @@ from typing_extensions import TYPE_CHECKING
 
 from dandy.workflow import BaseWorkflow
 
-from example.book.intelligence.plot.bots.plot_outline_llm_bot import PlotOutlineLlmBot
+from example.book.intelligence.plot import bots 
+
 
 if TYPE_CHECKING:
     from example.book.intelligence.intel import BookIntel
@@ -12,5 +13,17 @@ if TYPE_CHECKING:
 
 class PlotWorkflow(BaseWorkflow):
     @classmethod
-    def process(cls, book_intel: BookIntel) -> PlotIntel:
-        pass
+    def process(
+            cls, 
+            book_intel: BookIntel
+    ) -> PlotIntel:
+        plot_intel = bots.PlotOutlineLlmBot.process(book_intel=book_intel)
+        
+        for i, plot_point_intel in enumerate(plot_intel):
+            plot_intel[i] = bots.PlotPointDescriptionLlmBot.process(
+                plot_point_intel=plot_point_intel,
+                book_intel=book_intel,
+                previous_plot_point_intels=plot_intel[:i],
+            )
+        
+        return plot_intel
