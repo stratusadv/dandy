@@ -26,5 +26,5 @@ Please visit [https://docs.pydantic.dev/latest/](https://docs.pydantic.dev/lates
 
 ### Keep Everything Straight ... with Pyright
 
-We highly recommend using [pyright](https://microsoft.github.io/pyright/#/) during development with Dandy.
+We highly recommend using [Pyright](https://microsoft.github.io/pyright/#/) during development with Dandy.
 Pyright is a great tool to help ensure that you are following the best practices when using Dandy.

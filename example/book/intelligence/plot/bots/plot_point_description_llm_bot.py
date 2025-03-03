@@ -28,7 +28,7 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
             cls,
             plot_point_intel: PlotPointIntel,
             book_intel: BookIntel,
-            previous_plot_point_intels: List[PlotPointIntel]
+            previous_plot_point_intels: List[PlotPointIntel],
     ) -> PlotPointIntel:
         prompt = Prompt()
 

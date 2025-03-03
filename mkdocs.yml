@@ -29,8 +29,13 @@ nav:
       - Installation: getting_started/installation.md
       - Configuration: getting_started/configuration.md
       - Project Structure: getting_started/project_structure.md
-  - Examples:
-      - Cookie Recipe: examples/cookie_receipe.md
+  - Tutorial:
+      - Start Here: tutorial/start_here.md
+  - Guides:
+      - General:
+          - Bots: guides/bots.md
+      - Large Language Models:
+          - LLM Bots: guides/llm/llm_bots.md
   - API Reference:
       - Processor: api/processor.md
   - Exceptions:
