@@ -9,7 +9,7 @@
       <env name="DANDY_SETTINGS_MODULE" value="example.dandy_settings" />
     </envs>
     <option name="SDK_HOME" value="" />
-    <option name="WORKING_DIRECTORY" value="C:\Users\NathanJohnson\PycharmProjects\dandy" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />

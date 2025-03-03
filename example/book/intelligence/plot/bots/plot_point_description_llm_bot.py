@@ -1,10 +1,10 @@
 from typing import Any
 
 from dandy.llm import BaseLlmBot
-from example.book.intelligence.plot.intel import PlotStructureIntel
+from example.book.intelligence.plot.intel import PlotIntel
 
 
-class PlotOutlineLlmBot(BaseLlmBot):
+class PlotPointDescriptionLlmBot(BaseLlmBot):
     config = 'COMPLEX'
    
     @classmethod    
@@ -12,6 +12,6 @@ class PlotOutlineLlmBot(BaseLlmBot):
             cls, 
             *args, 
             **kwargs
-    ) -> PlotStructureIntel:
+    ) -> PlotIntel:
         
         pass

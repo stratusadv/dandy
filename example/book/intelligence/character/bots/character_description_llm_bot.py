@@ -9,7 +9,7 @@ from example.book.intelligence.character.enums import CharacterType
 from example.book.intelligence.character.intel import CharacterIntel
 
 if TYPE_CHECKING:
-    from example.book.models import Book
+    from example.book.intelligence.intel import BookIntel
     from example.book.intelligence.character.intel import CharactersIntel
 
 
@@ -19,7 +19,7 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
     @classmethod
     def process(
             cls,
-            book: Book,
+            book_intel: BookIntel,
             character_type: CharacterType,
             characters_intel: Union[CharactersIntel, None] = None,
     ) -> CharacterIntel:
@@ -29,8 +29,8 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
         
         prompt.line_break()
         
-        prompt.text(f'Title: {book.title}')
-        prompt.text(f'Overview: {book.overview}')
+        prompt.text(f'Title: {book_intel.start.title}')
+        prompt.text(f'Overview: {book_intel.start.overview}')
         
         if characters_intel:
             prompt.line_break()

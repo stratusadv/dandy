@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from typing_extensions import TYPE_CHECKING
 
 from dandy.workflow import BaseWorkflow
@@ -19,26 +21,26 @@ class BookWorkflow(BaseWorkflow):
             cls,
             user_input: str,
     ) -> Book:
-        book_start_intel = BookStartLlmBot.process(user_input)
+        book_intel = BookIntel()
+        
+        logging.info('Working on book title and overview')
+        book_intel.start = BookStartLlmBot.process(user_input)
+
+        logging.info('Creating "those" characters')
+        book_intel.characters = CharactersWorkflow.process(book_intel)
+
+        logging.info('Forging a world')
+        book_intel.world = WorldLlmBot.process(
+            book_intel=book_intel,
+        )
 
         new_book = Book(
-            title=book_start_intel.title,
-            overview=book_start_intel.overview
-        )
-
-        characters_intel = CharactersWorkflow.process(new_book)
-
-        world_intel = WorldLlmBot.process(
-            book_start_intel=book_start_intel,
-            characters_intel=characters_intel,
-        )
-
-        book_intel = BookIntel(
-            characters_intel=characters_intel,
-            world_intel=world_intel
+            title=book_intel.start.title,
+            overview=book_intel.start.overview
         )
 
         print(new_book.model_dump_json(indent=4))
+
         print(book_intel.model_dump_json(indent=4))
 
         return new_book

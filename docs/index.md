@@ -2,12 +2,12 @@
   <img src="/static/img/dandy_logo_512.png" style="margin-top: -70px; margin-bottom: -20px;" />
 </p>
 
-# Intelligent Development Made Easier...
+# Intelligent Development Made Easierish...
 
 Dandy is an intelligence framework for developing programmatic intelligent bots and workflows. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 
-### Why Did We Create Another AI Framework?
+### Why Did We Create Yet Another AI Framework?
 
 Artificial intelligence programming is a very different experience than conventional programming as it's very probabilistic.
 Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion, or beneficial. 
@@ -15,7 +15,7 @@ Based on our experience most of the existing frameworks / libraries are designed
 We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of artificial intelligence.
 Our approach is to focus on batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
 
-### Pydantic is Everyones Friend
+### Pydantic is Everyone's Friend!
 
 We have a class called `BaseIntel` that directly inherits from the pydantic `BaseModel` class renamed to give more separation of concerns between dandy code and your code.
 
@@ -24,4 +24,7 @@ Make sure you have a good foundation on the use of pydantic before continuing.
 
 Please visit [https://docs.pydantic.dev/latest/](https://docs.pydantic.dev/latest/) for more information on pydantic.
 
+### Keep Everything Straight ... with Pyright
 
+We highly recommend using [pyright](https://microsoft.github.io/pyright/#/) during development with Dandy.
+Pyright is a great tool to help ensure that you are following the best practices when using Dandy.

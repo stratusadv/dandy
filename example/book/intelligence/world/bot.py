@@ -6,8 +6,7 @@ from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.world.intel import WorldIntel
 
 if TYPE_CHECKING:
-    from example.book.intelligence.intel import BookStartIntel
-    from example.book.intelligence.character.intel import CharactersIntel
+    from example.book.intelligence.intel import BookIntel
 
 
 class WorldLlmBot(BaseLlmBot):
@@ -21,14 +20,13 @@ class WorldLlmBot(BaseLlmBot):
     @classmethod
     def process(
             cls,
-            book_start_intel: BookStartIntel,
-            characters_intel: CharactersIntel
+            book_intel: BookIntel,
     ) -> WorldIntel:
         prompt = Prompt()
-        prompt.text(f'Title: {book_start_intel.title} ')
-        prompt.text(f'Overview: {book_start_intel.overview} ')
+        prompt.text(f'Title: {book_intel.start.title} ')
+        prompt.text(f'Overview: {book_intel.start.overview} ')
         
-        for character in characters_intel.characters:
+        for character in book_intel.characters:
             prompt.line_break()
             
             prompt.text(f'Name: {character.first_name} {character.last_name} ')
