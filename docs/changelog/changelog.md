@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.11.0 - Coming Soon
+
+### Features
+
+- A new example has been created that is much easier to follow and show cases the features of dandy.
+- Added a new `Intel` class called `BaseIterableIntel` that is used to create an iterable intel object.
+
+### Changes
+
+- Removed the old examples (Cookie Recipe and Pirate Story)
+
 ## v0.10.0
 
 ### Documentation
