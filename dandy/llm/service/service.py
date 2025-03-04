@@ -4,7 +4,8 @@ import json
 from time import sleep
 
 from httpx import Response
-from typing_extensions import Type, Union, TYPE_CHECKING
+from pydantic.main import IncEx
+from typing_extensions import Type, Union, TYPE_CHECKING, Iterable
 
 import httpx 
 from pydantic import ValidationError
@@ -57,9 +58,18 @@ class LlmService:
     def process_prompt_to_intel(
             self,
             prompt: Prompt,
-            intel_class: Type[IntelType],
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
+            include_fields: Union[IncEx, None] = None,
             prefix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
+
+        if intel_class and intel_object:
+            raise LlmException('Cannot specify both intel_class and intel_object.')
+
+        if not intel_class and not intel_object:
+            raise LlmException('Must specify either intel_class or intel_object.')
 
         event_id = generate_new_debug_event_id()
 

@@ -1,2 +1,2 @@
 from dandy.intel.intel import BaseIntel
-from dandy.intel.intel import BaseIterableIntel
+from dandy.intel.intel import BaseListIntel

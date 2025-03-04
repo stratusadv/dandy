@@ -14,7 +14,7 @@ from example.book.intelligence.world.bot import WorldLlmBot
 from example.book.models import Book, Chapter
 
 if TYPE_CHECKING:
-    from example.book.intelligence.character.intel import CharactersIntel
+    pass
 
 
 class BookWorkflow(BaseWorkflow):
@@ -23,7 +23,7 @@ class BookWorkflow(BaseWorkflow):
             cls,
             user_input: str,
     ) -> Book:
-        book_intel = BookIntel()
+        book_intel = BookIntel(user_input=user_input)
 
         logging.info('Working on book title and overview')
         book_intel.start = BookStartLlmBot.process(user_input)

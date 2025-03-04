@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import Field
 
-from dandy.intel import BaseIntel, BaseIterableIntel
+from dandy.intel import BaseIntel, BaseListIntel
 
 
 class SceneIntel(BaseIntel):
@@ -16,5 +16,5 @@ class ChapterIntel(BaseIntel):
     content: str = ''
     
     
-class ChaptersIntel(BaseIterableIntel[ChapterIntel]):
+class ChaptersIntel(BaseListIntel[ChapterIntel]):
     pass
