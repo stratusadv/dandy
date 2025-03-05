@@ -59,7 +59,7 @@ class TestIntel(TestCase):
         PersonCopy = Person.model_inc_ex_class_copy(include={'middle_name': True, 'bag': {'stylish': True, 'things': {'description': True}}})
 
         json_schema = PersonCopy.model_json_schema()
-
+        
         self.assertNotIn('first_name', json_schema['properties'])
         self.assertNotIn('color', json_schema['$defs']['Bag']['properties'])
         self.assertNotIn('name', json_schema['$defs']['Thing']['properties'])

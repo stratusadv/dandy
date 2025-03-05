@@ -20,10 +20,11 @@ class BaseIntel(BaseModel, ABC):
             exclude: Union[IncEx, None] = None,
     ) -> Type[Self]:
         if include is None and exclude is None:
-            return cls
+            return create_model(
+                cls.__name__, 
+                __base__=cls
+            )
         
-        fields = cls.model_fields
-
         if include and exclude:
             raise IntelException('include and exclude cannot be used together')
         
@@ -38,7 +39,7 @@ class BaseIntel(BaseModel, ABC):
 
         process_fields = {}
 
-        for field_name, field_info in fields.items():
+        for field_name, field_info in cls.model_fields.items():
 
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
@@ -51,7 +52,7 @@ class BaseIntel(BaseModel, ABC):
                 if origin in (list, List, tuple, Tuple, set, Set):
                     annotation = get_args(annotation)[0]
 
-                if issubclass(annotation, BaseModel):
+                if issubclass(annotation, BaseIntel):
                     sub_model = annotation
 
                     new_sub_model = sub_model.model_inc_ex_class_copy(
@@ -76,12 +77,10 @@ class BaseIntel(BaseModel, ABC):
                     field_info.default_factory or field_info.default
                 )
 
-            elif exclude_value:
-                pass
-
         return create_model(
-            f'{cls.__name__}',
+            cls.__name__,
             **process_fields,
+            __base__=BaseIntel
         )
 
     def model_validate_and_copy(self, update: dict) -> Self:

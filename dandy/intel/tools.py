@@ -18,7 +18,7 @@ def get_field_annotation(field_info: FieldInfo) -> Type:
             return inner_annotations[0]
         else:
             raise IntelException(
-                f"Intel include failed on field '{field_info.title}' because a Union had more than one non-None annotation: {annotation_args}")
+                f"Intel include failed on field '{field_info.title}' because a Union had more than one non-None, had annotations: {annotation_args}")
 
     else:
         return field_info.annotation
