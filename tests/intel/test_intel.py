@@ -22,7 +22,7 @@ class Person(BaseIntel):
     last_name: str
     middle_name: Union[str, None] = None
     age: int | None = None
-    bag: Bag | None = None
+    bag: Union[Bag, None] = None
 
 
 class TestIntel(TestCase):

@@ -32,9 +32,7 @@ class BookWorkflow(BaseWorkflow):
         book_intel.characters = CharactersWorkflow.process(book_intel)
 
         logging.info('Forging a world')
-        book_intel.world = WorldLlmBot.process(
-            book_intel=book_intel,
-        )
+        book_intel.world = WorldLlmBot.process(book_intel)
 
         logging.info('Setting up the plot')
         book_intel.plot = PlotWorkflow.process(book_intel)

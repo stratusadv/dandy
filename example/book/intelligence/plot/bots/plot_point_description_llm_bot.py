@@ -36,7 +36,8 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
 
         if previous_plot_point_intels:
             prompt.prompt(plot_intel_prompt(
-                PlotIntel(items=previous_plot_point_intels))
+                PlotIntel(items=previous_plot_point_intels)),
+                exclude_fields={'plot_point': {'outline'}}
             )
                 
             prompt.line_break()

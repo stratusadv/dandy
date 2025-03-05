@@ -1,8 +1,7 @@
 from types import UnionType, NoneType
-from typing import Union
 
 from pydantic.fields import FieldInfo
-from typing_extensions import Type, get_origin, get_args
+from typing_extensions import Type, get_origin, get_args, Union
 
 from dandy.intel.exceptions import IntelException
 
