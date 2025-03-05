@@ -58,7 +58,7 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
     @classmethod
     def process(
             cls,
-            prompt: Prompt,
+            prompt: Union[Prompt, str],
             intel_class: Type[IntelType] = DefaultLlmIntel,
     ) -> IntelType:
 
