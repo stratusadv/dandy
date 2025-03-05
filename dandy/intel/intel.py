@@ -20,7 +20,7 @@ class BaseIntel(BaseModel, ABC):
         # WRITE THIS INTO SMALL FUNCTION IN A JSON SCHEMA FOLDER I THINKS ..................
 
         return json_schema
-
+    
     def model_validate_and_copy(self, update: dict) -> Self:
         return self.model_validate(self.model_copy(update=update))
         
