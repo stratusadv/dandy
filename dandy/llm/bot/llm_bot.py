@@ -1,5 +1,6 @@
 from abc import ABC
 
+from pydantic.main import IncEx
 from typing_extensions import Type, Generic, Union
 
 from dandy.bot import BaseBot
@@ -31,7 +32,10 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
     def process_prompt_to_intel(
             cls,
             prompt: Union[Prompt, str],
-            intel_class: Type[IntelType],
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            include_fields: Union[IncEx, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
             postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
         
@@ -46,6 +50,9 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
             intel_class=intel_class,
+            intel_object=intel_object,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
             prefix_system_prompt=prefix_system_prompt
         )
 
