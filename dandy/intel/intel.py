@@ -1,16 +1,17 @@
-import json
 from abc import ABC
 from typing import Type
 
 from pydantic import BaseModel
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin, Tuple, Set, get_args
+from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict
 
+from dandy.intel.field.annotation import FieldAnnotation
 from dandy.intel.exceptions import IntelException
-from dandy.intel.tools import get_field_annotation
+
 
 T = TypeVar('T')
+
 
 class BaseIntel(BaseModel, ABC):
     @classmethod
@@ -37,49 +38,49 @@ class BaseIntel(BaseModel, ABC):
         include_dict = inc_ex_dict(include)
         exclude_dict = inc_ex_dict(exclude)
 
-        process_fields = {}
-
+        processed_fields = {}
+        
         for field_name, field_info in cls.model_fields.items():
 
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
+            field_annotation = FieldAnnotation(field_info)
+            field_factory = field_info.default_factory or field_info.default
+
             if isinstance(include_value, Dict) or isinstance(exclude_value, Dict):
-                annotation = get_field_annotation(field_info)
 
-                origin = get_origin(annotation)
+                # if field_annotation.origin_is_iterable:
+                #     field_annotation = field_annotation.first_inner
 
-                if origin in (list, List, tuple, Tuple, set, Set):
-                    annotation = get_args(annotation)[0]
-
-                if issubclass(annotation, BaseIntel):
-                    sub_model = annotation
+                if issubclass(field_annotation.first_inner, BaseIntel):
+                    sub_model = field_annotation.first_inner
 
                     new_sub_model = sub_model.model_inc_ex_class_copy(
                         include=include_value,
                         exclude=exclude_value,
                     )
 
-                    process_fields[field_name] = (
-                        new_sub_model if origin is None else origin[new_sub_model],
-                        field_info.default_factory or field_info.default
+                    processed_fields[field_name] = (
+                        new_sub_model if field_annotation.origin is None else field_annotation.origin[new_sub_model],
+                        field_factory,
                     )
-
+                    
                 else:
-                    process_fields[field_name] = (
-                        annotation if origin is None else origin[annotation],
-                        field_info.default_factory or field_info.default
+                    processed_fields[field_name] = (
+                        field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[field_annotation],
+                        field_factory,
                     )
-
+                    
             elif (include_value and exclude is None) or (exclude_value is None and include is None):
-                process_fields[field_name] = (
-                    field_info.annotation,
-                    field_info.default_factory or field_info.default
+                processed_fields[field_name] = (
+                    field_annotation.base,
+                    field_factory,
                 )
 
         return create_model(
             cls.__name__,
-            **process_fields,
+            **processed_fields,
             __base__=BaseIntel
         )
 
