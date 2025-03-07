@@ -1,40 +1,45 @@
-from types import UnionType, NoneType
+from types import NoneType
 
-from pydantic.fields import FieldInfo
-from typing_extensions import get_origin, Union, get_args, Type, List, Tuple, Set
+from typing_extensions import get_origin, get_args, Type, List, Tuple, Set, Any
 
 from dandy.intel.exceptions import IntelException
 
 
 class FieldAnnotation:
-    def __init__(self, field_info: FieldInfo):
-        self.field_info = field_info
+    def __init__(self, annotation: Type, field_name: str):
+        self.annotation = annotation
+        
+        if self.first_inner_origin_is_iterable:
+            self.annotation = self.first_inner
+        
+        self.field_name = field_name
 
     @property
     def args(self) -> tuple:
-        return get_args(self.field_info.annotation)
+        return get_args(self.annotation)
 
     @property
-    def base(self):
-        return self.field_info.annotation
+    def base(self) -> Any:
+        return self.annotation
 
     @property
-    def first_inner(self):
+    def first_inner(self) -> Type:
         inner = [arg for arg in self.args if arg is not None and arg is not NoneType]
 
         if len(inner) == 1:
             return inner[0]
         elif len(inner) > 1:
             raise IntelException(
-                f"Failed to get annotation on field '{self.field_info.title}' because a {self.origin} had more than one non-None Type, had: {self.args}")
+                f'Failed to get annotation on field "{self.field_name}" because a "{self.origin}" had more than one '
+                f'non-None type or this fields annotation was beyond the complexity of 2 annotation origins.'
+            )
 
-        return self.field_info.annotation
+        return self.annotation
+
+    @property
+    def first_inner_origin_is_iterable(self) -> bool:
+        return get_origin(self.first_inner) in (list, List, tuple, Tuple, set, Set)
 
     @property
     def origin(self) -> Type:
-        return get_origin(self.field_info.annotation)
-
-    @property
-    def origin_is_iterable(self) -> bool:
-        return self.origin in (list, List, tuple, Tuple, set, Set)
-
+        return get_origin(self.annotation)
