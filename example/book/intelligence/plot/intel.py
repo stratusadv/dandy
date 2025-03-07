@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing_extensions import List, Generator, Union
 
-from dandy.intel import BaseIntel, BaseIterableIntel
+from dandy.intel import BaseIntel, BaseListIntel
 
 
 class PlotPointIntel(BaseIntel):
@@ -9,5 +9,5 @@ class PlotPointIntel(BaseIntel):
     description: str = ''
 
 
-class PlotIntel(BaseIterableIntel[PlotPointIntel]):
+class PlotIntel(BaseListIntel[PlotPointIntel]):
     pass

@@ -4,7 +4,8 @@ import json
 from time import sleep
 
 from httpx import Response
-from typing_extensions import Type, Union, TYPE_CHECKING
+from pydantic.main import IncEx
+from typing_extensions import Type, Union, TYPE_CHECKING, Iterable
 
 import httpx 
 from pydantic import ValidationError
@@ -57,9 +58,30 @@ class LlmService:
     def process_prompt_to_intel(
             self,
             prompt: Prompt,
-            intel_class: Type[IntelType],
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            include_fields: Union[IncEx, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
             prefix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
+
+        if intel_class and intel_object:
+            raise LlmException('Cannot specify both intel_class and intel_object.')
+
+        def intel_json_schema(intel_: Union[Type[IntelType], IntelType]) -> dict:
+            return intel_.model_inc_ex_class_copy(
+                include=include_fields, 
+                exclude=exclude_fields
+            ).model_json_schema()
+        
+        if intel_class:
+            intel_json_schema = intel_json_schema(intel_class)
+
+        elif intel_object:
+            intel_json_schema = intel_json_schema(intel_object)
+          
+        else:
+            raise LlmException('Must specify either intel_class or intel_object.')  
 
         event_id = generate_new_debug_event_id()
 
@@ -68,7 +90,7 @@ class LlmService:
             request_body = self.get_request_body()
 
             request_body.set_format_to_json_schema(
-                intel_class.model_json_schema()
+                intel_json_schema
             )
 
             request_body.add_message(
@@ -92,15 +114,18 @@ class LlmService:
             debug_record_llm_response(message_content, event_id)
 
             try:
-                intel = intel_class.model_validate_json(message_content)
+                if intel_class:
+                    intel_ = intel_class.model_validate_json(message_content)
+                elif intel_object:
+                    intel_ = intel_object.model_validate_json_and_copy(message_content)
 
                 debug_record_llm_success(
                     'Validated response from prompt into intel object.',
                     event_id,
-                    intel=intel
+                    intel=intel_
                 )
 
-                return intel
+                return intel_
 
             except ValidationError as e:
                 debug_record_llm_validation_failure(e, event_id)
@@ -129,15 +154,18 @@ class LlmService:
                     if DebugRecorder.is_recording:
                         debug_record_llm_response(message_content, event_id)
 
-                    intel = intel_class.model_validate_json(message_content)
+                    if intel_class:
+                        intel_ = intel_class.model_validate_json(message_content)
+                    elif intel_object:
+                        intel_ = intel_object.model_validate_json_and_copy(message_content)
 
                     debug_record_llm_success(
                         'Validated response from validation errors prompt into intel object.',
                         event_id,
-                        intel=intel
+                        intel=intel_
                     )
 
-                    return intel
+                    return intel_
 
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)

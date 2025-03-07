@@ -14,6 +14,7 @@ class BookStartIntel(BaseIntel):
     
     
 class BookIntel(BaseIntel):
+    user_input: str
     start: Union[BookStartIntel, None] = None
     characters: Union[CharactersIntel, None] = None
     plot: Union[PlotIntel, None] = None

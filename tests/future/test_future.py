@@ -2,8 +2,8 @@ from time import perf_counter, sleep
 from unittest import TestCase
 
 from dandy.future.future import AsyncFuture
-from example.pirate.crew.intelligence.bots.crew_generation_llm_bot import CrewGenerationLlmBot
 
+from dandy.llm import LlmBot
 
 TEST_FUTURE_SLEEP_TIME = 5.0
 TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + (TEST_FUTURE_SLEEP_TIME * 0.1)
@@ -30,8 +30,8 @@ class TestFuture(TestCase):
         self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
     def test_llmbot_future(self):
-        crew_future = CrewGenerationLlmBot.process_to_future(
-            'A fun bunch of merry pirates that hold a dark secret about their past',
+        response_future = LlmBot.process_to_future(
+            'Write a quick poem about pirates enjoying a day at the beach.',
         )
 
-        self.assertTrue(len(crew_future.result.members) >= 3)
+        self.assertTrue(len(response_future.result.text) > 0)

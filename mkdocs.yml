@@ -10,6 +10,7 @@ extra_css:
   - static/css/extra.css
 
 extra_javascript:
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
   - static/js/extra.js
 
 
@@ -22,6 +23,7 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.snippets
+  - tables
 
 nav:
   - Getting Started:
@@ -47,6 +49,12 @@ nav:
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md
+  - Research:
+      - Overview: research/overview.md
+      - GPU:
+          - Comparison: research/gpu/comparison.md
+      - LLM:
+          - Resources: research/llm/resources.md
   - About:
       - Contributors: about/contributors.md
       - Branding: about/branding.md
@@ -54,6 +62,7 @@ nav:
 plugins:
   - search
   - include-markdown
+  - table-reader
   - mkdocstrings:
       handlers:
         python:
