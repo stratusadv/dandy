@@ -84,8 +84,6 @@ class TestLlmBot(TestCase):
             include={'coins'},
         )
 
-        print(new_money_bag.model_dump())
-
         self.assertEqual(new_money_bag.coins, coins + additional_coins)
         self.assertEqual(new_money_bag.bills, bills)
         self.assertEqual(new_money_bag.gems, None)
