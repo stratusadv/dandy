@@ -1,0 +1,25 @@
+from abc import ABC, abstractmethod
+
+
+from pydantic import BaseModel
+from typing_extensions import Any, Union, OrderedDict
+
+
+class BaseCache(ABC, BaseModel):
+    limit: int = 100
+
+    @abstractmethod
+    def get(self, key: str) -> Union[Any, None]:
+        pass
+    
+    @abstractmethod
+    def set(self, key: str, value: Any):
+        pass
+    
+    @abstractmethod
+    def clean(self):
+        pass
+    
+    @abstractmethod
+    def clear(self):
+        pass
