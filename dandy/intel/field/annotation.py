@@ -23,7 +23,7 @@ class FieldAnnotation:
         return self.annotation
 
     @property
-    def first_inner(self) -> Type:
+    def first_inner(self) -> Any:
         inner = [arg for arg in self.args if arg is not None and arg is not NoneType]
 
         if len(inner) == 1:

@@ -45,9 +45,8 @@ class BaseIntel(BaseModel, ABC):
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
-            # TODO: Handle required fields            
-            # if (include is None and exclude_value and field_info.is_required) or (exclude is None and include_value is None and field_info.is_required):
-            #     raise IntelException(f"{field_name} is required and cannot be excluded or not included")
+            if (include is None and exclude_value and field_info.is_required()) or (exclude is None and include_value is None and field_info.is_required()):
+                raise IntelException(f"{field_name} is required and cannot be excluded or not included")
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
             field_factory = field_info.default_factory or field_info.default
@@ -55,7 +54,7 @@ class BaseIntel(BaseModel, ABC):
             if isinstance(include_value, Dict) or isinstance(exclude_value, Dict):
 
                 if issubclass(field_annotation.first_inner, BaseIntel):
-                    sub_model = field_annotation.first_inner
+                    sub_model: Type[BaseIntel] = field_annotation.first_inner
 
                     new_sub_model = sub_model.model_inc_ex_class_copy(
                         include=include_value,
