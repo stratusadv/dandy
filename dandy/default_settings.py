@@ -6,6 +6,8 @@ ALLOW_DEBUG_RECORDING: bool = False
 
 BASE_PATH: Union[Path, str] = Path.cwd()
 
+SQLITE_CACHE_DATABASE_PATH: Union[Path, str] = Path(BASE_PATH, 'dandy_cache.db')
+
 DEFAULT_LLM_TEMPERATURE: float = 0.7
 DEFAULT_LLM_SEED: int = 77
 DEFAULT_LLM_RANDOMIZE_SEED: bool = False

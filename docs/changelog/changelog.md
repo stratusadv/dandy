@@ -14,6 +14,7 @@
   - Submitting a class will return you a new instance of the class.
   - Submitting the object will return you a modified copy of the object.
 - The method `process_prompt_to_intel` now supports `include_fields` and `exclude_fields` which allow you to only include or exclude fields from the intel object or class.
+- Caching is now supported through the `cache_to_memory` and `cache_to_sqlite` decorators.
 
 ### Changes
 
