@@ -10,7 +10,7 @@ from random import randint, shuffle
 
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
-from dandy.llm.exceptions import LlmException
+from dandy.llm.exceptions import LlmCriticalException
 from dandy.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
@@ -78,7 +78,7 @@ class FileSnippet(BaseSnippet):
             with open(self.file_path, 'r') as f:
                 return f.read() + '\n'
         else:
-            raise LlmException(f'File "{self.file_path}" does not exist')
+            raise LlmCriticalException(f'File "{self.file_path}" does not exist')
 
 
 @dataclass(kw_only=True)

@@ -2,7 +2,7 @@ from types import NoneType
 
 from typing_extensions import get_origin, get_args, Type, List, Tuple, Set, Any
 
-from dandy.intel.exceptions import IntelException
+from dandy.intel.exceptions import IntelCriticalException
 
 
 class FieldAnnotation:
@@ -29,7 +29,7 @@ class FieldAnnotation:
         if len(inner) == 1:
             return inner[0]
         elif len(inner) > 1:
-            raise IntelException(
+            raise IntelCriticalException(
                 f'Failed to get annotation on field "{self.field_name}" because a "{self.origin}" had more than one '
                 f'non-None type or this fields annotation was beyond the complexity of 2 annotation origins.'
             )

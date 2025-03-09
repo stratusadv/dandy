@@ -1,10 +1,14 @@
-from dandy.core.exceptions import DandyException
+from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
 
 
-class LlmException(DandyException):
+class LlmCriticalException(DandyCriticalException):
     pass
 
 
-class LlmValidationException(LlmException):
+class LlmValidationCriticalException(LlmCriticalException):
     def __init__(self):
         super().__init__("Did not get a valid response format from llm service")
+
+
+class LlmRecoverableException(DandyRecoverableException):
+    pass

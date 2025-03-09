@@ -1,5 +1,9 @@
-from dandy.core.exceptions import DandyException
+from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
 
 
-class DebugException(DandyException):
+class DebugCriticalException(DandyCriticalException):
+    pass
+
+
+class DebugRecoverableException(DandyRecoverableException):
     pass

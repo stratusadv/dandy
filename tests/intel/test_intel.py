@@ -3,7 +3,7 @@ from typing import Union
 from unittest import TestCase
 
 from dandy.intel import BaseIntel
-from dandy.intel.exceptions import IntelException
+from dandy.intel.exceptions import IntelCriticalException
 
 
 class Thing(BaseIntel):
@@ -38,21 +38,21 @@ class TestIntel(TestCase):
         try:
             _ = Person.model_inc_ex_class_copy(include={'middle_name'})
 
-        except IntelException:
+        except IntelCriticalException:
             self.assertTrue(True)
             
     def test_intel_exclude_with_required_field(self):
         try:
             _ = Person.model_inc_ex_class_copy(exclude={'first_name'})
 
-        except IntelException:
+        except IntelCriticalException:
             self.assertTrue(True)
 
     def test_intel_include_and_exclude(self):
         try:
             _ = Person.model_inc_ex_class_copy(include={'middle_name'}, exclude={'first_name'})
 
-        except IntelException:
+        except IntelCriticalException:
             self.assertTrue(True)
 
     def test_intel_include_json_schema(self):

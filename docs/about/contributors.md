@@ -1,10 +1,10 @@
 # Contributors
 
-## Active Developers
+## Active Maintainers
 
 - Nathan Johnson
 
-## Contributing Developers
+## Contributing Maintainers
 
 - Austin Sauer
 - Wesley Howery

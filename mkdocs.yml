@@ -15,6 +15,8 @@ extra_javascript:
 
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -24,16 +26,16 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.snippets
   - tables
+  - attr_list
 
 nav:
   - Getting Started:
       - Welcome: index.md
       - Installation: getting_started/installation.md
       - Configuration: getting_started/configuration.md
-      - Project Structure: getting_started/project_structure.md
-  - Tutorial:
-      - Start Here: tutorial/start_here.md
+      - Structure: getting_started/structure.md
   - Guides:
+      - Start Here: guides/start_here.md
       - General:
           - Bots: guides/bots.md
       - Large Language Models:
@@ -41,7 +43,14 @@ nav:
   - API Reference:
       - Processor: api/processor.md
   - Exceptions:
-      - Exception Handling: exceptions/exception_handling.md
+      - Handling Errors: exceptions/handling_errors.md
+      - Dandy Exceptions: exceptions/dandy_exceptions.md
+      - Sub Exceptions:
+          - Bot: exceptions/bot_exceptions.md
+          - Debug: exceptions/debug_exceptions.md
+          - Future: exceptions/future_exceptions.md
+          - Intel: exceptions/intel_exceptions.md
+          - LLM: exceptions/llm_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md

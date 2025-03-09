@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 
 from dandy.llm.service.config import OllamaLlmConfig
-from dandy.llm.exceptions import LlmException
+from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.conf import llm_configs
 
 class TestConfig(TestCase):
@@ -37,7 +37,7 @@ class TestConfig(TestCase):
                 temperature=1.0,
                 prompt_retry_count=3,
             )
-        except LlmException:
+        except LlmCriticalException:
             self.assertTrue(True)
 
     def test_ollama_config_empty_port(self):
@@ -49,7 +49,7 @@ class TestConfig(TestCase):
                 temperature=1.0,
                 prompt_retry_count=3,
             )
-        except LlmException:
+        except LlmCriticalException:
             self.assertTrue(True)
 
     def test_ollama_config_empty_model(self):
@@ -61,5 +61,5 @@ class TestConfig(TestCase):
                 temperature=1.0,
                 prompt_retry_count=3,
             )
-        except LlmException:
+        except LlmCriticalException:
             self.assertTrue(True)

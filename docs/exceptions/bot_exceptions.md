@@ -1,0 +1,7 @@
+# Bot Exceptions
+
+
+## BotCriticalException
+
+
+## BotRecoverableException

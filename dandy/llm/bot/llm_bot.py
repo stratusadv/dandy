@@ -4,7 +4,7 @@ from pydantic.main import IncEx
 from typing_extensions import Type, Generic, Union
 
 from dandy.bot import BaseBot
-from dandy.bot.exceptions import BotException
+from dandy.bot.exceptions import BotCriticalException
 from dandy.future.future import AsyncFuture
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
@@ -22,9 +22,9 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
 
     def __new__(cls):
         if cls.config is None:
-            raise BotException(f'{cls.__name__} config is not set')
+            raise BotCriticalException(f'{cls.__name__} config is not set')
         if cls.instructions_prompt is None:
-            raise BotException(f'{cls.__name__} instructions_prompt is not set')
+            raise BotCriticalException(f'{cls.__name__} instructions_prompt is not set')
 
         return super().__new__(cls)
 

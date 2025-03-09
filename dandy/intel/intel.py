@@ -7,7 +7,7 @@ from pydantic_core import from_json
 from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict
 
 from dandy.intel.field.annotation import FieldAnnotation
-from dandy.intel.exceptions import IntelException
+from dandy.intel.exceptions import IntelCriticalException
 
 
 T = TypeVar('T')
@@ -27,7 +27,7 @@ class BaseIntel(BaseModel, ABC):
             )
         
         if include and exclude:
-            raise IntelException('include and exclude cannot be used together')
+            raise IntelCriticalException('include and exclude cannot be used together')
         
         def inc_ex_dict(inc_ex: IncEx) -> Dict[str, bool]:
             if inc_ex:
@@ -46,7 +46,7 @@ class BaseIntel(BaseModel, ABC):
             exclude_value = exclude_dict.get(field_name)
 
             if (include is None and exclude_value and field_info.is_required()) or (exclude is None and include_value is None and field_info.is_required()):
-                raise IntelException(f"{field_name} is required and cannot be excluded or not included")
+                raise IntelCriticalException(f"{field_name} is required and cannot be excluded or not included")
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
             field_factory = field_info.default_factory or field_info.default

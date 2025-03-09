@@ -20,10 +20,15 @@
 ### Changes
 
 - Removed the old examples (Cookie Recipe and Pirate Story)
+- Exceptions are now being divided into two categories: `DandyCriticalException` and `DandyRecoverableException`.
+  - Both of this will inherit from `DandyException`.
+  - The `DandyRecoverableException` will be used to allow developers to attempt recovering from exceptions safely.
+  - The `DandyCriticalException` will be for when an exception is unrecoverable and must be handled.
 
 ### Fixes
 
 - Update the `process_to_intel` method used throughout the project to properly reflect the `postfix_system_prompt` argument.
+- Added missing return to the `__str__` method in the `Url` class (Thanks Pyright).
 
 ## v0.10.0
 

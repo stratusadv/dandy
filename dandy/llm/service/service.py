@@ -14,7 +14,7 @@ from dandy.conf import settings
 from dandy.intel.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
-from dandy.llm.exceptions import LlmException, LlmValidationException
+from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
@@ -66,7 +66,7 @@ class LlmService:
     ) -> IntelType:
 
         if intel_class and intel_object:
-            raise LlmException('Cannot specify both intel_class and intel_object.')
+            raise LlmCriticalException('Cannot specify both intel_class and intel_object.')
 
         def intel_inc_ex_json_schema(intel_: Union[Type[IntelType], IntelType]) -> dict:
             return intel_.model_inc_ex_class_copy(
@@ -81,7 +81,7 @@ class LlmService:
             intel_json_schema = intel_inc_ex_json_schema(intel_object)
           
         else:
-            raise LlmException('Must specify either intel_class or intel_object.')  
+            raise LlmCriticalException('Must specify either intel_class or intel_object.')
 
         event_id = generate_new_debug_event_id()
 
@@ -189,7 +189,7 @@ class LlmService:
                         remaining_attempts=self._config.options.prompt_retry_count - attempt
                     )
         else:
-            raise LlmValidationException
+            raise LlmValidationCriticalException
 
     def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
         event_id = generate_new_debug_event_id()
@@ -247,8 +247,8 @@ class LlmService:
 
         else:
             if response.status_code != 0:
-                raise LlmException(
+                raise LlmCriticalException(
                     f'Llm service request failed with status code {response.status_code} and the following message "{response.text}" after {self._config.options.connection_retry_count} attempts')
             else:
-                raise LlmException(
+                raise LlmCriticalException(
                     f'Llm service request failed after {self._config.options.connection_retry_count} attempts for unknown reasons')
