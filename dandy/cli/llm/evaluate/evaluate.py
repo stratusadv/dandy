@@ -55,7 +55,7 @@ def evaluate(
                 prompt_description=evaluate_description,
             ),
             intel_class=EvaluatedSourceIntel,
-            prefix_system_prompt=evaluate_prompt_system_prompt(),
+            system_prompt=evaluate_prompt_system_prompt(),
         )
 
         if evaluated_source_intel:

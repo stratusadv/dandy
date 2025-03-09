@@ -8,17 +8,22 @@
 
 ### Features
 
-- A new example has been created that is much easier to follow and show cases the features of dandy.
+- A new example has been created that is much easier to follow and showcases the features of dandy.
 - Added a new `Intel` class called `BaseListIntel` that is used to create an iterable intel object that behaves like a `list`.
 - When using `process_prompt_to_intel` you can now submit a `intel_class` or `intel_object`.
   - Submitting a class will return you a new instance of the class.
   - Submitting the object will return you a modified copy of the object.
 - The method `process_prompt_to_intel` now supports `include_fields` and `exclude_fields` which allow you to only include or exclude fields from the intel object or class.
 - Caching is now supported through the `cache_to_memory` and `cache_to_sqlite` decorators.
+  - Check out the `dandy/default_settings.py` file to see how to configure caching beyond the defaults.
 
 ### Changes
 
 - Removed the old examples (Cookie Recipe and Pirate Story)
+
+### Fixes
+
+- Update the `process_to_intel` method used throughout the project to properly reflect the `postfix_system_prompt` argument.
 
 ## v0.10.0
 

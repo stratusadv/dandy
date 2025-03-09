@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 
 def get_estimated_token_count_for_prompt(
         prompt: Prompt,
-        prefix_system_prompt: Union[Prompt, None] = None
+        postfix_system_prompt: Union[Prompt, None] = None
 ) -> int:
 
     return service_system_prompt(
-        prefix_system_prompt=prefix_system_prompt
+        system_prompt=postfix_system_prompt
     ).estimated_token_count + service_user_prompt(prompt).estimated_token_count

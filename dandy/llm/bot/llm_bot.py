@@ -39,11 +39,12 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
             postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
         
-        prefix_system_prompt = Prompt()
-        prefix_system_prompt.prompt(cls.instructions_prompt)
+        system_prompt = Prompt()
+        system_prompt.prompt(cls.instructions_prompt)
         
         if postfix_system_prompt:
-            prefix_system_prompt.prompt(postfix_system_prompt)
+            system_prompt.line_break()
+            system_prompt.prompt(postfix_system_prompt)
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
@@ -53,7 +54,7 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
             intel_object=intel_object,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
-            prefix_system_prompt=prefix_system_prompt
+            system_prompt=system_prompt
         )
 
     @classmethod

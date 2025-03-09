@@ -9,12 +9,12 @@ from dandy.llm.prompt import Prompt
 
 
 def service_system_prompt(
-        prefix_system_prompt: Union[Prompt, None] = None
+        system_prompt: Union[Prompt, None] = None
 ) -> Prompt:
     prompt = Prompt()
 
-    if isinstance(prefix_system_prompt, Prompt):
-        prompt.prompt(prefix_system_prompt)
+    if isinstance(system_prompt, Prompt):
+        prompt.prompt(system_prompt)
 
     return prompt
 
