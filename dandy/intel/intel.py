@@ -14,12 +14,22 @@ T = TypeVar('T')
 
 
 class BaseIntel(BaseModel, ABC):
+    """
+    Base class for all Dandy intel
+    """
     @classmethod
     def model_inc_ex_class_copy(
             cls,
             include: Union[IncEx, None] = None,
             exclude: Union[IncEx, None] = None,
     ) -> Type[Self]:
+        """
+        Creates a new class that is a copy of the current class but with the fields included or excluded
+
+        :param include:
+        :param exclude:
+        :return:
+        """
         if include is None and exclude is None:
             return create_model(
                 cls.__name__, 
@@ -29,8 +39,8 @@ class BaseIntel(BaseModel, ABC):
         if include and exclude:
             raise IntelCriticalException('include and exclude cannot be used together')
         
-        def inc_ex_dict(inc_ex: IncEx) -> Dict[str, bool]:
-            if inc_ex:
+        def inc_ex_dict(inc_ex: Union[IncEx, None]) -> Dict[str, bool]:
+            if inc_ex is not None:
                 return inc_ex if isinstance(inc_ex, dict) else {key: True for key in inc_ex}
             else:
                 return {}
@@ -85,13 +95,30 @@ class BaseIntel(BaseModel, ABC):
         )
 
     def model_validate_and_copy(self, update: dict) -> Self:
+        """
+        Copies this object with field updates from a dict and validates
+
+        :param update:
+        :return:
+        """
         return self.model_validate(self.model_copy(update=update))
         
     def model_validate_json_and_copy(self, update: str) -> Self:
+        """
+        Copies this object with field updates from a json str and validates
+
+        :param update:
+        :return:
+        """
         return self.model_validate_and_copy(update=from_json(update))
     
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
+    """
+    A class that behaves like a list of Intel objects
+
+    :ivar items:
+    """
     items: List[T]
 
     def __getitem__(self, index) -> Union[List[T], T]:

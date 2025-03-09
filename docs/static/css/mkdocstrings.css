@@ -1,0 +1,18 @@
+.doc {
+    font-weight: normal;
+}
+
+.doc .doc-children {
+    padding-left: 5%;
+    border-left: 1px solid #e0e0e0;
+}
+
+.doc .doc-heading code {
+}
+
+.doc .doc-label code {
+}
+
+.doc .doc-object code span.n {
+}
+

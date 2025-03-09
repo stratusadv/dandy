@@ -8,6 +8,7 @@ copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
 
 extra_css:
   - static/css/extra.css
+  - static/css/mkdocstrings.css
 
 extra_javascript:
   - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
@@ -24,7 +25,6 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-  - pymdownx.snippets
   - tables
   - attr_list
 
@@ -40,7 +40,13 @@ nav:
       - Bots: guides/bots.md
       - LLM Bots: guides/llm_bots.md
   - API Reference:
-      - Processor: api/processor.md
+      - Intel: api/intel/intel.md
+      - LLM:
+          - Config Options: api/llm/service/config/options.md
+          - Prompt: api/llm/prompt/prompt.md
+          - Prompt Snippets: api/llm/prompt/snippet.md
+          - Service: api/llm/service/service.md
+      - Processor: api/processor/processor.md
   - Exceptions:
       - Handling Errors: exceptions/handling_errors.md
       - Dandy Exceptions: exceptions/dandy_exceptions.md
@@ -75,11 +81,21 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
+          import:
+            - url: https://docs.python.org/3/objects.inv
+              domains: [py, std]
           options:
             show_source: true
+            show_if_no_docstring: True
             docstring_style: sphinx
-            show_root_full_path: false
+            docstring_section_style: list
+            members_order: source
+            merge_init_into_class: true
+            show_root_full_path: true
             show_root_heading: true
+            show_signature: false
+            show_signature_annotations: false
+            show_symbol_type_heading: true
 
 theme:
   name: material
@@ -102,3 +118,7 @@ theme:
   logo: 'static/img/dandy_icon_white_256.png'
   favicon: 'favicon.png'
 
+watch:
+  - dandy
+  - example
+  - tests

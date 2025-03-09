@@ -1,12 +1,12 @@
 from types import NoneType
 
-from typing_extensions import get_origin, get_args, Type, List, Tuple, Set, Any
+from typing_extensions import get_origin, get_args, Type, List, Tuple, Set, Any, Union
 
 from dandy.intel.exceptions import IntelCriticalException
 
 
 class FieldAnnotation:
-    def __init__(self, annotation: Type, field_name: str):
+    def __init__(self, annotation: Union[Type, None], field_name: str):
         self.annotation = annotation
         
         if self.first_inner_origin_is_iterable:
@@ -41,5 +41,5 @@ class FieldAnnotation:
         return get_origin(self.first_inner) in (list, List, tuple, Tuple, set, Set)
 
     @property
-    def origin(self) -> Type:
+    def origin(self) -> Union[Type, None]:
         return get_origin(self.annotation)
