@@ -36,10 +36,9 @@ nav:
       - Structure: getting_started/structure.md
   - Guides:
       - Start Here: guides/start_here.md
-      - General:
-          - Bots: guides/bots.md
-      - Large Language Models:
-          - LLM Bots: guides/llm/llm_bots.md
+      - Overview: guides/dandy_overview.md
+      - Bots: guides/bots.md
+      - LLM Bots: guides/llm_bots.md
   - API Reference:
       - Processor: api/processor.md
   - Exceptions:

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/static/img/dandy_logo_512.png" style="margin-top: -70px; margin-bottom: -20px; width: 60%" />
+  <img src="/static/img/dandy_logo_512.png" style="margin-top: -60px; margin-bottom: -20px; width: 70%" />
 </p>
 
 # Intelligent Development Made Easierish...
