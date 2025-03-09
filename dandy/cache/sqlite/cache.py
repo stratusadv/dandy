@@ -4,21 +4,26 @@ from typing import Any, Union
 
 from dandy.cache.cache import BaseCache
 from dandy.cache.sqlite.connection import SqliteConnection
-from dandy.conf import settings 
-
+from dandy.conf import settings
 
 
 class SqliteCache(BaseCache):
-    limit: int = 1000
-    
+    limit: int = settings.CACHE_SQLITE_LIMIT
+
     def model_post_init(self, __context: Any):
         self._create_table()
+
+    def __len__(self) -> int:
+        with SqliteConnection() as connection:
+            cursor = connection.cursor()
+            cursor.execute('SELECT COUNT(*) FROM cache')
+            return cursor.fetchone()[0]
 
     @staticmethod
     def _create_table():
         with SqliteConnection() as connection:
             cursor = connection.cursor()
-            
+
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS cache (
                     key TEXT PRIMARY KEY,
@@ -26,32 +31,32 @@ class SqliteCache(BaseCache):
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
+
             connection.commit()
 
     def get(self, key: str) -> Union[Any, None]:
         with SqliteConnection() as connection:
             cursor = connection.cursor()
-            
+
             cursor.execute('SELECT value FROM cache WHERE key = ?', (key,))
             result = cursor.fetchone()
-            
+
             if result:
                 return pickle.loads(result[0])
-            
+
             return None
 
     def set(self, key: str, value: Any):
         with SqliteConnection() as connection:
             cursor = connection.cursor()
-            
+
             value_string = pickle.dumps(value)
-            
+
             try:
                 cursor.execute('INSERT INTO cache (key, value) VALUES (?, ?)', (key, value_string))
             except sqlite3.IntegrityError:
                 cursor.execute('UPDATE cache SET value = ? WHERE key = ?', (value_string, key))
-            
+
             connection.commit()
             self.clean()
 
@@ -62,11 +67,14 @@ class SqliteCache(BaseCache):
             cursor.execute('SELECT COUNT(*) FROM cache')
             row_count = cursor.fetchone()[0]
 
-            excess_threshold = self.limit * 0.05
+            excess_threshold = int(self.limit * 0.10)
             excess_rows = row_count - self.limit
 
             if excess_rows >= excess_threshold:
-                cursor.execute('DELETE FROM cache ORDER BY created_at ASC LIMIT ?', (excess_threshold,))
+                cursor.execute(
+                    'DELETE FROM cache WHERE key IN (SELECT key FROM cache ORDER BY created_at LIMIT ?)',
+                    (excess_threshold,)
+                )
 
             connection.commit()
 
@@ -76,6 +84,8 @@ class SqliteCache(BaseCache):
             cursor.execute('DELETE FROM cache')
             connection.commit()
 
-    
-    
+    def destroy(self):
+        SqliteConnection().delete_db_file()
+
+
 sqlite_cache = SqliteCache()

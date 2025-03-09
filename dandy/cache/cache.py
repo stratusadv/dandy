@@ -9,6 +9,10 @@ class BaseCache(ABC, BaseModel):
     limit: int = 100
 
     @abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abstractmethod
     def get(self, key: str) -> Union[Any, None]:
         pass
     
@@ -23,3 +27,8 @@ class BaseCache(ABC, BaseModel):
     @abstractmethod
     def clear(self):
         pass
+
+    @abstractmethod
+    def destroy(self):
+        pass
+

@@ -9,18 +9,18 @@ def base_cache_decorator(cache: BaseCache):
         @wraps(func)
         def wrapper(*args, **kwargs):
             key = generate_hash_key(*args, **kwargs)
-    
+
             cached_value = cache.get(key)
-    
+
             if cached_value is not None:
                 return cached_value
-    
+
             value = func(*args, **kwargs)
-    
+
             cache.set(key, value)
-    
+
             return value
-    
+
         return wrapper
 
     return decorator

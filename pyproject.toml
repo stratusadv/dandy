@@ -32,6 +32,9 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 dandy = "dandy.cli.main:main"
 
+[tool.pyright]
+pythonVersion = "3.9"
+
 [tool.setuptools.package-data]
 dandy = [
     "**/*.html",
