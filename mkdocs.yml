@@ -115,6 +115,7 @@ theme:
     - toc.follow
     - navigation.tabs
     - navigation.footer
+    - navigation.sections
   logo: 'static/img/dandy_icon_white_256.png'
   favicon: 'favicon.png'
 
