@@ -29,6 +29,7 @@ Below is a simple example of the recommended structure for a basic project / mod
 📄 __init__.py
 📄 dandy_settings.py
 📄 main.py
+📄 ...
 
 ```
 
@@ -96,5 +97,6 @@ Below is a more advanced example with comments of the recommended structure for 
 📄 __init__.py
 📄 dandy_settings.py <-- Contains Settings, LLM configs for the entire project
 📄 main.py <-- Main entry point for the project
+📄 ...
 
 ```

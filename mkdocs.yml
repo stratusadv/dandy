@@ -66,6 +66,7 @@ nav:
   - About:
       - Contributors: about/contributors.md
       - Branding: about/branding.md
+      - Credits: about/credits.md
 
 plugins:
   - search
