@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pydantic.main import IncEx
 from typing_extensions import TYPE_CHECKING, Union, List
 
 from dandy.llm import BaseLlmBot, Prompt
@@ -29,6 +30,7 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
             plot_point_intel: PlotPointIntel,
             book_intel: BookIntel,
             previous_plot_point_intels: List[PlotPointIntel],
+            include: Union[IncEx, None] = None
     ) -> PlotPointIntel:
         prompt = Prompt()
 
@@ -37,14 +39,14 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
         if previous_plot_point_intels:
             prompt.prompt(plot_intel_prompt(
                 PlotIntel(items=previous_plot_point_intels)),
-                exclude_fields={'plot_point': {'outline'}}
             )
-                
+
             prompt.line_break()
-            
+
         prompt.text(f'Current Plot Point Outline: {plot_point_intel.outline}')
 
         return cls.process_prompt_to_intel(
             prompt=prompt,
-            intel_class=PlotPointIntel,
+            intel_object=plot_point_intel,
+            include_fields=include,
         )
