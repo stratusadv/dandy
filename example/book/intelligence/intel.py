@@ -20,4 +20,3 @@ class BookIntel(BaseIntel):
     plot: Union[PlotIntel, None] = None
     world: Union[WorldIntel, None] = None
     chapters: Union[ChaptersIntel, None] = None
-    

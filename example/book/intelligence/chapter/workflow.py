@@ -20,9 +20,9 @@ class ChaptersWorkflow(BaseWorkflow):
     ) -> ChaptersIntel:
         chapters_intel = bots.ChaptersStructureLlmBot.process(
             book_intel=book_intel,
-            chapter_count=chapter_count
+            chapter_count=chapter_count,
         )
-        
+
         for i, chapter_intel in enumerate(chapters_intel):
             chapters_intel[i] = bots.SceneLlmBot.process(
                 book_intel=book_intel,
