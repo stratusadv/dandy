@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-
 from pydantic import BaseModel
-from typing_extensions import Any, Union, OrderedDict
+from typing_extensions import Any, Union
 
 
 class BaseCache(ABC, BaseModel):

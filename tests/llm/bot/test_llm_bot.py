@@ -44,7 +44,7 @@ class TestLlmBot(TestCase):
 
         self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
 
-    def test_llm_bot_include(self):
+    def test_llm_bot_intel_class_include(self):
         money_bag = MoneyBagLlmBot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBag,
@@ -55,7 +55,7 @@ class TestLlmBot(TestCase):
         self.assertEqual(money_bag.bills, None)
         self.assertEqual(money_bag.gems, None)
 
-    def test_llm_bot_exclude(self):
+    def test_llm_bot_intel_class_exclude(self):
         money_bag = MoneyBagLlmBot.process(
             user_input='make me rich with lots of coins and gems!',
             intel_class=MoneyBag,
@@ -75,10 +75,10 @@ class TestLlmBot(TestCase):
         coins = 10
         bills = 50
         
-        additional_coins = 15
-        
         old_money_bag = MoneyBag(coins=coins, bills=bills)
-        
+
+        additional_coins = 15
+
         new_money_bag = MoneyBagLlmBot.process(
             user_input=f'I have {coins} coins can you please add {additional_coins} more?',
             intel_object=old_money_bag,

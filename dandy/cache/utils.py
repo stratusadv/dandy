@@ -1,9 +1,9 @@
 import hashlib
 
 
-def generate_hash_key(*args, **kwargs) -> str:
+def generate_hash_key(qualname: str, *args, **kwargs) -> str:
     return hashlib.sha256(
         str(
-            (args, tuple(sorted(kwargs.items())))
+            (qualname, args, tuple(sorted(kwargs.items())))
         ).encode()
     ).hexdigest()
