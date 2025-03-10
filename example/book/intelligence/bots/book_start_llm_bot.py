@@ -1,5 +1,6 @@
 from typing import Any
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.intel import BookStartIntel
 
@@ -9,8 +10,9 @@ class BookStartLlmBot(BaseLlmBot):
         .text('You are a book starting bot. You will be given an idea by the user.')
         .text('you will generate a book title and overview.')
     )
-    
+
     @classmethod
+    @cache_to_sqlite
     def process(
             cls,
             user_input: str,

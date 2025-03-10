@@ -4,6 +4,7 @@ from typing import Union
 
 from typing_extensions import TYPE_CHECKING
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.character.enums import CharacterType
 from example.book.intelligence.character.intel import CharacterIntel
@@ -22,6 +23,7 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
     )
     
     @classmethod
+    @cache_to_sqlite
     def process(
             cls,
             book_intel: BookIntel,

@@ -3,7 +3,7 @@ from abc import ABC
 from pydantic.main import IncEx
 from typing_extensions import Type, Generic, Union
 
-from dandy.bot import BaseBot
+from dandy.bot.bot import BaseBot
 from dandy.bot.exceptions import BotCriticalException
 from dandy.future.future import AsyncFuture
 from dandy.intel import BaseIntel

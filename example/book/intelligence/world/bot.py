@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.world.intel import WorldIntel
 
@@ -18,6 +19,7 @@ class WorldLlmBot(BaseLlmBot):
     )
 
     @classmethod
+    @cache_to_sqlite
     def process(
             cls,
             book_intel: BookIntel,

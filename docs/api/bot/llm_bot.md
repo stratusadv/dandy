@@ -1,3 +1,3 @@
-::: dandy.bot.BaseLlmBot
+::: dandy.llm.BaseLlmBot
 
-::: dandy.bot.LlmBot
+::: dandy.llm.LlmBot

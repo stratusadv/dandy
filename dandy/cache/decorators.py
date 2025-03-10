@@ -9,7 +9,7 @@ def base_cache_decorator(cache: BaseCache):
         @wraps(func)
         def wrapper(*args, **kwargs):
             key = generate_hash_key(
-                func.__qualname__,
+                func,
                 *args,
                 **kwargs
             )

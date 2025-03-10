@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from example.book.intelligence.intel import BookIntel
 
 
-class ChaptersStructureLlmBot(BaseLlmBot):
+class ChaptersLlmBot(BaseLlmBot):
     config = 'ADVANCED'
     instructions_prompt = (
         Prompt()

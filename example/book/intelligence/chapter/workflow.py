@@ -18,7 +18,7 @@ class ChaptersWorkflow(BaseWorkflow):
             book_intel: BookIntel,
             chapter_count: int
     ) -> ChaptersIntel:
-        chapters_intel = bots.ChaptersStructureLlmBot.process(
+        chapters_intel = bots.ChaptersLlmBot.process(
             book_intel=book_intel,
             chapter_count=chapter_count,
         )

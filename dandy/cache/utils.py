@@ -1,9 +1,16 @@
 import hashlib
 
+from typing_extensions import Callable
 
-def generate_hash_key(qualname: str, *args, **kwargs) -> str:
+
+def generate_hash_key(func: object, *args, **kwargs) -> str:
+    hashable_tuple = (
+        func.__module__,
+        func.__qualname__,
+        args,
+        tuple(sorted(kwargs.items()))
+    )
+
     return hashlib.sha256(
-        str(
-            (qualname, args, tuple(sorted(kwargs.items())))
-        ).encode()
+        str(hashable_tuple).encode()
     ).hexdigest()

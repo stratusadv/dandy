@@ -3,13 +3,15 @@ from example.book.intelligence.chapter.intel import ChaptersIntel, ChapterIntel
 
 
 def chapter_intel_overview_prompt(chapter_intel: ChapterIntel) -> Prompt:
-    return (
-        Prompt()
-        .text(f'Title: {chapter_intel.title}')
-        .text(f'Covered Plot Points: {chapter_intel.covered_plot_points}')
-        .text('Scenes:')
-        .list([scene_intel.summary for scene_intel in chapter_intel.scenes])
-    )
+    prompt = Prompt()
+    prompt.text(f'Title: {chapter_intel.title}')
+    prompt.text(f'Covered Plot Points: {chapter_intel.covered_plot_points}')
+    if chapter_intel.scenes:
+        prompt.line_break()
+        prompt.text('Scenes:')
+        prompt.list([scene_intel.summary for scene_intel in chapter_intel.scenes])
+
+    return prompt
 
 
 def chapter_intel_prompt(chapter_intel: ChapterIntel) -> Prompt:
