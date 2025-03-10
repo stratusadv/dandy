@@ -1,1 +1,1 @@
-# Debug Exceptions
+::: dandy.debug.exceptions

@@ -1,1 +1,1 @@
-# LLM Exceptions
+::: dandy.llm.exceptions

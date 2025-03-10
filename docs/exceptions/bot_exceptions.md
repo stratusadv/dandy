@@ -1,7 +1,1 @@
-# Bot Exceptions
-
-
-## BotCriticalException
-
-
-## BotRecoverableException
+::: dandy.bot.exceptions

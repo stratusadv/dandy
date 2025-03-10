@@ -1,10 +1,14 @@
 # Handling Errors
 
-There is two primary exceptions that all other exceptions in Dandy inherit, `DandyCriticalException` and `DandyRecoverableException`.
+We divide between `Critical` and `Recoverable` exceptions, this is to allow developers to make more decisions when it comes to handling errors.
+
+The two primary exceptions that all other exceptions in Dandy inherit from are `DandyCriticalException` and `DandyRecoverableException`.
 
 !!! note
 
     Both of these exceptions inherit from the `DandyException` which is a subclass of pythons `Exception`.
+
+
 
 ## Probabilistic Outcomes
 

@@ -1,1 +1,1 @@
-# Intel Exceptions
+::: dandy.intel.exceptions

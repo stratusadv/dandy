@@ -73,8 +73,9 @@ class TestLlmBot(TestCase):
 
     def test_llm_bot_intel_object_include(self):
         coins = 10
-        additional_coins = 15
         bills = 50
+        
+        additional_coins = 15
         
         old_money_bag = MoneyBag(coins=coins, bills=bills)
         

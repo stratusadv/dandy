@@ -40,16 +40,29 @@ nav:
       - Bots: guides/bots.md
       - LLM Bots: guides/llm_bots.md
   - API Reference:
-      - Intel: api/intel/intel.md
+      - Bot:
+          - BaseBot: api/bot/bot.md
+          - LlmBot: api/bot/llm_bot.md
+      - Cache:
+          - Decorators: api/cache/decorators.md
+      - Debug:
+          - DebugRecorder: api/debug/debug.md
+      - Future:
+          - AsyncFuture: api/future/future.md
+      - Intel:
+          - BaseIntel: api/intel/intel.md
       - LLM:
           - Config Options: api/llm/service/config/options.md
           - Prompt: api/llm/prompt/prompt.md
           - Prompt Snippets: api/llm/prompt/snippet.md
           - Service: api/llm/service/service.md
-      - Processor: api/processor/processor.md
+      - Processor:
+          - BaseProcessor: api/processor/processor.md
+      - Workflow:
+          - BaseWorkflow: api/workflow/workflow.md
   - Exceptions:
       - Handling Errors: exceptions/handling_errors.md
-      - Dandy Exceptions: exceptions/dandy_exceptions.md
+      - Dandy: exceptions/dandy_exceptions.md
       - Sub Exceptions:
           - Bot: exceptions/bot_exceptions.md
           - Debug: exceptions/debug_exceptions.md
@@ -65,10 +78,10 @@ nav:
       - Archived: changelog/archived_changelog.md
   - Research:
       - Overview: research/overview.md
-      - GPU:
-          - Comparison: research/gpu/comparison.md
-      - LLM:
-          - Resources: research/llm/resources.md
+      - Compute:
+          - GPU Comparison: research/compute/gpu_comparison.md
+      - Large Language:
+          - Resources: research/large_language/resources.md
   - About:
       - Contributors: about/contributors.md
       - Branding: about/branding.md
@@ -81,7 +94,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          import:
+          inventories:
             - url: https://docs.python.org/3/objects.inv
               domains: [py, std]
           options:
