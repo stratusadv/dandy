@@ -3,17 +3,16 @@ from __future__ import annotations
 import json
 from time import sleep
 
+import httpx
 from httpx import Response
-from pydantic.main import IncEx
-from typing_extensions import Type, Union, TYPE_CHECKING, Iterable
-
-import httpx 
 from pydantic import ValidationError
+from pydantic.main import IncEx
+from typing_extensions import Type, Union, TYPE_CHECKING
 
 from dandy.conf import settings
-from dandy.intel.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
+from dandy.intel.type_vars import IntelType
 from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry

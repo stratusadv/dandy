@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import Path
+
 from typing_extensions import Union
 
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \

@@ -6,9 +6,8 @@ from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
 from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict
 
-from dandy.intel.field.annotation import FieldAnnotation
 from dandy.intel.exceptions import IntelCriticalException
-
+from dandy.intel.field.annotation import FieldAnnotation
 
 T = TypeVar('T')
 
@@ -17,6 +16,32 @@ class BaseIntel(BaseModel, ABC):
     """
     Base class for all Dandy intel
     """
+
+    @classmethod
+    def check_inc_ex(
+            cls,
+            include_dict: Dict[str, bool],
+            exclude_dict: Dict[str, bool],
+    ):
+
+        field_names = set(cls.model_fields.keys())
+
+        if include_dict:
+            include_field_names = set(include_dict.keys())
+
+            if not include_field_names.issubset(field_names):
+                raise IntelCriticalException(
+                    f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
+                )
+
+        if exclude_dict:
+            exclude_field_names = set(exclude_dict.keys())
+
+            if not exclude_field_names.issubset(field_names):
+                raise IntelCriticalException(
+                    f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
+                )
+
     @classmethod
     def model_inc_ex_class_copy(
             cls,
@@ -38,7 +63,7 @@ class BaseIntel(BaseModel, ABC):
         
         if include and exclude:
             raise IntelCriticalException('include and exclude cannot be used together')
-        
+
         def inc_ex_dict(inc_ex: Union[IncEx, None]) -> Dict[str, bool]:
             if inc_ex is not None:
                 return inc_ex if isinstance(inc_ex, dict) else {key: True for key in inc_ex}
@@ -47,6 +72,8 @@ class BaseIntel(BaseModel, ABC):
 
         include_dict = inc_ex_dict(include)
         exclude_dict = inc_ex_dict(exclude)
+
+        cls.check_inc_ex(include_dict, exclude_dict)
 
         processed_fields = {}
         

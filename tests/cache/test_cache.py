@@ -6,9 +6,9 @@ from unittest import TestCase
 from typing_extensions import Callable
 
 from dandy.cache.cache import BaseCache
-from dandy.cache.memory.cache import memory_cache
+from dandy.cache.memory.cache import MemoryCache
 from dandy.cache.memory.decorators import cache_to_memory
-from dandy.cache.sqlite.cache import sqlite_cache
+from dandy.cache.sqlite.cache import SqliteCache
 from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.intel import BaseIntel
 
@@ -22,16 +22,30 @@ class ClownIntel(BaseIntel):
     wig: WigIntel
 
 
+test_limit = 100
+
+
+sql_lite_cache = SqliteCache(
+    cache_name='dandy',
+    limit=test_limit
+)
+
+memory_cache = MemoryCache(
+    cache_name='dandy',
+    limit=test_limit
+)
+
+
 class TestCache(TestCase):
     @classmethod
     def tearDownClass(cls):
-        sqlite_cache.destroy()
+        sql_lite_cache.destroy()
         memory_cache.destroy()
 
     def run_test_cache(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        @cache_decorator
+        @cache_decorator(limit=test_limit)
         def create_clown(name: str, juggles: bool, wig_color: str) -> ClownIntel:
             sleep(0.5)
 
@@ -57,18 +71,15 @@ class TestCache(TestCase):
         self.run_test_cache(memory_cache, cache_to_memory)
 
     def test_sqlite_cache(self):
-        self.run_test_cache(sqlite_cache, cache_to_sqlite)
+        self.run_test_cache(sql_lite_cache, cache_to_sqlite)
 
     def run_text_cache_limit(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        test_limit = 100
 
-        @cache_decorator
+        @cache_decorator(limit=test_limit)
         def create_clown(name: str, juggles: bool, wig_color: str) -> ClownIntel:
             return ClownIntel(name=name, juggles=juggles, wig=WigIntel(color=wig_color))
-
-        cache.limit = test_limit
 
         for _ in range(int(test_limit * 2)):
             create_clown(name=str(uuid.uuid4()), juggles=True, wig_color=str(uuid.uuid4()))
@@ -79,5 +90,5 @@ class TestCache(TestCase):
         self.run_text_cache_limit(memory_cache, cache_to_memory)
 
     def test_sqlite_cache_limit(self):
-        self.run_text_cache_limit(sqlite_cache, cache_to_sqlite)
+        self.run_text_cache_limit(sql_lite_cache, cache_to_sqlite)
 

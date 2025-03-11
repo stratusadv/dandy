@@ -1,8 +1,8 @@
 import concurrent.futures
 from concurrent.futures import Future
-from time import time, perf_counter
+from time import perf_counter
 
-from typing_extensions import Callable, TypeVar, Generic, Union
+from typing_extensions import Callable, TypeVar, Generic
 
 from dandy.future.exceptions import FutureCriticalException
 

@@ -34,6 +34,13 @@ class TestIntel(TestCase):
         intel = TestingIntel()
         self.assertIsInstance(intel, TestingIntel)
 
+    def test_intel_include_invalid_field(self):
+        try:
+            _ = Person.model_inc_ex_class_copy(include={'height'})
+
+        except IntelCriticalException:
+            self.assertTrue(True)
+
     def test_intel_include_with_required_field(self):
         try:
             _ = Person.model_inc_ex_class_copy(include={'middle_name'})
@@ -82,6 +89,13 @@ class TestIntel(TestCase):
         self.assertNotIn('middle_name', json_schema['properties'])
         self.assertNotIn('pockets', json_schema['$defs']['Bag']['properties'])
         self.assertNotIn('description', json_schema['$defs']['Thing']['properties'])
+
+    def test_intel_exclude_invalid_field(self):
+        try:
+            _ = Person.model_inc_ex_class_copy(exclude={'height'})
+
+        except IntelCriticalException:
+            self.assertTrue(True)
 
     def test_intel_exclude_json_schema(self):
         PersonCopy = Person.model_inc_ex_class_copy(exclude={'middle_name'})

@@ -10,8 +10,8 @@ from random import randint, shuffle
 
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
-from dandy.llm.exceptions import LlmCriticalException
 from dandy.intel import BaseIntel
+from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:

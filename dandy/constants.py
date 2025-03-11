@@ -1,5 +1,3 @@
-import os
-
 CLI_OUTPUT_DIRECTORY = '.dandy_cli_output'
 CLI_DEFAULT_ENV_FILE_NAMES = [
     'dandy.env',

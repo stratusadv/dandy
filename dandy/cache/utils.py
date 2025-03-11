@@ -1,7 +1,5 @@
 import hashlib
 
-from typing_extensions import Callable
-
 
 def generate_hash_key(func: object, *args, **kwargs) -> str:
     hashable_tuple = (

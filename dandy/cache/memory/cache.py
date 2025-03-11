@@ -1,12 +1,20 @@
 from typing_extensions import OrderedDict, Union, Any
 
 from dandy.cache.cache import BaseCache
-from dandy.conf import settings
+
+_memory_cache = dict()
 
 
 class MemoryCache(BaseCache):
-    _cache: OrderedDict = OrderedDict()
-    limit: int = settings.CACHE_MEMORY_LIMIT
+    cache_name: str
+    limit: int
+
+    @property
+    def _cache(self):
+        if self.cache_name not in _memory_cache:
+            _memory_cache[self.cache_name] = OrderedDict()
+
+        return _memory_cache[self.cache_name]
 
     def __len__(self) -> int:
         return len(self._cache)
@@ -27,6 +35,3 @@ class MemoryCache(BaseCache):
 
     def destroy(self):
         self.clear()
-
-
-memory_cache = MemoryCache()

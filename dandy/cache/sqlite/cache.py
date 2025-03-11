@@ -4,12 +4,15 @@ from typing import Any, Union
 
 from dandy.cache.cache import BaseCache
 from dandy.cache.sqlite.connection import SqliteConnection
-from dandy.conf import settings
 
 
 class SqliteCache(BaseCache):
-    db_name: str
-    limit: int = settings.CACHE_SQLITE_LIMIT
+    cache_name: str
+    limit: int
+
+    @property
+    def db_name(self) -> str:
+        return f'{self.cache_name}_cache.db'
 
     def model_post_init(self, __context: Any):
         self._create_table()
@@ -85,4 +88,4 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     def destroy(self):
-        SqliteConnection().delete_db_file()
+        SqliteConnection(self.db_name).delete_db_file()

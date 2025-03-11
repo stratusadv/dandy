@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
-from typing_extensions import List, Dict
 from urllib.parse import urlencode, urlparse, ParseResult, quote
+
+from typing_extensions import List, Dict
 
 
 @dataclass(kw_only=True)

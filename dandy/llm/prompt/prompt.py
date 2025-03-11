@@ -1,7 +1,7 @@
 from pathlib import Path
-from typing_extensions import Union
 
 from typing_extensions import List, Type, Self, Dict
+from typing_extensions import Union
 
 from dandy.intel import BaseIntel
 from dandy.llm.prompt import snippet

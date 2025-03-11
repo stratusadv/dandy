@@ -1,11 +1,10 @@
 import importlib
-import os
 import sys
 from pathlib import Path
 
 import dotenv
 
-from dandy.constants import CLI_DEFAULT_ENV_FILE_NAMES, DEFAULT_SETTINGS_FILE_NAME
+from dandy.constants import CLI_DEFAULT_ENV_FILE_NAMES
 from dandy.utils import get_settings_module_name
 
 

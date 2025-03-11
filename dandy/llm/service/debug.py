@@ -3,9 +3,9 @@ from pydantic import ValidationError
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.debug.debug import DebugRecorder
 from dandy.intel import BaseIntel
-from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.service.events import LlmServiceRequestEvent, LlmServiceResponseEvent, LlmServiceSuccessEvent, \
     LlmServiceFailureEvent, LlmServiceRetryEvent
+from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 

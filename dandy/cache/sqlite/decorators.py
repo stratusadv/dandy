@@ -1,11 +1,27 @@
-from dandy.cache.decorators import base_cache_decorator
+from functools import wraps
+
+from dandy.cache.decorators import cache_decorator_function
 from dandy.cache.sqlite.cache import SqliteCache
+from dandy.conf import settings
 
 
-def cache_to_sqlite(name='dandy'):
+def cache_to_sqlite(
+        cache_name: str = 'dandy',
+        limit: int = settings.CACHE_SQLITE_LIMIT
+):
     def decorator(func):
-        return base_cache_decorator(
-            SqliteCache(db_name=f'{name}_cache.db')
-        )(func)
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return cache_decorator_function(
+                SqliteCache(
+                    cache_name=cache_name,
+                    limit=limit,
+                ),
+                func,
+                *args,
+                **kwargs
+            )
+
+        return wrapper
 
     return decorator

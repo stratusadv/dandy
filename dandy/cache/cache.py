@@ -5,7 +5,8 @@ from typing_extensions import Any, Union
 
 
 class BaseCache(ABC, BaseModel):
-    limit: int = 100
+    cache_name: str
+    limit: int
 
     @abstractmethod
     def __len__(self) -> int:

@@ -40,7 +40,7 @@ class MoneyBagLlmBot(BaseLlmBot[MoneyBag]):
 
 class TestLlmBot(TestCase):
     def test_llm_bot_import(self):
-        from dandy.llm.bot import BaseLlmBot
+        from dandy.llm import BaseLlmBot
 
         self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
 
