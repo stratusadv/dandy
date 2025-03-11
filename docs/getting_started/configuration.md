@@ -2,7 +2,7 @@
 
 ## Environment Variables
 
-It's highly recommended that you have a `DANDY_SETTINGS_MODULE` in your environment variables pointed towards your dandy settings module.
+It's highly recommended that you have a `DANDY_SETTINGS_MODULE` in your environment variables pointed towards your Dandy settings module.
 
 ```bash
 export DANDY_SETTINGS_MODULE=dandy_settings
@@ -14,7 +14,7 @@ export DANDY_SETTINGS_MODULE=dandy_settings
 
 ## Creating a Settings File
 
-In the virtual environment you can run the dandy cli with no arguments to create a settings file.
+In the virtual environment you can run the Dandy cli with no arguments to create a settings file.
 
 ```bash
 dandy

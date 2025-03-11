@@ -8,7 +8,7 @@
 
 ### Features
 
-- A new example has been created that is much easier to follow and showcases the features of dandy.
+- A new example has been created that is much easier to follow and showcases the features of Dandy.
 - Added a new `Intel` class called `BaseListIntel` that is used to create an iterable intel object that behaves like a `list`.
 - When using `process_prompt_to_intel` you can now submit a `intel_class` or `intel_object`.
   - Submitting a class will return you a new instance of the class.
@@ -49,7 +49,7 @@
 ### Features
 
 - In the `LLM_CONFIGS` in your settings the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will now flow to the other configs if they are not specificed.
-- Added --version to the CLI interface for dandy.
+- Added --version to the CLI interface for Dandy.
 - The OpenAI llm service now use json_schema for the response format.
 - The OllamaAI llm service now use json_schema for the response format.
 
@@ -112,16 +112,16 @@
 
 ### Major Changes
 
-- We have created a new class called `Intel` that is the pydantic `BaseModel` class renamed to give more separation of concerns between dandy code and your code.
+- We have created a new class called `Intel` that is the pydantic `BaseModel` class renamed to give more separation of concerns between Dandy code and your code.
 - For the most part of this project the word `Model` has been refactored to `Intel` to create more separation of concerns in projects.
-- The word `Model` has a lot of meaning in the context of dandy, artificial intelligence, databases, libraries and other frameworks.
+- The word `Model` has a lot of meaning in the context of Dandy, artificial intelligence, databases, libraries and other frameworks.
 - Our hope is this creates a very clear line between these specific objects and the rest of your code.
 
 ## v0.7.0
 
 ### Major Improvement
 
-- All the changes in v0.7.0 should reduce the over all code required to work with dandy by up to 50%.
+- All the changes in v0.7.0 should reduce the over all code required to work with Dandy by up to 50%.
 
 ### Features
 
@@ -131,7 +131,7 @@
   - This file will also need a `LLM_CONFIGS` dict variable with a `DEFAULT` llm config.
 - Debug recorder can now output to a json string or file.
 - Added randomize seed to LLM config that will randomize the seed every time the config is used.
-- Added new evaluate cli command for evaluating your dandy code -e --evaluate.
+- Added new evaluate cli command for evaluating your Dandy code -e --evaluate.
   - Currently only supports Prompt evaluation.
 - ALLOW_DEBUG_RECORDING was added to the settings for project wide control of the debug recorder.
   - defaulted to False.
@@ -140,14 +140,14 @@
 ### Changes
 
 - Updated the readme to match the new project structure.
-- All settings and llm configs are now managed through the dandy settings module.
+- All settings and llm configs are now managed through the Dandy settings module.
   - The environment variable `DANDY_SETTINGS_MODULE` can be used to specify the settings module to be used.
   - The system will default to look for a `dandy_settings.py` file in the current working directory or sys.path.
 - Moved a lot of project wide constants into the `const.py` file.
 
 ### Fixes
 
-- Fixed the user `dandy_settings.py` not loading properly with in the internal dandy modules.
+- Fixed the user `dandy_settings.py` not loading properly with in the internal Dandy modules.
 - Fixed readme to match new project structure and configuration setup.
 - Fixed the cli to properly use the dandy_settings.py file in the current working directory.
 - Improved testing coverage across the whole project.
@@ -214,21 +214,21 @@
 
 ### Features
 
-- You can now run simple assistant prompts with the -t --test argument for the dandy cli.
+- You can now run simple assistant prompts with the -t --test argument for the Dandy cli.
   - Example: dandy -t `some.module.cool_llm_bot.CoolLlmBot`
 
 ## v0.4.1
 
 ### Features
 
-- You can now run simple assistant prompts with the -a --assistant argument for the dandy cli.
+- You can now run simple assistant prompts with the -a --assistant argument for the Dandy cli.
   - Example: dandy -a `Hello, how are you?`
 
 ## v0.4.0
 
 ### Features
 
-- Added a dandy command line interface.
+- Added a Dandy command line interface.
   - you can use the -g --generate flag to generate a new llm bots.
   - you can use the -d --description flag to describe the llm bot you want to generate.
   - more generation features coming in the future 

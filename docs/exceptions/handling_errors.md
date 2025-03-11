@@ -17,7 +17,7 @@ This is why we have `Critical` and `Recoverable` exceptions to make sure you can
 
 !!! tip
 
-    As you develop with dandy you should consider that your code is interacting with systems you cannot be made completely deterministic.
+    As you develop with Dandy you should consider that your code is interacting with systems you cannot be made completely deterministic.
     Using exceptions to handle this will give you back the deterministic control you need to build reliable software.
 
 ## Example
