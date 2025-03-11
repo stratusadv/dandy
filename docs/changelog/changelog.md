@@ -1,6 +1,44 @@
 # Changelog
 
+## v0.11.0 - Coming Soon
+
+### Breaking
+
+- All uses of the `process_prompt_to_intel` method now require you to specify either an `intel_class` or an `intel_object` argument.
+
+### Features
+
+- A new example has been created that is much easier to follow and showcases the features of dandy.
+- Added a new `Intel` class called `BaseListIntel` that is used to create an iterable intel object that behaves like a `list`.
+- When using `process_prompt_to_intel` you can now submit a `intel_class` or `intel_object`.
+  - Submitting a class will return you a new instance of the class.
+  - Submitting the object will return you a modified copy of the object.
+- The method `process_prompt_to_intel` now supports `include_fields` and `exclude_fields` which allow you to only include or exclude fields from the intel object or class.
+- Caching is now supported through the `cache_to_memory` and `cache_to_sqlite` decorators.
+  - Check out the `dandy/default_settings.py` file to see how to configure caching beyond the defaults.
+  - The `cache_to_sqlite` can take a keyword argument `name` which can be used to separate the cache files.
+
+### Changes
+
+- Removed the old examples (Cookie Recipe and Pirate Story)
+- Exceptions are now being divided into two categories: `DandyCriticalException` and `DandyRecoverableException`.
+  - Both of this will inherit from `DandyException`.
+  - The `DandyRecoverableException` will be used to allow developers to attempt recovering from exceptions safely.
+  - The `DandyCriticalException` will be for when an exception is unrecoverable and must be handled.
+
+### Fixes
+
+- Update the `process_to_intel` method used throughout the project to properly reflect the `postfix_system_prompt` argument.
+- Added missing return to the `__str__` method in the `Url` class (Thanks Pyright).
+
 ## v0.10.0
+
+### Breaking
+
+- Renamed `Bot` to `BaseBot`
+- Renamed `Workflow` to `BaseWorkflow`
+- The LLM API for Ollama now only works with 0.5.0 or greater.
+- The LLM API for OpenAI now only works with gpt-4o-mini or greater.
 
 ### Documentation
 
@@ -13,13 +51,6 @@
 - Added --version to the CLI interface for dandy.
 - The OpenAI llm service now use json_schema for the response format.
 - The OllamaAI llm service now use json_schema for the response format.
-
-### Breaking
-
-- Renamed `Bot` to `BaseBot`
-- Renamed `Workflow` to `BaseWorkflow`
-- The LLM API for Ollama now only works with 0.5.0 or greater.
-- The LLM API for OpenAI now only works with gpt-4o-mini or greater.
 
 ### Changes
 

@@ -1,5 +1,3 @@
-import os
-
 CLI_OUTPUT_DIRECTORY = '.dandy_cli_output'
 CLI_DEFAULT_ENV_FILE_NAMES = [
     'dandy.env',
@@ -15,4 +13,4 @@ DEBUG_OUTPUT_DIRECTORY = '.dandy_debug_output'
 DEFAULT_SETTINGS_MODULE = 'dandy_settings'
 DEFAULT_SETTINGS_FILE_NAME = f'{DEFAULT_SETTINGS_MODULE}.py'
 
-VERSION = '0.10.0'
+VERSION = '0.11.0'

@@ -2,4 +2,38 @@
     --md-primary-fg-color: #186e95;
     --md-primary-fg-color--light: #186e95;
     --md-primary-fg-color--dark: #186e95;
+    --dandy-color-teal: #25b0C4;
+    --dandy-color-blue: #186e95;
+    --dandy-color-tan: #f7e1cc;
+    --dandy-color-yellow: #f8ca7a;
+    --dandy-color-orange: #e4904c;
+    --dandy-color-black: #050318;
 }
+
+img.dandy-logo {
+    width: 80%;
+    margin-top: -70px;
+    margin-bottom: -30px;
+}
+
+@media only screen and (min-width: 768px) {
+    img.dandy-logo {
+        width: 50%;
+        margin-top: -60px;
+        margin-bottom: -20px;
+    }
+}
+
+
+@media only screen and (min-width: 1200px) {
+    li.md-nav__item label.md-nav__link span.md-ellipsis {
+        font-size: 0.65rem;
+        font-weight: normal;
+    }
+
+    li.md-nav__item a.md-nav__link {
+        margin-left: 10px;
+    }
+
+}
+

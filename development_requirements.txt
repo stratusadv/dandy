@@ -2,6 +2,7 @@ build
 twine
 setuptools
 wheel
+pyright
 
 -r mkdocs_requirements.txt
 -r requirements.txt

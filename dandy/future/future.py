@@ -1,10 +1,10 @@
 import concurrent.futures
 from concurrent.futures import Future
-from time import time, perf_counter
+from time import perf_counter
 
-from typing_extensions import Callable, TypeVar, Generic, Union
+from typing_extensions import Callable, TypeVar, Generic
 
-from dandy.future.exceptions import FutureException
+from dandy.future.exceptions import FutureCriticalException
 
 async_executor = concurrent.futures.ThreadPoolExecutor()
 
@@ -39,7 +39,7 @@ class AsyncFuture(Generic[FutureResultType]):
             else:
                 raise concurrent.futures.TimeoutError
         except concurrent.futures.TimeoutError:
-            raise FutureException(f'Future timed out after {self._result_timeout} seconds')
+            raise FutureCriticalException(f'Future timed out after {self._result_timeout} seconds')
         finally:
             del self._future
                 

@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import Path
+
 from typing_extensions import Union
 
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
@@ -34,7 +35,7 @@ def generate(
         llm_bot_source_intel = llm_config.service.process_prompt_to_intel(
             prompt=generate_llm_bot_user_prompt(generate_description),
             intel_class=LlmBotSourceIntel,
-            prefix_system_prompt=generate_llm_bot_system_prompt(),
+            system_prompt=generate_llm_bot_system_prompt(),
         )
 
         if llm_bot_source_intel:

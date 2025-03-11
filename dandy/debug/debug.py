@@ -10,7 +10,7 @@ from dandy.conf import settings
 from dandy.constants import DEBUG_OUTPUT_DIRECTORY, VERSION
 from dandy.core.singleton import Singleton
 from dandy.debug.events import BaseEvent
-from dandy.debug.exceptions import DebugException
+from dandy.debug.exceptions import DebugCriticalException
 from dandy.debug.utils import generate_new_debug_event_id
 
 _DEFAULT_DEBUG_OUTPUT_PATH = Path(settings.BASE_PATH, DEBUG_OUTPUT_DIRECTORY)
@@ -137,7 +137,7 @@ class DebugRecorder(Singleton):
                 if len(cls.debuggers.keys()) == 0:
                     choices_message = f' Choices are {list(cls.debuggers.keys())}'
 
-                raise DebugException(f'Debug recording "{debugger_name}" does not exist. {choices_message}')
+                raise DebugCriticalException(f'Debug recording "{debugger_name}" does not exist. {choices_message}')
 
             cls.debuggers[debugger_name].stop()
 

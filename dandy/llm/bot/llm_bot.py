@@ -1,9 +1,10 @@
 from abc import ABC
 
-from typing_extensions import Type, Generic
+from pydantic.main import IncEx
+from typing_extensions import Type, Generic, Union
 
-from dandy.bot import BaseBot
-from dandy.bot.exceptions import BotException
+from dandy.bot.bot import BaseBot
+from dandy.bot.exceptions import BotCriticalException
 from dandy.future.future import AsyncFuture
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
@@ -16,33 +17,44 @@ from dandy.llm.service.config.options import LlmConfigOptions
 class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
-    instructions_prompt: Prompt
+    instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
     intel_class: Type[BaseIntel] = DefaultLlmIntel
 
     def __new__(cls):
         if cls.config is None:
-            raise BotException(f'{cls.__name__} config is not set')
+            raise BotCriticalException(f'{cls.__name__} config is not set')
         if cls.instructions_prompt is None:
-            raise BotException(f'{cls.__name__} instructions_prompt is not set')
+            raise BotCriticalException(f'{cls.__name__} instructions_prompt is not set')
 
         return super().__new__(cls)
 
     @classmethod
     def process_prompt_to_intel(
             cls,
-            prompt: Prompt,
-            intel_class: Type[IntelType],
+            prompt: Union[Prompt, str],
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            include_fields: Union[IncEx, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
+            postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
+        
+        system_prompt = Prompt()
+        system_prompt.prompt(cls.instructions_prompt)
+        
+        if postfix_system_prompt:
+            system_prompt.line_break()
+            system_prompt.prompt(postfix_system_prompt)
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
-            prompt=prompt,
+            prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
             intel_class=intel_class,
-            prefix_system_prompt=(
-                Prompt()
-                .prompt(cls.instructions_prompt)
-            )
+            intel_object=intel_object,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            system_prompt=system_prompt
         )
 
     @classmethod
@@ -51,12 +63,10 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
 
 
 class LlmBot(BaseLlmBot, Generic[IntelType]):
-    instructions_prompt: Prompt = Prompt("You're a helpful assistant.")
-
     @classmethod
     def process(
             cls,
-            prompt: Prompt,
+            prompt: Union[Prompt, str],
             intel_class: Type[IntelType] = DefaultLlmIntel,
     ) -> IntelType:
 

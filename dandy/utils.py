@@ -1,6 +1,7 @@
-import re
 import os
+import re
 from enum import Enum
+
 from typing_extensions import List, Type
 
 from dandy.constants import DEFAULT_SETTINGS_MODULE

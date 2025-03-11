@@ -3,17 +3,17 @@ from __future__ import annotations
 import json
 from time import sleep
 
+import httpx
 from httpx import Response
+from pydantic import ValidationError
+from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
-import httpx 
-from pydantic import ValidationError
-
 from dandy.conf import settings
-from dandy.intel.type_vars import IntelType
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
-from dandy.llm.exceptions import LlmException, LlmValidationException
+from dandy.intel.type_vars import IntelType
+from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
@@ -57,9 +57,30 @@ class LlmService:
     def process_prompt_to_intel(
             self,
             prompt: Prompt,
-            intel_class: Type[IntelType],
-            prefix_system_prompt: Union[Prompt, None] = None
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            include_fields: Union[IncEx, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
+            system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
+
+        if intel_class and intel_object:
+            raise LlmCriticalException('Cannot specify both intel_class and intel_object.')
+
+        def intel_inc_ex_json_schema(intel_: Union[Type[IntelType], IntelType]) -> dict:
+            return intel_.model_inc_ex_class_copy(
+                include=include_fields, 
+                exclude=exclude_fields
+            ).model_json_schema()
+        
+        if intel_class:
+            intel_json_schema = intel_inc_ex_json_schema(intel_class)
+
+        elif intel_object:
+            intel_json_schema = intel_inc_ex_json_schema(intel_object)
+          
+        else:
+            raise LlmCriticalException('Must specify either intel_class or intel_object.')
 
         event_id = generate_new_debug_event_id()
 
@@ -68,13 +89,13 @@ class LlmService:
             request_body = self.get_request_body()
 
             request_body.set_format_to_json_schema(
-                intel_class.model_json_schema()
+                intel_json_schema
             )
 
             request_body.add_message(
                 role='system',
                 content=service_system_prompt(
-                    prefix_system_prompt=prefix_system_prompt
+                    system_prompt=system_prompt
                 ).to_str()
             )
 
@@ -92,15 +113,24 @@ class LlmService:
             debug_record_llm_response(message_content, event_id)
 
             try:
-                intel = intel_class.model_validate_json(message_content)
+                intel_ = None
 
-                debug_record_llm_success(
-                    'Validated response from prompt into intel object.',
-                    event_id,
-                    intel=intel
-                )
+                if intel_class:
+                    intel_ = intel_class.model_validate_json(message_content)
+                elif intel_object:
+                    intel_ = intel_object.model_validate_json_and_copy(message_content)
 
-                return intel
+                if intel_ is not None:
+                    debug_record_llm_success(
+                        'Validated response from prompt into intel object.',
+                        event_id,
+                        intel=intel_
+                    )
+
+                    return intel_
+
+                else:
+                    raise ValueError('Failed to validate response from prompt into intel object.')
 
             except ValidationError as e:
                 debug_record_llm_validation_failure(e, event_id)
@@ -129,15 +159,24 @@ class LlmService:
                     if DebugRecorder.is_recording:
                         debug_record_llm_response(message_content, event_id)
 
-                    intel = intel_class.model_validate_json(message_content)
+                    intel_ = None
 
-                    debug_record_llm_success(
-                        'Validated response from validation errors prompt into intel object.',
-                        event_id,
-                        intel=intel
-                    )
+                    if intel_class:
+                        intel_ = intel_class.model_validate_json(message_content)
+                    elif intel_object:
+                        intel_ = intel_object.model_validate_json_and_copy(message_content)
 
-                    return intel
+                    if intel_ is not None:
+                        debug_record_llm_success(
+                            'Validated response from validation errors prompt into intel object.',
+                            event_id,
+                            intel=intel_
+                        )
+
+                        return intel_
+
+                    else:
+                        raise ValueError('Failed to validate response from prompt into intel object.')
 
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)
@@ -149,7 +188,7 @@ class LlmService:
                         remaining_attempts=self._config.options.prompt_retry_count - attempt
                     )
         else:
-            raise LlmValidationException
+            raise LlmValidationCriticalException
 
     def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
         event_id = generate_new_debug_event_id()
@@ -186,7 +225,7 @@ class LlmService:
             llm_success_message='Prompt properly returned a response.'
         )
 
-    def post_request(self, json_body: bytes) -> dict:
+    def post_request(self, json_body_dict: dict) -> dict:
         response: Response = Response(status_code=0)
 
         for _ in range(self._config.options.connection_retry_count + 1):
@@ -195,7 +234,7 @@ class LlmService:
                 'POST', 
                 self._config.url.to_str(), 
                 headers=self._config.headers, 
-                content=json.dumps(json_body).encode('utf-8'),
+                content=json.dumps(json_body_dict).encode('utf-8'),
                 timeout=settings.DEFAULT_LLM_REQUEST_TIMEOUT
             )
 
@@ -206,9 +245,9 @@ class LlmService:
             sleep(0.1)
 
         else:
-            if response is not None: 
-                raise LlmException(
+            if response.status_code != 0:
+                raise LlmCriticalException(
                     f'Llm service request failed with status code {response.status_code} and the following message "{response.text}" after {self._config.options.connection_retry_count} attempts')
             else:
-                raise LlmException(
+                raise LlmCriticalException(
                     f'Llm service request failed after {self._config.options.connection_retry_count} attempts for unknown reasons')

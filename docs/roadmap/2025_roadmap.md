@@ -10,13 +10,16 @@
 
 - Text to Speech
 - Speech to Text
-- Completely New Example
-- Documentation 🚧 
+- Completely New Example 🚧
+- Documentation 🚧
+- Intel Field Include / Exclude ✅
+- Caching ✅
 
 ## February
 
 - JSON Schema (Ollama & OpenAI) ✅
 - LLM Bot Upgrade ✅
+- Initial Documentation & Website ✅
 
 ## January
 

@@ -1,6 +1,5 @@
-from typing_extensions import Union
-
 from pydantic import BaseModel
+from typing_extensions import Union
 
 from dandy.llm.service.request.request import BaseRequestBody
 

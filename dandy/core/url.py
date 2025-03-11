@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
-from typing_extensions import List, Dict
 from urllib.parse import urlencode, urlparse, ParseResult, quote
+
+from typing_extensions import List, Dict
 
 
 @dataclass(kw_only=True)
@@ -10,8 +11,8 @@ class Url:
     path_parameters: List[str] = field(default_factory=list)
     query_parameters: Dict[str, str] = field(default_factory=dict)
 
-    def __str__(self):
-        self.to_str()
+    def __str__(self) -> str:
+        return self.to_str()
 
     @property
     def parsed_url(self) -> ParseResult:

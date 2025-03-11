@@ -1,5 +1,9 @@
-from dandy.core.exceptions import DandyException
+from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
 
 
-class BotException(DandyException):
+class BotCriticalException(DandyCriticalException):
+    pass
+
+
+class BotRecoverableException(DandyRecoverableException):
     pass

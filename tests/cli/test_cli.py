@@ -19,10 +19,3 @@ class TestCli(TestCase):
         output = sys.stdout.getvalue().strip()
 
         self.assertIn("usage: dandy [-h]", output)
-
-    # def test_cli(self):
-    #     from dandy.cli.main import main
-    #
-    #     main()
-    #
-    #     self.assertTrue(True)
