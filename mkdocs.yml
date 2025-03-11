@@ -37,8 +37,12 @@ nav:
   - Guides:
       - Start Here: guides/start_here.md
       - Overview: guides/dandy_overview.md
-      - Bots: guides/bots.md
-      - LLM Bots: guides/llm_bots.md
+      - Example:
+          - Entry Point: guides/example/entry_point.md
+          - Intel: guides/example/intel.md
+          - Prompt: guides/example/prompt.md
+          - LLM Bot: guides/example/llm_bot.md
+          - Workflow: guides/example/workflow.md
   - API Reference:
       - Bot:
           - BaseBot: api/bot/bot.md
