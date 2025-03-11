@@ -65,6 +65,7 @@ nav:
       - Dandy: exceptions/dandy_exceptions.md
       - Sub Exceptions:
           - Bot: exceptions/bot_exceptions.md
+          - Cache: exceptions/cache_exceptions.md
           - Debug: exceptions/debug_exceptions.md
           - Future: exceptions/future_exceptions.md
           - Intel: exceptions/intel_exceptions.md

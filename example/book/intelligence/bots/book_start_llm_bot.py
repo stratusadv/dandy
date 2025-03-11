@@ -12,7 +12,7 @@ class BookStartLlmBot(BaseLlmBot):
     )
 
     @classmethod
-    @cache_to_sqlite
+    @cache_to_sqlite('book')
     def process(
             cls,
             user_input: str,

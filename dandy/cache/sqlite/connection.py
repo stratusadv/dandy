@@ -1,12 +1,13 @@
 import os
 import sqlite3
+from pathlib import Path
 
 from dandy.conf import settings
 
 
 class SqliteConnection:
-    def __init__(self) -> None:
-        self.db_path = settings.CACHE_SQLITE_DATABASE_PATH
+    def __init__(self, db_name='dandy_cache.db') -> None:
+        self.db_path = Path(settings.CACHE_SQLITE_DATABASE_PATH, db_name)
 
     def __enter__(self) -> sqlite3.Connection:
         self.connection = sqlite3.connect(self.db_path)

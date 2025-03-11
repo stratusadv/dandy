@@ -19,7 +19,7 @@ class WorldLlmBot(BaseLlmBot):
     )
 
     @classmethod
-    @cache_to_sqlite
+    @cache_to_sqlite('book')
     def process(
             cls,
             book_intel: BookIntel,

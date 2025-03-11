@@ -18,10 +18,11 @@ def debug_record_llm_validation_failure(error: ValidationError, event_id: str):
 
 
 def debug_record_llm_retry(description: str, event_id: str, remaining_attempts: int = None):
-    DebugRecorder.add_event(LlmServiceRetryEvent(
-        description=f'{description}\nRemaining Attempts: {remaining_attempts}' if remaining_attempts is not None else description,
-        id=event_id
-    ))
+    if DebugRecorder.is_recording:
+        DebugRecorder.add_event(LlmServiceRetryEvent(
+            description=f'{description}\nRemaining Attempts: {remaining_attempts}' if remaining_attempts is not None else description,
+            id=event_id
+        ))
 
 
 def debug_record_llm_request(request_body: BaseRequestBody, event_id: str):

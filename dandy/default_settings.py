@@ -7,7 +7,7 @@ ALLOW_DEBUG_RECORDING: bool = False
 BASE_PATH: Union[Path, str] = Path.cwd()
 
 CACHE_MEMORY_LIMIT: int = 1000
-CACHE_SQLITE_DATABASE_PATH: Union[Path, str] = Path(BASE_PATH, 'dandy_cache.db')
+CACHE_SQLITE_DATABASE_PATH: Union[Path, str] = BASE_PATH
 CACHE_SQLITE_LIMIT: int = 10000
 
 DEFAULT_LLM_TEMPERATURE: float = 0.7

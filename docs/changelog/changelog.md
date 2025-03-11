@@ -16,6 +16,7 @@
 - The method `process_prompt_to_intel` now supports `include_fields` and `exclude_fields` which allow you to only include or exclude fields from the intel object or class.
 - Caching is now supported through the `cache_to_memory` and `cache_to_sqlite` decorators.
   - Check out the `dandy/default_settings.py` file to see how to configure caching beyond the defaults.
+  - The `cache_to_sqlite` can take a keyword argument `name` which can be used to separate the cache files.
 
 ### Changes
 

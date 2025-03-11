@@ -8,20 +8,20 @@ from dandy.conf import settings
 
 
 class SqliteCache(BaseCache):
+    db_name: str
     limit: int = settings.CACHE_SQLITE_LIMIT
 
     def model_post_init(self, __context: Any):
         self._create_table()
 
     def __len__(self) -> int:
-        with SqliteConnection() as connection:
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
             cursor.execute('SELECT COUNT(*) FROM cache')
             return cursor.fetchone()[0]
 
-    @staticmethod
-    def _create_table():
-        with SqliteConnection() as connection:
+    def _create_table(self):
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
             cursor.execute('''
@@ -35,7 +35,7 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     def get(self, key: str) -> Union[Any, None]:
-        with SqliteConnection() as connection:
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
             cursor.execute('SELECT value FROM cache WHERE key = ?', (key,))
@@ -47,7 +47,7 @@ class SqliteCache(BaseCache):
             return None
 
     def set(self, key: str, value: Any):
-        with SqliteConnection() as connection:
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
             value_string = pickle.dumps(value)
@@ -61,7 +61,7 @@ class SqliteCache(BaseCache):
             self.clean()
 
     def clean(self):
-        with SqliteConnection() as connection:
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
             cursor.execute('SELECT COUNT(*) FROM cache')
@@ -79,13 +79,10 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     def clear(self):
-        with SqliteConnection() as connection:
+        with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
             cursor.execute('DELETE FROM cache')
             connection.commit()
 
     def destroy(self):
         SqliteConnection().delete_db_file()
-
-
-sqlite_cache = SqliteCache()
