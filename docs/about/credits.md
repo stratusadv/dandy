@@ -54,3 +54,12 @@ by [mkdocs](https://github.com/mkdocs){:target="_blank"}
 [https://openpyxl.readthedocs.io/en/stable/](https://openpyxl.readthedocs.io/en/stable/){:target="_blank"}<br>
 by [openpyxl](https://github.com/openpyxl){:target="_blank"}
 
+### Inspiration
+
+#### Django
+[https://www.djangoproject.com/](https://www.djangoproject.com/){:target="_blank"}<br>
+by [django software foundation](https://www.djangoproject.com/foundation/){:target="_blank"}
+
+#### Alpine JS
+[https://alpinejs.dev/](https://alpinejs.dev/){:target="_blank"}<br>
+by [alpinejs](https://github.com/alpinejs){:target="_blank"}

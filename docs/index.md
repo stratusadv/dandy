@@ -22,10 +22,9 @@ Our approach is to focus on batteries included with strong tooling to help build
 
 ## Pillars of Dandy
 
-- __Simple__ - Intelligence programming is complex by nature, and we want Dandy to get out of your way as much as possible.
+- __Simple as it Can Be__ - Intelligence programming is complex by nature, and we want Dandy to get out of your way as much as possible.
 - __Pythonic__ - We want everything Dandy can do to be as pythonic as possible leaving the developer to focus on their own code.
 - __Opinionated__ - Our goal is to provide as many of the answers as possible along with working solutions that allow developers to focus on maintaining their agency while being informed.
 - __Developer First__ - All features added to Dandy must make the developer's life easier and reduce complexity.
 - __Batteries Included__ - Dandy comes with batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
 - __Scalable__ - Every design choice in Dandy is about the future and making sure developers can scale their projects as needed.
-
