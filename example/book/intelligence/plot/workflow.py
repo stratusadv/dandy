@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from example.book.intelligence.intel import BookIntel
     from example.book.intelligence.plot.intel import PlotIntel
 
+
 class PlotWorkflow(BaseWorkflow):
     @classmethod
     def process(
@@ -26,7 +27,6 @@ class PlotWorkflow(BaseWorkflow):
                 plot_point_intel=plot_point_intel,
                 book_intel=book_intel,
                 previous_plot_point_intels=plot_intel[:i],
-                include={'description'},
             )
 
         return plot_intel

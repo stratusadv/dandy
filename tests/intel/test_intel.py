@@ -47,7 +47,7 @@ class TestIntel(TestCase):
 
         except IntelCriticalException:
             self.assertTrue(True)
-            
+
     def test_intel_exclude_with_required_field(self):
         try:
             _ = Person.model_inc_ex_class_copy(exclude={'first_name'})
@@ -85,7 +85,7 @@ class TestIntel(TestCase):
         )
 
         json_schema = PersonCopy.model_json_schema()
-        
+
         self.assertNotIn('middle_name', json_schema['properties'])
         self.assertNotIn('pockets', json_schema['$defs']['Bag']['properties'])
         self.assertNotIn('description', json_schema['$defs']['Thing']['properties'])
@@ -123,3 +123,23 @@ class TestIntel(TestCase):
         self.assertNotIn('pockets', json_schema['$defs']['Bag']['properties'])
         self.assertNotIn('description', json_schema['$defs']['Thing']['properties'])
 
+    def test_intel_model_validate_and_copy(self):
+        old_bag = Bag(
+            color='blue',
+            stylish=True
+        )
+
+        new_bag = old_bag.model_validate_and_copy(
+            {"things": [{"name": "keys"}, {"name": "wallet"}]}
+        )
+
+        self.assertIsInstance(new_bag.things[0], Thing)
+
+    def test_intel_model_validate_json_and_copy(self):
+        old_bag = Bag(color="blue", stylish=True)
+
+        new_bag = old_bag.model_validate_json_and_copy(
+            '{"things": [{"name": "keys"}, {"name": "wallet"}]}'
+        )
+
+        self.assertIsInstance(new_bag.things[0], Thing)

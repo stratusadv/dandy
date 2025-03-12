@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from pydantic.main import IncEx
-from typing_extensions import TYPE_CHECKING, Union
+from typing_extensions import TYPE_CHECKING
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.chapter.intel import ChaptersIntel
 from example.book.intelligence.prompts import book_intel_prompt
@@ -17,15 +17,15 @@ class ChaptersLlmBot(BaseLlmBot):
         Prompt()
         .text('You are a chapter planning bot. You will be given information on a book that is being written.')
         .text('For each chapter create a title and which plot points will be covered in the chapter.')
-        # .text('Do not create any scenes or write content for the chapter.')
+        .text('You will select a randomly sized set of plot points to cover')
     )
 
     @classmethod
+    @cache_to_sqlite('book')
     def process(
             cls,
             book_intel: BookIntel,
             chapter_count: int,
-            include: Union[IncEx, None] = None
     ) -> ChaptersIntel:
 
         postfix_system_prompt = Prompt()

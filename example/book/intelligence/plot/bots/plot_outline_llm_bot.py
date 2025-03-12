@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from pydantic.main import IncEx
-from typing_extensions import TYPE_CHECKING, Union
+from typing_extensions import TYPE_CHECKING
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.plot.intel import PlotIntel
 from example.book.intelligence.prompts import book_intel_prompt
@@ -17,10 +17,11 @@ class PlotOutlineLlmBot(BaseLlmBot):
         Prompt()
         .text('You are a plot bot. You will be given a book title, overview, world and characters.')
         .text('You will generate a plot using the classic heroes journey plot structure.')
-        .text('Create 3 plot points with only an outline (do not number them)')
+        .text('Create 10 unnumbered outlines for plot points')
     )
 
     @classmethod
+    @cache_to_sqlite('book')
     def process(
             cls,
             book_intel: BookIntel,
@@ -28,4 +29,5 @@ class PlotOutlineLlmBot(BaseLlmBot):
         return cls.process_prompt_to_intel(
             prompt=book_intel_prompt(book_intel),
             intel_class=PlotIntel,
+            include_fields={'items': {'outline'}}
         )
