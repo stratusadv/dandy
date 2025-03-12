@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from pydantic.main import IncEx
-from typing_extensions import TYPE_CHECKING, Union
+from typing_extensions import TYPE_CHECKING
 
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
-from example.book.intelligence.chapter.intel import ChaptersIntel, ChapterIntel
+from example.book.intelligence.chapter.intel import ChapterIntel
 from example.book.intelligence.chapter.prompts import chapter_intel_overview_prompt
 from example.book.intelligence.prompts import book_intel_prompt
 
@@ -17,16 +17,10 @@ class ChapterContentLlmBot(BaseLlmBot):
     instructions_prompt = (
         Prompt()
         .text('You are a chapter writing bot that will use all the information provided to write the content for a new chapter.')
-        # .text('Use the following rules to write the chapter:')
-        # .list([
-        #     'Use the same title from the current chapter.',
-        #     'Use the same covered plot points from the current chapter.',
-        #     'Use the same scenes as the current chapter.',
-        #     'Write the `content` using the information provided for the current chapter.',
-        # ])
     )
 
     @classmethod
+    @cache_to_sqlite('book')
     def process(
             cls,
             book_intel: BookIntel,
@@ -38,7 +32,7 @@ class ChapterContentLlmBot(BaseLlmBot):
 
         prompt.line_break()
 
-        prompt.heading('Current Chapter to Write Content For')
+        prompt.heading('Current Chapter to Write Content For:')
         prompt.prompt(chapter_intel_overview_prompt(chapter_intel))
 
         return cls.process_prompt_to_intel(

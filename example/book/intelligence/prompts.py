@@ -12,37 +12,35 @@ if TYPE_CHECKING:
 
 def book_intel_prompt(book_intel: BookIntel) -> Prompt:
     prompt = Prompt()
-    
+
     if book_intel.start:
-        prompt.text(f'Title: {book_intel.start.title}')
-        prompt.text(f'Overview: {book_intel.start.overview}')
+        prompt.title(f'Title: {book_intel.start.title}')
+        prompt.heading(f'Overview: {book_intel.start.overview}')
         prompt.line_break()
 
     if book_intel.world:
 
-        prompt.text('World:')
-        prompt.text(f'Name: {book_intel.world.name}')
-        prompt.text(f'Description: {book_intel.world.description}')
-        
+        prompt.heading('World:')
+        prompt.sub_heading(f'Name: {book_intel.world.name}')
+        prompt.text(label='Description', text=book_intel.world.description)
+
         prompt.line_break()
-        
-        prompt.text(f'Locations: ')
+
+        prompt.heading('Locations:')
         for location_intel in book_intel.world.locations:
             prompt.line_break()
-            
-            prompt.text(f'Name: {location_intel.name}')
-            prompt.text(f'Description: {location_intel.description}')
-            
+
+            prompt.sub_heading(f'Name: {location_intel.name}')
+            prompt.text(label='Description', text=location_intel.description)
+
         prompt.line_break()
 
     if book_intel.characters:
         prompt.prompt(characters_intel_prompt(book_intel.characters))
 
         prompt.line_break()
-        
+
     if book_intel.plot:
         prompt.prompt(plot_intel_prompt(book_intel.plot))
-
-
 
     return prompt

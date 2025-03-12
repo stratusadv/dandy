@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.11.1
+
+### Fixes
+
+- Updated caching objects to be easier to clear
+  - `dandy.cache.MemoryCache` and `dandy.cache.SqliteCache` have class method `clear` and `destroy`
+- Fix bug with updating non-flat intel objects
+
 ## v0.11.0
 
 ### Breaking
@@ -264,4 +272,3 @@
 ### Fixes
 
 - Improved validation on llm configs.
-

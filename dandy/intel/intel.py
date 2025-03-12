@@ -57,10 +57,10 @@ class BaseIntel(BaseModel, ABC):
         """
         if include is None and exclude is None:
             return create_model(
-                cls.__name__, 
+                cls.__name__,
                 __base__=cls
             )
-        
+
         if include and exclude:
             raise IntelCriticalException('include and exclude cannot be used together')
 
@@ -76,7 +76,7 @@ class BaseIntel(BaseModel, ABC):
         cls.check_inc_ex(include_dict, exclude_dict)
 
         processed_fields = {}
-        
+
         for field_name, field_info in cls.model_fields.items():
 
             include_value = include_dict.get(field_name)
@@ -102,13 +102,13 @@ class BaseIntel(BaseModel, ABC):
                         new_sub_model if field_annotation.origin is None else field_annotation.origin[new_sub_model],
                         field_factory,
                     )
-                    
+
                 else:
                     processed_fields[field_name] = (
                         field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[field_annotation.first_inner],
                         field_factory,
                     )
-                    
+
             elif (include_value and exclude is None) or (exclude_value is None and include is None):
                 processed_fields[field_name] = (
                     field_annotation.base,
@@ -128,8 +128,12 @@ class BaseIntel(BaseModel, ABC):
         :param update:
         :return:
         """
-        return self.model_validate(self.model_copy(update=update))
-        
+        return self.model_validate(
+            obj=self.model_copy(update=update).model_dump(
+                warnings=False
+            ),
+        )
+
     def model_validate_json_and_copy(self, update: str) -> Self:
         """
         Copies this object with field updates from a json str and validates
@@ -138,7 +142,7 @@ class BaseIntel(BaseModel, ABC):
         :return:
         """
         return self.model_validate_and_copy(update=from_json(update))
-    
+
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     """

@@ -4,6 +4,7 @@ from typing import Any, Union
 
 from dandy.cache.cache import BaseCache
 from dandy.cache.sqlite.connection import SqliteConnection
+from dandy.conf import settings
 
 
 class SqliteCache(BaseCache):
@@ -12,7 +13,11 @@ class SqliteCache(BaseCache):
 
     @property
     def db_name(self) -> str:
-        return f'{self.cache_name}_cache.db'
+        return self._db_name(self.cache_name)
+
+    @staticmethod
+    def _db_name(cache_name: str) ->  str:
+        return f"{cache_name}_cache.db"
 
     def model_post_init(self, __context: Any):
         self._create_table()
@@ -81,11 +86,13 @@ class SqliteCache(BaseCache):
 
             connection.commit()
 
-    def clear(self):
-        with SqliteConnection(self.db_name) as connection:
+    @classmethod
+    def clear(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
+        with SqliteConnection(cls._db_name(cache_name)) as connection:
             cursor = connection.cursor()
             cursor.execute('DELETE FROM cache')
             connection.commit()
 
-    def destroy(self):
-        SqliteConnection(self.db_name).delete_db_file()
+    @classmethod
+    def destroy(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
+        SqliteConnection(cls._db_name(cache_name)).delete_db_file()

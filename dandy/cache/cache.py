@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel
 from typing_extensions import Any, Union
 
+from dandy.conf import settings
+
 
 class BaseCache(ABC, BaseModel):
     cache_name: str
@@ -15,20 +17,21 @@ class BaseCache(ABC, BaseModel):
     @abstractmethod
     def get(self, key: str) -> Union[Any, None]:
         pass
-    
+
     @abstractmethod
     def set(self, key: str, value: Any):
         pass
-    
+
     @abstractmethod
     def clean(self):
         pass
-    
+
+    @classmethod
     @abstractmethod
-    def clear(self):
+    def clear(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
         pass
 
+    @classmethod
     @abstractmethod
-    def destroy(self):
+    def destroy(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
         pass
-

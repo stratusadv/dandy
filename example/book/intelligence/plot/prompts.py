@@ -10,12 +10,12 @@ if TYPE_CHECKING:
 
 def plot_intel_prompt(plot_intel: PlotIntel) -> Prompt:
     prompt = Prompt()
-    prompt.text('Plot Points:')
+    prompt.heading('Plot Points:')
 
     for i, plot_point_intel in enumerate(plot_intel, start=1):
         prompt.line_break()
-        prompt.text(f'Point #{i}:')
-        prompt.text(f'Outline: {plot_point_intel.outline}')
-        prompt.text(f'Description: {plot_point_intel.description}')
+        prompt.sub_heading(f'Point #{i}:')
+        prompt.text(label='Outline', text=plot_point_intel.outline)
+        prompt.text(label='Description', text=plot_point_intel.description)
 
     return prompt

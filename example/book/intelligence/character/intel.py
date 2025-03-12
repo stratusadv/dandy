@@ -1,3 +1,5 @@
+from typing import Union
+
 from pydantic import Field
 from typing_extensions import List, Generator
 
@@ -13,14 +15,14 @@ class CharacterIntel(BaseIntel):
     description: str
     type: CharacterType
     alignment: CharacterAlignment
-    
-    
+
+
 class CharactersIntel(BaseIntel):
-    characters: List[CharacterIntel] = Field(default_factory=list)
+    characters: Union[List[CharacterIntel], None] = Field(default_factory=list)
 
     def __iter__(self) -> Generator[CharacterIntel]:
         for character in self.characters:
-            yield character    
-    
+            yield character
+
     def add_character(self, character: CharacterIntel) -> None:
         self.characters.append(character)

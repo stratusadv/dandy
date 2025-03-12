@@ -40,7 +40,7 @@ class BookWorkflow(BaseWorkflow):
         logging.info('Writing the chapters for all to read')
         book_intel.chapters = ChaptersWorkflow.process(
             book_intel=book_intel,
-            chapter_count=1#4,
+            chapter_count=4
         )
 
         new_book = Book(

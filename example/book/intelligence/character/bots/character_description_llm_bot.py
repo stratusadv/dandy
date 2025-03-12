@@ -21,7 +21,7 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
         Prompt()
         .text('You are a character generating bot, please create a character based on the provided input.')
     )
-    
+
     @classmethod
     @cache_to_sqlite('book')
     def process(
@@ -31,19 +31,19 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
             characters_intel: Union[CharactersIntel, None] = None,
     ) -> CharacterIntel:
         prompt = Prompt()
-        
+
         prompt.line_break()
-        
-        prompt.text(f'Title: {book_intel.start.title}')
-        prompt.text(f'Overview: {book_intel.start.overview}')
-        
+
+        prompt.title(f'Book Title: {book_intel.start.title}')
+        prompt.heading(f'Overview: {book_intel.start.overview}')
+
         if characters_intel:
             prompt.line_break()
-            
+
             prompt.prompt(characters_intel_prompt(characters_intel))
-    
+
         return cls.process_prompt_to_intel(
-            prompt=prompt, 
+            prompt=prompt,
             intel_class=CharacterIntel,
             postfix_system_prompt=Prompt().text(f'Set the Character Type to: {character_type.value}')
         )
