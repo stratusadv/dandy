@@ -1,12 +1,26 @@
 # Changelog
 
-## v0.11.1
+## v0.11.2
+
+### Features
+
+- Updated example with better use of `Prompt` objects.
+- Added `to_markdown_file` method for the `Book` class in the example.
 
 ### Fixes
 
-- Updated caching objects to be easier to clear
-  - `dandy.cache.MemoryCache` and `dandy.cache.SqliteCache` have class method `clear` and `destroy`
-- Fix bug with updating non-flat intel objects
+- Added text to global service prompt to improve response quality.
+
+## v0.11.1
+
+### Changes
+
+- Updated caching objects to be easier to clear.
+  - `dandy.cache.MemoryCache` and `dandy.cache.SqliteCache` have class method `clear` and `destroy`.
+
+### Fixes
+
+- Fix bug with updating non-flat intel objects.
 
 ## v0.11.0
 

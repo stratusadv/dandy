@@ -45,5 +45,5 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
         return cls.process_prompt_to_intel(
             prompt=prompt,
             intel_class=CharacterIntel,
-            postfix_system_prompt=Prompt().text(f'Set the Character Type to: {character_type.value}')
+            postfix_system_prompt=Prompt().text(label='Set the Character Type to', text=character_type.value)
         )
