@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.11.3
+
+### Changes
+
+- Refactored internal project structure to get ready for next AI features (TTS, STT, VISION ETC).
+
+### Fixes
+
+- Fixed a bug with clearing non-existent or empty caches.
+
 ## v0.11.2
 
 ### Notes

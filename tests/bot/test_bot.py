@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.processor.processor import BaseProcessor
+from dandy.core.processor.processor import BaseProcessor
 
 
 class TestBot(TestCase):

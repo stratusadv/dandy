@@ -2,8 +2,8 @@ from abc import abstractmethod, ABC
 
 from typing_extensions import Any
 
-from dandy.future.future import AsyncFuture
-from dandy.processor.abc_meta import ProcessorABCMeta
+from dandy.core.future import AsyncFuture
+from dandy.core.processor.abc_meta import ProcessorABCMeta
 
 
 class BaseProcessor(ABC, metaclass=ProcessorABCMeta):

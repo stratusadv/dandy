@@ -26,7 +26,7 @@ def generate_llm_bot_system_prompt() -> Prompt:
         .line_break()
         .module_source('dandy.llm.prompt.prompt')
         .line_break()
-        .module_source('dandy.processor.processor')
+        .module_source('dandy.core.processor.processor')
         .line_break()
         .module_source('dandy.bot.bot')
         .line_break()

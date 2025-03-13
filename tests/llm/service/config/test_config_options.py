@@ -10,7 +10,6 @@ class TestConfigOptions(TestCase):
             max_input_tokens=1000,
             max_output_tokens=None,
             prompt_retry_count=3,
-            connection_retry_count=7,
             randomize_seed=True,
         )
 

@@ -19,7 +19,7 @@ def main():
     from dandy.cli.llm.assistant.assistant import assistant
     from dandy.conf import settings
     from dandy.cli.llm.evaluate.evaluate import EvaluateChoices, evaluate
-    from dandy.constants import CLI_OUTPUT_DIRECTORY, VERSION
+    from dandy.constants import CLI_OUTPUT_DIRECTORY, __VERSION__
 
     CLI_OUTPUT_PATH = Path(settings.BASE_PATH, CLI_OUTPUT_DIRECTORY)
 
@@ -63,7 +63,7 @@ def main():
     parser.add_argument(
         '--version',
         action='version',
-        version=f'%(prog)s {VERSION}',
+        version=f'%(prog)s {__VERSION__}',
     )
 
     args = parser.parse_args()

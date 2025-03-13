@@ -7,7 +7,7 @@ from dandy.llm.service.request.request import BaseRequestBody
 
 class OpenaiLlmConfig(BaseLlmConfig):
     def __llm_config_post_init__(self):
-        self.url.path_parameters = [
+        self.http_config.url.path_parameters = [
             'v1',
             'chat',
             'completions',
