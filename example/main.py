@@ -26,6 +26,8 @@ if __name__ == '__main__':
             and given full agency to do it ... what could go wrong!""",
         )
 
+        dandy_book.to_markdown_file()
+
         logging.info('Complete')
 
     except DandyException:

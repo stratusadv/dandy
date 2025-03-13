@@ -13,6 +13,9 @@ def service_system_prompt(
     if isinstance(system_prompt, Prompt):
         prompt.prompt(system_prompt)
 
+    prompt.line_break()
+    prompt.text('Do not use any markdown styling in your response.')
+
     return prompt
 
 
@@ -31,5 +34,3 @@ def service_user_prompt(user_prompt: Prompt) -> Prompt:
         Prompt()
         .prompt(user_prompt)
     )
-
-

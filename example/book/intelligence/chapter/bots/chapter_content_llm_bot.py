@@ -17,6 +17,7 @@ class ChapterContentLlmBot(BaseLlmBot):
     instructions_prompt = (
         Prompt()
         .text('You are a chapter writing bot that will use all the information provided to write the content for a new chapter.')
+        .text('You will not include a chapter title or number in your response.')
     )
 
     @classmethod
