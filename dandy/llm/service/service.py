@@ -10,6 +10,7 @@ from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
 from dandy.conf import settings
+from dandy.core.http.service import BaseHttpService
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.intel.type_vars import IntelType
@@ -26,15 +27,16 @@ if TYPE_CHECKING:
     from dandy.llm.service.config import LlmConfigOptions
 
 
-class LlmService:
+class LlmService(BaseHttpService):
     def __init__(
             self,
-            config: BaseLlmConfig,
-            options: LlmConfigOptions,
+            llm_config: BaseLlmConfig,
+            llm_options: LlmConfigOptions,
     ):
+        super().__init__(config=llm_config.http_config)
 
-        self._config = config
-        self._options = options
+        self._llm_config = llm_config
+        self._llm_options = llm_options
 
     def assistant_str_prompt_to_str(
             self,
@@ -47,11 +49,11 @@ class LlmService:
         )
 
     def get_request_body(self) -> BaseRequestBody:
-        return self._config.generate_request_body(
-            max_input_tokens=self._options.max_input_tokens,
-            max_output_tokens=self._options.max_output_tokens,
-            seed=self._options.seed,
-            temperature=self._options.temperature,
+        return self._llm_config.generate_request_body(
+            max_input_tokens=self._llm_options.max_input_tokens,
+            max_output_tokens=self._llm_options.max_output_tokens,
+            seed=self._llm_options.seed,
+            temperature=self._llm_options.temperature,
         )
 
     def process_prompt_to_intel(
@@ -84,7 +86,7 @@ class LlmService:
 
         event_id = generate_new_debug_event_id()
 
-        for attempt in range(self._config.options.prompt_retry_count + 1):
+        for attempt in range(self._llm_config.options.prompt_retry_count + 1):
 
             request_body = self.get_request_body()
 
@@ -106,7 +108,7 @@ class LlmService:
 
             debug_record_llm_request(request_body, event_id)
 
-            message_content = self._config.get_response_content(
+            message_content = self._llm_config.get_response_content(
                 self.post_request(request_body.model_dump())
             )
 
@@ -152,7 +154,7 @@ class LlmService:
                     if DebugRecorder.is_recording:
                         debug_record_llm_request(request_body, event_id)
 
-                    message_content = self._config.get_response_content(
+                    message_content = self._llm_config.get_response_content(
                         self.post_request(request_body.model_dump())
                     )
 
@@ -181,11 +183,11 @@ class LlmService:
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)
 
-                if self._config.options.prompt_retry_count - 1:
+                if self._llm_config.options.prompt_retry_count - 1:
                     debug_record_llm_retry(
                         'Response after validation errors prompt failed.\nRetrying with original prompt.',
                         event_id,
-                        remaining_attempts=self._config.options.prompt_retry_count - attempt
+                        remaining_attempts=self._llm_config.options.prompt_retry_count - attempt
                     )
         else:
             raise LlmValidationCriticalException
@@ -209,7 +211,7 @@ class LlmService:
 
         debug_record_llm_request(request_body, event_id)
 
-        message_content = self._config.get_response_content(
+        message_content = self._llm_config.get_response_content(
             self.post_request(request_body.model_dump())
         )
 
@@ -224,30 +226,3 @@ class LlmService:
             user_prompt_str=user_prompt.to_str(),
             llm_success_message='Prompt properly returned a response.'
         )
-
-    def post_request(self, json_body_dict: dict) -> dict:
-        response: Response = Response(status_code=0)
-
-        for _ in range(self._config.options.connection_retry_count + 1):
-
-            response = httpx.request(
-                'POST', 
-                self._config.url.to_str(), 
-                headers=self._config.headers, 
-                content=json.dumps(json_body_dict).encode('utf-8'),
-                timeout=settings.DEFAULT_LLM_REQUEST_TIMEOUT
-            )
-
-            if response.status_code == 200 or response.status_code == 201:
-                json_data = json.loads(response.text)
-                return json_data
-
-            sleep(0.1)
-
-        else:
-            if response.status_code != 0:
-                raise LlmCriticalException(
-                    f'Llm service request failed with status code {response.status_code} and the following message "{response.text}" after {self._config.options.connection_retry_count} attempts')
-            else:
-                raise LlmCriticalException(
-                    f'Llm service request failed after {self._config.options.connection_retry_count} attempts for unknown reasons')

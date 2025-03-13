@@ -5,7 +5,7 @@ from typing_extensions import Union, List, Type
 
 from dandy.intel import BaseIntel
 from dandy.llm import BaseLlmBot, Prompt
-from dandy.processor.processor import BaseProcessor
+from dandy.core.processor.processor import BaseProcessor
 
 
 class Gem(BaseIntel):

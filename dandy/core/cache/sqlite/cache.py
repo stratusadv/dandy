@@ -2,9 +2,10 @@ import pickle
 import sqlite3
 from typing import Any, Union
 
-from dandy.cache.cache import BaseCache
-from dandy.cache.sqlite.connection import SqliteConnection
-from dandy.conf import settings
+import dandy.constants
+from dandy.core.cache.cache import BaseCache
+from dandy.core.cache.sqlite.connection import SqliteConnection
+from dandy.constants import SQLITE_CACHE_TABLE_NAME
 
 
 class SqliteCache(BaseCache):
@@ -25,15 +26,15 @@ class SqliteCache(BaseCache):
     def __len__(self) -> int:
         with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
-            cursor.execute('SELECT COUNT(*) FROM cache')
+            cursor.execute(f'SELECT COUNT(*) FROM {SQLITE_CACHE_TABLE_NAME}')
             return cursor.fetchone()[0]
 
     def _create_table(self):
         with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS cache (
+            cursor.execute(f'''
+                CREATE TABLE IF NOT EXISTS {SQLITE_CACHE_TABLE_NAME} (
                     key TEXT PRIMARY KEY,
                     value TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -46,7 +47,7 @@ class SqliteCache(BaseCache):
         with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
-            cursor.execute('SELECT value FROM cache WHERE key = ?', (key,))
+            cursor.execute(f'SELECT value FROM {SQLITE_CACHE_TABLE_NAME} WHERE key = ?', (key,))
             result = cursor.fetchone()
 
             if result:
@@ -61,9 +62,9 @@ class SqliteCache(BaseCache):
             value_string = pickle.dumps(value)
 
             try:
-                cursor.execute('INSERT INTO cache (key, value) VALUES (?, ?)', (key, value_string))
+                cursor.execute(f'INSERT INTO {SQLITE_CACHE_TABLE_NAME} (key, value) VALUES (?, ?)', (key, value_string))
             except sqlite3.IntegrityError:
-                cursor.execute('UPDATE cache SET value = ? WHERE key = ?', (value_string, key))
+                cursor.execute(f'UPDATE {SQLITE_CACHE_TABLE_NAME} SET value = ? WHERE key = ?', (value_string, key))
 
             connection.commit()
             self.clean()
@@ -72,7 +73,7 @@ class SqliteCache(BaseCache):
         with SqliteConnection(self.db_name) as connection:
             cursor = connection.cursor()
 
-            cursor.execute('SELECT COUNT(*) FROM cache')
+            cursor.execute(f'SELECT COUNT(*) FROM {SQLITE_CACHE_TABLE_NAME}')
             row_count = cursor.fetchone()[0]
 
             excess_threshold = int(self.limit * 0.10)
@@ -80,19 +81,22 @@ class SqliteCache(BaseCache):
 
             if excess_rows >= excess_threshold:
                 cursor.execute(
-                    'DELETE FROM cache WHERE key IN (SELECT key FROM cache ORDER BY created_at LIMIT ?)',
+                    f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE key IN (SELECT key FROM {SQLITE_CACHE_TABLE_NAME} ORDER BY created_at LIMIT ?)',
                     (excess_threshold,)
                 )
 
             connection.commit()
 
     @classmethod
-    def clear(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
+    def clear(cls, cache_name: str = dandy.constants.DEFAULT_CACHE_NAME):
         with SqliteConnection(cls._db_name(cache_name)) as connection:
             cursor = connection.cursor()
-            cursor.execute('DELETE FROM cache')
-            connection.commit()
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{SQLITE_CACHE_TABLE_NAME}';")
+
+            if cursor.fetchone() is not None:
+                cursor.execute(f'DELETE FROM {SQLITE_CACHE_TABLE_NAME}')
+                connection.commit()
 
     @classmethod
-    def destroy(cls, cache_name: str = settings.DEFAULT_CACHE_NAME):
+    def destroy(cls, cache_name: str = dandy.constants.DEFAULT_CACHE_NAME):
         SqliteConnection(cls._db_name(cache_name)).delete_db_file()

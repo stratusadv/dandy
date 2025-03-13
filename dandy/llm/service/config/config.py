@@ -3,7 +3,8 @@ from base64 import b64encode
 
 from typing_extensions import List, Union
 
-from dandy.core.url import Url
+from dandy.core.http.config import HttpConfig
+from dandy.core.http.url import Url
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.service import LlmService
 from dandy.llm.service.config.options import LlmConfigOptions
@@ -25,30 +26,22 @@ class BaseLlmConfig:
             max_input_tokens: Union[int, None] = None,
             max_output_tokens: Union[int, None] = None,
             temperature: Union[float, None] = None,
-            connection_retry_count: Union[int, None] = None,
             prompt_retry_count: Union[int, None] = None,
     ):
-        if headers is None:
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            }
 
-        if api_key is not None:
-            headers["Authorization"] = f'Basic {b64encode(f"Bearer:{api_key}".encode()).decode()}'
-
-        self.url = Url(
-            host=host,
-            port=port,
-            path_parameters=path_parameters,
-            query_parameters=query_parameters,
+        self.http_config = HttpConfig(
+            url=Url(
+                host=host,
+                port=port,
+                path_parameters=path_parameters,
+                query_parameters=query_parameters,
+            ),
+            headers=headers,
+            basic_auth=api_key,
         )
-
         self.model = model
-        self.headers = headers
 
         self.options = LlmConfigOptions(
-            connection_retry_count=connection_retry_count,
             prompt_retry_count=prompt_retry_count,
             max_input_tokens=max_input_tokens,
             max_output_tokens=max_output_tokens,
@@ -86,7 +79,7 @@ class BaseLlmConfig:
     ):
         return LlmService(
             self,
-            options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
+            llm_options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
         )
 
     @property

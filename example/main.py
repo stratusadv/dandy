@@ -1,7 +1,7 @@
 import logging
 
 from book.intelligence.workflow import BookWorkflow
-from dandy.cache import SqliteCache
+from dandy.core.cache import SqliteCache
 from dandy.core.exceptions import DandyException
 from dandy.debug import DebugRecorder
 

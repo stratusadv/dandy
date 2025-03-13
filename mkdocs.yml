@@ -72,6 +72,7 @@ nav:
           - Cache: exceptions/cache_exceptions.md
           - Debug: exceptions/debug_exceptions.md
           - Future: exceptions/future_exceptions.md
+          - HTTP: exceptions/http_exceptions.md
           - Intel: exceptions/intel_exceptions.md
           - LLM: exceptions/llm_exceptions.md
   - Roadmap:

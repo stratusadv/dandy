@@ -16,3 +16,4 @@ inspectionProfiles/
 *.sql
 *_debug_output.html
 ~*.*
+book.md

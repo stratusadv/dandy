@@ -12,7 +12,6 @@ class LlmConfigOptions:
             max_input_tokens: Union[int, None] = None,
             max_output_tokens: Union[int, None] = None,
             temperature: Union[float, None] = None,
-            connection_retry_count: Union[int, None] = None,
             prompt_retry_count: Union[int, None] = None,
     ):
         self._seed = seed
@@ -20,7 +19,6 @@ class LlmConfigOptions:
         self._max_input_tokens = max_input_tokens
         self._max_output_tokens = max_output_tokens
         self._temperature = temperature
-        self._connection_retry_count = connection_retry_count
         self._prompt_retry_count = prompt_retry_count
 
     @property
@@ -45,10 +43,6 @@ class LlmConfigOptions:
     @property
     def temperature(self) -> float:
         return self._temperature if self._temperature is not None else settings.DEFAULT_LLM_TEMPERATURE
-
-    @property
-    def connection_retry_count(self) -> int:
-        return self._connection_retry_count if self._connection_retry_count is not None else settings.DEFAULT_LLM_CONNECTION_RETRY_COUNT
 
     @property
     def prompt_retry_count(self) -> int:

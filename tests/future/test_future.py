@@ -1,7 +1,7 @@
 from time import perf_counter, sleep
 from unittest import TestCase
 
-from dandy.future.future import AsyncFuture
+from dandy.core.future import AsyncFuture
 
 from dandy.llm import LlmBot
 

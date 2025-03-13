@@ -4,7 +4,7 @@ from time import perf_counter
 
 from typing_extensions import Callable, TypeVar, Generic
 
-from dandy.future.exceptions import FutureCriticalException
+from dandy.core.future.exceptions import FutureCriticalException
 
 async_executor = concurrent.futures.ThreadPoolExecutor()
 

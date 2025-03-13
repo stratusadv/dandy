@@ -1,4 +1,4 @@
-from dandy.cache import cache_to_sqlite
+from dandy.core.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.intel import BookStartIntel
 

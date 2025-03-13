@@ -5,7 +5,7 @@ from typing_extensions import Type, Generic, Union
 
 from dandy.bot.bot import BaseBot
 from dandy.bot.exceptions import BotCriticalException
-from dandy.future.future import AsyncFuture
+from dandy.core.future import AsyncFuture
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.conf import llm_configs
