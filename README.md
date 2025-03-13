@@ -11,7 +11,7 @@ Visit our [Website](https://dandysoftware.com) for information on getting starte
 
 <p align="center">
     <a href="https://dandysoftware.com">
-        <img src="docs/static/img/dandy_logo_256.png"/>
+        <img alt="Dandy Logo" src="docs/static/img/dandy_logo_256.png"/>
     </a>
 </p>
 
