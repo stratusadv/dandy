@@ -13,7 +13,6 @@ OMITS = (
 
     # Files
     '__init__.py',
-    'setup.py',
     'run_coverage.py'
 )
 
@@ -118,6 +117,11 @@ def main() -> None:
         '-m',
         'unittest',
         'discover',
+        '-v',
+        '-s',
+        f'{Path(cwd, "tests")}',
+        '-t',
+        f'{Path(cwd, "tests")}',
     ]
 
     coverage_run_cmd = ' '.join(coverage_run_cmd)

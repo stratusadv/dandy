@@ -8,9 +8,13 @@ Just like most python packages you can easily install dandy using pip.
 pip install dandy
 ```
 
-## Python
+## Package Status
 
-Dandy is fully tested with python 3.10, 3.11, 3.12 and 3.13.
+![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/dandy/run_tests.yml)
+![Python Versions](https://img.shields.io/pypi/pyversions/dandy)
+![PyPI Version](https://img.shields.io/pypi/v/dandy)
+![Downloads](https://img.shields.io/pypi/dm/dandy)
+
 
 ## Dependencies
 
