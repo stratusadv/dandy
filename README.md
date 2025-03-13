@@ -7,6 +7,7 @@
 
 Dandy is an intelligence framework for developing bots and workflows for artificial intelligence.
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
+
 Our documentation is available on our [website](https://dandysoftware.com), including guides, examples, api reference and more.
 
 <p align="center">
