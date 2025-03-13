@@ -1,5 +1,5 @@
 # Processor
 
-::: dandy.processor.processor.BaseProcessor
+::: dandy.core.processor.processor.BaseProcessor
 
-::: dandy.processor.abc_meta.ProcessorABCMeta
+::: dandy.core.processor.abc_meta.ProcessorABCMeta

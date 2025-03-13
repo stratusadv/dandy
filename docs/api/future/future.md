@@ -1,1 +1,1 @@
-::: dandy.future.AsyncFuture
+::: dandy.core.future.AsyncFuture

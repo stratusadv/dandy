@@ -1,1 +1,1 @@
-::: dandy.future.exceptions
+::: dandy.core.future.exceptions
