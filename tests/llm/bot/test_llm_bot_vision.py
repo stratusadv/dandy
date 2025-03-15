@@ -1,34 +1,43 @@
 from pathlib import Path
 from unittest import TestCase
 
-from pydantic.main import IncEx
-from typing_extensions import Union, List, Type
+from typing_extensions import List, Type
 
 from dandy.conf import settings
-from dandy.debug import DebugRecorder
 from dandy.intel import BaseIntel
-from dandy.llm import BaseLlmBot, Prompt
-from dandy.core.processor.processor import BaseProcessor
+from dandy.llm import BaseLlmBot, Prompt, LlmConfigOptions
 
 
-class ImageBreakdown(BaseIntel):
+class PersonIntel(BaseIntel):
+    hat: bool
     description: str
-    humans: int
-    wild_animals: int
 
 
-class ImageBreakdownLlmBot(BaseLlmBot[ImageBreakdown]):
+class ImageBreakdownIntel(BaseIntel):
+    description: str
+    buildings: int
+    elk: int
+    fire_hydrants: int
+    vehicles: int
+    lamp_posts: int
+    people: list[PersonIntel]
+
+
+class ImageBreakdownLlmBot(BaseLlmBot[ImageBreakdownIntel]):
     config = 'GEMMA_3_12B_VISION'
+    config_options = LlmConfigOptions(
+        temperature=0.1,
+    )
 
     @classmethod
     def process(
             cls,
-            user_input: str,
-            intel_class: Type[ImageBreakdown],
+            prompt: Prompt,
+            intel_class: Type[ImageBreakdownIntel],
             image_files: List[str | Path],
-    ) -> ImageBreakdown:
+    ) -> ImageBreakdownIntel:
         return cls.process_prompt_to_intel(
-            prompt=Prompt(user_input),
+            prompt=prompt,
             intel_class=intel_class,
             image_files=image_files,
         )
@@ -36,18 +45,20 @@ class ImageBreakdownLlmBot(BaseLlmBot[ImageBreakdown]):
 
 class TestLlmBotVision(TestCase):
     def test_llm_bot_intel_class_include(self):
-        DebugRecorder.start_recording('test_llm_vision')
-
-        image_breakdown = ImageBreakdownLlmBot.process(
-            user_input='Please describe the following image and tell me how many humans and wild animals are in it?',
-            intel_class=ImageBreakdown,
-            image_files=[Path(settings.BASE_PATH, 'assets', 'images', 'vision_test_image.jpg')],
+        image_breakdown_intel = ImageBreakdownLlmBot.process(
+            prompt=(
+                Prompt()
+                .text('Please describe the following image and count the objects in the image?')
+                .text('Count all the vehicles even if they are partially visible.')
+                .text('Respond with a description for each person in the image.')
+            ),
+            intel_class=ImageBreakdownIntel,
+            image_files=[
+                Path(settings.BASE_PATH, 'assets', 'images', 'vision_test_image.jpg'),
+            ],
         )
 
-        DebugRecorder.stop_recording('test_llm_vision')
+        print(len(image_breakdown_intel.people))
 
-        DebugRecorder.to_html_file('test_llm_vision')
-
-        print(image_breakdown)
-
-        self.assertTrue(True)
+        self.assertEqual(image_breakdown_intel.elk, 1)
+        self.assertEqual(image_breakdown_intel.buildings, 2)

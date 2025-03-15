@@ -132,6 +132,24 @@
     })
 </script>
 
+<script type="application/javascript">
+    function detect_mime_type(base64_string) {
+        const SIGNATURES = {
+            JVBERi0: "application/pdf",
+            R0lGODdh: "image/gif",
+            R0lGODlh: "image/gif",
+            iVBORw0KGgo: "image/png",
+            "/9j/": "image/jpg"
+        }
+
+        for (let signature in SIGNATURES) {
+            if (base64_string.indexOf(signature) === 0) {
+                return SIGNATURES[signature];
+            }
+        }
+    }
+</script>
+
 <div x-data="dandy_debug" class="container-fluid bg-light">
 
     <div class="row sticky-top bg-top py-1 mb-1 border-bottom border-dark shadow-sm">
@@ -195,11 +213,13 @@
                         <span x-text="debug_event.actor"></span>
                         <span><i class="bi bi-arrow-right"></i></span>
                         <span x-text="debug_event.action"></span>
-                        <span x-text="debug_event.run_time.toFixed(3) + 's'" class="float-end text-end" width="130px;"></span>
+                        <span x-text="debug_event.run_time.toFixed(3) + 's'" class="float-end text-end"
+                              width="130px;"></span>
                         <span x-text="debug_event.id" class="float-end text-center" style="width: 100px;"></span>
                     </div>
 
-                    <div x-show="show_details" class="card-body py-2" style="font-size: 0.85rem; font-family: 'Courier New', serif">
+                    <div x-show="show_details" class="card-body py-2"
+                         style="font-size: 0.85rem; font-family: 'Courier New', serif">
 
                         <template x-if="debug_event.description">
 
@@ -234,11 +254,23 @@
                                             <div x-html="message.role" class="white-space-pre-wrap"></div>
                                             <hr class="my-2">
                                             <div x-html="message.content" class="white-space-pre-wrap"></div>
+
                                             <template x-if="message.images">
-                                                <template x-for="image in message.images">
-                                                    <img x-bind:src="'data:image/jpg;base64,' + image" alt="image" class="img-fluid">
-                                                </template>
+
+                                                <div class="pt-3">
+                                                    <span>images</span>
+                                                    <hr class="my-2">
+
+                                                    <template x-for="image in message.images">
+                                                        <img x-bind:src="'data:' + detect_mime_type(image) + ';base64,' + image"
+                                                             alt="image"
+                                                             class="img-fluid rounded border shadow-sm my-2">
+                                                    </template>
+
+                                                </div>
+
                                             </template>
+
                                         </div>
                                     </div>
 

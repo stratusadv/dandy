@@ -4,6 +4,9 @@
 
 ### Features
 
+- The `BaseLlmBot` now supports `images` and `image_files` in the `process_prompt_to_intel` method.
+  - Make sure you have the `config` using a compatible llm model that supports vision.
+
 ## v0.11.3
 
 ### Changes
