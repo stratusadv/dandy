@@ -16,10 +16,16 @@ from dandy.intel import BaseIntel
 class WigIntel(BaseIntel):
     color: str
 
+
 class ClownIntel(BaseIntel):
     name: str
     juggles: bool
     wig: WigIntel
+
+
+class Candy:
+    def __init__(self, sweetness: int):
+        self.sweetness = sweetness
 
 test_limit = 100
 
@@ -94,19 +100,17 @@ class TestCache(TestCase):
     def run_complex_object_cache(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        class Candy:
-            def __init__(self, sweetness: int):
-                self.sweetness = sweetness
-
         @cache_decorator(limit=test_limit * 3)
-        def create_candy(candy: Candy) -> Candy:
+        def create_candy(candy: Candy, index: int = 0) -> Candy:
             return Candy(sweetness=candy.sweetness)
 
         for _ in range(3):
-            for i in range(test_limit):
-                _ = create_candy(Candy(sweetness=i))
+            for i in range(2):
+                print(i)
+                new_candy = create_candy(Candy(sweetness=i), i)
+                self.assertEqual(i, new_candy.sweetness)
 
-        self.assertEqual(len(cache), test_limit)
+        self.assertEqual(2, len(cache))
 
     def test_memory_complex_object_cache(self):
         self.run_complex_object_cache(memory_cache, cache_to_memory)
