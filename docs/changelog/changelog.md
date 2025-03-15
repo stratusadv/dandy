@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.12.0 - Coming Soon
+
+### Features
+
 ## v0.11.3
 
 ### Changes
