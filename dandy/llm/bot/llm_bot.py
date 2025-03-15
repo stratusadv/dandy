@@ -1,11 +1,13 @@
 from abc import ABC
+from pathlib import Path
 
 from pydantic.main import IncEx
-from typing_extensions import Type, Generic, Union
+from typing_extensions import Type, Generic, Union, List
 
 from dandy.bot.bot import BaseBot
 from dandy.bot.exceptions import BotCriticalException
 from dandy.core.future import AsyncFuture
+from dandy.core.utils import encode_file_to_base64
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.conf import llm_configs
@@ -34,11 +36,19 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
             prompt: Union[Prompt, str],
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
+            images: Union[List[str], None] = None,
+            image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
             postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
-        
+
+        if image_files:
+            images = [] if images is None else images
+
+            for image_file in image_files:
+                images.append(encode_file_to_base64(image_file))
+
         system_prompt = Prompt()
         system_prompt.prompt(cls.instructions_prompt)
         
@@ -52,6 +62,7 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
             intel_class=intel_class,
             intel_object=intel_object,
+            images=images,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
             system_prompt=system_prompt
