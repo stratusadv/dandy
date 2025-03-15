@@ -21,7 +21,7 @@ class SceneLlmBot(BaseLlmBot):
     )
 
     @classmethod
-    @cache_to_sqlite('book')
+    @cache_to_sqlite('example')
     def process(
             cls,
             book_intel: BookIntel,

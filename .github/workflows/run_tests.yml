@@ -30,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r development_requirements.txt      
 
-      - name: Run Tests
+      - name: Package Tests
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
           OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
@@ -38,3 +38,7 @@ jobs:
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
           python -m unittest discover -v --top-level .
+
+      - name: Documentation Tests
+        run: |
+          mkdocs build --strict

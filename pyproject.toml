@@ -21,6 +21,15 @@ classifiers = [
 requires-python = ">=3.10"
 dynamic = ["version", "dependencies"]
 
+[project.scripts]
+dandy = "dandy.cli.main:main"
+
+[project.urls]
+Homepage = "https://dandysoftware.com"
+Documentation = "https://dandysoftware.com"
+Repository = "https://github.com/stratusadv/dandy"
+Changelog = "https://dandysoftware.com/changelog/changelog/"
+
 [build-system]
 requires = [
     "build",
@@ -29,8 +38,6 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[project.scripts]
-dandy = "dandy.cli.main:main"
 
 [tool.pyright]
 pythonVersion = "3.10"

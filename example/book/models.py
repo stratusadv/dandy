@@ -49,5 +49,5 @@ class Book(BaseModel):
         return markdown_str
 
     def to_markdown_file(self):
-        with open(Path(settings.BASE_PATH,  f'book.md'), 'w') as markdown:
+        with open(Path(settings.BASE_PATH,  f'example_book.md'), 'w') as markdown:
             markdown.write(self.to_markdown())
