@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from pydantic import BaseModel, Field
-from typing_extensions import List
+from typing_extensions import List, Union
 
 from dandy.llm.service.request.message import RequestMessage
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
@@ -11,8 +11,19 @@ class BaseRequestBody(BaseModel):
     model: str
     messages: List[RequestMessage] = Field(default_factory=list)
 
-    def add_message(self, role: str, content: str) -> None:
-        self.messages.append(RequestMessage(role=role, content=content))
+    def add_message(
+            self,
+            role: str,
+            content: str,
+            images: Union[List[str], None] = None
+    ) -> None:
+        self.messages.append(
+            RequestMessage(
+                role=role,
+                content=content,
+                images=images
+            )
+        )
 
     @abstractmethod
     def get_context_length(self) -> int: ...

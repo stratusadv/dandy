@@ -234,6 +234,11 @@
                                             <div x-html="message.role" class="white-space-pre-wrap"></div>
                                             <hr class="my-2">
                                             <div x-html="message.content" class="white-space-pre-wrap"></div>
+                                            <template x-if="message.images">
+                                                <template x-for="image in message.images">
+                                                    <img x-bind:src="'data:image/jpg;base64,' + image" alt="image" class="img-fluid">
+                                                </template>
+                                            </template>
                                         </div>
                                     </div>
 

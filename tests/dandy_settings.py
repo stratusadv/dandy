@@ -49,6 +49,9 @@ LLM_CONFIGS = {
     'DEEPSEEK_R1_14B': {
         'MODEL': 'deepseek-r1:14b',
     },
+    'GEMMA_3_12B_VISION': {
+        'MODEL': 'gemma3:12b',
+    },
     'GPT_3_5_TURBO': {
         'TYPE': 'openai',
         'HOST': os.getenv("OPENAI_HOST"),
