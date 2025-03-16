@@ -36,7 +36,7 @@ nav:
       - Structure: getting_started/structure.md
   - Guides:
       - Start Here: guides/start_here.md
-      - Overview: guides/dandy_overview.md
+      - Introduction: guides/introduction.md
       - Example:
           - Entry Point: guides/example/entry_point.md
           - Intel: guides/example/intel.md
