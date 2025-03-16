@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from typing_extensions import Any, Union
 
 import dandy.constants
-from dandy.conf import settings
 
 
 class BaseCache(ABC, BaseModel):

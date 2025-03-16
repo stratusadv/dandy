@@ -133,7 +133,10 @@ class TestIntel(TestCase):
             {"things": [{"name": "keys"}, {"name": "wallet"}]}
         )
 
-        self.assertIsInstance(new_bag.things[0], Thing)
+        if new_bag.things is not None:
+            self.assertIsInstance(new_bag.things[0], Thing)
+        else:
+            self.assertFalse(True)
 
     def test_intel_model_validate_json_and_copy(self):
         old_bag = Bag(color="blue", stylish=True)
@@ -142,4 +145,7 @@ class TestIntel(TestCase):
             '{"things": [{"name": "keys"}, {"name": "wallet"}]}'
         )
 
-        self.assertIsInstance(new_bag.things[0], Thing)
+        if new_bag.things is not None:
+            self.assertIsInstance(new_bag.things[0], Thing)
+        else:
+            self.assertFalse(True)

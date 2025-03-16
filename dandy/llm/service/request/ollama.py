@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing_extensions import Union
+from typing_extensions import Union, List, Any
 
+from dandy.llm.service.request.message import RequestMessage
 from dandy.llm.service.request.request import BaseRequestBody
 
 
@@ -15,6 +16,20 @@ class OllamaRequestBody(BaseRequestBody):
     options: OllamaRequestOptions
     stream: bool = False
     format: Union[dict, None] = {}
+
+    def add_message(
+            self,
+            role: str,
+            content: str,
+            images: Union[List[str], None] = None
+    ) -> None:
+        self.messages.append(
+            RequestMessage(
+                role=role,
+                content=content,
+                images=images
+            )
+        )
 
     def get_context_length(self) -> int:
         return self.options.num_ctx

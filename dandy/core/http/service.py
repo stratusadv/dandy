@@ -41,7 +41,7 @@ class BaseHttpService(ABC):
         else:
             if response.status_code != 0:
                 raise HttpCriticalException(
-                    f'Llm service request failed with status code {response.status_code} and the following message "{response.text}" after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts')
+                    f'HTTP service request failed with status code {response.status_code} and the following message "{response.text}" after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts')
             else:
                 raise HttpCriticalException(
-                    f'Llm service request failed after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts for unknown reasons')
+                    f'HTTP service request failed after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts for unknown reasons')

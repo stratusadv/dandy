@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.12.0 - Coming Soon
+
+### Features
+
+- The `BaseLlmBot` now supports `images` and `image_files` in the `process_prompt_to_intel` method.
+  - Make sure you have the `config` using a compatible llm model that supports vision.
+
+### Fixes
+
+- Fixed the hash key generation process to work with more data types and maintain better consistency.
+- Improved testing of the OpenAI llm service.
+
 ## v0.11.3
 
 ### Changes

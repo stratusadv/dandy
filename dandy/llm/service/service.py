@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from time import sleep
+from typing import List
 
 import httpx
 from httpx import Response
@@ -61,9 +62,10 @@ class LlmService(BaseHttpService):
             prompt: Prompt,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
+            images: Union[List[str], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            system_prompt: Union[Prompt, None] = None
+            system_prompt: Union[Prompt, None] = None,
     ) -> IntelType:
 
         if intel_class and intel_object:
@@ -103,7 +105,8 @@ class LlmService(BaseHttpService):
 
             request_body.add_message(
                 role='user',
-                content=service_user_prompt(prompt).to_str()
+                content=service_user_prompt(prompt).to_str(),
+                images=images,
             )
 
             debug_record_llm_request(request_body, event_id)
