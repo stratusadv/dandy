@@ -6,6 +6,7 @@ from typing_extensions import List, Type
 from dandy.conf import settings
 from dandy.intel import BaseIntel
 from dandy.llm import BaseLlmBot, Prompt, LlmConfigOptions
+from tests.llm.decorators import run_llm_configs
 
 
 class PersonIntel(BaseIntel):
@@ -44,7 +45,10 @@ class ImageBreakdownLlmBot(BaseLlmBot[ImageBreakdownIntel]):
 
 
 class TestLlmBotVision(TestCase):
-    def test_llm_bot_intel_class_include(self):
+    @run_llm_configs(['GEMMA_3_12B_VISION', 'GPT_4o'])
+    def test_llm_bot_intel_class_include(self, llm_config: str):
+        ImageBreakdownLlmBot.config = llm_config
+
         image_breakdown_intel = ImageBreakdownLlmBot.process(
             prompt=(
                 Prompt()
@@ -57,8 +61,6 @@ class TestLlmBotVision(TestCase):
                 Path(settings.BASE_PATH, 'assets', 'images', 'vision_test_image.jpg'),
             ],
         )
-
-        print(len(image_breakdown_intel.people))
 
         self.assertEqual(image_breakdown_intel.elk, 1)
         self.assertEqual(image_breakdown_intel.buildings, 2)

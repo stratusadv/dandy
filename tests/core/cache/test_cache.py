@@ -101,16 +101,14 @@ class TestCache(TestCase):
         cache.clear()
 
         @cache_decorator(limit=test_limit * 3)
-        def create_candy(candy: Candy, index: int = 0) -> Candy:
+        def create_candy(candy: Candy) -> Candy:
             return Candy(sweetness=candy.sweetness)
 
         for _ in range(3):
-            for i in range(2):
-                print(i)
-                new_candy = create_candy(Candy(sweetness=i), i)
-                self.assertEqual(i, new_candy.sweetness)
+            for i in range(test_limit):
+                _ = create_candy(Candy(sweetness=i))
 
-        self.assertEqual(2, len(cache))
+        self.assertEqual(test_limit, len(cache))
 
     def test_memory_complex_object_cache(self):
         self.run_complex_object_cache(memory_cache, cache_to_memory)

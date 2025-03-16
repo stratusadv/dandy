@@ -5,6 +5,13 @@ ALLOW_DEBUG_RECORDING = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
+OPEN_AI_CONFIG = {
+    'TYPE': 'openai',
+    'HOST': os.getenv("OPENAI_HOST"),
+    'PORT': int(os.getenv("OPENAI_PORT", 443)),
+    'API_KEY': os.getenv("OPENAI_API_KEY"),
+}
+
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
@@ -34,17 +41,14 @@ LLM_CONFIGS = {
         'MODEL': 'gemma3:27b',
     },
     'GPT_3_5_TURBO': {
-        'TYPE': 'openai',
-        'HOST': os.getenv("OPENAI_HOST"),
-        'PORT': int(os.getenv("OPENAI_PORT", 443)),
-        'API_KEY': os.getenv("OPENAI_API_KEY"),
         'MODEL': 'gpt-3.5-turbo',
     },
     'GPT_4o_MINI': {
-        'TYPE': 'openai',
-        'HOST': os.getenv("OPENAI_HOST"),
-        'PORT': int(os.getenv("OPENAI_PORT", 443)),
-        'API_KEY': os.getenv("OPENAI_API_KEY"),
+        **OPEN_AI_CONFIG,
         'MODEL': 'gpt-4o-mini',
+    },
+    'GPT_4o': {
+        **OPEN_AI_CONFIG,
+        'MODEL': 'gpt-4o',
     },
 }

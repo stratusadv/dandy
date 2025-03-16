@@ -6,6 +6,7 @@ from typing_extensions import Union, List, Type
 from dandy.intel import BaseIntel
 from dandy.llm import BaseLlmBot, Prompt
 from dandy.core.processor.processor import BaseProcessor
+from tests.llm.decorators import run_llm_configs
 
 
 class Gem(BaseIntel):
@@ -44,7 +45,10 @@ class TestLlmBot(TestCase):
 
         self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
 
-    def test_llm_bot_intel_class_include(self):
+    @run_llm_configs()
+    def test_llm_bot_intel_class_include(self, llm_config: str):
+        MoneyBagLlmBot.config = llm_config
+
         money_bag = MoneyBagLlmBot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBag,
@@ -55,7 +59,10 @@ class TestLlmBot(TestCase):
         self.assertEqual(money_bag.bills, None)
         self.assertEqual(money_bag.gems, None)
 
-    def test_llm_bot_intel_class_exclude(self):
+    @run_llm_configs()
+    def test_llm_bot_intel_class_exclude(self, llm_config: str):
+        MoneyBagLlmBot.config = llm_config
+
         money_bag = MoneyBagLlmBot.process(
             user_input='make me rich with lots of coins and gems!',
             intel_class=MoneyBag,
@@ -64,14 +71,18 @@ class TestLlmBot(TestCase):
 
         gems_value = 0
 
-        for gem in money_bag.gems:
-            gems_value = gem.value
+        if money_bag.gems is not None:
+            for gem in money_bag.gems:
+                gems_value = gem.value
 
         self.assertGreater(money_bag.coins, 0)
         self.assertEqual(money_bag.bills, None)
         self.assertGreater(gems_value, 0)
 
-    def test_llm_bot_intel_object_include(self):
+    @run_llm_configs()
+    def test_llm_bot_intel_object_include(self, llm_config: str):
+        MoneyBagLlmBot.config = llm_config
+
         coins = 10
         bills = 50
         
