@@ -1,15 +1,15 @@
 from dataclasses import dataclass, field
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
-from typing_extensions import List, Dict
+from typing_extensions import List, Dict, Union
 
 
 @dataclass(kw_only=True)
 class Url:
     host: str
     port: int = 443
-    path_parameters: List[str] = field(default_factory=list)
-    query_parameters: Dict[str, str] = field(default_factory=dict)
+    path_parameters: Union[List[str], None] = None
+    query_parameters: Union[Dict[str, str], None] = None
 
     def __str__(self) -> str:
         return self.to_str()
