@@ -12,7 +12,8 @@ Our documentation is available on our [website](https://dandysoftware.com), incl
 
 <p align="center">
     <a href="https://dandysoftware.com">
-        <img alt="Dandy Logo" src="docs/static/img/dandy_logo_256.png"/>
+        <img alt="Dandy Logo" src="https://dandysoftware.com/static/img/dandy_logo_256
+.png"/>
     </a>
 </p>
 
