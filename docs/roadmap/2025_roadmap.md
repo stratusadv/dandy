@@ -1,25 +1,20 @@
 # 2025 Roadmap
 
-## July
-
-- Vision
-
-## June
- 
-- Text to Speech
-- Speech to Text
-
 ## April
 
+- Text to Speech
+- Speech to Text
 - Agents (Prototype)
+- Tools (Prototype)
 - Correction & Negative Prompts
 - User Input Cleaning Llm Bot (Contrib)
+- Robust Documentation 🚧
 
 ## March
 
 - Completely New Example ✅
-- Documentation 🚧
 - Intel Field Include / Exclude ✅
+- Vision ✅
 - Caching ✅
 
 ## February
