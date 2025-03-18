@@ -42,5 +42,4 @@ jobs:
 
       - name: Documentation Tests
         run: |
-          ls -la
-          mkdocs build --strict
+          PYTHONPATH=. mkdocs build --strict
