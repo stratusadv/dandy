@@ -17,6 +17,12 @@ jobs:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
 
+    env:
+      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,11 +37,6 @@ jobs:
           pip install -r development_requirements.txt      
 
       - name: Package Tests
-        env:
-          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-          OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
           python -m unittest discover -v --top-level .
 
