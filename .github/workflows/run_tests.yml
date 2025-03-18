@@ -42,4 +42,5 @@ jobs:
 
       - name: Documentation Tests
         run: |
+#          This fails without setting the python path to the current directory
           PYTHONPATH=. mkdocs build --strict
