@@ -30,3 +30,5 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
         :return: AsyncFuture 
         """
         return AsyncFuture(cls.process, *args, **kwargs)
+
+
