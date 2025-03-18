@@ -24,7 +24,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
   - tables
   - attr_list
 
@@ -94,9 +94,7 @@ nav:
       - Credits: about/credits.md
 
 plugins:
-  - search
   - include-markdown
-  - table-reader
   - mkdocstrings:
       handlers:
         python:
@@ -115,6 +113,9 @@ plugins:
             show_signature: false
             show_signature_annotations: false
             show_symbol_type_heading: true
+  - markdown-exec
+  - search
+  - table-reader
 
 theme:
   name: material

@@ -37,3 +37,14 @@ img.dandy-logo {
 
 }
 
+.md-content .md-content__inner .result {
+    padding: 10px 0 10px 25px;
+}
+
+.md-content .md-content__inner .result::before {
+    font-size: 0.65rem;
+    content: "Output\A";
+    white-space: pre;
+    color: #999999;
+    margin-left: -10px;
+}

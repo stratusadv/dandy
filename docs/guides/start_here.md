@@ -37,4 +37,3 @@ Make sure you have completely gone through the [Getting Started](../index.md) se
 !!! warning
 
     All the concepts in our getting started section are must be understood before you start using Dandy.
-    
