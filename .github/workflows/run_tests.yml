@@ -42,5 +42,5 @@ jobs:
 
       - name: Documentation Tests
         run: |
-          pip install dandy
+          ls -la
           mkdocs build --strict
