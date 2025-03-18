@@ -42,5 +42,5 @@ jobs:
 
       - name: Documentation Tests
         run: |
-          pip install dandy
+          echo "DANDY_SETTINGS_MODULE=${DANDY_SETTINGS_MODULE}"
           mkdocs build --strict
