@@ -42,5 +42,5 @@ jobs:
 
       - name: Documentation Tests
         run: |
-          echo "DANDY_SETTINGS_MODULE=${DANDY_SETTINGS_MODULE}"
+          echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
           mkdocs build --strict
