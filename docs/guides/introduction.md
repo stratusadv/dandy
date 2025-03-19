@@ -6,7 +6,7 @@
 
 from dandy.llm import LlmBot
 
-response = LlmBot.process('What is the capital of France?')
+response = LlmBot.process('What is the capital of Canada?')
 
 print(response.text)
 
