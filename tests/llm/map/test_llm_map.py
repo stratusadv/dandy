@@ -5,7 +5,6 @@ from dandy.llm.map.llm_map import BaseLlmMap
 
 
 class FunLlmMap(BaseLlmMap):
-    pass
     map = {
         'someone that needs a laugh and needs clowns': 113,
         'someone is interested in seeing animals': 782,
