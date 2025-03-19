@@ -1,54 +1,69 @@
 from abc import ABC
-from pathlib import Path
+from typing import Any
 
-from pydantic.main import IncEx
-from typing_extensions import Type, Generic, Union, List
+from typing_extensions import Union, List
 
 from dandy.core.future import AsyncFuture
-from dandy.core.utils import encode_file_to_base64
-from dandy.intel import BaseIntel
-from dandy.intel.type_vars import IntelType
 from dandy.llm.conf import llm_configs
-from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
+from dandy.map.intel import MapSelectedValuesIntel
+from dandy.map.map import MapType, BaseMap
 
 
-class BaseLlmMap(BaseLlmProcessor, ABC, Generic[IntelType]):
+class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
-    intel_class: Type[BaseIntel] = DefaultLlmIntel
+    map: MapType
+
+    def __new__(cls):
+        print('hello')
+        return super().__new__(cls)
 
     @classmethod
     def process(
             cls,
             prompt: Union[Prompt, str],
-            intel_class: Union[Type[IntelType], None] = None,
-    ) -> IntelType:
-        raise NotImplementedError
+            choice_count: int = 1,
+    ) -> MapSelectedValuesIntel[Any]:
+        map_selected_values_intel = MapSelectedValuesIntel()
+
+        for value in cls.process_prompt_to_intel(prompt, choice_count):
+            if value is BaseLlmMap:
+                map_selected_values_intel.extend(
+                    *value.process(prompt, choice_count)
+                )
+            else:
+                map_selected_values_intel.append(cls.get_selected_value(value.value))
+
+        return map_selected_values_intel
 
     @classmethod
     def process_prompt_to_intel(
             cls,
             prompt: Union[Prompt, str],
-            intel_class: Union[Type[IntelType], None] = None,
-    ) -> IntelType:
+            choice_count: int = 1
+    ) -> MapSelectedValuesIntel:
 
-        system_prompt = Prompt()
-        system_prompt.prompt(cls.instructions_prompt)
+        system_prompt = (
+            Prompt()
+            .prompt(cls.instructions_prompt)
+            .text(f'Please select {choice_count} of the following choices that best matches the intention of the user:')
+            .list(cls.keyed_choices())
+        )
+
+        print(MapSelectedValuesIntel[cls.as_enum()].model_json_schema())
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
-            intel_class=intel_class,
+            intel_class=MapSelectedValuesIntel[cls.as_enum()],
             system_prompt=system_prompt
         )
 
     @classmethod
-    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[IntelType]:
-        return AsyncFuture[IntelType](cls.process, *args, **kwargs)
-
-
+    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapSelectedValuesIntel]:
+        return AsyncFuture[MapSelectedValuesIntel](cls.process, *args, **kwargs)

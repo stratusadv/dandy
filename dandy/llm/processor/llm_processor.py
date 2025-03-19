@@ -18,6 +18,7 @@ class BaseLlmProcessor(BaseProcessor, ABC, Generic[IntelType]):
     intel_class: Type[BaseIntel]
 
     def __new__(cls):
+        print('hello')
         for attr in ['config', 'config_options', 'instructions_prompt', 'intel_class']:
             if getattr(cls, attr) is None:
                 raise DandyCriticalException(f'{cls.__name__} {attr} is not set')
@@ -31,7 +32,7 @@ class BaseLlmProcessor(BaseProcessor, ABC, Generic[IntelType]):
             *args,
             **kwargs,
     ) -> IntelType:
-        ...
+        raise NotImplementedError
 
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[IntelType]:
