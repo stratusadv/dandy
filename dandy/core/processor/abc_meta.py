@@ -10,6 +10,8 @@ from dandy.utils import pascal_to_title_case
 
 class ProcessorABCMeta(ABCMeta):
     def __new__(cls, name, bases, dct):
+        processor_class = super().__new__(cls, name, bases, dct)
+
         if 'process' in dct:
             original_process = dct['process']
 
@@ -60,7 +62,7 @@ class ProcessorABCMeta(ABCMeta):
 
                     return result
 
-                dct['process'] = classmethod(wrapped_process)
+                setattr(processor_class, 'process', classmethod(wrapped_process))
 
-        return super().__new__(cls, name, bases, dct)
+        return processor_class
 

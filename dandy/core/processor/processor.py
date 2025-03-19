@@ -19,7 +19,7 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
         :param kwargs: Keyword Arguments
         :return: Any
         """
-        ...
+        raise NotImplementedError
 
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture:
@@ -30,3 +30,5 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
         :return: AsyncFuture 
         """
         return AsyncFuture(cls.process, *args, **kwargs)
+
+

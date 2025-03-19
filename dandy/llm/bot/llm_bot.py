@@ -4,31 +4,21 @@ from pathlib import Path
 from pydantic.main import IncEx
 from typing_extensions import Type, Generic, Union, List
 
-from dandy.bot.bot import BaseBot
-from dandy.bot.exceptions import BotCriticalException
 from dandy.core.future import AsyncFuture
 from dandy.core.utils import encode_file_to_base64
 from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.conf import llm_configs
 from dandy.llm.intel import DefaultLlmIntel
+from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
 
 
-class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
+class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
-    intel_class: Type[BaseIntel] = DefaultLlmIntel
-
-    def __new__(cls):
-        if cls.config is None:
-            raise BotCriticalException(f'{cls.__name__} config is not set')
-        if cls.instructions_prompt is None:
-            raise BotCriticalException(f'{cls.__name__} instructions_prompt is not set')
-
-        return super().__new__(cls)
 
     @classmethod
     def process_prompt_to_intel(
@@ -74,6 +64,8 @@ class BaseLlmBot(BaseBot, ABC, Generic[IntelType]):
 
 
 class LlmBot(BaseLlmBot, Generic[IntelType]):
+    intel_class: Type[BaseIntel] = DefaultLlmIntel
+
     @classmethod
     def process(
             cls,
