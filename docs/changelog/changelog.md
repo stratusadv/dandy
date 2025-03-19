@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.13.0 - Experimental / Coming Soon
+
+### Features
+
+- Added a new processor called "Map"
+
+### Changes
+
+- Removed the Contrib Selection llm bot.
+
 ## v0.12.0
 
 ### Features

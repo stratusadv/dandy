@@ -27,13 +27,14 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
             cls,
             prompt: Union[Prompt, str],
             choice_count: int = 1,
+            map: MapType | None = None
     ) -> MapSelectedValuesIntel[Any]:
         map_selected_values_intel = MapSelectedValuesIntel()
 
-        for value in cls.process_prompt_to_intel(prompt, choice_count):
+        for value in cls.process_prompt_to_intel(prompt, choice_count, map):
             if value is BaseLlmMap:
                 map_selected_values_intel.extend(
-                    *value.process(prompt, choice_count)
+                    *value.process(prompt, choice_count, map)
                 )
             else:
                 map_selected_values_intel.append(cls.get_selected_value(value.value))
@@ -44,7 +45,8 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
     def process_prompt_to_intel(
             cls,
             prompt: Union[Prompt, str],
-            choice_count: int = 1
+            choice_count: int = 1,
+            map: MapType | None = None
     ) -> MapSelectedValuesIntel:
 
         system_prompt = (
@@ -54,7 +56,8 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
             .list(cls.keyed_choices())
         )
 
-        print(MapSelectedValuesIntel[cls.as_enum()].model_json_schema())
+        if map:
+            pass # We need to do something for a custom map ... maybe get rid of the BaseMap class
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
