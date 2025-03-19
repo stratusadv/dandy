@@ -3,6 +3,7 @@ __pycache__/
 venv*/
 build/
 site/
+dist/
 dandy.egg-info/
 inspectionProfiles/
 .coverage_html_report/
