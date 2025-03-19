@@ -31,6 +31,9 @@ LLM_CONFIGS = {
     'PHI_4_14B': {
         'MODEL': 'phi4:14b-q4_K_M',
     },
+    'LLAMA_3_2_3B': {
+        'MODEL': 'llama3.2:3b-instruct-q4_K_M',
+    },
     'DEEPSEEK_R1_14B': {
         'MODEL': 'deepseek-r1:14b',
     },

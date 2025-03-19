@@ -9,27 +9,28 @@ from dandy.core.processor.processor import BaseProcessor
 from tests.llm.decorators import run_llm_configs
 
 
-class Gem(BaseIntel):
+class GemIntel(BaseIntel):
     name: str
     value: float
     quality: str | None = None
 
-class MoneyBag(BaseIntel):
+
+class MoneyBagIntel(BaseIntel):
     coins: int
     bills: int | None = None
-    gems: Union[List[Gem], None] = None
+    gems: Union[List[GemIntel], None] = None
 
 
-class MoneyBagLlmBot(BaseLlmBot[MoneyBag]):
+class MoneyBagLlmBot(BaseLlmBot[MoneyBagIntel]):
     @classmethod
     def process(
             cls,
             user_input: str,
-            intel_class: Union[Type[MoneyBag], None] = None,
-            intel_object: Union[MoneyBag, None] = None,
+            intel_class: Union[Type[MoneyBagIntel], None] = None,
+            intel_object: Union[MoneyBagIntel, None] = None,
             include: Union[IncEx, None] = None,
             exclude: Union[IncEx, None] = None,
-    ) -> MoneyBag:
+    ) -> MoneyBagIntel:
         return cls.process_prompt_to_intel(
             prompt=Prompt(user_input),
             intel_class=intel_class,
@@ -51,7 +52,7 @@ class TestLlmBot(TestCase):
 
         money_bag = MoneyBagLlmBot.process(
             user_input='I have 10 coins',
-            intel_class=MoneyBag,
+            intel_class=MoneyBagIntel,
             include={'coins'},
         )
 
@@ -65,7 +66,7 @@ class TestLlmBot(TestCase):
 
         money_bag = MoneyBagLlmBot.process(
             user_input='make me rich with lots of coins and gems!',
-            intel_class=MoneyBag,
+            intel_class=MoneyBagIntel,
             exclude={'bills': True, 'gems': {'quality': True}},
         )
 
@@ -86,7 +87,7 @@ class TestLlmBot(TestCase):
         coins = 10
         bills = 50
         
-        old_money_bag = MoneyBag(coins=coins, bills=bills)
+        old_money_bag = MoneyBagIntel(coins=coins, bills=bills)
 
         additional_coins = 15
 

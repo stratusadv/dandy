@@ -159,6 +159,9 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         for item in self.items:
             yield item
 
+    def __len__(self):
+        return len(self.items)
+
     def __setitem__(self, index, value: T):
         self.items[index] = value
 

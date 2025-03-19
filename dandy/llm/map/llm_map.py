@@ -56,6 +56,8 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
             .list(cls.keyed_choices())
         )
 
+        print(MapSelectedValuesIntel[cls.as_enum()].model_json_schema())
+
         if map:
             pass # We need to do something for a custom map ... maybe get rid of the BaseMap class
 
