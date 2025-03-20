@@ -17,11 +17,12 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
+    intel_class = MapSelectedValuesIntel
     map: MapType
-    _map: Map | None = None
+    _map: Map
 
     def __init_subclass__(cls):
-        super().__init_subclass__(cls)
+        super().__init_subclass__()
 
         if cls.map is None:
             raise MapCriticalException(f'{cls.__name__} map is not set.')
@@ -56,17 +57,17 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
         system_prompt = (
             Prompt()
             .prompt(cls.instructions_prompt)
-            .text(f'Please select {choice_count} of the following choices that best matches the intention of the user:')
+            .text(f'Please select {choice_count} of the following choices by number that best matches the users input.')
             .list(cls._map.keyed_choices())
         )
 
-        print(MapSelectedValuesIntel[Type[cls._map.as_enum()]].model_json_schema())
+        print(MapSelectedValuesIntel[cls._map.as_enum()].model_json_schema())
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
-            intel_class=MapSelectedValuesIntel[Type[cls._map.as_enum()]],
+            intel_class=MapSelectedValuesIntel[cls._map.as_enum()],
             system_prompt=system_prompt
         )
 

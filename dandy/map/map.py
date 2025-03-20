@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel
+from typing_extensions import Type
 
 MapType = dict[str, Any]
 _KeyedMapType = dict[int, tuple[str, Any]]
@@ -26,4 +27,4 @@ class Map(BaseModel):
         for key, value in self._keyed_map.items():
             enum_choices[value[0]] = key
 
-        return Enum(f'{self.__name__}Enum', enum_choices)
+        return Enum(f'{self.__class__.__name__}Enum', enum_choices)
