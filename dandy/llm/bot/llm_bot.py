@@ -19,6 +19,7 @@ class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
+    intel_class: Type[BaseIntel]
 
     @classmethod
     def process_prompt_to_intel(

@@ -4,13 +4,14 @@ venv*/
 build/
 site/
 dist/
+*jupyter/
 dandy.egg-info/
 inspectionProfiles/
 .coverage_html_report/
 .dandy_cli_output/
 .dandy_debug_output/
+.idea/
 
-.idea
 .python-version
 
 ~*.*

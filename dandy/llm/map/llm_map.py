@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any
+from typing import Any, Type
 
 from typing_extensions import Union, List
 
@@ -8,36 +8,41 @@ from dandy.llm.conf import llm_configs
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
+from dandy.map.exceptions import MapCriticalException
 from dandy.map.intel import MapSelectedValuesIntel
-from dandy.map.map import MapType, BaseMap
+from dandy.map.map import MapType, Map
 
 
-class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
+class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
     map: MapType
+    _map: Map | None = None
 
-    def __new__(cls):
-        print('hello')
-        return super().__new__(cls)
+    def __init_subclass__(cls):
+        super().__init_subclass__(cls)
+
+        if cls.map is None:
+            raise MapCriticalException(f'{cls.__name__} map is not set.')
+
+        cls._map = Map(valid_map=cls.map)
 
     @classmethod
     def process(
             cls,
             prompt: Union[Prompt, str],
             choice_count: int = 1,
-            map: MapType | None = None
     ) -> MapSelectedValuesIntel[Any]:
         map_selected_values_intel = MapSelectedValuesIntel()
 
-        for value in cls.process_prompt_to_intel(prompt, choice_count, map):
+        for value in cls.process_prompt_to_intel(prompt, choice_count):
             if value is BaseLlmMap:
                 map_selected_values_intel.extend(
-                    *value.process(prompt, choice_count, map)
+                    *value.process(prompt, choice_count)
                 )
             else:
-                map_selected_values_intel.append(cls.get_selected_value(value.value))
+                map_selected_values_intel.append(cls._map.get_selected_value(value.value))
 
         return map_selected_values_intel
 
@@ -46,26 +51,22 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], BaseMap, ABC):
             cls,
             prompt: Union[Prompt, str],
             choice_count: int = 1,
-            map: MapType | None = None
     ) -> MapSelectedValuesIntel:
 
         system_prompt = (
             Prompt()
             .prompt(cls.instructions_prompt)
             .text(f'Please select {choice_count} of the following choices that best matches the intention of the user:')
-            .list(cls.keyed_choices())
+            .list(cls._map.keyed_choices())
         )
 
-        print(MapSelectedValuesIntel[cls.as_enum()].model_json_schema())
-
-        if map:
-            pass # We need to do something for a custom map ... maybe get rid of the BaseMap class
+        print(MapSelectedValuesIntel[Type[cls._map.as_enum()]].model_json_schema())
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
-            intel_class=MapSelectedValuesIntel[cls.as_enum()],
+            intel_class=MapSelectedValuesIntel[Type[cls._map.as_enum()]],
             system_prompt=system_prompt
         )
 

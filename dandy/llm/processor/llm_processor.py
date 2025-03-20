@@ -17,13 +17,12 @@ class BaseLlmProcessor(BaseProcessor, ABC, Generic[IntelType]):
     instructions_prompt: Prompt
     intel_class: Type[BaseIntel]
 
-    def __new__(cls):
-        print('hello')
+    def __init_subclass__(cls):
         for attr in ['config', 'config_options', 'instructions_prompt', 'intel_class']:
             if getattr(cls, attr) is None:
                 raise DandyCriticalException(f'{cls.__name__} {attr} is not set')
 
-        return super().__new__(cls)
+        super().__init_subclass__()
 
     @classmethod
     @abstractmethod
