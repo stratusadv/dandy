@@ -5,6 +5,7 @@
 ### Features
 
 - Added a new processor called "Map"
+- New decorator called `debug_recorder_to_html(debug_name: str)` that allows you to easily wrap a function or method.
 
 ### Changes
 

@@ -1,32 +1,15 @@
 from unittest import TestCase
 
-from dandy.debug import DebugRecorder
-from dandy.llm.map.llm_map import BaseLlmMap
-
-
-
-class FunLlmMap(BaseLlmMap):
-    config = 'PHI_4_14B'
-    map = {
-        'someone that needs a laugh and needs clowns': 113,
-        'someone is interested in seeing animals': 782,
-        'someone looking for something more technical': 927,
-        'someone who would be glad to get a free puppies': 391,
-    }
+from dandy.debug.decorators import debug_recorder_to_html
+from tests.llm.map.maps import FunLlmMap
 
 
 class TestMap(TestCase):
+    @debug_recorder_to_html('test_map')
     def test_map_validator(self):
-        try:
-            DebugRecorder.start_recording('test_map')
+        choices = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
 
-            choices = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
-
-            self.assertEqual(2, len(choices))
-            self.assertIn(391, choices)
-            self.assertIn(782, choices)
-
-        finally:
-            DebugRecorder.stop_recording('test_map')
-            DebugRecorder.to_html_file('test_map')
+        self.assertEqual(2, len(choices))
+        self.assertIn(391, choices)
+        self.assertIn(782, choices)
 

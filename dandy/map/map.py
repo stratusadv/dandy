@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel
-from typing_extensions import Type
 
 MapType = dict[str, Any]
 _KeyedMapType = dict[int, tuple[str, Any]]
