@@ -38,10 +38,15 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
         map_selected_values_intel = MapSelectedValuesIntel()
 
         for value in cls.process_prompt_to_intel(prompt, choice_count):
-            if value is BaseLlmMap:
-                map_selected_values_intel.extend(
-                    *value.process(prompt, choice_count)
-                )
+            if isinstance(value, type):
+                if issubclass(value, BaseLlmMap):
+                    map_selected_values_intel.extend(
+                        *value.process(prompt, choice_count)
+                    )
+                else:
+                    map_selected_values_intel.append(
+                        cls._map.get_selected_value(value.value)
+                    )
             else:
                 map_selected_values_intel.append(cls._map.get_selected_value(value.value))
 
