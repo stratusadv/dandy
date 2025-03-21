@@ -109,7 +109,7 @@ class LlmService(BaseHttpService):
                 images=images,
             )
 
-            debug_record_llm_request(request_body, event_id)
+            debug_record_llm_request(request_body, intel_json_schema, event_id)
 
             message_content = self._llm_config.get_response_content(
                 self.post_request(request_body.model_dump())
@@ -155,7 +155,7 @@ class LlmService(BaseHttpService):
                     )
 
                     if DebugRecorder.is_recording:
-                        debug_record_llm_request(request_body, event_id)
+                        debug_record_llm_request(request_body, intel_json_schema, event_id)
 
                     message_content = self._llm_config.get_response_content(
                         self.post_request(request_body.model_dump())
@@ -195,37 +195,37 @@ class LlmService(BaseHttpService):
         else:
             raise LlmValidationCriticalException
 
-    def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
-        event_id = generate_new_debug_event_id()
-
-        request_body: BaseRequestBody = self.get_request_body()
-
-        request_body.set_format_to_text()
-
-        request_body.add_message(
-            role='system',
-            content=system_prompt_str
-        )
-
-        request_body.add_message(
-            role='user',
-            content=user_prompt_str
-        )
-
-        debug_record_llm_request(request_body, event_id)
-
-        message_content = self._llm_config.get_response_content(
-            self.post_request(request_body.model_dump())
-        )
-
-        debug_record_llm_response(message_content, event_id)
-        debug_record_llm_success(llm_success_message, event_id)
-
-        return message_content
-
-    def process_prompts_to_str(self, system_prompt: Prompt, user_prompt: Prompt) -> str:
-        return self.process_str_to_str(
-            system_prompt_str=system_prompt.to_str(),
-            user_prompt_str=user_prompt.to_str(),
-            llm_success_message='Prompt properly returned a response.'
-        )
+    # def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
+    #     event_id = generate_new_debug_event_id()
+    #
+    #     request_body: BaseRequestBody = self.get_request_body()
+    #
+    #     request_body.set_format_to_text()
+    #
+    #     request_body.add_message(
+    #         role='system',
+    #         content=system_prompt_str
+    #     )
+    #
+    #     request_body.add_message(
+    #         role='user',
+    #         content=user_prompt_str
+    #     )
+    #
+    #     debug_record_llm_request(request_body, event_id)
+    #
+    #     message_content = self._llm_config.get_response_content(
+    #         self.post_request(request_body.model_dump())
+    #     )
+    #
+    #     debug_record_llm_response(message_content, event_id)
+    #     debug_record_llm_success(llm_success_message, event_id)
+    #
+    #     return message_content
+    #
+    # def process_prompts_to_str(self, system_prompt: Prompt, user_prompt: Prompt) -> str:
+    #     return self.process_str_to_str(
+    #         system_prompt_str=system_prompt.to_str(),
+    #         user_prompt_str=user_prompt.to_str(),
+    #         llm_success_message='Prompt properly returned a response.'
+    #     )

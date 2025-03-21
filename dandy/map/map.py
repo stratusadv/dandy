@@ -12,11 +12,14 @@ class Map(BaseModel):
     _keyed_map: _KeyedMapType = {}
 
     def model_post_init(self, __context: Any) -> None:
-        for i, (choice, value) in enumerate(self.valid_map.items()):
+        for i, (choice, value) in enumerate(self.valid_map.items(), start=1):
             self._keyed_map[i] = (choice, value)
 
     def keyed_choices(self) -> list[str]:
-        return [f'{key}. "{value[0]}"' for key, value in self._keyed_map.items()]
+        return [f'{key}. "{value[0]}"\n' for key, value in self._keyed_map.items()]
+
+    def keyed_choices_str(self) -> str:
+        return ''.join(self.keyed_choices())
 
     def get_selected_value(self, choice_key: int) -> Any:
         return self._keyed_map[choice_key][1]

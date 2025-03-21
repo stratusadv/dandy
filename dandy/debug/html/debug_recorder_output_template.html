@@ -242,6 +242,14 @@
                                     <div x-text="'Estimated Tokens: ' + debug_event.estimated_tokens"
                                          class="col-12"></div>
                                 </div>
+                                <div class="row" x-data="{ show_json_schema: false }">
+                                    <div class="col-12 cursor-pointer ps-2" x-on:click="show_json_schema = !show_json_schema">
+                                        <i class="bi bi-caret-right" x-show="!show_json_schema"></i>
+                                        <i class="bi bi-caret-down" x-show="show_json_schema"></i>
+                                        JSON Schema
+                                    </div>
+                                    <div class="col-12 white-space-pre-wrap m-2 p-2 border rounded" x-show="show_json_schema" x-text="debug_event.json_schema"></div>
+                                </div>
 
                                 <template x-for="message in debug_event.request.messages">
 

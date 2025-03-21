@@ -57,8 +57,15 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
         system_prompt = (
             Prompt()
             .prompt(cls.instructions_prompt)
-            .text(f'Please select {choice_count} of the following choices by number that best matches the users input.')
-            .list(cls._map.keyed_choices())
+            .text(f'Please select {choice_count} of the following choices by number using the following rules.')
+            .line_break()
+            .sub_heading('Rules:')
+            .list([
+                'Select that best matches the users input.',
+            ])
+            .line_break()
+            .sub_heading('Choices:')
+            .text(cls._map.keyed_choices_str())
         )
 
         print(MapSelectedValuesIntel[cls._map.as_enum()].model_json_schema())

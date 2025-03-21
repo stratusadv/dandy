@@ -1,11 +1,10 @@
-import logging
 from functools import wraps
 
+from dandy.constants import DEBUG_DEFAULT_NAME
 from dandy.debug import DebugRecorder
-from tests.llm.constants import TESTING_LLM_CONFIGS
 
 
-def debug_recorder_to_html(debug_name: str = 'default'):
+def debug_recorder_to_html(debug_name: str = DEBUG_DEFAULT_NAME):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

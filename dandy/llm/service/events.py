@@ -13,6 +13,7 @@ class LlmServiceRequestEvent(LlmServiceEvent):
     request: dict
     temperature: float
     estimated_tokens: int = 0
+    json_schema: str = ''
     action: str = 'Request'
     type: EventType = EventType.REQUEST
 

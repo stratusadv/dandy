@@ -4,7 +4,9 @@
 
 ### Features
 
-- Added a new processor called "Map"
+- Added a new processor called "LlmMap" that allows you to easily create contextual relationships to python objects.
+  - 
+- Debug recorder now shows the JSON schema that was sent to the llm service.
 - New decorator called `debug_recorder_to_html(debug_name: str)` that allows you to easily wrap a function or method.
 
 ### Changes
