@@ -16,7 +16,11 @@ from dandy.map.map import MapType, Map
 class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
-    instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
+    instructions_prompt: Prompt = (
+        Prompt()
+        .text("Your job is to select a choice for the provided list of choices.")
+        .text("Make sure you select at least one choice that is the most relevant to the users input.")
+    )
     intel_class = MapSelectedValuesIntel
     map: MapType
     _map: Map
@@ -37,18 +41,18 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     ) -> MapSelectedValuesIntel[Any]:
         map_selected_values_intel = MapSelectedValuesIntel()
 
-        for value in cls.process_prompt_to_intel(prompt, choice_count):
-            if isinstance(value, type):
-                if issubclass(value, BaseLlmMap):
+        for map_enum in cls.process_prompt_to_intel(prompt, choice_count):
+            map_value = cls._map.get_selected_value(map_enum.value)
+
+            if isinstance(map_value, type):
+                if issubclass(map_value, BaseLlmMap):
                     map_selected_values_intel.extend(
-                        *value.process(prompt, choice_count)
+                        map_value.process(prompt, choice_count)
                     )
                 else:
-                    map_selected_values_intel.append(
-                        cls._map.get_selected_value(value.value)
-                    )
+                    map_selected_values_intel.append(map_value)
             else:
-                map_selected_values_intel.append(cls._map.get_selected_value(value.value))
+                map_selected_values_intel.append(map_value)
 
         return map_selected_values_intel
 
@@ -66,7 +70,8 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
             .line_break()
             .sub_heading('Rules:')
             .list([
-                'Select that best matches the users input.',
+                'Select the choice that best matches the users input.',
+                'Return at least one choice by number.'
             ])
             .line_break()
             .sub_heading('Choices:')
