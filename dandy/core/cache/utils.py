@@ -1,5 +1,8 @@
 import hashlib
 
+from pydantic import BaseModel
+from typing_extensions import Any
+
 from dandy.core.cache.exceptions import CacheCriticalException
 
 
@@ -26,8 +29,15 @@ def generate_hash_key(func: object, *args, **kwargs) -> str:
     return hash_key
 
 
-def convert_to_hashable_str(obj: object) -> str:
-    if hasattr(obj, '__dict__'):
+def convert_to_hashable_str(obj: Any) -> str:
+    if isinstance(obj, type):
+        if issubclass(obj, BaseModel):
+            return str(obj.model_json_schema())
+        else:
+            return str(obj)
+    elif isinstance(obj, BaseModel):
+        return str(obj)
+    elif hasattr(obj, '__dict__'):
         return f'{obj.__dict__}'
     elif hasattr(obj, '__str__'):
         return str(obj)

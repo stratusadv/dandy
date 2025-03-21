@@ -10,6 +10,11 @@
 
 - Removed the Contrib Selection llm bot.
 
+### Fixes
+
+- Fixed a caching to be more robust and understand changes with in dandy processors for more accurate caching.
+- Drastically improved the testing of the OpenAI llm service.
+
 ## v0.12.0
 
 ### Features
