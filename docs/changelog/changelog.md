@@ -2,6 +2,10 @@
 
 ## v0.13.0 - Experimental / Coming Soon
 
+### Breaking
+
+- Remove the `assistant_str_prompt_to_str` method and sub methods from `LlmService`.
+
 ### Features
 
 - Added a new processor called "LlmMap" that allows you to easily create contextual relationships to python objects.

@@ -61,6 +61,8 @@ nav:
           - Prompt: api/llm/prompt/prompt.md
           - Prompt Snippets: api/llm/prompt/snippet.md
           - Service: api/llm/service/service.md
+      - Map:
+          - LLM Map: api/map/llm_map.md
       - Processor:
           - BaseProcessor: api/processor/processor.md
       - Workflow:

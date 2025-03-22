@@ -39,16 +39,6 @@ class LlmService(BaseHttpService):
         self._llm_config = llm_config
         self._llm_options = llm_options
 
-    def assistant_str_prompt_to_str(
-            self,
-            user_prompt_str: str,
-    ) -> str:
-        return self.process_str_to_str(
-            system_prompt_str='You are a helpful assistant.',
-            user_prompt_str=user_prompt_str,
-            llm_success_message='Assistant properly returned a response.'
-        )
-
     def get_request_body(self) -> BaseRequestBody:
         return self._llm_config.generate_request_body(
             max_input_tokens=self._llm_options.max_input_tokens,
@@ -59,7 +49,7 @@ class LlmService(BaseHttpService):
 
     def process_prompt_to_intel(
             self,
-            prompt: Prompt,
+            prompt: Prompt | str,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
@@ -105,7 +95,9 @@ class LlmService(BaseHttpService):
 
             request_body.add_message(
                 role='user',
-                content=service_user_prompt(prompt).to_str(),
+                content=service_user_prompt(
+                    prompt if isinstance(prompt, Prompt) else Prompt(prompt)
+                ).to_str(),
                 images=images,
             )
 
@@ -194,38 +186,3 @@ class LlmService(BaseHttpService):
                     )
         else:
             raise LlmValidationCriticalException
-
-    # def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
-    #     event_id = generate_new_debug_event_id()
-    #
-    #     request_body: BaseRequestBody = self.get_request_body()
-    #
-    #     request_body.set_format_to_text()
-    #
-    #     request_body.add_message(
-    #         role='system',
-    #         content=system_prompt_str
-    #     )
-    #
-    #     request_body.add_message(
-    #         role='user',
-    #         content=user_prompt_str
-    #     )
-    #
-    #     debug_record_llm_request(request_body, event_id)
-    #
-    #     message_content = self._llm_config.get_response_content(
-    #         self.post_request(request_body.model_dump())
-    #     )
-    #
-    #     debug_record_llm_response(message_content, event_id)
-    #     debug_record_llm_success(llm_success_message, event_id)
-    #
-    #     return message_content
-    #
-    # def process_prompts_to_str(self, system_prompt: Prompt, user_prompt: Prompt) -> str:
-    #     return self.process_str_to_str(
-    #         system_prompt_str=system_prompt.to_str(),
-    #         user_prompt_str=user_prompt.to_str(),
-    #         llm_success_message='Prompt properly returned a response.'
-    #     )

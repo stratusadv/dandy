@@ -1,6 +1,7 @@
 from enum import Enum
+from typing import List
 
-from typing_extensions import Generic, TypeVar
+from typing_extensions import Generic, TypeVar, Self
 
 from dandy.intel import BaseListIntel
 

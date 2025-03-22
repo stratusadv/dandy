@@ -47,7 +47,7 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
             if isinstance(map_value, type):
                 if issubclass(map_value, BaseLlmMap):
                     map_selected_values_intel.extend(
-                        map_value.process(prompt, choice_count)
+                        map_value.process(prompt, choice_count).items
                     )
                 else:
                     map_selected_values_intel.append(map_value)
@@ -91,3 +91,15 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapSelectedValuesIntel]:
         return AsyncFuture[MapSelectedValuesIntel](cls.process, *args, **kwargs)
+
+
+class LlmMap(BaseLlmMap):
+    map = {}
+
+    @classmethod
+    def process(
+            cls,
+            prompt: Union[Prompt, str],
+            choice_count: int = 1,
+            map: MapType | None = None,
+    ) -> MapSelectedValuesIntel[Any]:
