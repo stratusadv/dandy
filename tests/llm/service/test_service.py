@@ -1,13 +1,17 @@
 from unittest import TestCase
 
 from dandy.llm.conf import llm_configs
+from dandy.llm.intel import DefaultLlmIntel
 from tests.llm.decorators import run_llm_configs
 
 
 class TestService(TestCase):
     @run_llm_configs()
-    def test_assistant_prompt(self, llm_config: str):
-        str_response = llm_configs[llm_config].service.assistant_str_prompt_to_str('Hello, World!')
+    def test_process_prompt_to_intel(self, llm_config: str):
+        response = llm_configs[llm_config].service.process_prompt_to_intel(
+            prompt='Hello, World!',
+            intel_class=DefaultLlmIntel,
+        )
 
-        self.assertTrue(str_response != '' and str_response is not None)
+        self.assertTrue(response.text != '' and response.text is not None)
 

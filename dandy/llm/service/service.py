@@ -1,28 +1,23 @@
 from __future__ import annotations
 
-import json
-from time import sleep
 from typing import List
 
-import httpx
-from httpx import Response
 from pydantic import ValidationError
 from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
-from dandy.conf import settings
 from dandy.core.http.service import BaseHttpService
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.intel.type_vars import IntelType
 from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException
+from dandy.llm.prompt import Prompt
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
 
 if TYPE_CHECKING:
-    from dandy.llm.prompt import Prompt
     from dandy.llm.service.config import BaseLlmConfig
     from dandy.llm.service.request.request import BaseRequestBody
     from dandy.llm.service.config import LlmConfigOptions

@@ -1,10 +1,11 @@
-from dandy.llm.service.config import BaseLlmConfig
-
+from dandy.llm import LlmBot
 
 def assistant(
-        llm_config: BaseLlmConfig,
+        llm_config: str,
         user_prompt: str,
 ) -> None:
+
+    LlmBot.config = llm_config
 
     if user_prompt:
         user_input = user_prompt
@@ -13,12 +14,12 @@ def assistant(
 
     print(f'Prompting Assistant ... depending on your llm configuration this may take up to a couple minutes')
 
-    response = llm_config.service.assistant_str_prompt_to_str(
-        user_prompt_str=user_input
+    response = LlmBot.process(
+        prompt=user_input
     )
 
     if response:
-        print(response)
+        print(response.text)
 
     else:
         print('Failed to get response from the assistant ... try again')

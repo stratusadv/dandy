@@ -27,11 +27,7 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
 
     def __init_subclass__(cls):
         super().__init_subclass__()
-
-        if cls.map is None:
-            raise MapCriticalException(f'{cls.__name__} map is not set.')
-
-        cls._map = Map(valid_map=cls.map)
+        cls.process_map()
 
     @classmethod
     def process(
@@ -92,6 +88,13 @@ class BaseLlmMap(BaseLlmProcessor[MapSelectedValuesIntel], ABC):
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapSelectedValuesIntel]:
         return AsyncFuture[MapSelectedValuesIntel](cls.process, *args, **kwargs)
 
+    @classmethod
+    def process_map(cls):
+        if cls.map is None:
+            raise MapCriticalException(f'{cls.__name__} map is not set.')
+
+        cls._map = Map(valid_map=cls.map)
+
 
 class LlmMap(BaseLlmMap):
     map = {}
@@ -103,3 +106,8 @@ class LlmMap(BaseLlmMap):
             choice_count: int = 1,
             map: MapType | None = None,
     ) -> MapSelectedValuesIntel[Any]:
+
+        cls.map = map
+        cls.process_map()
+
+        return super().process(prompt, choice_count)

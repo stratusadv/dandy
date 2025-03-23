@@ -1,6 +1,8 @@
 import os
 from unittest import TestCase
 
+from dandy.debug.decorators import debug_recorder_to_html
+from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.service.config import OllamaLlmConfig
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.conf import llm_configs
@@ -13,20 +15,24 @@ class TestConfig(TestCase):
                 seed=llm_configs.DEFAULT.options.seed,
             ).get_temperature(), llm_configs.DEFAULT.options.temperature)
 
+    @debug_recorder_to_html('test_ollama_max_completion_tokens')
     def test_ollama_max_completion_tokens(self):
         ollama_config = OllamaLlmConfig(
             host=os.getenv("OLLAMA_HOST"),
             port=int(os.getenv("OLLAMA_PORT", 11434)),
             api_key=os.getenv("OLLAMA_API_KEY"),
             model='llama3.1:8b-instruct-q4_K_M',
-            max_output_tokens=3,
+            max_output_tokens=10,
             temperature=1.0,
             prompt_retry_count=3,
         )
 
-        response = ollama_config.service.assistant_str_prompt_to_str('Tell me what you think about hamburgers?')
+        response = ollama_config.service.process_prompt_to_intel(
+            prompt='Tell me what you think about hamburgers in one word?',
+            intel_class=DefaultLlmIntel
+        )
 
-        self.assertTrue(len(response) <= 16)
+        self.assertTrue(len(response.text) <= 30)
 
     def test_ollama_config_empty_host(self):
         try:
