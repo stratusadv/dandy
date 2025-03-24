@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from dandy.debug.debug import DebugRecorder
-from dandy.contrib.llm.bots.selector_llm_bot import SelectorLlmBot
-from dandy.llm import Prompt
+from dandy.llm import LlmBot
 
 
 class TestDebug(TestCase):
@@ -11,7 +10,7 @@ class TestDebug(TestCase):
 
         DebugRecorder.start_recording(DEBUG_RECORDING_NAME)
 
-        _ = SelectorLlmBot.process(Prompt('I would like a good letter'), ['a', 'b', 'r'])
+        _ = LlmBot.process('How many countries are in the world?')
 
         DebugRecorder.stop_recording(DEBUG_RECORDING_NAME)
 
@@ -30,7 +29,7 @@ class TestDebug(TestCase):
 
         DebugRecorder.start_recording(DEBUG_RECORDING_NAME)
 
-        _ = SelectorLlmBot.process(Prompt('I would like a good letter'), ['a', 'b', 'r'])
+        _ = LlmBot.process('How many countries are in the world?')
 
         DebugRecorder.stop_recording(DEBUG_RECORDING_NAME)
 

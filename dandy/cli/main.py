@@ -72,7 +72,7 @@ def main():
 
     if args.assistant:
         assistant(
-            llm_config=llm_config,
+            llm_config=args.llm_config,
             user_prompt=args.prompt if args.prompt else args.assistant,
         )
 

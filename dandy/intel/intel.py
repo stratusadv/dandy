@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
 from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict
@@ -150,7 +150,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
     :ivar items:
     """
-    items: List[T]
+    items: List[T] = Field(default_factory=list)
 
     def __getitem__(self, index) -> Union[List[T], T]:
         return self.items[index]
@@ -159,8 +159,14 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         for item in self.items:
             yield item
 
+    def __len__(self):
+        return len(self.items)
+
     def __setitem__(self, index, value: T):
         self.items[index] = value
 
     def append(self, item: T):
         self.items.append(item)
+
+    def extend(self, items: List[T]):
+        self.items.extend(items)

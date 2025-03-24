@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.13.0 - Experimental / Coming Soon
+
+### Breaking
+
+- Remove the `assistant_str_prompt_to_str` method and sub methods from `LlmService`.
+
+### Features
+
+- Added a new processor called `LlmMap` that uses the `Map` object to easily create contextual relationships to python objects.
+- Debug recorder now shows the JSON schema that was sent to the llm service.
+- New decorator called `debug_recorder_to_html(debug_name: str)` that allows you to easily wrap a function or method.
+
+### Changes
+
+- Removed the Contrib Selection llm bot.
+
+### Fixes
+
+- Fixed a caching to be more robust and understand changes with in dandy processors for more accurate caching.
+- Drastically improved the testing of the OpenAI llm service.
+
 ## v0.12.0
 
 ### Features

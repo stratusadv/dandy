@@ -1,4 +1,4 @@
-__VERSION__ = '0.12.0'
+__VERSION__ = '0.13.0'
 
 # Cache
 
@@ -18,6 +18,7 @@ CLI_DEFAULT_ENV_FILE_NAMES = [
 # Debug
 
 DEBUG_OUTPUT_DIRECTORY = '.dandy_debug_output'
+DEBUG_DEFAULT_NAME = 'default'
 
 # LLM
 

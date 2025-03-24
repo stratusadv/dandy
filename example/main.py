@@ -7,7 +7,7 @@ from dandy.debug import DebugRecorder
 
 if __name__ == '__main__':
     try:
-        SqliteCache.clear('example')
+        # SqliteCache.clear('example')
 
         logging.basicConfig(
             level=logging.INFO,

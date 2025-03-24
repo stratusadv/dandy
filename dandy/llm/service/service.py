@@ -1,28 +1,23 @@
 from __future__ import annotations
 
-import json
-from time import sleep
 from typing import List
 
-import httpx
-from httpx import Response
 from pydantic import ValidationError
 from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
-from dandy.conf import settings
 from dandy.core.http.service import BaseHttpService
 from dandy.debug.debug import DebugRecorder
 from dandy.debug.utils import generate_new_debug_event_id
 from dandy.intel.type_vars import IntelType
 from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException
+from dandy.llm.prompt import Prompt
 from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
     debug_record_llm_validation_failure, debug_record_llm_retry
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
 
 if TYPE_CHECKING:
-    from dandy.llm.prompt import Prompt
     from dandy.llm.service.config import BaseLlmConfig
     from dandy.llm.service.request.request import BaseRequestBody
     from dandy.llm.service.config import LlmConfigOptions
@@ -39,16 +34,6 @@ class LlmService(BaseHttpService):
         self._llm_config = llm_config
         self._llm_options = llm_options
 
-    def assistant_str_prompt_to_str(
-            self,
-            user_prompt_str: str,
-    ) -> str:
-        return self.process_str_to_str(
-            system_prompt_str='You are a helpful assistant.',
-            user_prompt_str=user_prompt_str,
-            llm_success_message='Assistant properly returned a response.'
-        )
-
     def get_request_body(self) -> BaseRequestBody:
         return self._llm_config.generate_request_body(
             max_input_tokens=self._llm_options.max_input_tokens,
@@ -59,7 +44,7 @@ class LlmService(BaseHttpService):
 
     def process_prompt_to_intel(
             self,
-            prompt: Prompt,
+            prompt: Prompt | str,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
@@ -105,11 +90,13 @@ class LlmService(BaseHttpService):
 
             request_body.add_message(
                 role='user',
-                content=service_user_prompt(prompt).to_str(),
+                content=service_user_prompt(
+                    prompt if isinstance(prompt, Prompt) else Prompt(prompt)
+                ).to_str(),
                 images=images,
             )
 
-            debug_record_llm_request(request_body, event_id)
+            debug_record_llm_request(request_body, intel_json_schema, event_id)
 
             message_content = self._llm_config.get_response_content(
                 self.post_request(request_body.model_dump())
@@ -155,7 +142,7 @@ class LlmService(BaseHttpService):
                     )
 
                     if DebugRecorder.is_recording:
-                        debug_record_llm_request(request_body, event_id)
+                        debug_record_llm_request(request_body, intel_json_schema, event_id)
 
                     message_content = self._llm_config.get_response_content(
                         self.post_request(request_body.model_dump())
@@ -194,38 +181,3 @@ class LlmService(BaseHttpService):
                     )
         else:
             raise LlmValidationCriticalException
-
-    def process_str_to_str(self, system_prompt_str: str, user_prompt_str: str, llm_success_message: str) -> str:
-        event_id = generate_new_debug_event_id()
-
-        request_body: BaseRequestBody = self.get_request_body()
-
-        request_body.set_format_to_text()
-
-        request_body.add_message(
-            role='system',
-            content=system_prompt_str
-        )
-
-        request_body.add_message(
-            role='user',
-            content=user_prompt_str
-        )
-
-        debug_record_llm_request(request_body, event_id)
-
-        message_content = self._llm_config.get_response_content(
-            self.post_request(request_body.model_dump())
-        )
-
-        debug_record_llm_response(message_content, event_id)
-        debug_record_llm_success(llm_success_message, event_id)
-
-        return message_content
-
-    def process_prompts_to_str(self, system_prompt: Prompt, user_prompt: Prompt) -> str:
-        return self.process_str_to_str(
-            system_prompt_str=system_prompt.to_str(),
-            user_prompt_str=user_prompt.to_str(),
-            llm_success_message='Prompt properly returned a response.'
-        )

@@ -1,42 +1,9 @@
 from unittest import TestCase
 
-from pydantic.main import IncEx
-from typing_extensions import Union, List, Type
-
-from dandy.intel import BaseIntel
-from dandy.llm import BaseLlmBot, Prompt
 from dandy.core.processor.processor import BaseProcessor
+from tests.llm.bot.intel import MoneyBagIntel
+from tests.llm.bot.llm_bots import MoneyBagLlmBot
 from tests.llm.decorators import run_llm_configs
-
-
-class Gem(BaseIntel):
-    name: str
-    value: float
-    quality: str | None = None
-
-class MoneyBag(BaseIntel):
-    coins: int
-    bills: int | None = None
-    gems: Union[List[Gem], None] = None
-
-
-class MoneyBagLlmBot(BaseLlmBot[MoneyBag]):
-    @classmethod
-    def process(
-            cls,
-            user_input: str,
-            intel_class: Union[Type[MoneyBag], None] = None,
-            intel_object: Union[MoneyBag, None] = None,
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None,
-    ) -> MoneyBag:
-        return cls.process_prompt_to_intel(
-            prompt=Prompt(user_input),
-            intel_class=intel_class,
-            intel_object=intel_object,
-            include_fields=include,
-            exclude_fields=exclude,
-        )
 
 
 class TestLlmBot(TestCase):
@@ -51,7 +18,7 @@ class TestLlmBot(TestCase):
 
         money_bag = MoneyBagLlmBot.process(
             user_input='I have 10 coins',
-            intel_class=MoneyBag,
+            intel_class=MoneyBagIntel,
             include={'coins'},
         )
 
@@ -65,7 +32,7 @@ class TestLlmBot(TestCase):
 
         money_bag = MoneyBagLlmBot.process(
             user_input='make me rich with lots of coins and gems!',
-            intel_class=MoneyBag,
+            intel_class=MoneyBagIntel,
             exclude={'bills': True, 'gems': {'quality': True}},
         )
 
@@ -86,7 +53,7 @@ class TestLlmBot(TestCase):
         coins = 10
         bills = 50
         
-        old_money_bag = MoneyBag(coins=coins, bills=bills)
+        old_money_bag = MoneyBagIntel(coins=coins, bills=bills)
 
         additional_coins = 15
 

@@ -7,7 +7,7 @@ from dandy.llm.conf import llm_configs
 class TestAssistant(TestCase):
     def test_assistant(self):
         assistant(
-            llm_config=llm_configs.DEFAULT,
+            llm_config='DEFAULT',
             user_prompt='What is something fun you can do with the python coding language?'
         )
 
