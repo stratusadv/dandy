@@ -1,1 +1,3 @@
-::: dandy.llm.LlmMap
+::: dandy.llm.Map
+
+::: dandy.llm.BaseLlmMap
