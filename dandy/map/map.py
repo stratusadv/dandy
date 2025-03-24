@@ -12,7 +12,10 @@ class Map(BaseModel):
     _keyed_map: Dict[int, tuple[str, Union[Self, Any]]] = {}
 
     def __init__(self, valid_map: Dict[str, Union[Self, Any]], **data: Any) -> None:
-        super().__init__(valid_map=valid_map, **data)
+        super().__init__(
+            valid_map=valid_map,
+            **data
+        )
 
     def __getitem__(self, item):
         return self.valid_map[item]

@@ -4,7 +4,8 @@
 
 ### Breaking
 
-- Remove the `assistant_str_prompt_to_str` method and sub methods from `LlmService`.
+- Removed the `assistant_str_prompt_to_str` method and sub methods from `LlmService`.
+  - Everything should be processed through the `LlmBot` going forward.
 
 ### Features
 

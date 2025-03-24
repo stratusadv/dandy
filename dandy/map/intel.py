@@ -8,5 +8,5 @@ from dandy.intel import BaseListIntel
 T = TypeVar('T')
 
 
-class MapSelectedValuesIntel(BaseListIntel[T], Generic[T]):
+class MapValuesIntel(BaseListIntel[T], Generic[T]):
     pass

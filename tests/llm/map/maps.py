@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from dandy.llm import LlmConfigOptions
 from dandy.llm.map.llm_map import BaseLlmMap
 from dandy.map.map import Map
@@ -50,3 +48,11 @@ class NestedBirdMap(BaseLlmMap):
             'it is a parakeet': 'caw parakeet'
         })
     })
+
+
+map = {
+    'I like tacos': {
+        'cicken': 12,
+        'beeeeef': 12,
+    }
+}
