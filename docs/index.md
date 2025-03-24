@@ -2,6 +2,11 @@
   <img class="dandy-logo" alt="Dandy Logo" src="/static/img/dandy_logo_512.png" />
 </p>
 
+![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/dandy/run_tests.yml)
+![Python Versions](https://img.shields.io/pypi/pyversions/dandy)
+![PyPI Version](https://img.shields.io/pypi/v/dandy)
+![Downloads](https://img.shields.io/pypi/dm/dandy)
+
 # AI Development Made Easierish...
 
 Dandy is an intelligence framework for developing programmatic solutions using artificial intelligence. 

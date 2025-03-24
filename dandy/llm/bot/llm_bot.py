@@ -71,11 +71,23 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
     def process(
             cls,
             prompt: Union[Prompt, str],
-            intel_class: Type[IntelType] = DefaultLlmIntel,
+            intel_class: Union[Type[IntelType], None] = None,
+            intel_object: Union[IntelType, None] = None,
+            images: Union[List[str], None] = None,
+            image_files: Union[List[str | Path], None] = None,
+            include_fields: Union[IncEx, None] = None,
+            exclude_fields: Union[IncEx, None] = None,
+            postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
 
         return cls.process_prompt_to_intel(
-            prompt,
-            intel_class or cls.intel_class
+            prompt=prompt,
+            intel_class= intel_class or cls.intel_class,
+            intel_object=intel_object,
+            images=images,
+            image_files=image_files,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            postfix_system_prompt=postfix_system_prompt
         )
 
