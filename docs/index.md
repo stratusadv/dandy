@@ -1,11 +1,13 @@
 <p align="center">
-  <img class="dandy-logo" alt="Dandy Logo" src="/static/img/dandy_logo_512.png" />
+    <img class="dandy-logo" alt="Dandy Logo" src="/static/img/dandy_logo_512.png" />
 </p>
 
-![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/dandy/run_tests.yml)
-![Python Versions](https://img.shields.io/pypi/pyversions/dandy)
-![PyPI Version](https://img.shields.io/pypi/v/dandy)
-![Downloads](https://img.shields.io/pypi/dm/dandy)
+<p align="center">
+    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/stratusadv/dandy/run_tests.yml">
+    <img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/dandy">
+    <img alt="PyPI Version" src="https://img.shields.io/pypi/v/dandy">
+    <img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/dandy">
+</p>
 
 # AI Development Made Easierish...
 
@@ -20,8 +22,9 @@ It's opinionated, simple and designed to be incredibly pythonic putting the proj
 ### Key Features:
 
 - __Bots__: ... 
-- __Intel Models__: ...
+- __Intel__: ...
 - __Work Flows__: ...
+- __Maps__: ...
 - __Prompts__: ...
 - __Exception Handling__: ...
 - __Development Tools__: ...
