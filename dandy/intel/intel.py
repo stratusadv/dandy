@@ -78,19 +78,20 @@ class BaseIntel(BaseModel, ABC):
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
-            if include is None and exclude_value and field_info.is_required():
-                if intel_object is None:
-                    raise IntelCriticalException(f"{field_name} is required and cannot be excluded")
+            if not isinstance(include_value, Dict) and not isinstance(exclude_value, Dict):
+                if include is None and exclude_value and field_info.is_required():
+                    if intel_object is None:
+                        raise IntelCriticalException(f"{field_name} is required and cannot be excluded")
 
-                elif getattr(intel_object, field_name) is None:
-                    raise IntelCriticalException(f"{field_name} is required and has no value therefore cannot be excluded")
+                    elif getattr(intel_object, field_name) is None:
+                        raise IntelCriticalException(f"{field_name} is required and has no value therefore cannot be excluded")
 
-            if exclude is None and include_value is None and field_info.is_required():
-                if intel_object is None:
-                    raise IntelCriticalException(f"{field_name} is required and must be included")
+                if exclude is None and include_value is None and field_info.is_required():
+                    if intel_object is None:
+                        raise IntelCriticalException(f"{field_name} is required and must be included")
 
-                elif getattr(intel_object, field_name) is None:
-                    raise IntelCriticalException(f"{field_name} is required and has no value therefore it must be included")
+                    elif getattr(intel_object, field_name) is None:
+                        raise IntelCriticalException(f"{field_name} is required and has no value therefore it must be included")
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
             field_factory = field_info.default_factory or field_info.default

@@ -1,10 +1,16 @@
 # Changelog
 
+## v0.13.2
+
+### Fixes
+
+- Fixed problem with `BaseIntel` required fields using nested includes and excludes.
+
 ## v0.13.1
 
 ### Fixes
 
-- Fixed bug with using include and exclude on intel objects that did not validate filled and empty fields properly.
+- Fixed bug with using include and exclude on `BaseIntel` objects that did not validate filled and empty fields properly.
 
 ## v0.13.0
 
