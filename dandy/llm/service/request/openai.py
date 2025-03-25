@@ -2,13 +2,14 @@ from typing_extensions import Union, List
 
 from dandy.llm.service.request.message import RequestMessage
 from dandy.llm.service.request.request import BaseRequestBody
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 
 class OpenaiRequestBody(BaseRequestBody):
     stream: bool = False
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
-    response_format: dict = { 'type': 'json_schema', 'json_schema': {'name': 'response', 'strict': False,  'schema': ...} }
+    response_format: dict = {'type': 'json_schema', 'json_schema': {'name': 'response', 'strict': False, 'schema': ...}}
     max_completion_tokens: Union[int, None] = None
     seed: Union[int, None] = None
     temperature: Union[float, None] = None
@@ -43,6 +44,10 @@ class OpenaiRequestBody(BaseRequestBody):
     def get_context_length(self) -> int:
         return 0
 
+    @property
+    def messages_estimated_tokens(self) -> int:
+        return int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+
     def get_max_completion_tokens(self) -> int:
         return self.max_completion_tokens
 
@@ -60,3 +65,23 @@ class OpenaiRequestBody(BaseRequestBody):
 
     def set_format_to_text(self):
         self.response_format = {'type': 'text'}
+
+    def to_dict(self) -> dict:
+        model_dict = self.model_dump()
+        formated_messages = []
+        for message in model_dict['messages']:
+            for content in message['content']:
+                if content['type'] == 'text':
+                    formated_messages.append({
+                        'role': message['role'],
+                        'content': content['text'],
+                    })
+                elif content['type'] == 'image_url':
+                    formated_messages.append({
+                        'role': message['role'],
+                        'content': content['image_url']['url'].split(';base64,')[1],
+                    })
+
+        model_dict['messages'] = formated_messages
+
+        return model_dict

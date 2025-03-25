@@ -54,4 +54,8 @@ LLM_CONFIGS = {
         **OPEN_AI_CONFIG,
         'MODEL': 'gpt-4o',
     },
+    'GPT_o3_MINI': {
+        **OPEN_AI_CONFIG,
+        'MODEL': 'o3-mini',
+    },
 }

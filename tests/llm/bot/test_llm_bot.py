@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from dandy.core.processor.processor import BaseProcessor
+from dandy.debug.decorators import debug_recorder_to_html
 from tests.llm.bot.intel import MoneyBagIntel
 from tests.llm.bot.llm_bots import MoneyBagLlmBot
 from tests.llm.decorators import run_llm_configs
@@ -12,17 +13,18 @@ class TestLlmBot(TestCase):
 
         self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
 
+    @debug_recorder_to_html('test_llm_bot_intel_class_include')
     @run_llm_configs()
     def test_llm_bot_intel_class_include(self, llm_config: str):
         MoneyBagLlmBot.config = llm_config
 
         money_bag = MoneyBagLlmBot.process(
-            user_input='I have 10 coins',
+            user_input='I have 14 coins',
             intel_class=MoneyBagIntel,
             include={'coins'},
         )
 
-        self.assertEqual(money_bag.coins, 10)
+        self.assertEqual(money_bag.coins, 14)
         self.assertEqual(money_bag.bills, None)
         self.assertEqual(money_bag.gems, None)
 

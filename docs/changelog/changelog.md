@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.XX.X
+
+### Fixes
+
+- Debug recorder correctly renders OpenAI service request messages.
+- Added more testing for more complex JSON Schemas.
+
 ## v0.13.2
 
 ### Fixes

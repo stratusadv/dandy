@@ -30,7 +30,7 @@ def debug_record_llm_retry(description: str, event_id: str, remaining_attempts: 
 def debug_record_llm_request(request_body: BaseRequestBody, json_schema: dict, event_id: str):
     if DebugRecorder.is_recording:
         DebugRecorder.add_event(LlmServiceRequestEvent(
-            request=request_body.model_dump(),
+            request=request_body.to_dict(),
             temperature=request_body.get_temperature(),
             estimated_tokens=request_body.messages_estimated_tokens,
             json_schema=json.dumps(json_schema, indent=4),

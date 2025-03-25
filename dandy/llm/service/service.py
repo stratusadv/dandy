@@ -75,7 +75,7 @@ class LlmService(BaseHttpService):
 
         event_id = generate_new_debug_event_id()
 
-        for attempt in range(self._llm_config.options.prompt_retry_count + 1):
+        for attempt in range(self._llm_config.options.prompt_retry_count):
 
             request_body = self.get_request_body()
 
@@ -175,11 +175,11 @@ class LlmService(BaseHttpService):
                 except ValidationError as e:
                     debug_record_llm_validation_failure(e, event_id)
 
-                if self._llm_config.options.prompt_retry_count - 1:
+                if self._llm_config.options.prompt_retry_count:
                     debug_record_llm_retry(
                         'Response after validation errors prompt failed.\nRetrying with original prompt.',
                         event_id,
-                        remaining_attempts=self._llm_config.options.prompt_retry_count - attempt
+                        remaining_attempts=self._llm_config.options.prompt_retry_count + 1 - attempt
                     )
         else:
             raise LlmValidationCriticalException

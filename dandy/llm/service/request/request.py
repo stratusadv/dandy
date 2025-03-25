@@ -32,12 +32,16 @@ class BaseRequestBody(BaseModel):
     def get_temperature(self) -> float: ...
 
     @property
+    @abstractmethod
     def messages_estimated_tokens(self) -> int:
-        return int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+        pass
 
     @abstractmethod
     def set_format_to_json_schema(self, json_schema: dict): ...
 
     @abstractmethod
     def set_format_to_text(self): ...
+
+    @abstractmethod
+    def to_dict(self): ...
 

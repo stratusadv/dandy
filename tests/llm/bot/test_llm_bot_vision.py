@@ -54,6 +54,7 @@ class TestLlmBotVision(TestCase):
                 Prompt()
                 .text('Please describe the following image and count the objects in the image?')
                 .text('Count all the vehicles even if they are partially visible.')
+                .text('How many buildings are there in the image?')
                 .text('Respond with a description for each person in the image.')
             ),
             intel_class=ImageBreakdownIntel,

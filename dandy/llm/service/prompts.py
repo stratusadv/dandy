@@ -14,7 +14,10 @@ def service_system_prompt(
         prompt.prompt(system_prompt)
 
     prompt.line_break()
-    prompt.text('Do not use any markdown styling in your response.')
+    prompt.sub_heading('Rules:')
+    prompt.list([
+        'Do not use any markdown styling in your response.',
+    ])
 
     return prompt
 

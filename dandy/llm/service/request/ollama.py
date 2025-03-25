@@ -3,6 +3,7 @@ from typing_extensions import Union, List, Any
 
 from dandy.llm.service.request.message import RequestMessage
 from dandy.llm.service.request.request import BaseRequestBody
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 class OllamaRequestOptions(BaseModel):
@@ -34,6 +35,10 @@ class OllamaRequestBody(BaseRequestBody):
     def get_context_length(self) -> int:
         return self.options.num_ctx
 
+    @property
+    def messages_estimated_tokens(self) -> int:
+        return int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+
     def get_max_completion_tokens(self) -> int:
         return self.options.num_predict
 
@@ -48,3 +53,6 @@ class OllamaRequestBody(BaseRequestBody):
 
     def set_format_to_text(self):
         self.format = None
+
+    def to_dict(self) -> dict:
+        return self.model_dump()
