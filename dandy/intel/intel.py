@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC
 from typing import Type
 
@@ -20,8 +22,8 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def check_inc_ex(
             cls,
-            include_dict: Dict[str, bool],
-            exclude_dict: Dict[str, bool],
+            include_dict: Dict,
+            exclude_dict: Dict,
     ):
 
         field_names = set(cls.model_fields.keys())
@@ -45,16 +47,10 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def model_inc_ex_class_copy(
             cls,
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None,
-    ) -> Type[Self]:
-        """
-        Creates a new class that is a copy of the current class but with the fields included or excluded
-
-        :param include:
-        :param exclude:
-        :return:
-        """
+            include: Union[IncEx, Dict, None] = None,
+            exclude: Union[IncEx, Dict, None] = None,
+            intel_object: Union[Self, None] = None
+    ) -> Type[BaseIntel]:
         if include is None and exclude is None:
             return create_model(
                 cls.__name__,
@@ -64,7 +60,7 @@ class BaseIntel(BaseModel, ABC):
         if include and exclude:
             raise IntelCriticalException('include and exclude cannot be used together')
 
-        def inc_ex_dict(inc_ex: Union[IncEx, None]) -> Dict[str, bool]:
+        def inc_ex_dict(inc_ex: Union[IncEx, None]) -> Dict:
             if inc_ex is not None:
                 return inc_ex if isinstance(inc_ex, dict) else {key: True for key in inc_ex}
             else:
@@ -82,8 +78,19 @@ class BaseIntel(BaseModel, ABC):
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
-            if (include is None and exclude_value and field_info.is_required()) or (exclude is None and include_value is None and field_info.is_required()):
-                raise IntelCriticalException(f"{field_name} is required and cannot be excluded or not included")
+            if include is None and exclude_value and field_info.is_required():
+                if intel_object is None:
+                    raise IntelCriticalException(f"{field_name} is required and cannot be excluded")
+
+                elif getattr(intel_object, field_name) is None:
+                    raise IntelCriticalException(f"{field_name} is required and has no value therefore cannot be excluded")
+
+            if exclude is None and include_value is None and field_info.is_required():
+                if intel_object is None:
+                    raise IntelCriticalException(f"{field_name} is required and must be included")
+
+                elif getattr(intel_object, field_name) is None:
+                    raise IntelCriticalException(f"{field_name} is required and has no value therefore it must be included")
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
             field_factory = field_info.default_factory or field_info.default
@@ -105,7 +112,8 @@ class BaseIntel(BaseModel, ABC):
 
                 else:
                     processed_fields[field_name] = (
-                        field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[field_annotation.first_inner],
+                        field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[
+                            field_annotation.first_inner],
                         field_factory,
                     )
 
