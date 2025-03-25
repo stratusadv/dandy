@@ -35,32 +35,20 @@ class TestIntel(TestCase):
         self.assertIsInstance(intel, TestingIntel)
 
     def test_intel_include_invalid_field(self):
-        try:
+        with self.assertRaises(IntelCriticalException):
             _ = Person.model_inc_ex_class_copy(include={'height'})
 
-        except IntelCriticalException:
-            self.assertTrue(True)
-
     def test_intel_include_with_required_field(self):
-        try:
+        with self.assertRaises(IntelCriticalException):
             _ = Person.model_inc_ex_class_copy(include={'middle_name'})
 
-        except IntelCriticalException:
-            self.assertTrue(True)
-
     def test_intel_exclude_with_required_field(self):
-        try:
+        with self.assertRaises(IntelCriticalException):
             _ = Person.model_inc_ex_class_copy(exclude={'first_name'})
 
-        except IntelCriticalException:
-            self.assertTrue(True)
-
     def test_intel_include_and_exclude(self):
-        try:
+        with self.assertRaises(IntelCriticalException):
             _ = Person.model_inc_ex_class_copy(include={'middle_name'}, exclude={'first_name'})
-
-        except IntelCriticalException:
-            self.assertTrue(True)
 
     def test_intel_include_json_schema(self):
         PersonCopy = Person.model_inc_ex_class_copy(include={'first_name', 'last_name'})
@@ -149,3 +137,21 @@ class TestIntel(TestCase):
             self.assertIsInstance(new_bag.things[0], Thing)
         else:
             self.assertFalse(True)
+
+    def test_intel_object_exclude_required_filled_field(self):
+        try:
+            bag = Bag(color="blue", stylish=True)
+
+            _ = bag.model_inc_ex_class_copy(exclude={'stylish'}, intel_object=bag)
+
+            self.assertTrue(True)
+        except IntelCriticalException:
+            self.assertFalse(True)
+
+    def test_intel_object_include_required_empty_field(self):
+        with self.assertRaises(IntelCriticalException):
+            bag = Bag(color="blue", stylish=True)
+
+            bag.stylish = None
+
+            _ = bag.model_inc_ex_class_copy(include={'color', 'pockets'}, intel_object=bag)

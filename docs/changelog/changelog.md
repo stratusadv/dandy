@@ -1,6 +1,12 @@
 # Changelog
 
-## v0.13.0 - Experimental / Coming Soon
+## v0.13.1
+
+### Fixes
+
+- Fixed bug with using include and exclude on intel objects that did not validate filled and empty fields properly.
+
+## v0.13.0
 
 ### Breaking
 

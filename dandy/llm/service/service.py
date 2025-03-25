@@ -56,18 +56,20 @@ class LlmService(BaseHttpService):
         if intel_class and intel_object:
             raise LlmCriticalException('Cannot specify both intel_class and intel_object.')
 
-        def intel_inc_ex_json_schema(intel_: Union[Type[IntelType], IntelType]) -> dict:
-            return intel_.model_inc_ex_class_copy(
-                include=include_fields, 
-                exclude=exclude_fields
-            ).model_json_schema()
-        
+        inc_ex_kwargs = {'include': include_fields, 'exclude': exclude_fields}
+
         if intel_class:
-            intel_json_schema = intel_inc_ex_json_schema(intel_class)
+            intel_json_schema = intel_class.model_inc_ex_class_copy(
+                **inc_ex_kwargs,
+                intel_object=None
+            ).model_json_schema()
 
         elif intel_object:
-            intel_json_schema = intel_inc_ex_json_schema(intel_object)
-          
+            intel_json_schema = intel_object.model_inc_ex_class_copy(
+                **inc_ex_kwargs,
+                intel_object=intel_object
+            ).model_json_schema()
+
         else:
             raise LlmCriticalException('Must specify either intel_class or intel_object.')
 
