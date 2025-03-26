@@ -18,7 +18,6 @@ class TestMap(TestCase):
         self.assertEqual(1, len(values))
         self.assertEqual(DragonLlmMap.map['Player did not bring a sword'], values[0])
 
-    @debug_recorder_to_html('test_map')
     def test_combined_nested_llm_map(self):
         values = NestedBirdMap.process('I am a black bird from the famous edgar allen poe poem', 1)
 

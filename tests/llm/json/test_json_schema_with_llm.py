@@ -8,7 +8,6 @@ from tests.llm.json.llm_bots import JsonSchemaLlmBot
 
 
 class TestJsonSchemaWithLlm(TestCase):
-    @debug_recorder_to_html('test_json_schema_with_gt_lt_field')
     @run_llm_configs()
     def test_json_schema_with_gt_lt_field(self, llm_config: str):
         JsonSchemaLlmBot.config = llm_config

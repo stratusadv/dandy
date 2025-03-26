@@ -1,5 +1,3 @@
-from tests.core.cache.intel import ClownIntel
-
 # Intel
 
 ## Creating Intel

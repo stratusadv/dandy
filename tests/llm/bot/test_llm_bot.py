@@ -13,7 +13,6 @@ class TestLlmBot(TestCase):
 
         self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
 
-    @debug_recorder_to_html('test_llm_bot_intel_class_include')
     @run_llm_configs()
     def test_llm_bot_intel_class_include(self, llm_config: str):
         MoneyBagLlmBot.config = llm_config

@@ -15,7 +15,6 @@ class TestConfig(TestCase):
                 seed=llm_configs.DEFAULT.options.seed,
             ).get_temperature(), llm_configs.DEFAULT.options.temperature)
 
-    @debug_recorder_to_html('test_ollama_max_completion_tokens')
     def test_ollama_max_completion_tokens(self):
         ollama_config = OllamaLlmConfig(
             host=os.getenv("OLLAMA_HOST"),

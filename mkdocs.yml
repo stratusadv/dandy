@@ -37,9 +37,9 @@ nav:
   - Guides:
       - Start Here: guides/start_here.md
       - Introduction: guides/introduction.md
-      - AI Services: guides/ai_services.md
       - Tutorial:
-          - 1. Intel: guides/tutorial/1_intel.md
+          - 1. Setup: guides/tutorial/1_setup.md
+          - 2. Intel: guides/tutorial/2_intel.md
       - Example:
           - Entry Point: guides/example/entry_point.md
           - Intel: guides/example/intel.md
@@ -89,6 +89,7 @@ nav:
       - Archived: changelog/archived_changelog.md
   - Research:
       - Overview: research/overview.md
+      - AI Services: research/ai_services.md
       - Compute:
           - GPU Comparison: research/compute/gpu_comparison.md
       - Large Language:
