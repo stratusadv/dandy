@@ -9,26 +9,15 @@
     <img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/dandy">
 </p>
 
-# AI Development Made Easierish...
+# AI Development Made Scalable
 
 Dandy is an intelligence framework for developing programmatic solutions using artificial intelligence. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 
-!!! warning
+!!! tip
 
     Make sure to go through all the sections in our getting started guide to ensure you are fully understanding the concepts and best practices.
     This is critical before you start using Dandy as it's a very opinionated framework and intelligence development is a unique process.
-
-### Key Features:
-
-- __Bots__: ... 
-- __Intel__: ...
-- __Work Flows__: ...
-- __Maps__: ...
-- __Prompts__: ...
-- __Exception Handling__: ...
-- __Development Tools__: ...
-- __Llm Service__: ...
 
 ## Yet Another AI Framework?
 
@@ -36,6 +25,7 @@ Intelligence programming is a very different experience than conventional progra
 Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion, or beneficial to developers. 
 
 We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of intelligence.
+
 Our approach is to focus on batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
 
 ## Pillars of Dandy
