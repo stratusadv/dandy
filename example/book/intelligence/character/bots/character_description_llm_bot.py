@@ -4,7 +4,7 @@ from typing import Union
 
 from typing_extensions import TYPE_CHECKING
 
-from dandy.core.cache import cache_to_sqlite
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.character.enums import CharacterType
 from example.book.intelligence.character.intel import CharacterIntel

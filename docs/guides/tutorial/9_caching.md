@@ -1,0 +1,83 @@
+# Caching
+
+## What is Caching?
+
+Caching is a technique used to speed up the execution of a function by storing the result of the function call.
+
+The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the result of a function call.
+
+## Adding Caching
+
+Let's make our selves a map and add `@cache_to_memory` to the `process` method.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="map"
+from dandy.llm import BaseLlmMap, Map
+from dandy.cache import cache_to_memory
+
+from time import perf_counter
+
+class NumberMap(BaseLlmMap):
+    map = Map({
+        'small numbers': 1,
+        'medium numbers': 30,
+        'large numbers': 100,
+        'over 9000 numbers': 9002,
+    })
+    
+    @classmethod
+    @cache_to_memory()
+    def process(cls, *args, **kwargs):
+        return super().process(*args, **kwargs)
+    
+
+start_time = perf_counter()
+
+print(NumberMap.process('I really like dragon ball z')[0])
+
+uncached_finish_time = perf_counter() - start_time
+
+print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
+
+print(NumberMap.process('I really like dragon ball z')[0])
+    
+cached_finish_time = perf_counter() - start_time - uncached_finish_time
+
+print(f'Finished cached in {cached_finish_time:.5f} seconds')
+
+```
+
+!!! tip
+
+    The Dandy cache decorators can be used on any method or function with in your project as long as the arguments are serializable and the return type is serializable.
+
+## Cache Settings
+
+### Decorator Arguments
+
+The `cache_to_memory` and `cache_to_sqlite` decorators can take `cache_name` and `limit` arguments.
+
+This allows you to set separate caches and limits for individual methods and functions or group caches strategically.
+
+In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `add_cache.db` with a row limit of 9,999,999.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="map"
+from dandy.cache import cache_to_sqlite
+
+@cache_to_sqlite(cache_name='add', limit=9_999_999)
+def add(a, b):
+    return a + b
+
+print(add(3567, 5434)) # this will cache 1 entry in the sqlite database
+```
+
+### dandy_settings.py
+
+You can configure your settings in your `dandy_settings.py` file to better control the cache settings.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="map"
+from dandy.conf import settings
+
+print(f'Cache Memory Limit: {settings.CACHE_MEMORY_LIMIT}') # Amount of items to keep in memory cache
+print(f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}') # Path to sqlite database
+print(f'Cache SQLite Limit: {settings.CACHE_SQLITE_LIMIT}') # Amount of items to keep in sqlite cache
+```

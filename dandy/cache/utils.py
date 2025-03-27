@@ -3,7 +3,7 @@ import hashlib
 from pydantic import BaseModel
 from typing_extensions import Any
 
-from dandy.core.cache.exceptions import CacheCriticalException
+from dandy.cache.exceptions import CacheCriticalException
 
 
 def generate_hash_key(func: object, *args, **kwargs) -> str:

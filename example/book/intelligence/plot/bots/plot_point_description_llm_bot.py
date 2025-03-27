@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING, List
 
-from dandy.core.cache import cache_to_sqlite
+from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt
 from example.book.intelligence.plot.intel import PlotPointIntel, PlotIntel
 from example.book.intelligence.plot.prompts import plot_intel_prompt

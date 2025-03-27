@@ -1,8 +1,8 @@
 from functools import wraps
 
 import dandy.constants
-from dandy.core.cache.decorators import cache_decorator_function
-from dandy.core.cache.sqlite.cache import SqliteCache
+from dandy.cache.decorators import cache_decorator_function
+from dandy.cache.sqlite.cache import SqliteCache
 from dandy.conf import settings
 
 

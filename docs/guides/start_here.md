@@ -29,11 +29,3 @@ The following list of concepts are good to understand before you start using Dan
 We highly recommend using [Pyright](https://microsoft.github.io/pyright/#/){:target="_blank"} during development with Dandy.
 Pyright is a great tool to help ensure that you are following the best practices for python development when using Dandy.
 
-
-## Before You go Any Further
-
-Make sure you have completely gone through the [Getting Started](../index.md) section of the documentation before continuing further into the guides.
-
-!!! warning
-
-    All the concepts in our getting started section are must be understood before you start using Dandy.

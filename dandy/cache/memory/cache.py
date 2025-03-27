@@ -1,7 +1,7 @@
 from typing_extensions import OrderedDict, Union, Any
 
 import dandy.constants
-from dandy.core.cache.cache import BaseCache
+from dandy.cache.cache import BaseCache
 
 _memory_cache = dict()
 

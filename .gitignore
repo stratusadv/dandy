@@ -19,7 +19,6 @@ inspectionProfiles/
 *.bat
 *.db
 *.sql
-*_debug_output.html
 
 dev_tool.exe
 dev_tool*.exe

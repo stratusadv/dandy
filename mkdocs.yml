@@ -36,23 +36,18 @@ nav:
       - Structure: getting_started/structure.md
   - Guides:
       - Start Here: guides/start_here.md
-      - Introduction: guides/introduction.md
+      - Quick Start: guides/quick_start.md
       - Tutorial:
           - 1. Setup: guides/tutorial/1_setup.md
           - 2. Intel: guides/tutorial/2_intel.md
           - 3. Prompts: guides/tutorial/3_prompts.md
           - 4. LLM Bot: guides/tutorial/4_llm_bot.md
           - 5. Recorder: guides/tutorial/5_recorder.md
-          - 6. Workflow: guides/tutorial/6_workflow.md
-          - 7. Map: guides/tutorial/7_map.md
+          - 6. Map: guides/tutorial/6_map.md
+          - 7. Workflow: guides/tutorial/7_workflow.md
           - 8. Futures: guides/tutorial/8_futures.md
           - 9. Caching: guides/tutorial/9_caching.md
-      - Example:
-          - Entry Point: guides/example/entry_point.md
-          - Intel: guides/example/intel.md
-          - Prompt: guides/example/prompt.md
-          - LLM Bot: guides/example/llm_bot.md
-          - Workflow: guides/example/workflow.md
+          - 10. Example Project: guides/tutorial/10_example_project.md
   - API Reference:
       - Bot:
           - BaseBot: api/bot/bot.md
@@ -74,6 +69,7 @@ nav:
           - LLM Map: api/map/llm_map.md
       - Processor:
           - BaseProcessor: api/processor/processor.md
+          - BaseLlmProcessor: api/processor/llm_processor.md
       - Workflow:
           - BaseWorkflow: api/workflow/workflow.md
   - Exceptions:
@@ -86,6 +82,7 @@ nav:
           - Future: exceptions/future_exceptions.md
           - HTTP: exceptions/http_exceptions.md
           - Intel: exceptions/intel_exceptions.md
+          - Map: exceptions/intel_exceptions.md
           - LLM: exceptions/llm_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
@@ -94,13 +91,6 @@ nav:
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md
-  - Research:
-      - Overview: research/overview.md
-      - AI Services: research/ai_services.md
-      - Compute:
-          - GPU Comparison: research/compute/gpu_comparison.md
-      - Large Language:
-          - Resources: research/large_language/resources.md
   - About:
       - Contributors: about/contributors.md
       - Branding: about/branding.md

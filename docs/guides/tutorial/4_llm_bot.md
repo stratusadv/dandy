@@ -1,5 +1,3 @@
-from dandy.intel import BaseIntelfrom dandy.llm.intel import DefaultLlmIntel
-
 # LLM Bot
 
 ## What is a Bot

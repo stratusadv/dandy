@@ -1,1 +1,1 @@
-::: dandy.core.cache.exceptions
+::: dandy.cache.exceptions

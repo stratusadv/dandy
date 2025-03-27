@@ -3,9 +3,9 @@ from unittest import TestCase
 
 from typing_extensions import Callable
 
-from dandy.core.cache import cache_to_memory
-from dandy.core.cache import cache_to_sqlite
-from dandy.core.cache.cache import BaseCache
+from dandy.cache import cache_to_memory
+from dandy.cache import cache_to_sqlite
+from dandy.cache.cache import BaseCache
 from tests.core.cache.caches import sql_lite_cache, memory_cache
 
 from tests.llm.bot.intel import MoneyBagIntel

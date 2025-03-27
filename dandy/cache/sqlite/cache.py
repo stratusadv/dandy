@@ -3,8 +3,8 @@ import sqlite3
 from typing import Any, Union
 
 import dandy.constants
-from dandy.core.cache.cache import BaseCache
-from dandy.core.cache.sqlite.connection import SqliteConnection
+from dandy.cache.cache import BaseCache
+from dandy.cache.sqlite.connection import SqliteConnection
 from dandy.constants import SQLITE_CACHE_TABLE_NAME
 
 

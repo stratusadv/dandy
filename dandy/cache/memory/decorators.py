@@ -1,8 +1,8 @@
 from functools import wraps
 
 import dandy.constants
-from dandy.core.cache.decorators import cache_decorator_function
-from dandy.core.cache.memory.cache import MemoryCache
+from dandy.cache.decorators import cache_decorator_function
+from dandy.cache.memory.cache import MemoryCache
 from dandy.conf import settings
 
 

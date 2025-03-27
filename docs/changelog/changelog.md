@@ -2,10 +2,15 @@
 
 ## v0.XX.X - Coming Soon
 
+### Breaking
+
+- Moved 'dandy.core.cache' to 'dandy.cache'
+
 ### Fixes
 
 - Debug recorder correctly renders OpenAI service request messages.
 - Added more testing for more complex JSON Schemas.
+- Fixed a bug where the `Prompt.prompt` method would not accept strings properly.
 
 ## v0.13.2
 
