@@ -40,6 +40,13 @@ nav:
       - Tutorial:
           - 1. Setup: guides/tutorial/1_setup.md
           - 2. Intel: guides/tutorial/2_intel.md
+          - 3. Prompts: guides/tutorial/3_prompts.md
+          - 4. LLM Bot: guides/tutorial/4_llm_bot.md
+          - 5. Recorder: guides/tutorial/5_recorder.md
+          - 6. Workflow: guides/tutorial/6_workflow.md
+          - 7. Map: guides/tutorial/7_map.md
+          - 8. Futures: guides/tutorial/8_futures.md
+          - 9. Caching: guides/tutorial/9_caching.md
       - Example:
           - Entry Point: guides/example/entry_point.md
           - Intel: guides/example/intel.md

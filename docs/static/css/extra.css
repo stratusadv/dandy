@@ -41,10 +41,16 @@ img.dandy-logo {
     padding: 10px 0 10px 25px;
 }
 
+.md-content .md-content__inner .result .language-markdown .md-code__content {
+    padding: 0;
+    background-color: transparent;
+}
+
 .md-content .md-content__inner .result::before {
     font-size: 0.65rem;
     content: "Output\A";
     white-space: pre;
     color: #999999;
     margin-left: -10px;
+
 }
