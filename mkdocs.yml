@@ -29,25 +29,22 @@ markdown_extensions:
   - attr_list
 
 nav:
-  - Getting Started:
+  - Welcome:
       - Welcome: index.md
-      - Installation: getting_started/installation.md
-      - Configuration: getting_started/configuration.md
-      - Structure: getting_started/structure.md
-  - Guides:
-      - Start Here: guides/start_here.md
-      - Quick Start: guides/quick_start.md
-      - Tutorial:
-          - 1. Setup: guides/tutorial/1_setup.md
-          - 2. Intel: guides/tutorial/2_intel.md
-          - 3. Prompts: guides/tutorial/3_prompts.md
-          - 4. LLM Bot: guides/tutorial/4_llm_bot.md
-          - 5. Recorder: guides/tutorial/5_recorder.md
-          - 6. LLM Map: guides/tutorial/6_llm_map.md
-          - 7. Workflow: guides/tutorial/7_workflow.md
-          - 8. Futures: guides/tutorial/8_futures.md
-          - 9. Caching: guides/tutorial/9_caching.md
-          - 10. Example Project: guides/tutorial/10_example_project.md
+      - What to Know: landing/what_to_know.md
+      - Configuration: landing/quick_start.md
+  - Tutorial:
+      - 1. Setup: guides/tutorial/1_setup.md
+      - 2. Intel: guides/tutorial/2_intel.md
+      - 3. Prompts: guides/tutorial/3_prompts.md
+      - 4. LLM Bot: guides/tutorial/4_llm_bot.md
+      - 5. Recorder: guides/tutorial/5_recorder.md
+      - 6. LLM Map: guides/tutorial/6_llm_map.md
+      - 7. Workflow: guides/tutorial/7_workflow.md
+      - 8. Futures: guides/tutorial/8_futures.md
+      - 9. Caching: guides/tutorial/9_caching.md
+      - 10. Project Structure: guides/tutorial/10_project_structure.md
+      - 11. Example Project: guides/tutorial/11_example_project.md
   - API Reference:
       - Bot:
           - BaseBot: api/bot/bot.md
@@ -82,7 +79,7 @@ nav:
           - Future: exceptions/future_exceptions.md
           - HTTP: exceptions/http_exceptions.md
           - Intel: exceptions/intel_exceptions.md
-          - Map: exceptions/intel_exceptions.md
+          - Map: exceptions/map_exceptions.md
           - LLM: exceptions/llm_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md

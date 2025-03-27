@@ -1,4 +1,4 @@
-# Start Here
+# What to Know
 
 Our guides are here to help you understand all the critical parts of Dandy and get you discovering all the cool features that are available to you.
 

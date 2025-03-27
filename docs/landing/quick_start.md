@@ -18,4 +18,4 @@ print(response.text)
 
 Wow, that was easy ... we are only beginning to dive into the power of Dandy.
 
-If you have already got the [setup](./tutorial/1_setup.md) process complete you can skip right to the [intel tutorial](./tutorial/2_intel.md).
+If you have already got the [setup](../guides/tutorial/1_setup.md) process complete you can skip right to the [intel tutorial](../guides/tutorial/2_intel.md).

@@ -8,6 +8,13 @@ Just like most python packages you can easily install Dandy using pip.
 pip install dandy
 ```
 
+!!! info
+
+    The Dandy package will aslo install the 
+    [`httpx`](https://www.python-httpx.org/), 
+    [`pydantic`](https://docs.pydantic.dev/latest/) and
+    [`python-dotenv`](https://github.com/theskumar/python-dotenv) packages.
+
 ## Creating a Settings File
 
 You can create a `dandy_settings.py` file in the root of your project with the following contents.
