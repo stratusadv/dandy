@@ -40,7 +40,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          uv pip install -r development_requirements.txt      
+          uv pip install --system -r development_requirements.txt      
 
       - name: Package Tests
         run: |
