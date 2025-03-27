@@ -43,7 +43,7 @@ nav:
           - 3. Prompts: guides/tutorial/3_prompts.md
           - 4. LLM Bot: guides/tutorial/4_llm_bot.md
           - 5. Recorder: guides/tutorial/5_recorder.md
-          - 6. Map: guides/tutorial/6_map.md
+          - 6. LLM Map: guides/tutorial/6_llm_map.md
           - 7. Workflow: guides/tutorial/7_workflow.md
           - 8. Futures: guides/tutorial/8_futures.md
           - 9. Caching: guides/tutorial/9_caching.md
