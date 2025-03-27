@@ -132,10 +132,13 @@ class OrderedListSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class PromptSnippet(BaseSnippet):
-    prompt: Prompt
+    prompt: Prompt | str
 
     def _to_str(self) -> str:
-        return self.prompt.to_str()
+        if isinstance(self.prompt, str):
+            return self.prompt
+        else:
+            return self.prompt.to_str()
 
 @dataclass(kw_only=True)
 class RandomChoiceSnippet(BaseSnippet):

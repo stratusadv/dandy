@@ -176,7 +176,7 @@ class Prompt:
 
     def prompt(
             self,
-            prompt: Self,
+            prompt: Self | str,
             triple_quote: bool = False
     ) -> Self:
 

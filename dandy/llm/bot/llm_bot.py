@@ -34,6 +34,9 @@ class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
             postfix_system_prompt: Union[Prompt, None] = None
     ) -> IntelType:
 
+        if intel_class is None and intel_object is None:
+            intel_class = cls.intel_class
+
         if image_files:
             images = [] if images is None else images
 

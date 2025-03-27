@@ -134,3 +134,19 @@ print(new_prompt.to_str())
 
 ## Advanced Prompts
 
+Let's make a function that returns a dynamically constructed prompt based on the function arguments.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
+from dandy.llm.prompt import Prompt
+
+def generate_prompt(name: str, age: int) -> Prompt:
+    prompt = Prompt()
+
+    prompt.text(f'Hello {name} you are {age} years old.')
+
+    return prompt
+
+prompt = generate_prompt('John', 30)
+
+print(prompt.to_str())
+```
