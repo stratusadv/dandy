@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.XX.X - Coming Soon
+## v0.13.3
 
 ### Breaking
 

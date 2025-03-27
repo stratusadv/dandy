@@ -14,11 +14,6 @@
 Dandy is an intelligence framework for developing programmatic solutions using artificial intelligence. 
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 
-!!! tip
-
-    Make sure to go through all the sections in our getting started guide to ensure you are fully understanding the concepts and best practices.
-    This is critical before you start using Dandy as it's a very opinionated framework and intelligence development is a unique process.
-
 ## Yet Another AI Framework?
 
 Intelligence programming is a very different experience than conventional programming as it's very probabilistic.
@@ -37,3 +32,10 @@ Our approach is to focus on batteries included with strong tooling to help build
 - __Batteries Included__ - Dandy comes with batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
 - __Scalable__ - Every design choice in Dandy is about the future and making sure developers can scale their projects as needed.
 
+## Ready to Go?
+
+Now that you know more about dandy let's get started!
+
+- [Read This First](landing/read_this_first.md): Understand what will be required of you to develop with Dandy.
+- [Quick Start](landing/quick_start.md): Want to dive in a get something happening this quick start is for you!
+- [Tutorial](tutorials/1_setup.md): All done with the above two? Let's get started and really learn how to use Dandy!

@@ -108,7 +108,7 @@ new_prompt = (
     .divider()
     .array(items=['item1', 'item2'])
     .array_random_order(items=['item1', 'item2'])
-    .file(file_path='docs/guides/tutorial/prompt_test_document.md')
+    .file(file_path='docs/tutorials/prompt_test_document.md')
     .heading(heading='Heading Followed by a line break')
     .line_break()
     .list(items=['item1 after a line break', 'item2'])
@@ -130,7 +130,7 @@ print(new_prompt.to_str())
 
 !!! tip
 
-    Check out the [Prompt](../../api/llm/prompt/prompt.md) and [Snippets](../../api/llm/prompt/snippet.md) API documentation for more information on all the possibilities.
+    Check out the [Prompt](../api/llm/prompt/prompt.md) and [Snippets](../api/llm/prompt/snippet.md) API documentation for more information on all the possibilities.
 
 ## Advanced Prompts
 

@@ -1,4 +1,4 @@
-site_name: Dandy Intelligence Framework
+site_name: Dandy AI Framework
 site_url: https://dandysoftware.com
 
 repo_name: stratusadv/dandy
@@ -30,21 +30,21 @@ markdown_extensions:
 
 nav:
   - Welcome:
-      - Welcome: index.md
-      - What to Know: landing/what_to_know.md
-      - Configuration: landing/quick_start.md
-  - Tutorial:
-      - 1. Setup: guides/tutorial/1_setup.md
-      - 2. Intel: guides/tutorial/2_intel.md
-      - 3. Prompts: guides/tutorial/3_prompts.md
-      - 4. LLM Bot: guides/tutorial/4_llm_bot.md
-      - 5. Recorder: guides/tutorial/5_recorder.md
-      - 6. LLM Map: guides/tutorial/6_llm_map.md
-      - 7. Workflow: guides/tutorial/7_workflow.md
-      - 8. Futures: guides/tutorial/8_futures.md
-      - 9. Caching: guides/tutorial/9_caching.md
-      - 10. Project Structure: guides/tutorial/10_project_structure.md
-      - 11. Example Project: guides/tutorial/11_example_project.md
+      - What is Dandy: index.md
+      - Read this First: landing/read_this_first.md
+      - Quick Start: landing/quick_start.md
+  - Tutorials:
+      - 1. Setup: tutorials/1_setup.md
+      - 2. Intel: tutorials/2_intel.md
+      - 3. Prompts: tutorials/3_prompts.md
+      - 4. LLM Bot: tutorials/4_llm_bot.md
+      - 5. Recorder: tutorials/5_recorder.md
+      - 6. LLM Map: tutorials/6_llm_map.md
+      - 7. Workflow: tutorials/7_workflow.md
+      - 8. Futures: tutorials/8_futures.md
+      - 9. Caching: tutorials/9_caching.md
+      - 10. Project Structure: tutorials/10_project_structure.md
+      - 11. Example Project: tutorials/11_example_project.md
   - API Reference:
       - Bot:
           - BaseBot: api/bot/bot.md

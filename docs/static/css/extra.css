@@ -54,3 +54,17 @@ img.dandy-logo {
     margin-left: -10px;
 
 }
+
+.md-header .md-header__inner .md-header__button {
+    padding: 0;
+}
+
+.md-header .md-header__inner .md-header__title {
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.md-header .md-header__inner .md-header__button img {
+    margin-left: 1.5rem;
+    height: 2.0rem;
+}
