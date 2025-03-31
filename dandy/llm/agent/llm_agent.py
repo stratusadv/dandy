@@ -18,7 +18,7 @@ class BaseLlmAgent(BaseLlmProcessor, BaseAgent):
             cls,
             *args,
             **kwargs
-    ) -> Any:
+    ) -> IntelType:
         pass
 
 
