@@ -23,6 +23,7 @@ jobs:
 
     env:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
       OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
