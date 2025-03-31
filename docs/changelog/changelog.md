@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.14.0
+
+### Breaking
+
+- The `debug` module is now the `recorder` module.
+- In settings `ALLOW_DEBUG_RECORDING` has been removed.
+- In settings `ALLOW_RECORDING_TO_FILE` hase been added with a default value of `False`.
+
+### Features
+
+### Changes
+
+### Fixes
+
+- Fixed the llm service to properly handle retrying when an invalid response is provided with progressive exceptions.
+- Improved the `BaseIntel` class to have much better handling for complex operations.
+
 ## v0.13.3
 
 ### Breaking

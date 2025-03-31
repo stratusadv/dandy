@@ -1,6 +1,7 @@
 from typing import Union
 
 from dandy.intel import BaseIntel
+from example.book.enums import BookTheme
 from example.book.intelligence.chapter.intel import ChaptersIntel
 
 from example.book.intelligence.character.intel import CharactersIntel
@@ -15,6 +16,7 @@ class BookStartIntel(BaseIntel):
     
 class BookIntel(BaseIntel):
     user_input: str
+    theme: BookTheme
     start: Union[BookStartIntel, None] = None
     characters: Union[CharactersIntel, None] = None
     plot: Union[PlotIntel, None] = None

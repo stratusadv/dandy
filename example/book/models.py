@@ -5,6 +5,7 @@ from typing_extensions import List, Any, Iterable
 from pydantic import BaseModel
 
 from dandy.conf import settings
+from example.book.enums import BookTheme
 
 
 class Chapter(BaseModel):
@@ -15,6 +16,7 @@ class Chapter(BaseModel):
 class Book(BaseModel):
     title: str
     author: str
+    theme: BookTheme
     overview: str
     chapters: List[Chapter]
 

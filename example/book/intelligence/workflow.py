@@ -9,6 +9,7 @@ from example.book.intelligence.bots import BookStartLlmBot
 from example.book.intelligence.chapter.workflow import ChaptersWorkflow
 from example.book.intelligence.character.workflow import CharactersWorkflow
 from example.book.intelligence.intel import BookIntel
+from example.book.intelligence.maps import BookThemeLlmMap
 from example.book.intelligence.plot.workflow import PlotWorkflow
 from example.book.intelligence.world.bot import WorldLlmBot
 from example.book.models import Book, Chapter
@@ -23,7 +24,10 @@ class BookWorkflow(BaseWorkflow):
             cls,
             user_input: str,
     ) -> Book:
-        book_intel = BookIntel(user_input=user_input)
+        book_intel = BookIntel(
+            user_input=user_input,
+            theme=BookThemeLlmMap.process(user_input)[0]
+        )
 
         logging.info('Working on book title and overview')
         book_intel.start = BookStartLlmBot.process(user_input)

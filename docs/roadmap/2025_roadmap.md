@@ -11,6 +11,7 @@
 
 - Agents (Prototype)
 - Tools (Prototype)
+- Improved Recording 🚧
 - Robust Documentation 🚧
 
 ## March

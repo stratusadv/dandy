@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dandy Debug: __debug_event_id__</title>
+    <title>Dandy Debug: __recording_event_id__</title>
     <link rel="icon"
           href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJyZWQiIC8+Cjwvc3ZnPg=="
           type="image/svg+xml">
@@ -110,24 +110,24 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('dandy_debug', () => ({
             init() {
-                for (let i = 0; i < this.debug_output.events.length; i++) {
-                    this.debug_output.events[i].show_details = false
+                for (let i = 0; i < this.json_output.events.length; i++) {
+                    this.json_output.events[i].show_details = false
                 }
             },
 
             open_all() {
-                for (let i = 0; i < this.debug_output.events.length; i++) {
-                    this.debug_output.events[i].show_details = true
+                for (let i = 0; i < this.json_output.events.length; i++) {
+                    this.json_output.events[i].show_details = true
                 }
             },
 
             close_all() {
-                for (let i = 0; i < this.debug_output.events.length; i++) {
-                    this.debug_output.events[i].show_details = false
+                for (let i = 0; i < this.json_output.events.length; i++) {
+                    this.json_output.events[i].show_details = false
                 }
             },
 
-            debug_output: __debug_output__
+            json_output: __recording_json_output__
         }))
     })
 </script>
@@ -154,20 +154,20 @@
 
     <div class="row sticky-top bg-top py-1 mb-1 border-bottom border-dark shadow-sm">
         <div class="col-auto px-4 pb-1">
-            <span class="fw-bold">Dandy v__debug_version__ Debug Recording Output: __debug_event_id__</span>
-            <span class="text-muted"><br>__debug_datetime__</span>
+            <span class="fw-bold">Dandy v__dandy_version__ Debug Recording Output: __recording_event_id__</span>
+            <span class="text-muted"><br>__recording_datetime__</span>
         </div>
         <div class="col text-end pe-3 me-2">
             <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i
                     class="bi bi-arrows-expand"></i> Open All</a>
             <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i
                     class="bi bi-arrows-collapse"></i> Close All</a>
-            <span x-html="'Total Run Time<br>' + debug_output.run_time.toFixed(3) + 's'"
+            <span x-html="'Total Run Time<br>' + json_output.run_time.toFixed(3) + 's'"
                   class="float-end text-end pe-1 fw-bold"></span>
         </div>
     </div>
 
-    <template x-for="debug_event in debug_output.events">
+    <template x-for="debug_event in json_output.events">
 
         <div class="row mb-1">
             <div x-show="debug_event.type === 'run'" class="col-12 text-center text-run pb-1">

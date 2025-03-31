@@ -2,9 +2,9 @@ import json
 from abc import ABCMeta
 
 from dandy.core.utils import json_default
-from dandy.debug.debug import DebugRecorder
-from dandy.debug.events import RunEvent, ResultEvent
-from dandy.debug.utils import generate_new_debug_event_id
+from dandy.recorder.recorder import Recorder
+from dandy.recorder.events import RunEvent, ResultEvent
+from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.utils import pascal_to_title_case
 
 
@@ -20,10 +20,10 @@ class ProcessorABCMeta(ABCMeta):
 
                 def wrapped_process(cls, *args, **kwargs):
                     if getattr(cls, "_debugger_called", None) is None:
-                        cls._debugger_event_id = generate_new_debug_event_id()
+                        cls._debugger_event_id = generate_new_recorder_event_id()
 
-                    if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
-                        DebugRecorder.add_event(
+                    if Recorder.is_recording and not getattr(cls, "_debugger_called", False):
+                        Recorder.add_event(
                             RunEvent(
                                 actor=pascal_to_title_case(cls.__name__),
                                 action='Process',
@@ -42,8 +42,8 @@ class ProcessorABCMeta(ABCMeta):
 
                     result = original_func(cls, *args, **kwargs)
 
-                    if DebugRecorder.is_recording and getattr(cls, "_debugger_called", True):
-                        DebugRecorder.add_event(
+                    if Recorder.is_recording and getattr(cls, "_debugger_called", True):
+                        Recorder.add_event(
                             ResultEvent(
                                 actor=pascal_to_title_case(cls.__name__),
                                 action='Process Returned Result',
