@@ -1,7 +1,6 @@
 import os
 from unittest import TestCase
 
-from dandy.debug.decorators import debug_recorder_to_html
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.service.config import OllamaLlmConfig
 from dandy.llm.exceptions import LlmCriticalException

@@ -10,6 +10,9 @@
 
 ### Features
 
+- `DebugRecorder` is now `Recorder` and has new rendering methods and better html display.
+  - You can now render to json, html and markdown.
+
 ### Changes
 
 ### Fixes

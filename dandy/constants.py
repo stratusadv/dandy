@@ -1,7 +1,5 @@
 __VERSION__ = '0.13.3'
 
-from dandy.recorder.recorder import Recorder
-
 # Cache
 
 SQLITE_CACHE_TABLE_NAME = 'cache'

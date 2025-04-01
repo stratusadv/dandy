@@ -1,8 +1,8 @@
-from dandy.debug.events import BaseEvent, EventType
+from dandy.recorder.events import Event, EventType
 
-class CacheEvent(BaseEvent):
-    actor: str = 'Cache'
+class CacheEvent(Event):
+    object_name: str = 'Cache'
     response: str
-    action: str = 'Response'
+    callable_name: str = 'Response'
     type: EventType = EventType.RESPONSE
 

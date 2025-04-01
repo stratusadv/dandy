@@ -7,8 +7,8 @@ from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
 from dandy.core.http.service import BaseHttpService
-from dandy.debug.debug import DebugRecorder
-from dandy.debug.utils import generate_new_debug_event_id
+from dandy.recorder.recorder import Recorder
+from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel import BaseIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.type_vars import IntelType
@@ -67,7 +67,7 @@ class LlmService(BaseHttpService):
             exclude=exclude_fields
         )
 
-        event_id = generate_new_debug_event_id()
+        event_id = generate_new_recorder_event_id()
 
         request_body = self.get_request_body()
 

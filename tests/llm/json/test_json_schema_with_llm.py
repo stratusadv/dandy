@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from dandy.core.exceptions import DandyRecoverableException
-from dandy.debug.decorators import debug_recorder_to_html
 from tests.llm.decorators import run_llm_configs
 from tests.llm.json.intel import OfficeIntel
 from tests.llm.json.llm_bots import JsonSchemaLlmBot

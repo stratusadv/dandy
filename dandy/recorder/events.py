@@ -1,8 +1,9 @@
+from abc import ABC
 from enum import Enum
-from time import time
+from time import perf_counter
 
 from pydantic import BaseModel, Field
-from typing_extensions import Union, Self
+from typing_extensions import Union, Self, Dict, Any, List
 
 
 class EventType(str, Enum):
@@ -17,38 +18,56 @@ class EventType(str, Enum):
     OTHER = 'other'
 
 
-class BaseEvent(BaseModel):
-    actor: str
-    action: str
+class EventItem(BaseModel):
+    key: str
+    value: Any
+    is_dropdown: bool = False
+    is_card: bool = False
+
+
+class Event(BaseModel):
+    id: str
+    object_name: str
+    callable_name: str
     type: EventType
-    time: float = Field(default_factory=time)
+    items: List[EventItem] = Field(default_factory=list)
+    start_time: float = Field(default_factory=perf_counter)
     run_time: float = 0.0
-    description: Union[str, None] = None
-    id: str = '-'
 
     def calculate_run_time(self, pre_event: Self):
-        self.run_time = self.time - pre_event.time
+        self.run_time = self.start_time - pre_event.start_time
+
+    def add_item(
+            self,
+            key: str,
+            value: Any,
+            is_dropdown: bool = False,
+            is_card: bool = False
+    ) -> Self:
+        self.items.append(
+            EventItem(
+                key=key,
+                value=value,
+                is_dropdown=is_dropdown,
+                is_card=is_card
+            )
+        )
+
+        return self
 
 
-class ResultEvent(BaseEvent):
-    type: EventType = EventType.RESULT
+class EventManager(BaseModel):
+    events: List[Event] = Field(default_factory=list)
 
+    def add_event(self, event: Event) -> Event:
+        self.events.append(event)
+        self._calculate_event_run_times()
 
-class RunEvent(BaseEvent):
-    type: EventType = EventType.RUN
+        return event
 
+    def _calculate_event_run_times(self):
+        if len(self.events) > 0:
+            self.events[0].run_time = 0.0
+            for i in range(1, len(self.events)):
+                self.events[i].calculate_run_time(self.events[i - 1])
 
-class SuccessEvent(BaseEvent):
-    type: EventType = EventType.SUCCESS
-
-
-class WarningEvent(BaseEvent):
-    type: EventType = EventType.WARNING
-
-
-class FailureEvent(BaseEvent):
-    type: EventType = EventType.FAILURE
-
-
-class OtherEvent(BaseEvent):
-    type: EventType = EventType.OTHER

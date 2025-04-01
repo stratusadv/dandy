@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from dandy.debug.decorators import debug_recorder_to_html
 from tests.llm.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedBirdMap
 
 

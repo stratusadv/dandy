@@ -13,10 +13,9 @@ class BaseRecordingRenderer(BaseModel, ABC):
     def to_file(
             self,
             path: Path,
-            file_name: str
     ):
         ...
 
     @abstractmethod
-    def to_str(self):
+    def to_str(self) -> str:
         ...

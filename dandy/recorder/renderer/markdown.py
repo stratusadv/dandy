@@ -11,18 +11,17 @@ from dandy.recorder.utils import generate_new_recorder_event_id
 
 class MarkdownRecordingRenderer(BaseRecordingRenderer):
     def _render_markdown_to_str(self) -> str:
-        pass
+        return f'{self.recording.name}'
 
     def to_file(
             self,
-            path: str,
-            file_name: str,
+            path: Path,
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, file_name), 'w') as new_file:
+        with open(Path(path, f'{self.recording.name}_recording_output.md'), 'w') as new_file:
             new_file.write(self.to_str())
 
     def to_str(self) -> str:
-        return self._render_json_to_str()
+        return self._render_markdown_to_str()
 

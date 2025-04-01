@@ -1,11 +1,11 @@
-from dandy.debug.events import BaseEvent, EventType
+from dandy.recorder.events import Event, EventType
 
-class LlmServiceEvent(BaseEvent):
-    actor: str = 'LLM Service'
+class LlmServiceEvent(Event):
+    object_name: str = 'LLM Service'
 
 
 class LlmServiceFailureEvent(LlmServiceEvent):
-    action: str = 'Failure'
+    callable_name: str = 'Failure'
     type: EventType = EventType.FAILURE
 
 
@@ -14,24 +14,24 @@ class LlmServiceRequestEvent(LlmServiceEvent):
     temperature: float
     estimated_tokens: int = 0
     json_schema: str = ''
-    action: str = 'Request'
+    callable_name: str = 'Request'
     type: EventType = EventType.REQUEST
 
 
 class LlmServiceResponseEvent(LlmServiceEvent):
     response: str
     estimated_tokens: int = 0
-    action: str = 'Response'
+    callable_name: str = 'Response'
     type: EventType = EventType.RESPONSE
 
 
 class LlmServiceRetryEvent(LlmServiceEvent):
-    action: str = 'Retry'
+    callable_name: str = 'Retry'
     type: EventType = EventType.RETRY
 
 
 class LlmServiceSuccessEvent(LlmServiceEvent):
-    action: str = 'Success'
+    callable_name: str = 'Success'
     type: EventType = EventType.SUCCESS
 
 
