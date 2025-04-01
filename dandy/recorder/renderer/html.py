@@ -46,12 +46,11 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
 
     def to_file(
             self,
-            path: str,
-            file_name: str,
+            path: Path | str
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, file_name), 'w') as new_file:
+        with open(Path(path, f'{self.recording.name}_recording_output.html'), 'w') as new_file:
             new_file.write(self.to_str())
 
     def to_str(self) -> str:

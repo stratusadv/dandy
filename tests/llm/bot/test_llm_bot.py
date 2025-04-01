@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from dandy.core.processor.processor import BaseProcessor
-from dandy.debug.decorators import debug_recorder_to_html
 from tests.llm.bot.intel import MoneyBagIntel
 from tests.llm.bot.llm_bots import MoneyBagLlmBot
 from tests.llm.decorators import run_llm_configs
