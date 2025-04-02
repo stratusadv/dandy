@@ -15,7 +15,10 @@ def recorder_to_html(recording_name: str = RECORDING_DEFAULT_NAME):
 
             finally:
                 Recorder.stop_recording(recording_name)
-                Recorder.to_html_file(recording_name)
+                Recorder.to_file(
+                    'html',
+                    recording_name,
+                )
 
         return wrapper
 

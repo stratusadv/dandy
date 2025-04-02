@@ -1,11 +1,10 @@
 import json
 from abc import ABCMeta
 
-from dandy.core.utils import json_default
+from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
 from dandy.recorder.events import Event, EventType, EventItem
 from dandy.recorder.utils import generate_new_recorder_event_id
-from dandy.utils import pascal_to_title_case
 
 
 class ProcessorABCMeta(ABCMeta):

@@ -1,10 +1,7 @@
-from pydantic import BaseModel
-
-from dandy.constants import __VERSION__
-
 from datetime import datetime
 from pathlib import Path
 
+from dandy.constants import __VERSION__, RECORDING_POSTFIX_NAME
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 from dandy.recorder.utils import generate_new_recorder_event_id
 
@@ -43,7 +40,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, f'{self.recording.name}_recording_output.html'), 'w') as new_file:
+        with open(Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.html'), 'w') as new_file:
             new_file.write(self.to_str())
 
     def to_str(self) -> str:

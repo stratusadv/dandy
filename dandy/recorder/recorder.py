@@ -1,7 +1,6 @@
-import json
 from pathlib import Path
 
-from typing_extensions import Dict
+from typing_extensions import Dict, Type
 
 from dandy.conf import settings
 from dandy.constants import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
@@ -10,14 +9,20 @@ from dandy.recorder.events import Event
 from dandy.recorder.exceptions import RecorderCriticalException
 from dandy.recorder.recording import Recording
 from dandy.recorder.renderer.html import HtmlRecordingRenderer
-from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
 from dandy.recorder.renderer.json import JsonRecordingRenderer
+from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
+from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 
 _DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTORY)
 
 
 class Recorder(Singleton):
     recordings: Dict[str, Recording] = dict()
+    renderers: Dict[str, Type[BaseRecordingRenderer]] = {
+        'html': HtmlRecordingRenderer,
+        'json': JsonRecordingRenderer,
+        'markdown': MarkdownRecordingRenderer,
+    }
 
     @classmethod
     def add_event(cls, event: Event):
@@ -59,21 +64,50 @@ class Recorder(Singleton):
             recording.stop()
 
     @classmethod
-    def to_html_file(cls, recording_name: str = RECORDING_DEFAULT_NAME, path=_DEFAULT_RECORDER_OUTPUT_PATH):
+    def _render(
+            cls,
+            to_file: bool,
+            renderer: str,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+    ) -> str | None:
+        if renderer not in cls.renderers:
+            raise RecorderCriticalException(
+                f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}')
+
         cls.check_recording_is_valid(recording_name)
-        HtmlRecordingRenderer(recording=cls.recordings[recording_name]).to_file(path)
+
+        if to_file:
+            cls.renderers[renderer](
+                recording=cls.recordings[recording_name]
+            ).to_file(path)
+        else:
+            return cls.renderers[renderer](
+                recording=cls.recordings[recording_name]
+            ).to_str()
 
     @classmethod
-    def to_html_str(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> str:
-        cls.check_recording_is_valid(recording_name)
-        HtmlRecordingRenderer(recording=cls.recordings[recording_name]).to_str()
+    def to_file(
+            cls,
+            renderer: str,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+    ):
+        return cls._render(
+            to_file=True,
+            renderer=renderer,
+            recording_name=recording_name,
+            path=path
+        )
 
     @classmethod
-    def to_json_file(cls, recording_name: str = RECORDING_DEFAULT_NAME, path=_DEFAULT_RECORDER_OUTPUT_PATH):
-        cls.check_recording_is_valid(recording_name)
-        JsonRecordingRenderer(recording=cls.recordings[recording_name]).to_file(path)
-
-    @classmethod
-    def to_json_str(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> str:
-        cls.check_recording_is_valid(recording_name)
-        JsonRecordingRenderer(recording=cls.recordings[recording_name]).to_str()
+    def to_str(
+            cls,
+            renderer: str,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+    ):
+        return cls._render(
+            to_file=False,
+            renderer=renderer,
+            recording_name=recording_name,
+        )

@@ -1,7 +1,7 @@
 import importlib
 
 from dandy.core.exceptions import DandyCriticalException
-from dandy.utils import get_settings_module_name
+from dandy.core.utils import get_settings_module_name
 
 
 class DandySettings:

@@ -1,10 +1,9 @@
 from dandy.cache.cache import BaseCache
-from dandy.cache.events import CacheEvent
-from dandy.recorder.events import Event, EventItem, EventType
 from dandy.cache.utils import generate_hash_key
-from dandy.recorder import Recorder
-from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel import BaseIntel
+from dandy.recorder import Recorder
+from dandy.recorder.events import Event, EventItem, EventType
+from dandy.recorder.utils import generate_new_recorder_event_id
 
 
 def cache_decorator_function(

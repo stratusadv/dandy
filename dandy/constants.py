@@ -1,4 +1,4 @@
-__VERSION__ = '0.13.3'
+__VERSION__ = '0.14.0'
 
 # Cache
 
@@ -20,6 +20,7 @@ CLI_DEFAULT_ENV_FILE_NAMES = [
 
 RECORDER_OUTPUT_DIRECTORY = '.dandy_recorder_output'
 RECORDING_DEFAULT_NAME = 'default'
+RECORDING_POSTFIX_NAME = '_recording_output'
 
 # LLM
 
