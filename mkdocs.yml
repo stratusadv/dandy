@@ -75,12 +75,12 @@ nav:
       - Sub Exceptions:
           - Bot: exceptions/bot_exceptions.md
           - Cache: exceptions/cache_exceptions.md
-          - Debug: exceptions/debug_exceptions.md
           - Future: exceptions/future_exceptions.md
           - HTTP: exceptions/http_exceptions.md
           - Intel: exceptions/intel_exceptions.md
           - Map: exceptions/map_exceptions.md
           - LLM: exceptions/llm_exceptions.md
+          - Recorder: exceptions/recorder_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md
