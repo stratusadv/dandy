@@ -19,6 +19,10 @@ We created Dandy to focus on the flow and validation of data with your artificia
 It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
 Our approach is to focus on batteries included with strong tooling to help build great interactions and lowering the barrier to entry.
 
+## Getting Started
+
+Check out our [website](https://dandysoftware.com) for documentation including tutorials, API reference, error handling and more.
+
 <p align="center">
     <a href="https://dandysoftware.com">
         <img alt="Dandy Logo" src="https://dandysoftware.com/static/img/dandy_logo_512.png"/>
