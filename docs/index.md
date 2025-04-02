@@ -9,10 +9,6 @@
     <img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/dandy">
 </p>
 
-
-
-# AI Development Made Scalable
-
 ## Purpose
 
 Make AI development as deterministic as possible while empowering the probabilistic nature of intelligence.
