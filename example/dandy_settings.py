@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-ALLOW_DEBUG_RECORDING = True
+ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
