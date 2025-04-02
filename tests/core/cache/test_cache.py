@@ -15,8 +15,8 @@ from tests.core.cache.intel import ClownIntel, WigIntel, CandyNotIntel
 class TestCache(TestCase):
     @classmethod
     def tearDownClass(cls):
-        sql_lite_cache.destroy()
-        memory_cache.destroy()
+        sql_lite_cache.destroy_all()
+        memory_cache.destroy_all()
 
     def run_test_cache(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()

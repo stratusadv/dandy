@@ -13,7 +13,7 @@ def main():
 
     check_or_create_settings(CWD_PATH)
 
-    from dandy.utils import enum_to_list
+    from dandy.core.utils import enum_to_list
     from dandy.llm.conf import llm_configs
     from dandy.cli.llm.generate.generate import GenerateChoices, generate
     from dandy.cli.llm.assistant.assistant import assistant

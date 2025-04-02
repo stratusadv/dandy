@@ -34,15 +34,15 @@ nav:
       - Read this First: landing/read_this_first.md
       - Quick Start: landing/quick_start.md
   - Tutorials:
-      - 1. Setup: tutorials/1_setup.md
-      - 2. Intel: tutorials/2_intel.md
-      - 3. Prompts: tutorials/3_prompts.md
-      - 4. LLM Bot: tutorials/4_llm_bot.md
-      - 5. Recorder: tutorials/5_recorder.md
-      - 6. LLM Map: tutorials/6_llm_map.md
-      - 7. Workflow: tutorials/7_workflow.md
-      - 8. Futures: tutorials/8_futures.md
-      - 9. Caching: tutorials/9_caching.md
+      - 1. Setup: tutorials/01_setup.md
+      - 2. Intel: tutorials/02_intel.md
+      - 3. Prompts: tutorials/03_prompts.md
+      - 4. LLM Bot: tutorials/04_llm_bot.md
+      - 5. Recorder: tutorials/05_recorder.md
+      - 6. LLM Map: tutorials/06_llm_map.md
+      - 7. Workflow: tutorials/07_workflow.md
+      - 8. Futures: tutorials/08_futures.md
+      - 9. Caching: tutorials/09_caching.md
       - 10. Project Structure: tutorials/10_project_structure.md
       - 11. Example Project: tutorials/11_example_project.md
   - API Reference:
@@ -51,8 +51,6 @@ nav:
           - LlmBot: api/bot/llm_bot.md
       - Cache:
           - Decorators: api/cache/decorators.md
-      - Debug:
-          - DebugRecorder: api/debug/debug.md
       - Future:
           - AsyncFuture: api/future/future.md
       - Intel:
@@ -67,6 +65,8 @@ nav:
       - Processor:
           - BaseProcessor: api/processor/processor.md
           - BaseLlmProcessor: api/processor/llm_processor.md
+      - Recorder:
+          - Recorder: api/recorder/recorder.md
       - Workflow:
           - BaseWorkflow: api/workflow/workflow.md
   - Exceptions:
@@ -75,12 +75,12 @@ nav:
       - Sub Exceptions:
           - Bot: exceptions/bot_exceptions.md
           - Cache: exceptions/cache_exceptions.md
-          - Debug: exceptions/debug_exceptions.md
           - Future: exceptions/future_exceptions.md
           - HTTP: exceptions/http_exceptions.md
           - Intel: exceptions/intel_exceptions.md
           - Map: exceptions/map_exceptions.md
           - LLM: exceptions/llm_exceptions.md
+          - Recorder: exceptions/recorder_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md

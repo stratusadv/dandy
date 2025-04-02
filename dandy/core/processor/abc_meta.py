@@ -1,11 +1,10 @@
 import json
 from abc import ABCMeta
 
-from dandy.core.utils import json_default
-from dandy.debug.debug import DebugRecorder
-from dandy.debug.events import RunEvent, ResultEvent
-from dandy.debug.utils import generate_new_debug_event_id
-from dandy.utils import pascal_to_title_case
+from dandy.core.utils import json_default, pascal_to_title_case
+from dandy.recorder.recorder import Recorder
+from dandy.recorder.events import Event, EventType, EventItem
+from dandy.recorder.utils import generate_new_recorder_event_id
 
 
 class ProcessorABCMeta(ABCMeta):
@@ -20,49 +19,66 @@ class ProcessorABCMeta(ABCMeta):
 
                 def wrapped_process(cls, *args, **kwargs):
                     if getattr(cls, "_debugger_called", None) is None:
-                        cls._debugger_event_id = generate_new_debug_event_id()
+                        cls._debugger_event_id = generate_new_recorder_event_id()
 
-                    if DebugRecorder.is_recording and not getattr(cls, "_debugger_called", False):
-                        DebugRecorder.add_event(
-                            RunEvent(
-                                actor=pascal_to_title_case(cls.__name__),
-                                action='Process',
-                                description=json.dumps(
-                                    {
-                                        'args': args,
-                                        'kwargs': kwargs
-                                    },
-                                    indent=4,
-                                    default=json_default
-                                ),
-                                id=cls._debugger_event_id
+                    if Recorder.is_recording and not getattr(cls, "_debugger_called", False):
+                        Recorder.add_event(
+                            Event(
+                                id=cls._debugger_event_id,
+                                object_name=pascal_to_title_case(cls.__name__),
+                                callable_name='Process',
+                                type=EventType.RUN,
+                                items=[
+                                    EventItem(
+                                        key='Args',
+                                        value=json.dumps(
+                                            args,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True
+                                    ),
+                                    EventItem(
+                                        key='Kwargs',
+                                        value=json.dumps(
+                                            kwargs,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True
+                                    )
+                                ],
                             )
                         )
+
                         cls._debugger_called = True
 
                     result = original_func(cls, *args, **kwargs)
 
-                    if DebugRecorder.is_recording and getattr(cls, "_debugger_called", True):
-                        DebugRecorder.add_event(
-                            ResultEvent(
-                                actor=pascal_to_title_case(cls.__name__),
-                                action='Process Returned Result',
-                                description=json.dumps(
-                                    {
-                                        'returned result': result
-                                    },
-                                    indent=4,
-                                    default=json_default
-                                ),
-                                id=cls._debugger_event_id
+                    if Recorder.is_recording and getattr(cls, "_debugger_called", True):
+                        Recorder.add_event(
+                            Event(
+                                id=cls._debugger_event_id,
+                                object_name=pascal_to_title_case(cls.__name__),
+                                callable_name='Process Returned Result',
+                                type=EventType.RESULT,
+                                items=[
+                                    EventItem(
+                                        key='Returned Result',
+                                        value=json.dumps(
+                                            result,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True,
+                                    )
+                                ],
                             )
                         )
-
-                    cls._debugger_called = False
+                        cls._debugger_called = False
 
                     return result
 
                 setattr(processor_class, 'process', classmethod(wrapped_process))
 
         return processor_class
-

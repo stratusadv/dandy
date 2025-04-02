@@ -130,6 +130,29 @@ class BaseIntel(BaseModel, ABC):
             __base__=BaseIntel
         )
 
+    @classmethod
+    def model_json_inc_ex_schema(
+            cls,
+            include: Union[IncEx, None] = None,
+            exclude: Union[IncEx, None] = None,
+    ) -> Dict:
+        return cls.model_inc_ex_class_copy(
+            include=include,
+            exclude=exclude,
+        ).model_json_schema()
+
+    def model_object_json_inc_ex_schema(
+            self,
+            include: Union[IncEx, None] = None,
+            exclude: Union[IncEx, None] = None
+    ) -> Dict:
+        return self.model_inc_ex_class_copy(
+            include=include,
+            exclude=exclude,
+            intel_object=self
+        ).model_json_schema()
+
+
     def model_validate_and_copy(self, update: dict) -> Self:
         """
         Copies this object with field updates from a dict and validates
@@ -143,14 +166,14 @@ class BaseIntel(BaseModel, ABC):
             ),
         )
 
-    def model_validate_json_and_copy(self, update: str) -> Self:
+    def model_validate_json_and_copy(self, json_data: str) -> Self:
         """
         Copies this object with field updates from a json str and validates
 
-        :param update:
+        :param json_data:
         :return:
         """
-        return self.model_validate_and_copy(update=from_json(update))
+        return self.model_validate_and_copy(update=from_json(json_data))
 
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):

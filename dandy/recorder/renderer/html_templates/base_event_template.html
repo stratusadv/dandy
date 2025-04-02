@@ -1,0 +1,133 @@
+<div class="row mb-1">
+    <div x-show="event.type === 'run'" class="col-12 text-center text-run pb-1">
+        <i class="bi bi-caret-down-fill"></i>
+        <i class="bi bi-caret-down-fill"></i>
+        <i class="bi bi-caret-down-fill"></i>
+    </div>
+
+    <div class="col-auto fs-4 pe-0 me-0">
+        <i x-show="event.type === 'run'" class="bi bi-cpu text-run"></i>
+        <i x-show="event.type === 'request'" class="bi bi-box-arrow-up-right text-request ps-5"></i>
+        <i x-show="event.type === 'response'" class="bi bi-box-arrow-in-down-left text-response ps-5"></i>
+        <i x-show="event.type === 'result'" class="bi bi-arrow-return-left text-result"></i>
+        <i x-show="event.type === 'retry'" class="bi bi-arrow-clockwise text-retry ps-5 ms-5"></i>
+        <i x-show="event.type === 'success'" class="bi bi-check-lg text-success ps-5 ms-5"></i>
+        <i x-show="event.type === 'warning'"
+           class="bi bi-exclamation-triangle text-warning ps-5 ms-5"></i>
+        <i x-show="event.type === 'failure'" class="bi bi-x-lg text-failure ps-5 ms-5"></i>
+        <i x-show="event.type === 'other'" class="bi bi-question-circle text-other"></i>
+    </div>
+
+    <div class="col">
+
+        <div x-data="{
+                    show_details: false
+                }" x-model="event.show_details" x-modelable="show_details" class="card">
+
+            <div x-on:click="show_details = !show_details" class="card-header cursor-pointer ps-2 py-1"
+                 :class="{
+                         'bg-run': event.type === 'run',
+                         'bg-result': event.type === 'result',
+                         'bg-request': event.type === 'request',
+                         'bg-response': event.type === 'response',
+                         'bg-retry': event.type === 'retry',
+                         'bg-success': event.type === 'success',
+                         'bg-warning': event.type === 'warning',
+                         'bg-failure': event.type === 'failure',
+                         'bg-other': event.type === 'other'
+                         }"
+            >
+                <span x-show="!show_details"><i class="bi bi-plus-lg"></i></span>
+                <span x-show="show_details"><i class="bi bi-dash-lg"></i></span>
+                <span x-text="event.object_name"></span>
+                <span><i class="bi bi-arrow-right"></i></span>
+                <span x-text="event.callable_name"></span>
+                <span x-text="event.run_time.toFixed(3) + 's'" class="float-end text-end"
+                      width="130px;"></span>
+                <span x-text="event.id" class="float-end text-center" style="width: 100px;"></span>
+            </div>
+
+            <div x-show="show_details" class="card-body p-2"
+                 style="font-size: 0.85rem; font-family: 'Courier New', serif">
+
+                <table class="w-100">
+                    <template x-for="item in event.items">
+                        <tbody>
+
+                        <template x-if="item.is_dropdown">
+                            <tr>
+                                <td colspan="2" x-data="{ show_item_value: false }">
+
+                                    <div class="card bg-item shadow-sm mx-0 mt-2">
+                                        <div class="card-body py-2 px-3">
+                                            <div class="row">
+                                                <div class="col-12 cursor-pointer ps-2"
+                                                     x-on:click="show_item_value = !show_item_value">
+                                                    <i class="bi bi-caret-right" x-show="!show_item_value"></i>
+                                                    <i class="bi bi-caret-down" x-show="show_item_value"></i>
+                                                    <span x-text="item.key" class="text-item"></span>
+                                                </div>
+                                            </div>
+                                            <div x-show="show_item_value" class="row">
+                                                <div class="col-12 white-space-pre-wrap" x-text="item.value">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template x-if="item.is_card">
+                            <tr>
+                                <td colspan="2">
+                                    <div class="card bg-item shadow-sm mx-0 mt-2 w-100">
+                                        <div class="card-body py-2 px-3">
+                                            <div class="row">
+                                                <div x-text="item.key + ':'" class="col-12 text-item">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div x-text="item.value" class="col-12 white-space-pre-wrap">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template x-if="item.is_base64_image">
+                            <img x-bind:src="'data:' + detect_mime_type(image) + ';base64,' + image"
+                                 alt="image"
+                                 class="img-fluid rounded border shadow-sm my-2">
+                        </template>
+
+                        <template x-if="!item.is_dropdown && !item.is_card && !item.is_base64_image">
+                            <tr>
+                                <td x-text="item.key + ':'" class="text-item align-top text-end pe-2" nowrap></td>
+                                <td x-text="item.value" class="w-100 white-space-pre-wrap"></td>
+                            </tr>
+                        </template>
+
+                        </tbody>
+
+                    </template>
+
+                </table>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div x-show="event.type === 'result'" class="col-12 text-center text-result pb-1">
+        <i class="bi bi-stop-fill"></i>
+        <i class="bi bi-stop-fill"></i>
+        <i class="bi bi-stop-fill"></i>
+    </div>
+
+</div>

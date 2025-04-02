@@ -2,7 +2,7 @@ from pathlib import Path
 
 from typing_extensions import Union
 
-ALLOW_DEBUG_RECORDING: bool = False
+ALLOW_RECORDING_TO_FILE: bool = False
 
 BASE_PATH: Union[Path, str] = Path.cwd()
 

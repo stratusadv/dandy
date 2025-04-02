@@ -15,8 +15,8 @@ from tests.llm.bot.llm_bots import MoneyBagLlmBot
 class TestCacheWithLlm(TestCase):
     @classmethod
     def tearDownClass(cls):
-        sql_lite_cache.destroy()
-        memory_cache.destroy()
+        sql_lite_cache.destroy_all()
+        memory_cache.destroy_all()
 
     def run_test_cache_with_llm_bot(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()

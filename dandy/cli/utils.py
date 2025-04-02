@@ -5,7 +5,7 @@ from pathlib import Path
 import dotenv
 
 from dandy.constants import CLI_DEFAULT_ENV_FILE_NAMES
-from dandy.utils import get_settings_module_name
+from dandy.core.utils import get_settings_module_name
 
 
 def check_or_create_settings(cwd_path: Path) -> None:

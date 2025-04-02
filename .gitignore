@@ -1,7 +1,6 @@
 __pycache__/
 .coverage_html_report/
-.dandy_cli_output/
-.dandy_debug_output/
+.dandy*/
 .idea/
 .venv*/
 venv*/
