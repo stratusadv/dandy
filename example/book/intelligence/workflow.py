@@ -50,6 +50,7 @@ class BookWorkflow(BaseWorkflow):
         new_book = Book(
             title=book_intel.start.title,
             author='Dandy McAuthor',
+            theme=book_intel.theme,
             overview=book_intel.start.overview,
             chapters=[
                 Chapter(title=chapter_intel.title, content=chapter_intel.content)

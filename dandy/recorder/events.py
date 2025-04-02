@@ -23,6 +23,7 @@ class EventItem(BaseModel):
     value: Any
     is_dropdown: bool = False
     is_card: bool = False
+    is_base64_image: bool = False
 
 
 class Event(BaseModel):
@@ -37,21 +38,8 @@ class Event(BaseModel):
     def calculate_run_time(self, pre_event: Self):
         self.run_time = self.start_time - pre_event.start_time
 
-    def add_item(
-            self,
-            key: str,
-            value: Any,
-            is_dropdown: bool = False,
-            is_card: bool = False
-    ) -> Self:
-        self.items.append(
-            EventItem(
-                key=key,
-                value=value,
-                is_dropdown=is_dropdown,
-                is_card=is_card
-            )
-        )
+    def add_item(self, event_item: EventItem) -> Self:
+        self.items.append(event_item)
 
         return self
 
@@ -70,4 +58,3 @@ class EventManager(BaseModel):
             self.events[0].run_time = 0.0
             for i in range(1, len(self.events)):
                 self.events[i].calculate_run_time(self.events[i - 1])
-

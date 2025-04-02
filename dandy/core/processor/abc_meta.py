@@ -3,7 +3,7 @@ from abc import ABCMeta
 
 from dandy.core.utils import json_default
 from dandy.recorder.recorder import Recorder
-from dandy.recorder.events import Event, EventType
+from dandy.recorder.events import Event, EventType, EventItem
 from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.utils import pascal_to_title_case
 
@@ -23,52 +23,59 @@ class ProcessorABCMeta(ABCMeta):
                         cls._debugger_event_id = generate_new_recorder_event_id()
 
                     if Recorder.is_recording and not getattr(cls, "_debugger_called", False):
-                        run_event = Event(
-                            id=cls._debugger_event_id,
-                            object_name=pascal_to_title_case(cls.__name__),
-                            callable_name='Process',
-                            type=EventType.RUN,
-                        )
-
-                        run_event.add_item(
-                            key='description',
-                            value=json.dumps(
-                                {
-                                    'args': args,
-                                    'kwargs': kwargs
-                                },
-                                indent=4,
-                                default=json_default
+                        Recorder.add_event(
+                            Event(
+                                id=cls._debugger_event_id,
+                                object_name=pascal_to_title_case(cls.__name__),
+                                callable_name='Process',
+                                type=EventType.RUN,
+                                items=[
+                                    EventItem(
+                                        key='Args',
+                                        value=json.dumps(
+                                            args,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True
+                                    ),
+                                    EventItem(
+                                        key='Kwargs',
+                                        value=json.dumps(
+                                            kwargs,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True
+                                    )
+                                ],
                             )
                         )
-
-                        Recorder.add_event(run_event)
 
                         cls._debugger_called = True
 
                     result = original_func(cls, *args, **kwargs)
 
                     if Recorder.is_recording and getattr(cls, "_debugger_called", True):
-                        result_event = Event(
-                            id=cls._debugger_event_id,
-                            object_name=pascal_to_title_case(cls.__name__),
-                            callable_name='Process Returned Result',
-                            type=EventType.RESULT,
+                        Recorder.add_event(
+                            Event(
+                                id=cls._debugger_event_id,
+                                object_name=pascal_to_title_case(cls.__name__),
+                                callable_name='Process Returned Result',
+                                type=EventType.RESULT,
+                                items=[
+                                    EventItem(
+                                        key='Returned Result',
+                                        value=json.dumps(
+                                            result,
+                                            indent=4,
+                                            default=json_default
+                                        ),
+                                        is_card=True,
+                                    )
+                                ],
+                            )
                         )
-
-                        result_event.add_item(
-                            key='description',
-                            value=json.dumps(
-                                {
-                                    'returned result': result
-                                },
-                                indent=4,
-                                default=json_default
-                            ),
-                        )
-
-                        Recorder.add_event(result_event)
-
                         cls._debugger_called = False
 
                     return result

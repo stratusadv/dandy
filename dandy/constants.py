@@ -3,6 +3,7 @@ __VERSION__ = '0.13.3'
 # Cache
 
 SQLITE_CACHE_TABLE_NAME = 'cache'
+SQLITE_CACHE_DB_NAME = 'dandy_cache.db'
 DEFAULT_CACHE_NAME: str = 'dandy'
 
 # CLI
@@ -17,7 +18,7 @@ CLI_DEFAULT_ENV_FILE_NAMES = [
 
 # Debug
 
-RECORDER_OUTPUT_DIRECTORY = '.dandy_debug_output'
+RECORDER_OUTPUT_DIRECTORY = '.dandy_recorder_output'
 RECORDING_DEFAULT_NAME = 'default'
 
 # LLM

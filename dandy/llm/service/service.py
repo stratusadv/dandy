@@ -14,8 +14,8 @@ from dandy.intel.factory import IntelFactory
 from dandy.intel.type_vars import IntelType
 from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException, LlmRecoverableException
 from dandy.llm.prompt import Prompt
-from dandy.llm.service.debug import debug_record_llm_request, debug_record_llm_response, debug_record_llm_success, \
-    debug_record_llm_validation_failure, debug_record_llm_retry
+from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, recorder_add_llm_success_event, \
+    recorder_add_llm_validation_failure_event, recorder_add_llm_retry_event
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
 
@@ -106,13 +106,13 @@ class LlmService(BaseHttpService):
             intel: Union[BaseIntel, Type[BaseIntel]],
             retry_attempt: int = 0,
     ) -> IntelType:
-        debug_record_llm_request(request_body, intel_json_schema, event_id)
+        recorder_add_llm_request_event(request_body, intel_json_schema, event_id)
 
         message_content = self._llm_config.get_response_content(
             self.post_request(request_body.model_dump())
         )
 
-        debug_record_llm_response(message_content, event_id)
+        recorder_add_llm_response_event(message_content, event_id)
 
         try:
             intel_object = IntelFactory.json_to_intel_object(
@@ -121,7 +121,7 @@ class LlmService(BaseHttpService):
             )
 
             if intel_object is not None:
-                debug_record_llm_success(
+                recorder_add_llm_success_event(
                     'Validated response from prompt into intel object.',
                     event_id,
                     intel=intel_object
@@ -134,10 +134,10 @@ class LlmService(BaseHttpService):
 
         # This validation error would be raised by pydantic if the IntelFactory failed to parse the JSON into an Intel object
         except ValidationError as e:
-            debug_record_llm_validation_failure(e, event_id)
+            recorder_add_llm_validation_failure_event(e, event_id)
 
             if retry_attempt < self._llm_config.options.prompt_retry_count:
-                debug_record_llm_retry(
+                recorder_add_llm_retry_event(
                     'Validation of response to intel object failed retrying with validation errors prompt.',
                     event_id,
                     remaining_attempts = self._llm_config.options.prompt_retry_count - (retry_attempt + 1)

@@ -4,12 +4,12 @@ import os
 from book.intelligence.workflow import BookWorkflow
 from dandy.cache import SqliteCache
 from dandy.core.exceptions import DandyException
-from dandy.debug import DebugRecorder
+from dandy.recorder import Recorder
 
 if __name__ == '__main__':
     try:
-        if os.getenv('DEBUG'):
-            SqliteCache.clear('example')
+        # if os.getenv('DEBUG'):
+        #     SqliteCache.clear('example')
 
         logging.basicConfig(
             level=logging.INFO,
@@ -17,7 +17,7 @@ if __name__ == '__main__':
             datefmt='%Y-%m-%d %H:%M:%S',
         )
 
-        DebugRecorder.start_recording('book_generation')
+        Recorder.start_recording('book_generation')
 
         logging.info('Creating a Book')
 
@@ -36,5 +36,5 @@ if __name__ == '__main__':
         raise DandyException
 
     finally:
-        DebugRecorder.stop_recording('book_generation')
-        DebugRecorder.to_html_file('book_generation')
+        Recorder.stop_recording('book_generation')
+        Recorder.to_html_file('book_generation')

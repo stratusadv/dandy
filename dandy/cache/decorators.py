@@ -1,5 +1,6 @@
 from dandy.cache.cache import BaseCache
 from dandy.cache.events import CacheEvent
+from dandy.recorder.events import Event, EventItem, EventType
 from dandy.cache.utils import generate_hash_key
 from dandy.recorder import Recorder
 from dandy.recorder.utils import generate_new_recorder_event_id
@@ -27,10 +28,20 @@ def cache_decorator_function(
             else:
                 response = str(cached_value)
 
-            Recorder.add_event(CacheEvent(
-                response=response,
-                id=generate_new_recorder_event_id()
-            ))
+            Recorder.add_event(
+                Event(
+                    id=generate_new_recorder_event_id(),
+                    object_name='Cache',
+                    callable_name='Response',
+                    type=EventType.RESPONSE,
+                    items=[
+                        EventItem(
+                            key='Cached Response',
+                            value=response,
+                        ),
+                    ],
+                )
+            )
 
         return cached_value
 
