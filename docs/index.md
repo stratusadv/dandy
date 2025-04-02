@@ -9,10 +9,13 @@
     <img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/dandy">
 </p>
 
+
+
 # AI Development Made Scalable
 
-Dandy is an intelligence framework for developing programmatic solutions using artificial intelligence. 
-It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
+## Purpose
+
+Make AI development as deterministic as possible while empowering the probabilistic nature of intelligence.
 
 ## Yet Another AI Framework?
 
@@ -21,7 +24,8 @@ Based on our experience most of the existing frameworks / libraries are designed
 
 We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of intelligence.
 
-Our approach is to focus on batteries included with strong tooling to help build great interactions and lowers the barrier to entry for developers.
+It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
+Our approach is to focus on batteries included with strong tooling to help build great interactions and lowering the barrier to entry.
 
 ## Pillars of Dandy
 

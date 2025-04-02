@@ -5,10 +5,19 @@
 ![PyPI Version](https://img.shields.io/pypi/v/dandy)
 ![Downloads](https://img.shields.io/pypi/dm/dandy)
 
-Dandy is an intelligence framework for developing bots and workflows for artificial intelligence.
-It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
+## Purpose
 
-Our documentation is available on our [website](https://dandysoftware.com), including tutorials, API reference, error handling and more.
+Make AI development as deterministic as possible while empowering the probabilistic nature of intelligence.
+
+## Yet Another AI Framework?
+
+Intelligence programming is a very different experience than conventional programming as it's very probabilistic.
+Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion, or beneficial to developers. 
+
+We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of intelligence.
+
+It's opinionated, simple and designed to be incredibly pythonic putting the project and developers first.
+Our approach is to focus on batteries included with strong tooling to help build great interactions and lowering the barrier to entry.
 
 <p align="center">
     <a href="https://dandysoftware.com">
