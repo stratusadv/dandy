@@ -159,6 +159,22 @@ class Prompt:
 
         return self
 
+    def object_source(
+            self,
+            object_module_name: str,
+            triple_quote: bool = True
+    ) -> Self:
+
+        self.snippets.append(
+            snippet.ObjectSourceSnippet(
+                object_module_name=object_module_name,
+                triple_quote=triple_quote,
+                triple_quote_label=object_module_name
+            )
+        )
+
+        return self
+
     def ordered_list(
             self,
             items: List[str],

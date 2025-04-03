@@ -39,6 +39,7 @@ class TestPrompt(TestCase):
             .intel(intel=person_intel)
             .intel_schema(intel_class=PersonIntel)
             .module_source(module_name='dandy.llm.bot.llm_bot')
+            .object_source(object_module_name='dandy.llm.bot.llm_bot.BaseLlmBot')
             .ordered_list(items=['item1', 'item2'])
             .prompt(prompt=another_prompt)
             .random_choice(choices=['choice1', 'choice2'])

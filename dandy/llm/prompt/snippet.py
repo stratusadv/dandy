@@ -10,6 +10,7 @@ from random import randint, shuffle
 
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
+from dandy.core.path.utils import get_file_path_or_exception
 from dandy.intel import BaseIntel
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.prompt.utils import list_to_str
@@ -74,11 +75,10 @@ class FileSnippet(BaseSnippet):
     file_path: Union[str, Path]
 
     def _to_str(self) -> str:
-        if Path(self.file_path).is_file():
-            with open(self.file_path, 'r') as f:
-                return f.read() + '\n'
-        else:
-            raise LlmCriticalException(f'File "{self.file_path}" does not exist')
+        self.file_path = get_file_path_or_exception(self.file_path)
+
+        with open(self.file_path, 'r') as f:
+            return f.read() + '\n'
 
 
 @dataclass(kw_only=True)
@@ -110,6 +110,7 @@ class IntelSchemaSnippet(BaseSnippet):
     def _to_str(self) -> str:
         return str(json.dumps(self.intel_class.model_json_schema(), indent=4)) + '\n'
 
+
 @dataclass(kw_only=True)
 class ModuleSourceSnippet(BaseSnippet):
     module_name: str
@@ -117,6 +118,23 @@ class ModuleSourceSnippet(BaseSnippet):
     def _to_str(self) -> str:
         source = inspect.getsource(
             importlib.import_module(self.module_name)
+        )
+
+        return f'\n{source}\n'
+
+
+@dataclass(kw_only=True)
+class ObjectSourceSnippet(BaseSnippet):
+    object_module_name: str
+
+    def _to_str(self) -> str:
+        module_name = '.'.join(self.object_module_name.split('.')[:-1])
+        object_name = self.object_module_name.split('.')[-1]
+
+        module = importlib.import_module(module_name)
+
+        source = inspect.getsource(
+            getattr(module, object_name)
         )
 
         return f'\n{source}\n'

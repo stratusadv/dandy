@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.14.1
+
+### Features
+
+- Added `object_source` method to `Prompt` to get the source of a specific object in a module.
+- Drastically improved the LLM service to retry and handle prompt correction.
+
+### Fixes
+
+- Fixed the `dandy.utils` to correct a circular import problem.
+- Fixed a problem with the `file` method on the `Prompt` class to search the `settings.BASE_PATH` directory.
+
 ## v0.14.0
 
 ### Breaking
