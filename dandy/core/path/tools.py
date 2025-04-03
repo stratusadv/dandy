@@ -36,6 +36,7 @@ def get_original_caller_relative_path() -> Path:
     stack = inspect.stack()
 
     for frame_info in reversed(stack):
+        print(frame_info.filename)
         if not any(module in frame_info.filename for module in [
             'unittest',
             'pytest',
