@@ -37,11 +37,13 @@ def get_original_caller_relative_path() -> Path:
 
     for frame_info in reversed(stack):
         print(frame_info.filename)
-        if not any(module in frame_info.filename for module in [
-            'unittest',
-            'pytest',
-            'hostedtoolcache',
-            'runner',
+        if not any([
+            module in frame_info.filename for module in [
+                'unittest',
+                'pytest',
+                'hostedtoolcache',
+                'runner',
+            ]
         ]):
             return Path(frame_info.filename)
 
