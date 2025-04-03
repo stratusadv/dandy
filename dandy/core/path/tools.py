@@ -35,15 +35,16 @@ def get_original_caller_relative_path() -> Path:
 
     stack = inspect.stack()
 
+    print('searching for original caller ...')
+
     for frame_info in reversed(stack):
-        print('searching for original caller ...')
         print(frame_info.filename)
         if not any([
             module in frame_info.filename for module in [
                 'unittest',
                 'pytest',
                 'hostedtoolcache',
-                'runner',
+                # 'runner',
             ]
         ]):
             print(f'>>> returning {frame_info.filename}')
