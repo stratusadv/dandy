@@ -36,6 +36,7 @@ def get_original_caller_relative_path() -> Path:
     stack = inspect.stack()
 
     for frame_info in reversed(stack):
+        print('searching for original caller ...')
         print(frame_info.filename)
         if not any([
             module in frame_info.filename for module in [
@@ -45,6 +46,7 @@ def get_original_caller_relative_path() -> Path:
                 'runner',
             ]
         ]):
+            print(f'>>> returning {frame_info.filename}')
             return Path(frame_info.filename)
 
     return Path(__file__)
