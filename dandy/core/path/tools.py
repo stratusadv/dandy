@@ -39,7 +39,8 @@ def get_original_caller_relative_path() -> Path | None:
         if not any(module in frame_info.filename for module in [
             'unittest',
             'pytest',
-            'hostedtoolcache',
+            '/opt/hostedtoolcache',
+            '/home/runner/work/',
         ]):
             return Path(frame_info.filename)
 
