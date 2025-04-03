@@ -30,7 +30,7 @@ def get_file_path_or_exception(
         raise DandyCriticalException(f'File "{file_path}" does not exist')
 
 
-def get_original_caller_relative_path() -> Path | None:
+def get_original_caller_relative_path() -> Path:
     import inspect
 
     stack = inspect.stack()
@@ -39,10 +39,9 @@ def get_original_caller_relative_path() -> Path | None:
         if not any(module in frame_info.filename for module in [
             'unittest',
             'pytest',
-            '/opt/hostedtoolcache',
-            '/home/runner/work/',
+            'hostedtoolcache',
+            'runner',
         ]):
             return Path(frame_info.filename)
 
-    return None
-
+    return Path(__file__)
