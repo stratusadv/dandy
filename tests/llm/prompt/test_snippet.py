@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import TestCase
 from dandy.llm.prompt import snippet
 
@@ -22,6 +23,14 @@ class TestSnippet(TestCase):
                 'tuple',
             )
         ]
+
+    def test_file_snippet(self):
+        file_snippet = snippet.FileSnippet(
+            file_path='assets/documents/complex_markdown.md',
+            relative_parents=3,
+        )
+
+        self.assertFalse('', file_snippet.to_str())
 
     def test_object_source_snippet(self):
         object_source = snippet.ObjectSourceSnippet(

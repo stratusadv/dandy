@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.14.2
+
+### Fixes
+
+- Fixed the `file` method on the `Prompt` to properly hand relative paths.
+  - The `relative_parents` argument makes it quick to traverse parent directories by count.
+
 ## v0.14.1
 
 ### Features

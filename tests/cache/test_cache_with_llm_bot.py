@@ -6,7 +6,7 @@ from typing_extensions import Callable
 from dandy.cache import cache_to_memory
 from dandy.cache import cache_to_sqlite
 from dandy.cache.cache import BaseCache
-from tests.core.cache.caches import sql_lite_cache, memory_cache
+from tests.cache.caches import sql_lite_cache, memory_cache
 
 from tests.llm.bot.intel import MoneyBagIntel
 from tests.llm.bot.llm_bots import MoneyBagLlmBot

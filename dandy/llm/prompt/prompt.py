@@ -69,13 +69,17 @@ class Prompt:
 
     def file(
             self,
-            file_path: Union[str, Path],
+            file_path: Union[str, Path, List[str]],
+            relative_parents: int = 0,
+            encoding: str = 'utf-8',
             triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
             snippet.FileSnippet(
                 file_path=file_path,
+                relative_parents=relative_parents,
+                encoding=encoding,
                 triple_quote=triple_quote
             )
         )

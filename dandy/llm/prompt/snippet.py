@@ -10,7 +10,7 @@ from random import randint, shuffle
 
 from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
 
-from dandy.core.path.utils import get_file_path_or_exception
+from dandy.core.path.tools import get_file_path_or_exception
 from dandy.intel import BaseIntel
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.prompt.utils import list_to_str
@@ -72,12 +72,17 @@ class DividerSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class FileSnippet(BaseSnippet):
-    file_path: Union[str, Path]
+    file_path: Union[str, Path, List[str]]
+    relative_parents: int = 0
+    encoding: str = 'utf-8'
 
     def _to_str(self) -> str:
-        self.file_path = get_file_path_or_exception(self.file_path)
+        self.file_path = get_file_path_or_exception(
+            file_path=self.file_path,
+            relative_parents=self.relative_parents
+        )
 
-        with open(self.file_path, 'r') as f:
+        with open(self.file_path, 'r', encoding=self.encoding) as f:
             return f.read() + '\n'
 
 

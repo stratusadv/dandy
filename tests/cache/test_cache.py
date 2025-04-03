@@ -8,13 +8,14 @@ from typing_extensions import Callable
 from dandy.cache import cache_to_memory
 from dandy.cache import cache_to_sqlite
 from dandy.cache.cache import BaseCache
-from tests.core.cache.caches import CACHE_LIMIT, sql_lite_cache, memory_cache
-from tests.core.cache.intel import ClownIntel, WigIntel, CandyNotIntel
+from tests.cache.caches import CACHE_LIMIT, sql_lite_cache, memory_cache
+from tests.cache.intel import ClownIntel, WigIntel, CandyNotIntel
 
 
 class TestCache(TestCase):
     @classmethod
     def tearDownClass(cls):
+        sql_lite_cache.clear()
         sql_lite_cache.destroy_all()
         memory_cache.destroy_all()
 
