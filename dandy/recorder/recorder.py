@@ -31,7 +31,7 @@ class Recorder(Singleton):
                 recording.event_manager.add_event(event)
 
     @classmethod
-    def check_recording_is_valid(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> bool:
+    def check_recording_is_valid(cls, recording_name: str = RECORDING_DEFAULT_NAME):
         if recording_name not in cls.recordings:
             choices_message = ''
 
@@ -87,11 +87,11 @@ class Recorder(Singleton):
             ).to_str()
 
     @classmethod
-    def to_file(
+    def _to_file(
             cls,
+            recording_name: str,
             renderer: str,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str
     ):
         return cls._render(
             to_file=True,
@@ -101,13 +101,79 @@ class Recorder(Singleton):
         )
 
     @classmethod
-    def to_str(
+    def _to_str(
             cls,
+            recording_name: str,
             renderer: str,
-            recording_name: str = RECORDING_DEFAULT_NAME,
     ):
         return cls._render(
             to_file=False,
             renderer=renderer,
             recording_name=recording_name,
+        )
+
+    @classmethod
+    def to_html_file(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+    ):
+        cls._to_file(
+            recording_name,
+            'html',
+            path
+        )
+
+    @classmethod
+    def to_html_str(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+    ):
+        cls._to_str(
+            recording_name,
+            'html',
+        )
+
+    @classmethod
+    def to_json_file(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+    ):
+        cls._to_file(
+            recording_name,
+            'json',
+            path
+        )
+
+    @classmethod
+    def to_json_str(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+    ):
+        cls._to_str(
+            recording_name,
+            'json',
+        )
+
+    @classmethod
+    def to_markdown_file(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+    ):
+        cls._to_file(
+            recording_name,
+            'markdown',
+            path
+        )
+
+    @classmethod
+    def to_markdown_str(
+            cls,
+            recording_name: str = RECORDING_DEFAULT_NAME,
+    ):
+        cls._to_str(
+            recording_name,
+            'markdown',
         )

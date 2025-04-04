@@ -12,7 +12,7 @@ class BaseRecordingRenderer(BaseModel, ABC):
     @abstractmethod
     def to_file(
             self,
-            path: Path,
+            path: Path | str,
     ):
         ...
 

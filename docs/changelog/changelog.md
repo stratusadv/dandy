@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.14.3
+
+### Fixes
+
+- Fixed a problem with `SqliteCache` not handling cleared tables correctly.
+  - Added the `clear_all` method to `MemoryCache` and `SqliteCache` to fix clearing caches properly.
+- Fixed recorder shortcut methods for rendering to files and strings.
+
 ## v0.14.2
 
 ### Fixes

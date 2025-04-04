@@ -16,6 +16,9 @@ class SqliteCache(BaseCache):
         self._create_table()
 
     def __len__(self) -> int:
+        if not self._table_exists():
+            return 0
+
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
@@ -25,6 +28,15 @@ class SqliteCache(BaseCache):
             )
 
             return cursor.fetchone()[0]
+
+    @staticmethod
+    def _table_exists() -> bool:
+        with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{SQLITE_CACHE_TABLE_NAME}';")
+
+            return cursor.fetchone() is not None
 
     @staticmethod
     def _create_table():
@@ -43,6 +55,9 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     def get(self, key: str) -> Union[Any, None]:
+        if not self._table_exists():
+            return None
+
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
@@ -94,15 +109,21 @@ class SqliteCache(BaseCache):
 
     @classmethod
     def clear(cls, cache_name: str = dandy.constants.DEFAULT_CACHE_NAME):
-        with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
-            cursor = connection.cursor()
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{SQLITE_CACHE_TABLE_NAME}';")
-
-            if cursor.fetchone() is not None:
+        if cls._table_exists():
+            with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
+                cursor = connection.cursor()
                 cursor.execute(
                     f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ?',
                     (cache_name,)
                 )
+                connection.commit()
+
+    @classmethod
+    def clear_all(cls):
+        if cls._table_exists():
+            with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
+                cursor = connection.cursor()
+                cursor.execute(f'DELETE FROM {SQLITE_CACHE_TABLE_NAME}')
                 connection.commit()
 
     @classmethod

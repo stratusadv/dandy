@@ -34,6 +34,8 @@ Now that we have a `ClownIntel` object, let's use it with the `LlmBot` to genera
 The `process` method of the `LlmBot` will return an `Intel` object based on the `intel_class` argument.
 
 ```python exec="True" source="above" source="material-block" session="intel"
+# Using ClownIntel from earlier
+
 from dandy.llm import LlmBot
 
 new_clown = LlmBot.process(
@@ -49,6 +51,8 @@ print(new_clown)
 In the `process` method of the `LlmBot` class we can now include and exclude fields from the `Intel` object.
 
 ```python exec="True" source="above" source="material-block" session="intel"
+# Using ClownIntel from earlier
+
 another_clown = LlmBot.process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
     intel_class=ClownIntel,
@@ -61,6 +65,8 @@ print(another_clown)
 You can also get the same result by including both the `can_juggle` and `clown_name` fields.
 
 ```python exec="True" source="above" source="material-block" session="intel"
+# Using ClownIntel from earlier
+
 another_clown = LlmBot.process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
     intel_class=ClownIntel,
@@ -123,6 +129,8 @@ Now that we have a more complex `PirateIntel` object, let's see how we can inclu
 We do this by creating a more complex `IncEx`/`Dict` object where the keys are the field names and the values are either `True` or a `Dict` of that child objects field names.
 
 ```python exec="True" source="above" source="material-block" session="intel"
+# Using PirateIntel from earlier
+
 new_pirate = LlmBot.process(
     prompt='Can you please generate me a pirate?',
     intel_class=PirateIntel,

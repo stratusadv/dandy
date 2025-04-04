@@ -17,6 +17,6 @@ class TestEvaluate(TestCase):
         )
 
         Recorder.stop_recording('test_prompt_evaluation')
-        Recorder.to_file('html','test_prompt_evaluation')
+        Recorder.to_html_file('test_prompt_evaluation')
 
         self.assertTrue(True)

@@ -33,5 +33,10 @@ class BaseCache(ABC, BaseModel):
 
     @classmethod
     @abstractmethod
-    def destroy_all(cls, cache_name: str = dandy.constants.DEFAULT_CACHE_NAME):
+    def clear_all(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def destroy_all(cls):
         pass

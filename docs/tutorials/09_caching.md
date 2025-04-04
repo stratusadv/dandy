@@ -2,7 +2,7 @@
 
 ## What is Caching?
 
-Caching is a technique used to speed up the execution of a function by storing the result of the function call.
+Caching is a technique used to speed up the execution of a function by storing the result of the function call our output.
 
 The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the result of a function call.
 
@@ -10,11 +10,12 @@ The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the resu
 
 Let's make our selves a map and add `@cache_to_memory` to the `process` method.
 
-```python exec="True" source="above" source="material-block" result="markdown" session="map"
+```python exec="True" source="above" source="material-block" result="markdown" session="caching"
+from time import perf_counter
+
 from dandy.llm import BaseLlmMap, Map
 from dandy.cache import cache_to_memory
 
-from time import perf_counter
 
 class NumberMap(BaseLlmMap):
     map = Map({
@@ -58,9 +59,9 @@ The `cache_to_memory` and `cache_to_sqlite` decorators can take `cache_name` and
 
 This allows you to set separate caches and limits for individual methods and functions or group caches strategically.
 
-In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `add_cache.db` with a row limit of 9,999,999.
+In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `dandy_cache.db` with a row limit of 9,999,999.
 
-```python exec="True" source="above" source="material-block" result="markdown" session="map"
+```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy.cache import cache_to_sqlite
 
 @cache_to_sqlite(cache_name='add', limit=9_999_999)
@@ -72,12 +73,120 @@ print(add(3567, 5434)) # this will cache 1 entry in the sqlite database
 
 ### dandy_settings.py
 
-You can configure your settings in your `dandy_settings.py` file to better control the cache settings.
+You can configure your settings in your `dandy_settings.py` file to better control the cache settings by creating safe default values.
 
-```python exec="True" source="above" source="material-block" result="markdown" session="map"
+```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy.conf import settings
 
 print(f'Cache Memory Limit: {settings.CACHE_MEMORY_LIMIT}') # Amount of items to keep in memory cache
 print(f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}') # Path to sqlite database
 print(f'Cache SQLite Limit: {settings.CACHE_SQLITE_LIMIT}') # Amount of items to keep in sqlite cache
 ```
+
+!!! warning
+
+    Make sure to pay very close attention to the values your caching and the limits you set as caching can get very system intensive.
+
+## Advanced Caching
+
+You can directly use the cache in your project as well to control the flow of caching.
+
+Below we are going to use the `MemoryCache` and `generate_hash_key` functions to cache the results of the `do_math` function.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="caching"
+from time import perf_counter
+
+from dandy.cache import MemoryCache, generate_hash_key
+
+
+def do_math(a, b, c):
+    sqlite_cache = MemoryCache(
+        cache_name='more_math',
+        limit=9_999_999
+    )
+
+    hash_key = generate_hash_key(do_math, a, b, c)
+    
+    number = sqlite_cache.get(
+        hash_key
+    )
+
+    if number:
+        return number
+
+    number = 0
+    for i in range(99_999_999):
+        number += a + b + c
+
+    sqlite_cache.set(
+        hash_key,
+        number
+    )
+    
+    return number
+
+start_time = perf_counter()
+
+print(do_math(1, 4, 9))
+
+uncached_finish_time = perf_counter() - start_time
+
+print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
+
+print(do_math(1, 4, 9))
+    
+cached_finish_time = perf_counter() - start_time - uncached_finish_time
+
+print(f'Finished cached in {cached_finish_time:.5f} seconds')
+
+```
+
+## Managing Caches
+
+Now that we are comfortable with caching let's take a look at how we can manage the caches.
+
+In the example below we have two caches `add` and `subtract` that are both stored in a sqlite database called `dandy_cache.db`.
+
+```python exec="True" source="above" source="material-block" result="markdown" session="caching"
+from dandy.cache import SqliteCache, cache_to_sqlite, generate_hash_key
+
+@cache_to_sqlite(cache_name='add', limit=100)
+def add(a, b):
+    return a + b
+    
+@cache_to_sqlite(cache_name='subtract', limit=100)
+def subtract(a, b):
+    return a - b
+
+add_number = add(3, 5)
+subtract_number = subtract(6, 7)
+
+sqlite_add_cache = SqliteCache(cache_name='add', limit=100)
+sqlite_subtract_cache = SqliteCache(cache_name='subtract', limit=100)
+
+add_hash_key = generate_hash_key(add, 3, 5)
+subtract_hash_key = generate_hash_key(subtract, 6, 7)
+
+
+print('Both `add` and `subtract` are cached')
+print(f'>>> {sqlite_add_cache.get(add_hash_key)}')
+print(f'>>> {sqlite_subtract_cache.get(subtract_hash_key)}')
+
+SqliteCache.clear('add')
+
+print('the `add` cache is cleared')
+print(f'>>> {sqlite_add_cache.get(add_hash_key)}')
+print(f'>>> {sqlite_subtract_cache.get(subtract_hash_key)}')
+
+SqliteCache.clear_all()
+
+print('All caches are cleared')
+print(f'>>> {sqlite_add_cache.get(add_hash_key)}')
+print(f'>>> {sqlite_subtract_cache.get(subtract_hash_key)}')
+
+SqliteCache.destroy_all()
+
+print('Sqlite database is deleted')
+
+```
+    

@@ -6,7 +6,7 @@ from dandy.core.exceptions import DandyCriticalException
 
 
 def get_file_path_or_exception(
-        file_path: Union[str, Path, List[str]],
+        file_path: Union[str, Path],
         relative_parents: int = 0,
 ) -> Path:
     if relative_parents > 0:
@@ -39,6 +39,7 @@ def get_original_caller_relative_path() -> Path:
 
     for frame_info in reversed(stack):
         print(frame_info.filename)
+        print(f'type: {type(frame_info.function)}')
         if not any([
             module in frame_info.filename for module in [
                 'unittest',

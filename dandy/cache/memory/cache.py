@@ -37,5 +37,9 @@ class MemoryCache(BaseCache):
             _memory_cache[cache_name].clear()
 
     @classmethod
-    def destroy_all(cls, cache_name: str = dandy.constants.DEFAULT_CACHE_NAME):
-        cls.clear(cache_name)
+    def clear_all(cls):
+        _memory_cache.clear()
+
+    @classmethod
+    def destroy_all(cls):
+        cls.clear_all()
