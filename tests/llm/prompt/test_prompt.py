@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 
 from unittest import TestCase
 
@@ -32,8 +32,8 @@ class TestPrompt(TestCase):
             .divider()
             .array(items=['item1', 'item2'])
             .array_random_order(items=['item1', 'item2'])
-            .file(file_path=pathlib.Path(__file__).parent / 'test_document.md')
-            # .file(file_path='assets/documents/complex_markdown.md', relative_parents=3)
+            .file(file_path=Path(__file__).parent / 'test_document.md')
+            .file(file_path=Path(Path(__file__).parent.parent.parent.resolve(), 'assets/documents/complex_markdown.md'))
             .heading(heading='Heading Followed by a line break')
             .line_break()
             .list(items=['item1 after a line break', 'item2'])

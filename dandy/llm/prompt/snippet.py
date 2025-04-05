@@ -72,14 +72,13 @@ class DividerSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class FileSnippet(BaseSnippet):
-    file_path: Union[str, Path, List[str]]
+    file_path: Union[str, Path]
     relative_parents: int = 0
     encoding: str = 'utf-8'
 
     def _to_str(self) -> str:
         self.file_path = get_file_path_or_exception(
             file_path=self.file_path,
-            relative_parents=self.relative_parents
         )
 
         with open(self.file_path, 'r', encoding=self.encoding) as f:

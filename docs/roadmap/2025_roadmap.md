@@ -6,6 +6,7 @@
 - User Input Cleaning Llm Bot (Contrib)
 - Text to Speech
 - Speech to Text
+- Guardrails System
 
 ## April
 

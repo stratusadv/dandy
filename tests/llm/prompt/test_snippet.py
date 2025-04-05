@@ -24,14 +24,13 @@ class TestSnippet(TestCase):
             )
         ]
 
-    # def test_file_snippet(self):
-    #     file_snippet = snippet.FileSnippet(
-    #         file_path='assets/documents/complex_markdown.md',
-    #         relative_parents=3,
-    #     )
-    #
-    #     self.assertFalse('', file_snippet.to_str())
-    #
+    def test_file_snippet(self):
+        file_snippet = snippet.FileSnippet(
+            file_path=Path(Path(__file__).parent.parent.parent.resolve(), 'assets/documents/complex_markdown.md')
+        )
+
+        self.assertFalse('', file_snippet.to_str())
+
     def test_object_source_snippet(self):
         object_source = snippet.ObjectSourceSnippet(
             object_module_name='dandy.llm.bot.llm_bot.BaseLlmBot'

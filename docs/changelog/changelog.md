@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.14.4 - Coming Soon
+
+### Fixes
+
+- Remove relative path system from dandy as it caused to many edge case problems.
+
 ## v0.14.3
 
 ### Fixes
