@@ -8,6 +8,8 @@ from dandy.recorder.recording import Recording
 
 class BaseRecordingRenderer(BaseModel, ABC):
     recording: Recording
+    name: str
+    file_extension: str
 
     @abstractmethod
     def to_file(

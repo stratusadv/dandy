@@ -7,6 +7,9 @@ from dandy.recorder.utils import generate_new_recorder_event_id
 
 
 class HtmlRecordingRenderer(BaseRecordingRenderer):
+    name: str = 'html'
+    file_extension: str = 'html'
+
     _template_directory: Path = Path(Path(__file__).parent.resolve(), 'html_templates')
 
     def _render_base_html_template_to_str(self) -> str:
@@ -45,4 +48,3 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
 
     def to_str(self) -> str:
         return self._render_base_html_template_to_str()
-

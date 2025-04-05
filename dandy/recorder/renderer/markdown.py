@@ -7,6 +7,9 @@ from dandy.recorder.utils import generate_new_recorder_event_id
 
 
 class MarkdownRecordingRenderer(BaseRecordingRenderer):
+    name: str = 'markdown'
+    file_extension: str = 'md'
+
     def _render_markdown_to_str(self) -> str:
         markdown_str = f'# Dandy v{__VERSION__} Recording Output: {generate_new_recorder_event_id()}\n\n'
 
@@ -18,7 +21,7 @@ class MarkdownRecordingRenderer(BaseRecordingRenderer):
 
     def to_file(
             self,
-            path: Path,
+            path: Path | str,
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 

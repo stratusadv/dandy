@@ -5,12 +5,15 @@ from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 
 
 class JsonRecordingRenderer(BaseRecordingRenderer):
+    name: str = 'json'
+    file_extension: str = 'json'
+
     def _render_json_to_str(self) -> str:
         return self.recording.model_dump_json()
 
     def to_file(
             self,
-            path: Path
+            path: Path | str,
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
@@ -19,4 +22,3 @@ class JsonRecordingRenderer(BaseRecordingRenderer):
 
     def to_str(self) -> str:
         return self._render_json_to_str()
-

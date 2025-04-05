@@ -13,7 +13,7 @@ from dandy.recorder.renderer.json import JsonRecordingRenderer
 from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 
-_DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTORY)
+DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTORY)
 
 
 class Recorder(Singleton):
@@ -38,7 +38,7 @@ class Recorder(Singleton):
             if len(cls.recordings.keys()) == 0:
                 choices_message = f' Choices are {list(cls.recordings.keys())}'
 
-            raise RecorderCriticalException(f'Debug recording "{recording_name}" does not exist. {choices_message}')
+            raise RecorderCriticalException(f'Recording "{recording_name}" does not exist. {choices_message}')
 
     @classmethod
     def clear(cls):
@@ -69,7 +69,7 @@ class Recorder(Singleton):
             to_file: bool,
             renderer: str,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ) -> str | None:
         if renderer not in cls.renderers:
             raise RecorderCriticalException(
@@ -116,7 +116,7 @@ class Recorder(Singleton):
     def to_html_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
         cls._to_file(
             recording_name,
@@ -138,7 +138,7 @@ class Recorder(Singleton):
     def to_json_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
         cls._to_file(
             recording_name,
@@ -160,7 +160,7 @@ class Recorder(Singleton):
     def to_markdown_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = _DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
         cls._to_file(
             recording_name,

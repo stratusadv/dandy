@@ -29,13 +29,13 @@ Output: [Debug HTML File](tutorial_recording_output.html){target="_blank"}
 
 ## Decorator Recording
 
-We can accomplish the same as above by using the `@recorder_to_html` decorator.
+We can accomplish the same as above by using the `@recorder_to_html_file` decorator.
 
 ```python
 from dandy.llm import LlmBot
-from dandy.recorder import recorder_to_html
+from dandy.recorder import recorder_to_html_file
 
-@recorder_to_html(recording_name='tutorial')
+@recorder_to_html_file(recording_name='tutorial')
 def get_canada_capital_description():
     canada_capital_intel = LlmBot.process(prompt='Please tell me just the name only of the city that is the capital of Canada?')
     return LlmBot.process(prompt=f'Please describe the following city: {canada_capital_intel.text}')

@@ -2,6 +2,10 @@
 
 ## v0.14.4 - Coming Soon
 
+### Breaking
+
+- All of the `recorder` decorators have been renamed to `recorder_to_html_file`, `recorder_to_markdown_file` and `recorder_to_json_file`.
+
 ### Fixes
 
 - Remove relative path system from dandy as it caused to many edge case problems.
