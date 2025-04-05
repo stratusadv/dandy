@@ -28,12 +28,6 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'PHI_4_14B': {
-        'MODEL': 'phi4:14b-q4_K_M',
-    },
-    'LLAMA_3_2_3B': {
-        'MODEL': 'llama3.2:3b-instruct-q4_K_M',
-    },
     'DEEPSEEK_R1_14B': {
         'MODEL': 'deepseek-r1:14b',
     },
@@ -42,6 +36,11 @@ LLM_CONFIGS = {
     },
     'GEMMA_3_27B_VISION': {
         'MODEL': 'gemma3:27b',
+    },
+    'PHI_4_14B': {
+        'MODEL': 'phi4:14b-q4_K_M',
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 16000,
     },
     'GPT_3_5_TURBO': {
         'MODEL': 'gpt-3.5-turbo',

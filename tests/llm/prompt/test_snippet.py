@@ -1,5 +1,5 @@
-from pathlib import Path
 from unittest import TestCase
+
 from dandy.llm.prompt import snippet
 
 
