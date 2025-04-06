@@ -1,6 +1,12 @@
 # Changelog
 
-## v0.14.4 - Coming Soon
+## v0.14.5
+
+### Fixes
+
+- Fixed a problem with the `Recorder` class not outputting strings.
+
+## v0.14.4
 
 ### Breaking
 

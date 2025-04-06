@@ -105,7 +105,7 @@ class Recorder(Singleton):
             cls,
             recording_name: str,
             renderer: str,
-    ):
+    ) -> str:
         return cls._render(
             to_file=False,
             renderer=renderer,
@@ -128,8 +128,8 @@ class Recorder(Singleton):
     def to_html_str(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-    ):
-        cls._to_str(
+    ) -> str:
+        return cls._to_str(
             recording_name,
             'html',
         )
@@ -150,8 +150,8 @@ class Recorder(Singleton):
     def to_json_str(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-    ):
-        cls._to_str(
+    ) -> str:
+        return cls._to_str(
             recording_name,
             'json',
         )
@@ -172,8 +172,8 @@ class Recorder(Singleton):
     def to_markdown_str(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-    ):
-        cls._to_str(
+    ) -> str:
+        return cls._to_str(
             recording_name,
             'markdown',
         )

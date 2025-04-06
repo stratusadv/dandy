@@ -60,7 +60,9 @@ class TestRecorder(TestCase):
         Recorder.stop_recording(RECORDING_NAME)
 
         for renderer, _ in RENDERER_AND_EXTENSIONS:
-            self.assertTrue(Recorder._to_str(RECORDING_NAME, renderer) != '')
+            render_method = getattr(Recorder, f'{renderer}_to_str')
+            self.assertTrue(render_method(RECORDING_NAME) != '')
+            self.assertTrue(render_method(RECORDING_NAME) is not None)
 
     def test_recorder_to_file(self):
         Recorder.start_recording(RECORDING_NAME)
