@@ -60,7 +60,7 @@ class TestRecorder(TestCase):
         Recorder.stop_recording(RECORDING_NAME)
 
         for renderer, _ in RENDERER_AND_EXTENSIONS:
-            render_method = getattr(Recorder, f'{renderer}_to_str')
+            render_method = getattr(Recorder, f'to_{renderer}_str')
             self.assertTrue(render_method(RECORDING_NAME) != '')
             self.assertTrue(render_method(RECORDING_NAME) is not None)
 
@@ -72,9 +72,10 @@ class TestRecorder(TestCase):
         Recorder.stop_recording(RECORDING_NAME)
 
         for renderer, extension in RENDERER_AND_EXTENSIONS:
-            Recorder._to_file(
+            render_method = getattr(Recorder, f'to_{renderer}_file')
+
+            render_method(
                 RECORDING_NAME,
-                renderer,
                 DEFAULT_RECORDER_OUTPUT_PATH,
             )
 
