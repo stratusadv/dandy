@@ -28,6 +28,9 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
+    'LLAMA_3_2_3B': {
+        'MODEL': 'llama3.2:3b-instruct-q4_K_M',
+    },
     'DEEPSEEK_R1_14B': {
         'MODEL': 'deepseek-r1:14b',
     },
