@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.14.6
+
+### Fixes
+
+- Rename `EventItem` to `EventAttribute` for more seperation of concerns when it comes to dictionaries.
+
 ## v0.14.5
 
 ### Fixes

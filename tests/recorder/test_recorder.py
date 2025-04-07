@@ -21,7 +21,8 @@ RECORDING_OUTPUT_FILE_PATH = Path(
 
 
 class TestRecorder(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         for _, extension in RENDERER_AND_EXTENSIONS:
             if Path(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension)).is_file():
                 Path(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension)).unlink()

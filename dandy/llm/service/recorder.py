@@ -7,7 +7,7 @@ from dandy.recorder.recorder import Recorder
 from dandy.intel import BaseIntel
 from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
-from dandy.recorder.events import Event, EventItem, EventType
+from dandy.recorder.events import Event, EventAttribute, EventType
 
 _EVENT_OBJECT_NAME = 'LLM Service'
 
@@ -22,8 +22,8 @@ def recorder_add_llm_validation_failure_event(
             object_name=_EVENT_OBJECT_NAME,
             callable_name='Validation',
             type=EventType.FAILURE,
-            items=[
-                EventItem(
+            attributes=[
+                EventAttribute(
                     key='Error',
                     value=pydantic_validation_error_to_str(error)
                 )
@@ -43,8 +43,8 @@ def recorder_add_llm_retry_event(
             object_name=_EVENT_OBJECT_NAME,
             callable_name='Retry',
             type=EventType.RETRY,
-            items=[
-                EventItem(
+            attributes=[
+                EventAttribute(
                     key='Reason',
                     value=f'{description}\nRemaining Attempts: {remaining_attempts}' if remaining_attempts is not None else description,
                 )
@@ -63,20 +63,20 @@ def recorder_add_llm_request_event(
         object_name=_EVENT_OBJECT_NAME,
         callable_name='Request',
         type=EventType.REQUEST,
-        items=[
-            EventItem(
+        attributes=[
+            EventAttribute(
                 key='Model',
                 value=request_body.model
             ),
-            EventItem(
+            EventAttribute(
                 key='Temperature',
                 value=request_body.get_temperature()
             ),
-            EventItem(
+            EventAttribute(
                 key='Estimated Tokens',
                 value=request_body.messages_estimated_tokens
             ),
-            EventItem(
+            EventAttribute(
                 key='JSON Schema',
                 value=json.dumps(json_schema, indent=4),
                 is_dropdown=True,
@@ -85,7 +85,7 @@ def recorder_add_llm_request_event(
     )
 
     for message in request_body.messages:
-        llm_request_event.add_item(EventItem(
+        llm_request_event.add_attribute(EventAttribute(
             key=message.role,
             value=message.content,
             is_card=True,
@@ -103,12 +103,12 @@ def recorder_add_llm_response_event(
             object_name=_EVENT_OBJECT_NAME,
             callable_name='Response',
             type=EventType.RESPONSE,
-            items=[
-                EventItem(
+            attributes=[
+                EventAttribute(
                     key='Estimated Tokens',
                     value=get_estimated_token_count_for_string(message_content),
                 ),
-                EventItem(
+                EventAttribute(
                     key='LLM Response',
                     value=message_content,
                     is_card=True,
@@ -134,12 +134,12 @@ def recorder_add_llm_success_event(
             object_name=_EVENT_OBJECT_NAME,
             callable_name='Success',
             type=EventType.SUCCESS,
-            items=[
-                EventItem(
+            attributes=[
+                EventAttribute(
                     key='Status',
                     value=description,
                 ),
-                EventItem(
+                EventAttribute(
                     key=intel.__class__.__name__ if intel_json else 'Result',
                     value=intel_json if intel_json else 'None',
                     is_card=True

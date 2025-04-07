@@ -18,7 +18,7 @@ class EventType(str, Enum):
     OTHER = 'other'
 
 
-class EventItem(BaseModel):
+class EventAttribute(BaseModel):
     key: str
     value: Any
     is_dropdown: bool = False
@@ -31,15 +31,15 @@ class Event(BaseModel):
     object_name: str
     callable_name: str
     type: EventType
-    items: List[EventItem] = Field(default_factory=list)
+    attributes: List[EventAttribute] = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
     run_time: float = 0.0
 
     def calculate_run_time(self, pre_event: Self):
         self.run_time = self.start_time - pre_event.start_time
 
-    def add_item(self, event_item: EventItem) -> Self:
-        self.items.append(event_item)
+    def add_attribute(self, event_attribute: EventAttribute) -> Self:
+        self.attributes.append(event_attribute)
 
         return self
 

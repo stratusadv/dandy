@@ -3,7 +3,7 @@ from abc import ABCMeta
 
 from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
-from dandy.recorder.events import Event, EventType, EventItem
+from dandy.recorder.events import Event, EventType, EventAttribute
 from dandy.recorder.utils import generate_new_recorder_event_id
 
 
@@ -28,8 +28,8 @@ class ProcessorABCMeta(ABCMeta):
                                 object_name=pascal_to_title_case(cls.__name__),
                                 callable_name='Process',
                                 type=EventType.RUN,
-                                items=[
-                                    EventItem(
+                                attributes=[
+                                    EventAttribute(
                                         key='Args',
                                         value=json.dumps(
                                             args,
@@ -38,7 +38,7 @@ class ProcessorABCMeta(ABCMeta):
                                         ),
                                         is_card=True
                                     ),
-                                    EventItem(
+                                    EventAttribute(
                                         key='Kwargs',
                                         value=json.dumps(
                                             kwargs,
@@ -62,8 +62,8 @@ class ProcessorABCMeta(ABCMeta):
                                 object_name=pascal_to_title_case(cls.__name__),
                                 callable_name='Process Returned Result',
                                 type=EventType.RESULT,
-                                items=[
-                                    EventItem(
+                                attributes=[
+                                    EventAttribute(
                                         key='Returned Result',
                                         value=json.dumps(
                                             result,

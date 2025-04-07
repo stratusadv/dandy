@@ -51,25 +51,25 @@
                  style="font-size: 0.85rem; font-family: 'Courier New', serif">
 
                 <table class="w-100">
-                    <template x-for="item in event.items">
+                    <template x-for="attribute in event.attributes">
                         <tbody>
 
-                        <template x-if="item.is_dropdown">
+                        <template x-if="attribute.is_dropdown">
                             <tr>
-                                <td colspan="2" x-data="{ show_item_value: false }">
+                                <td colspan="2" x-data="{ show_attribute_value: false }">
 
-                                    <div class="card bg-item shadow-sm mx-0 mt-2">
+                                    <div class="card bg-attribute shadow-sm mx-0 mt-2">
                                         <div class="card-body py-2 px-3">
                                             <div class="row">
                                                 <div class="col-12 cursor-pointer ps-2"
-                                                     x-on:click="show_item_value = !show_item_value">
-                                                    <i class="bi bi-caret-right" x-show="!show_item_value"></i>
-                                                    <i class="bi bi-caret-down" x-show="show_item_value"></i>
-                                                    <span x-text="item.key" class="text-item"></span>
+                                                     x-on:click="show_attribute_value = !show_attribute_value">
+                                                    <i class="bi bi-caret-right" x-show="!show_attribute_value"></i>
+                                                    <i class="bi bi-caret-down" x-show="show_attribute_value"></i>
+                                                    <span x-text="attribute.key" class="text-attribute"></span>
                                                 </div>
                                             </div>
-                                            <div x-show="show_item_value" class="row">
-                                                <div class="col-12 white-space-pre-wrap" x-text="item.value">
+                                            <div x-show="show_attribute_value" class="row">
+                                                <div class="col-12 white-space-pre-wrap" x-text="attribute.value">
                                                 </div>
                                             </div>
                                         </div>
@@ -79,17 +79,17 @@
                             </tr>
                         </template>
 
-                        <template x-if="item.is_card">
+                        <template x-if="attribute.is_card">
                             <tr>
                                 <td colspan="2">
-                                    <div class="card bg-item shadow-sm mx-0 mt-2 w-100">
+                                    <div class="card bg-attribute shadow-sm mx-0 mt-2 w-100">
                                         <div class="card-body py-2 px-3">
                                             <div class="row">
-                                                <div x-text="item.key + ':'" class="col-12 text-item">
+                                                <div x-text="attribute.key + ':'" class="col-12 text-attribute">
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div x-text="item.value" class="col-12 white-space-pre-wrap">
+                                                <div x-text="attribute.value" class="col-12 white-space-pre-wrap">
                                                 </div>
                                             </div>
                                         </div>
@@ -98,16 +98,16 @@
                             </tr>
                         </template>
 
-                        <template x-if="item.is_base64_image">
+                        <template x-if="attribute.is_base64_image">
                             <img x-bind:src="'data:' + detect_mime_type(image) + ';base64,' + image"
                                  alt="image"
                                  class="img-fluid rounded border shadow-sm my-2">
                         </template>
 
-                        <template x-if="!item.is_dropdown && !item.is_card && !item.is_base64_image">
+                        <template x-if="!attribute.is_dropdown && !attribute.is_card && !attribute.is_base64_image">
                             <tr>
-                                <td x-text="item.key + ':'" class="text-item align-top text-end pe-2" nowrap></td>
-                                <td x-text="item.value" class="w-100 white-space-pre-wrap"></td>
+                                <td x-text="attribute.key + ':'" class="text-attribute align-top text-end pe-2" nowrap></td>
+                                <td x-text="attribute.value" class="w-100 white-space-pre-wrap"></td>
                             </tr>
                         </template>
 
