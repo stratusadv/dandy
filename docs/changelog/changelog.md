@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.15.0
+
+### Features
+
+- The `Recorder` module now properly tracks token usage and run times.
+
+### Changes
+
+
+### Fixes
+
+
 ## v0.14.6
 
 ### Fixes

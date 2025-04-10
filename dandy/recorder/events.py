@@ -33,6 +33,7 @@ class Event(BaseModel):
     type: EventType
     attributes: List[EventAttribute] = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
+    token_usage: int = 0
     run_time: float = 0.0
 
     def calculate_run_time(self, pre_event: Self):
