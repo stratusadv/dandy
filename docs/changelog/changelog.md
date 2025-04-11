@@ -5,6 +5,8 @@
 ### Features
 
 - The `Recorder` module now properly tracks token usage and run times.
+- New `delete_all_recordings` and `delete_recording` methods added to the `Recorder` class for memory management.
+- New `get_recording` method added to the `Recorder` class for easy access.
 
 ### Changes
 

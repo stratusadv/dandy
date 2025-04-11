@@ -41,8 +41,18 @@ class Recorder(Singleton):
             raise RecorderCriticalException(f'Recording "{recording_name}" does not exist. {choices_message}')
 
     @classmethod
-    def clear(cls):
-        cls.recordings = dict()
+    def delete_all_recordings(cls):
+        cls.recordings.clear()
+
+    @classmethod
+    def delete_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):
+        cls.check_recording_is_valid(recording_name)
+        del cls.recordings[recording_name]
+
+    @classmethod
+    def get_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> Recording:
+        cls.check_recording_is_valid(recording_name)
+        return cls.recordings[recording_name]
 
     @classmethod
     def is_recording(cls):

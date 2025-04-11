@@ -24,6 +24,7 @@ def _recorder_to_file_decorator_function(
     finally:
         Recorder.stop_recording(recording_name)
         Recorder._to_file(recording_name, renderer, path)
+        Recorder.delete_recording(recording_name)
 
 
 def recorder_to_html_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
