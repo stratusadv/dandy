@@ -15,6 +15,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
     def _render_base_html_template_to_str(self) -> str:
         with open(Path(self._template_directory, 'base_recording_output_template.html'),
                   'r') as debug_html:
+
             return debug_html.read(
             ).replace(
                 '__recording_json__',
@@ -24,7 +25,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
                 f'{__VERSION__}'
             ).replace(
                 '__recording_datetime__',
-                f'{datetime.now()}'
+                f'{self.recording.start_datetime.strftime("%Y-%m-%d %H:%M")}'
             ).replace(
                 '__recording_id__',
                 f'{generate_new_recorder_event_id()}'

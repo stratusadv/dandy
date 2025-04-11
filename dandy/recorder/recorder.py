@@ -28,7 +28,7 @@ class Recorder(Singleton):
     def add_event(cls, event: Event):
         for recording in cls.recordings.values():
             if recording.is_running:
-                recording.event_manager.add_event(event)
+                recording.event_store.add_event(event)
 
     @classmethod
     def check_recording_is_valid(cls, recording_name: str = RECORDING_DEFAULT_NAME):

@@ -56,9 +56,6 @@ class BaseLlmConfig:
     def __llm_config_post_init__(self):
         ...
 
-    def assistant_str_prompt_to_str(self, user_prompt_str: str) -> str:
-        return self.service.assistant_str_prompt_to_str(user_prompt_str=user_prompt_str)
-
     @abstractmethod
     def get_response_content(self, response) -> str:
         ...

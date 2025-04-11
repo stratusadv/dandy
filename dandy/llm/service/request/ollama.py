@@ -36,8 +36,11 @@ class OllamaRequestBody(BaseRequestBody):
         return self.options.num_ctx
 
     @property
-    def messages_estimated_tokens(self) -> int:
-        return int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+    def token_usage(self) -> int:
+        token_usage = int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+        token_usage += get_estimated_token_count_for_string(str(self.format))
+
+        return token_usage
 
     def get_max_completion_tokens(self) -> int:
         return self.options.num_predict

@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.15.0
+
+### Features
+
+- The `Recorder` module now properly tracks token usage and run times.
+
+### Changes
+
+- Move around and update elements in the html rendered output for the `Recorder` class.
+
+### Fixes
+
+- Updated `Recording` class to properly track token usage and run times.
+- Removed the broken `assistant_str_prompt_to_str` method from `BaseLlmConfig` and `LlmService` classes.
+
 ## v0.14.6
 
 ### Fixes

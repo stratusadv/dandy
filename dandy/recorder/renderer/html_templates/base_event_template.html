@@ -42,9 +42,17 @@
                 <span x-text="event.object_name"></span>
                 <span><i class="bi bi-arrow-right"></i></span>
                 <span x-text="event.callable_name"></span>
-                <span x-text="event.run_time.toFixed(3) + 's'" class="float-end text-end"
-                      width="130px;"></span>
-                <span x-text="event.id" class="float-end text-center" style="width: 100px;"></span>
+                <span class="float-end text-end" style="width:90px;">
+                    <span x-show="event.run_time_seconds >= 0.001"
+                          x-text="event.run_time_seconds.toLocaleString(undefined, {minimumFractionDigits: 3}) + 's'"></span>
+                    <span x-show="event.run_time_seconds < 0.001">-</span>
+                </span>
+                <span class="float-end text-end" style="width: 100px;">
+                    <span x-show="event.token_usage > 0" x-text="event.token_usage.toLocaleString()"></span>
+                    <span x-show="event.token_usage <= 0">-</span>
+                </span>
+                <span x-text="event.id" class="float-end text-center" style="width: 70px;">
+                </span>
             </div>
 
             <div x-show="show_details" class="card-body p-2"
@@ -106,7 +114,8 @@
 
                         <template x-if="!attribute.is_dropdown && !attribute.is_card && !attribute.is_base64_image">
                             <tr>
-                                <td x-text="attribute.key + ':'" class="text-attribute align-top text-end pe-2" nowrap></td>
+                                <td x-text="attribute.key + ':'" class="text-attribute align-top text-end pe-2"
+                                    nowrap></td>
                                 <td x-text="attribute.value" class="w-100 white-space-pre-wrap"></td>
                             </tr>
                         </template>

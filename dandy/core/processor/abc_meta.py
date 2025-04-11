@@ -30,6 +30,10 @@ class ProcessorABCMeta(ABCMeta):
                                 type=EventType.RUN,
                                 attributes=[
                                     EventAttribute(
+                                        key='Module',
+                                        value=cls.__module__,
+                                    ),
+                                    EventAttribute(
                                         key='Args',
                                         value=json.dumps(
                                             args,
@@ -63,6 +67,10 @@ class ProcessorABCMeta(ABCMeta):
                                 callable_name='Process Returned Result',
                                 type=EventType.RESULT,
                                 attributes=[
+                                    EventAttribute(
+                                        key='Module',
+                                        value=cls.__module__,
+                                    ),
                                     EventAttribute(
                                         key='Returned Result',
                                         value=json.dumps(

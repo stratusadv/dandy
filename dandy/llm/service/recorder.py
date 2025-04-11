@@ -63,6 +63,7 @@ def recorder_add_llm_request_event(
         object_name=_EVENT_OBJECT_NAME,
         callable_name='Request',
         type=EventType.REQUEST,
+        token_usage=request_body.token_usage,
         attributes=[
             EventAttribute(
                 key='Model',
@@ -73,8 +74,8 @@ def recorder_add_llm_request_event(
                 value=request_body.get_temperature()
             ),
             EventAttribute(
-                key='Estimated Tokens',
-                value=request_body.messages_estimated_tokens
+                key='Max Context Tokens',
+                value=request_body.get_total_context_length()
             ),
             EventAttribute(
                 key='JSON Schema',
@@ -103,11 +104,8 @@ def recorder_add_llm_response_event(
             object_name=_EVENT_OBJECT_NAME,
             callable_name='Response',
             type=EventType.RESPONSE,
+            token_usage=get_estimated_token_count_for_string(message_content),
             attributes=[
-                EventAttribute(
-                    key='Estimated Tokens',
-                    value=get_estimated_token_count_for_string(message_content),
-                ),
                 EventAttribute(
                     key='LLM Response',
                     value=message_content,
