@@ -109,7 +109,9 @@ class LlmService(BaseHttpService):
         recorder_add_llm_request_event(request_body, intel_json_schema, event_id)
 
         message_content = self._llm_config.get_response_content(
-            self.post_request(request_body.model_dump())
+            self.post_request(
+                request_body.model_dump()
+            )
         )
 
         recorder_add_llm_response_event(message_content, event_id)

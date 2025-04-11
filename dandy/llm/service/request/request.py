@@ -33,8 +33,11 @@ class BaseRequestBody(BaseModel):
 
     @property
     @abstractmethod
-    def messages_estimated_tokens(self) -> int:
+    def token_usage(self) -> int:
         pass
+
+    def get_total_context_length(self) -> int:
+        return self.get_context_length() + self.get_max_completion_tokens()
 
     @abstractmethod
     def set_format_to_json_schema(self, json_schema: dict): ...

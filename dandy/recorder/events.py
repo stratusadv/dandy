@@ -1,9 +1,8 @@
-from abc import ABC
 from enum import Enum
 from time import perf_counter
 
 from pydantic import BaseModel, Field
-from typing_extensions import Union, Self, Dict, Any, List
+from typing_extensions import Self, Any, List
 
 
 class EventType(str, Enum):
@@ -34,10 +33,10 @@ class Event(BaseModel):
     attributes: List[EventAttribute] = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
-    run_time: float = 0.0
+    run_time_seconds: float = 0.0
 
     def calculate_run_time(self, pre_event: Self):
-        self.run_time = self.start_time - pre_event.start_time
+        self.run_time_seconds = self.start_time - pre_event.start_time
 
     def add_attribute(self, event_attribute: EventAttribute) -> Self:
         self.attributes.append(event_attribute)
@@ -45,7 +44,7 @@ class Event(BaseModel):
         return self
 
 
-class EventManager(BaseModel):
+class EventStore(BaseModel):
     events: List[Event] = Field(default_factory=list)
 
     def add_event(self, event: Event) -> Event:
@@ -56,6 +55,18 @@ class EventManager(BaseModel):
 
     def _calculate_event_run_times(self):
         if len(self.events) > 0:
-            self.events[0].run_time = 0.0
+            self.events[0].run_time_seconds = 0.0
             for i in range(1, len(self.events)):
                 self.events[i].calculate_run_time(self.events[i - 1])
+
+    @property
+    def event_count(self) -> int:
+        return len(self.events)
+
+    @property
+    def events_total_run_time(self) -> float:
+        return sum(event.run_time_seconds for event in self.events)
+
+    @property
+    def events_total_token_usage(self) -> int:
+        return sum(event.token_usage for event in self.events)

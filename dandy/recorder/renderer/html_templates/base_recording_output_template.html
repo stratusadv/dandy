@@ -87,7 +87,7 @@
         }
 
         .bg-top {
-            background-color: #F3F3F3 !important;
+            background-color: #FFFFFF !important;
         }
 
         .white-space-pre-wrap {
@@ -96,6 +96,10 @@
 
         .cursor-pointer {
             cursor: pointer !important;
+        }
+
+        .fs-7 {
+            font-size: 0.8rem !important;
         }
 
     </style>
@@ -110,20 +114,20 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('dandy_recording', () => ({
             init() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = false
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = false
                 }
             },
 
             open_all() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = true
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = true
                 }
             },
 
             close_all() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = false
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = false
                 }
             },
 
@@ -153,21 +157,55 @@
 <div x-data="dandy_recording" class="container-fluid bg-light">
 
     <div class="row sticky-top bg-top py-1 mb-1 border-bottom border-dark shadow-sm">
-        <div class="col-auto px-4 pb-1">
-            <span class="fw-bold">Dandy v__dandy_version__ Recording Output: __recording_id__</span>
-            <span class="text-muted"><br>__recording_datetime__</span>
+        <div class="col-lg-auto align-middle ps-3 pe-0 py-2 d-none d-lg-block">
+            <img style="height: 2.2rem;"
+                 src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJyZWQiIC8+Cjwvc3ZnPg==">
         </div>
-        <div class="col text-end pe-3 me-2">
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i
-                    class="bi bi-arrows-expand"></i> Open All</a>
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i
-                    class="bi bi-arrows-collapse"></i> Close All</a>
-            <span x-html="'Total Run Time<br>' + recording.run_time_seconds.toFixed(3) + 's'"
-                  class="float-end text-end pe-1 fw-bold"></span>
+        <div class="col-12 col-md-auto ps-3 pb-1">
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Dandy</span>
+                <br>
+                <span class="fw-bold">v__dandy_version__</span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Recording</span>
+                <br>
+                <span class="fw-bold">__recording_id__</span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Events</span>
+                <br>
+                <span class="fw-bold" x-html="recording.event_count"></span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Date & Time</span>
+                <br>
+                <span class="fw-bold" x-html="">__recording_datetime__</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md text-end pe-3 me-2">
+            <a class="btn btn-outline-dark pt-1 mt-2 me-2 shadow-sm" @click="open_all()"><i
+                    class="bi bi-arrows-expand"></i></a>
+
+            <a class="btn btn-outline-dark pt-1 mt-2 me-2 shadow-sm" @click="close_all()"><i
+                    class="bi bi-arrows-collapse"></i></a>
+
+            <div style="width: 90px;" class="float-end text-end pe-1 fw-bold">
+                <span class="fw-normal fs-7 text-muted">Run Time</span>
+                <br>
+                <span x-html="recording.run_time_seconds.toFixed(3) + 's'"></span>
+            </div>
+
+            <div style="width: 120px;" class="float-end text-end pe-1 fw-bold">
+                <span class="fw-normal fs-7 text-muted">Token Usage</span>
+                <br>
+                <span x-html="recording.token_usage.toLocaleString()"></span>
+            </div>
         </div>
     </div>
 
-    <template x-for="event in recording.event_manager.events">
+    <template x-for="event in recording.event_store.events">
 
         __recording_event_template__
 
