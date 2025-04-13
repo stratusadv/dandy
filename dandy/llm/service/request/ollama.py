@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from typing_extensions import Union, List, Any
+from typing_extensions import Union, List, Any, Literal
 
-from dandy.llm.service.request.message import RequestMessage
+from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
@@ -20,7 +20,7 @@ class OllamaRequestBody(BaseRequestBody):
 
     def add_message(
             self,
-            role: str,
+            role: RoleLiteralStr,
             content: str,
             images: Union[List[str], None] = None
     ) -> None:

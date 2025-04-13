@@ -1,9 +1,9 @@
 from abc import abstractmethod
 
 from pydantic import BaseModel, Field
-from typing_extensions import List, Union, Any
+from typing_extensions import List, Union, Any, Literal
 
-from dandy.llm.service.request.message import RequestMessage
+from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
@@ -14,7 +14,7 @@ class BaseRequestBody(BaseModel):
     @abstractmethod
     def add_message(
             self,
-            role: str,
+            role: RoleLiteralStr,
             content: str,
             images: Union[List[str], None] = None
     ): ...

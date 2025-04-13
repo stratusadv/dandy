@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC
 from pathlib import Path
 
 from pydantic.main import IncEx
-from typing_extensions import Type, Generic, Union, List
+from typing_extensions import Type, Generic, Union, List, TYPE_CHECKING
 
 from dandy.core.future import AsyncFuture
 from dandy.core.utils import encode_file_to_base64
@@ -13,6 +15,9 @@ from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
+
+if TYPE_CHECKING:
+    from dandy.llm import MessageHistory
 
 
 class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
@@ -31,7 +36,8 @@ class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
             image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            postfix_system_prompt: Union[Prompt, None] = None
+            postfix_system_prompt: Union[Prompt, None] = None,
+            message_history: Union[MessageHistory, None] = None
     ) -> IntelType:
 
         if intel_class is None and intel_object is None:
@@ -59,7 +65,8 @@ class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
             images=images,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
-            system_prompt=system_prompt
+            system_prompt=system_prompt,
+            message_history=message_history
         )
 
     @classmethod
@@ -80,7 +87,8 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
             image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            postfix_system_prompt: Union[Prompt, None] = None
+            postfix_system_prompt: Union[Prompt, None] = None,
+            message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 
         return cls.process_prompt_to_intel(
@@ -91,6 +99,7 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
             image_files=image_files,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
-            postfix_system_prompt=postfix_system_prompt
+            postfix_system_prompt=postfix_system_prompt,
+            message_history=message_history,
         )
 

@@ -1,6 +1,6 @@
-from typing_extensions import Union, List
+from typing_extensions import Union, List, Literal
 
-from dandy.llm.service.request.message import RequestMessage
+from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.service.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.llm.utils import get_image_mime_type_from_base64_string
@@ -16,7 +16,7 @@ class OpenaiRequestBody(BaseRequestBody):
 
     def add_message(
             self,
-            role: str,
+            role: RoleLiteralStr,
             content: str,
             images: Union[List[str], None] = None
     ) -> None:

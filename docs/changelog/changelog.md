@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.16.0
+
+### Features
+
+- Added a new `MessageHistory` class that can be used to submit a history of messages to be used in the request prompt.
+
+### Fixes
+
+- Corrected the `RequestMessage` to have a `Literal['user', 'assistant', 'system']` type for the `role` field.
+- Fixed the formatting internally for messages inside the `LlmService` class.
+
 ## v0.15.0
 
 ### Features
