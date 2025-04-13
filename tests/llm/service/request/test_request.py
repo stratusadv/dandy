@@ -15,4 +15,3 @@ class TestRequest(TestCase):
         )
 
         self.assertEqual(request_body.messages[0].content, 'You are a helpful assistant.')
-

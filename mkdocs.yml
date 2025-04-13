@@ -59,6 +59,7 @@ nav:
           - Config Options: api/llm/service/config/options.md
           - Prompt: api/llm/prompt/prompt.md
           - Prompt Snippets: api/llm/prompt/snippet.md
+          - Request: api/llm/service/request/message.md
           - Service: api/llm/service/service.md
       - Map:
           - LLM Map: api/map/llm_map.md

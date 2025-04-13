@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from dandy.llm.service.config import BaseLlmConfig
     from dandy.llm.service.request.request import BaseRequestBody
     from dandy.llm.service.config import LlmConfigOptions
+    from dandy.llm.service.request.message import MessageHistory
 
 
 class LlmService(BaseHttpService):
@@ -53,6 +54,7 @@ class LlmService(BaseHttpService):
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
             system_prompt: Union[Prompt, None] = None,
+            message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 
         if intel_class and intel_object:
@@ -81,6 +83,14 @@ class LlmService(BaseHttpService):
                 system_prompt=system_prompt
             ).to_str()
         )
+
+        if message_history:
+            for message in message_history.messages:
+                request_body.add_message(
+                    role=message.role,
+                    content=message.content,
+                    images=message.images
+                )
 
         request_body.add_message(
             role='user',
@@ -146,7 +156,7 @@ class LlmService(BaseHttpService):
                 )
 
                 request_body.add_message(
-                    role='system',
+                    role='assistant',
                     content=message_content
                 )
 
