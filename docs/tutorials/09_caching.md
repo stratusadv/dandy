@@ -2,13 +2,13 @@
 
 ## What is Caching?
 
-Caching is a technique used to speed up the execution of a function by storing the result of the function call our output.
+Caching is a technique used to speed up the execution of a function by storing the result of the function call.
 
 The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the result of a function call.
 
 ## Adding Caching
 
-Let's make our selves a map and add `@cache_to_memory` to the `process` method.
+Let's make ourselves a map and add `@cache_to_memory` to the `process` method.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from time import perf_counter
@@ -141,7 +141,7 @@ print(f'Finished cached in {cached_finish_time:.5f} seconds')
 
 ```
 
-## Managing Caches
+## Complex Caching
 
 Now that we are comfortable with caching let's take a look at how we can manage the caches.
 
@@ -161,6 +161,7 @@ def subtract(a, b):
 add_number = add(3, 5)
 subtract_number = subtract(6, 7)
 
+# instances of the cache singletons to manage each cache individually
 sqlite_add_cache = SqliteCache(cache_name='add', limit=100)
 sqlite_subtract_cache = SqliteCache(cache_name='subtract', limit=100)
 

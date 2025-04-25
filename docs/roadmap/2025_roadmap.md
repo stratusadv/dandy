@@ -1,19 +1,22 @@
 # 2025 Roadmap
 
+## June
+
+- Text to Speech
+- Speech to Text
+- Tools (Prototype)
+
 ## May
 
 - Correction & Negative Prompts
 - User Input Cleaning Llm Bot (Contrib)
-- Text to Speech
-- Speech to Text
 - Guardrails System
+- Agents (Prototype) 🚧
 
 ## April
 
-- Agents (Prototype)
-- Tools (Prototype)
-- Improved Recording 🚧
-- Robust Documentation 🚧
+- Improved Recording ✅
+- Robust Documentation ✅
 
 ## March
 

@@ -6,7 +6,7 @@ While a `Bot/LlmBot` is meant to be single step in a process, a `Workflow` is me
 
 ## Map vs Workflow
 
-A `Map/LlmMap` is used to make decisions or navigate choices, while a `Workflow` can seem similar its a container to help make more complex single processes.
+A `Map/LlmMap` is used to make decisions or navigate choices, while a `Workflow` can seem similar, it is a container to help make more complex single processes.
 
 ## Creating a Workflow
 

@@ -3,7 +3,7 @@
 ## What is a Bot
 
 In Dandy we want to make sure all the things you do have a distinct name to isolate them from your projects code.
-Bots should represent a distinct and singular thing you want to do with in your project.
+Bots should represent a distinct and singular thing you want to do within your project.
 
 ## Create a Basic LLM Bot
 
