@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.17.0
+
+### Features
+
+- Added a new `calculator` module to dandy to help solve math problems related to using `Dandy`.
+  - In `dandy.calculator.llm_calculator` you can find `model_size_for_inference_to_vram_gb` and `model_size_and_token_count_for_inference_to_vram_gb`
+- There is a quick shortcut in the dandy cli to `model_size_and_token_count_for_inference_to_vram_gb` using the -c flag.
+
 ## v0.16.0
 
 ### Features

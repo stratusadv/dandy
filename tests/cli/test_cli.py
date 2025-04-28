@@ -19,3 +19,12 @@ class TestCli(TestCase):
         output = sys.stdout.getvalue().strip()
 
         self.assertIn("usage: dandy [-h]", output)
+
+    def test_cli_calculate(self):
+        test_args = ['-c', '13', '16', '4096']
+        with mock.patch('sys.argv', ['dandy'] + test_args):
+            main()
+
+        output = sys.stdout.getvalue().strip()
+
+        self.assertIn("37.0096039", output)
