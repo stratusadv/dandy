@@ -2,6 +2,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from dandy.cli.calculate.calculate import calculate
+
 CWD_PATH = Path.cwd()
 
 sys.path.append(str(CWD_PATH))
@@ -24,11 +26,19 @@ def main():
     CLI_OUTPUT_PATH = Path(settings.BASE_PATH, CLI_OUTPUT_DIRECTORY)
 
     parser = argparse.ArgumentParser(description='Dandy CLI Tool')
+    sub_parsers = parser.add_subparsers(dest='command')
 
     parser.add_argument(
         '-a', '--assistant',
         type=str,
         help='Prompt an a generic assistant to quickly test a prompt.',
+    )
+
+    parser.add_argument(
+        '-c', '--calculate',
+        nargs=3,
+        type=int,
+        help='Calculate the model size and token count for inference to VRAM in GB.',
     )
 
     parser.add_argument(
@@ -75,6 +85,9 @@ def main():
             llm_config=args.llm_config,
             user_prompt=args.prompt if args.prompt else args.assistant,
         )
+
+    elif args.calculate:
+        print(f'A Model with {args.calculate[0]}billion parameters with {args.calculate[1]}bit quantization processing {args.calculate[2]} tokens requires {calculate(args.calculate[0], args.calculate[1], args.calculate[2])} GB of VRAM.')
 
     elif args.evaluate:
         evaluate(
