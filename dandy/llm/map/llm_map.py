@@ -18,28 +18,31 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = (
         Prompt()
-        .text("Your job is to select a choice for the provided list of choices.")
-        .text("Make sure you select at least one choice that is the most relevant to the users input.")
+        .text('You\'re a assistant that looks through sets of key value pairs.')
     )
     intel_class = MapValuesIntel
+    map_keys_description: str
     map: Map
 
     def __init_subclass__(cls):
         super().__init_subclass__()
 
+        if cls.map_keys_description is None:
+            raise MapCriticalException(f'{cls.__name__} `map_keys_description` is not set.')
+
         if cls.map is None:
-            raise MapCriticalException(f'{cls.__name__} map is not set.')
+            raise MapCriticalException(f'{cls.__name__} `map` is not set.')
 
     @classmethod
     def process(
             cls,
             prompt: Union[Prompt, str],
-            choice_count: int = 1,
+            max_return_values: int | None = None,
     ) -> MapValuesIntel[Any]:
         return cls.process_map_to_intel(
             cls.map,
             prompt,
-            choice_count
+            max_return_values
         )
 
     @classmethod
@@ -47,11 +50,11 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
             cls,
             map: Map,
             prompt: Union[Prompt, str],
-            choice_count: int = 1
+            max_return_values: int | None = None
     ) -> MapValuesIntel[Any]:
         map_values_intel = MapValuesIntel()
 
-        for map_enum in cls.process_prompt_to_intel(map, prompt, choice_count):
+        for map_enum in cls.process_prompt_to_intel(map, prompt, max_return_values):
             map_value = map.get_selected_value(map_enum.value)
 
             if isinstance(map_value, type):
@@ -59,7 +62,7 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
                     map_values_intel.extend(
                         map_value.process(
                             prompt,
-                            choice_count
+                            max_return_values
                         ).items
                     )
                 else:
@@ -70,7 +73,7 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
                     cls.process_map_to_intel(
                         map_value,
                         prompt,
-                        choice_count
+                        max_return_values
                     ).items
                 )
             else:
@@ -83,23 +86,27 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
             cls,
             map: Map,
             prompt: Union[Prompt, str],
-            choice_count: int = 1,
+            max_return_values: int | None = None,
     ) -> MapValuesIntel:
 
         system_prompt = (
             Prompt()
             .prompt(cls.instructions_prompt)
-            .text(f'Please select {choice_count} of the following choices by number using the following rules.')
-            .line_break()
-            .sub_heading('Rules:')
-            .list([
-                'Select the choice that best matches the users input.',
-                'Return at least one choice by number.'
-            ])
-            .line_break()
-            .sub_heading('Choices:')
-            .text(map.keyed_choices_str())
+            .text("Make sure you select at least one choice that is the most relevant to the users input.")
         )
+
+        if max_return_values:
+            system_prompt.text(f'Please select {max_return_values} of the following choices by number using the following rules.')
+
+        system_prompt.line_break()
+        system_prompt.sub_heading('Rules:')
+        system_prompt.list([
+            'Select the choice that best matches the users input.',
+            'Return at least one choice by number.'
+        ])
+        system_prompt.line_break()
+        system_prompt.sub_heading(f'{cls.map_keys_description}:')
+        system_prompt.dict(map.keyed_choices_dict)
 
         return llm_configs[cls.config].generate_service(
             llm_options=cls.config_options

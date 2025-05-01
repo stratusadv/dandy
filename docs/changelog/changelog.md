@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.18.0
+
+### Features
+
+- The `BaseLlmMap` class now has a new required attribute `map_keys_description` that drastically improves accuracy.
+
+### Changes
+
+- On the `BaseLlmMap.process` the argument `choice_count` was renamed to `max_return_values` to make it more clear what it does and is now optional.
+
 ## v0.17.0
 
 ### Features

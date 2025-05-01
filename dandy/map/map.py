@@ -30,11 +30,17 @@ class Map(BaseModel):
     def model_post_init(self, __context: Any) -> None:
         self.process_map_to_keyed()
 
+    @property
     def keyed_choices(self) -> list[str]:
         return [f'{key}. "{value[0]}"\n' for key, value in self._keyed_map.items()]
 
+    @property
+    def keyed_choices_dict(self) -> Dict[int, str]:
+        return {key: value[0] for key, value in self._keyed_map.items()}
+
+    @property
     def keyed_choices_str(self) -> str:
-        return ''.join(self.keyed_choices())
+        return ''.join(self.keyed_choices)
 
     def get_selected_value(self, choice_key: int) -> Any:
         return self._keyed_map[choice_key][1]
