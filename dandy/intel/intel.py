@@ -184,6 +184,12 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     """
     items: List[T] = Field(default_factory=list)
 
+    # def __init_subclass__(cls, **kwargs):
+    #     super().__init_subclass__(**kwargs)
+    #
+    #     if cls.items is None:
+    #         raise IntelCriticalException(f'{cls.__name__} `items` is not set.')
+
     def __getitem__(self, index) -> Union[List[T], T]:
         return self.items[index]
 

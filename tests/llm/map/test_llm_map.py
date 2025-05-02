@@ -32,34 +32,25 @@ class TestMap(TestCase):
     def test_big_user_llm_map(self):
         fake = Faker()
 
-        first_name = ''
         pk = 976
-
-        first_name_count = {}
 
         user_dictionary = {}
 
-        for i in range(fake.random_int(min=100, max=200)):
-            first_name = fake.first_name()
-
-            for j in range(fake.random_int(min=3, max=7)):
-                first_name_count[first_name] = first_name_count.get(first_name, 0) + 1
-                pk += 1
-
-                user_dictionary[f'{first_name} {fake.last_name()}'] = pk
+        for _ in range(fake.random_int(min=1000, max=1200)):
+            pk += fake.random_int(min=5, max=50)
+            user_dictionary[f'{fake.unique.name()}'] = pk
 
         class UserLlmMap(BaseLlmMap):
-            map_keys_description = 'Employee Names'
+            map_keys_description = 'Employee First and Last Names'
             map = Map(user_dictionary)
 
+        name = fake.random_element(user_dictionary.keys())
+
         values = UserLlmMap.process(
-            f'I am looking for employee {first_name}',
-            10
+            f'I am looking for {name}',
         )
 
-        print(first_name_count[first_name])
-
         self.assertEqual(
-            first_name_count[first_name],
-            len(values)
+            name,
+            {val: key for key, val in user_dictionary.items()}[values[0]]
         )

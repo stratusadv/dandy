@@ -89,23 +89,26 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
             max_return_values: int | None = None,
     ) -> MapValuesIntel:
 
-        system_prompt = (
-            Prompt()
-            .prompt(cls.instructions_prompt)
-            .text("Make sure you select at least one choice that is the most relevant to the users input.")
-        )
+        system_prompt = Prompt()
+        system_prompt.prompt(cls.instructions_prompt)
+        system_prompt.line_break()
+
+        system_prompt.heading('Instructions:')
+
+        system_prompt.text('Read through all of the key value pairs.')
+        system_prompt.line_break()
 
         if max_return_values:
-            system_prompt.text(f'Please select {max_return_values} of the following choices by number using the following rules.')
+            system_prompt.text(f'Please select up to a maximum of {max_return_values} of the keys that are most relevant to the user\'s input.')
+            system_prompt.line_break()
+        else:
+            system_prompt.text('Please select the keys you find that are most relevant to the user\'s input.')
+            system_prompt.line_break()
+
+        system_prompt.text('Make sure you select at least one key.')
 
         system_prompt.line_break()
-        system_prompt.sub_heading('Rules:')
-        system_prompt.list([
-            'Select the choice that best matches the users input.',
-            'Return at least one choice by number.'
-        ])
-        system_prompt.line_break()
-        system_prompt.sub_heading(f'{cls.map_keys_description}:')
+        system_prompt.heading(f'{cls.map_keys_description}:')
         system_prompt.dict(map.keyed_choices_dict)
 
         return llm_configs[cls.config].generate_service(
