@@ -20,7 +20,7 @@ class TestMap(TestCase):
         values = AdventureGameLlmMap.process('The player usually goes left, and has a bucket with them.', 1)
 
         self.assertEqual(1, len(values))
-        self.assertEqual(DragonLlmMap.map['Player did not bring a sword'], values[0])
+        self.assertEqual(DragonLlmMap.map['The player did not bring a sword'], values[0])
 
     def test_combined_nested_llm_map(self):
         values = NestedBirdMap.process('I am a black bird from the famous edgar allen poe poem', 1)

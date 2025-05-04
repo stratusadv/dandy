@@ -3,15 +3,15 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Dict, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 from typing_extensions import Self
 
 
 class Map(BaseModel):
-    valid_map: Dict[str, Union[Self, Any]]
-    _keyed_map: Dict[int, tuple[str, Union[Self, Any]]] = {}
+    valid_map: Dict[str, Any]
+    _keyed_map: Dict[int, tuple[str, Any]] = PrivateAttr(default_factory=dict)
 
-    def __init__(self, valid_map: Dict[str, Union[Self, Any]], **data: Any) -> None:
+    def __init__(self, valid_map: Dict[str, Any], **data: Any) -> None:
         super().__init__(
             valid_map=valid_map,
             **data
@@ -28,7 +28,7 @@ class Map(BaseModel):
         return Enum(f'{self.__class__.__name__}Enum', enum_choices)
 
     def model_post_init(self, __context: Any) -> None:
-        self.process_map_to_keyed()
+        self.process_valid_to_keyed()
 
     @property
     def keyed_choices(self) -> list[str]:
@@ -45,9 +45,9 @@ class Map(BaseModel):
     def get_selected_value(self, choice_key: int) -> Any:
         return self._keyed_map[choice_key][1]
 
-    def process_map_to_keyed(self):
+    def process_valid_to_keyed(self):
         for i, (choice, value) in enumerate(self.valid_map.items(), start=1):
             if isinstance(value, dict):
-                self._keyed_map[i] = (choice, self.process_map_to_keyed())
+                self._keyed_map[i] = (choice, self.process_valid_to_keyed())
             else:
                 self._keyed_map[i] = (choice, value)

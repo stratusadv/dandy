@@ -1,10 +1,9 @@
 from dandy.calculator.calculations.llm import model_calculations
-from dandy.calculator.calculations.llm.model_calculations import key_value_cache_per_token_size_bytes_calculation
 
 
 def model_size_for_inference_to_vram_gb(
         parameter_count_billions: float,
-        quantization_size_bits: model_calculations.BitSizes
+        quantization_size_bits: model_calculations.QuantizationBitSizes
 ) -> float:
     parameter_count = parameter_count_billions * 1e9
 
@@ -24,7 +23,7 @@ def model_size_for_inference_to_vram_gb(
 
 def model_size_and_token_count_for_inference_to_vram_gb(
         parameter_count_billions: float,
-        quantization_size_bits: model_calculations.BitSizes,
+        quantization_size_bits: model_calculations.QuantizationBitSizes,
         token_count: int,
         batch_size: int = 1,
         software_buffer_multiplier: float = 1.15

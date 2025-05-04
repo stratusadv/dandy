@@ -17,8 +17,8 @@ class DragonLlmMap(BaseLlmMap):
     map_keys_description = 'Battle Outcomes'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
-        'Player brought a sword': 'The battle was won',
-        'Player did not bring a sword': 'The battle was lost'
+        'The player brought a sword': 'The battle was won',
+        'The player did not bring a sword': 'The battle was lost'
     })
 
 
@@ -32,7 +32,7 @@ class TreasureLlmMap(BaseLlmMap):
 
 
 class AdventureGameLlmMap(BaseLlmMap):
-    map_keys_description = 'Adventure Decisions'
+    map_keys_description = 'Adventure Direction Decisions'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
         'The player goes left': DragonLlmMap,
