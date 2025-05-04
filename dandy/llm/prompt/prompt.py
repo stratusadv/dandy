@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from typing_extensions import List, Type, Self, Dict
@@ -8,18 +9,18 @@ from dandy.llm.prompt import snippet
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
+@dataclass
 class Prompt:
-    def __init__(
+    text_str: Union[str, None] = None,
+    tag: Union[str, None] = None,
+
+    def __post_init__(
             self,
-            text: Union[str, None] = None,
-            tag: Union[str, None] = None,
     ):
         self.snippets: List[snippet.BaseSnippet] = []
         
-        if isinstance(text, str):
-            self.text(text=text)
-        
-        self.tag = tag
+        if isinstance(self.text_str, str):
+            self.text(text=self.text_str)
 
     def __str__(self) -> str:
         return self.to_str()

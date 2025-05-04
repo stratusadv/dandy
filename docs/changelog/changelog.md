@@ -11,6 +11,10 @@
 - On the `BaseLlmMap.process` the argument `choice_count` was renamed to `max_return_values` to make it more clear what it does and is now optional.
 - The `BaseListIntel` now requires you to set the type of the `items` class variable with a type hint.
 
+### Fixes
+
+- Changed `Prompt` into a dataclass to allow typing with `BaseIntel`, `BaseListIntel` and `BaseModel`.
+
 ## v0.17.0
 
 ### Features
