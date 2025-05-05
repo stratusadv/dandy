@@ -52,3 +52,19 @@ class TestPrompt(TestCase):
         )
 
         self.assertTrue(new_prompt.to_str() != '')
+
+    def test_prompt_pydantic_typing(self):
+        CUSTOM_PROMPT_STR = 'Hello from custom prompt'
+
+        class PersonIntel(BaseIntel):
+            name: str
+            age: int
+            custom_prompt: Prompt
+
+        person_intel = PersonIntel(
+            name='John',
+            age=30,
+            custom_prompt=Prompt(CUSTOM_PROMPT_STR)
+        )
+
+        self.assertTrue(person_intel.custom_prompt.to_str() == f'{CUSTOM_PROMPT_STR}\n')

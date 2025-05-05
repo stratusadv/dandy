@@ -46,6 +46,34 @@ new_clown = LlmBot.process(
 print(new_clown)
 ```
 
+## List Intel
+
+Let's say we want to create a list of `ClownIntel` objects and still have all the support of the `BaseIntel` class.
+
+We can use the `BaseListIntel` class to do that.
+
+```python exec="True" source="above" source="material-block" session="intel"
+# Using ClownIntel from earlier
+
+from dandy.intel import BaseListIntel
+
+class ClownListIntel(BaseListIntel):
+    items: list[ClownIntel]
+
+clowns_intel = ClownListIntel(items=[
+    ClownIntel(clown_name='Bozo', can_juggle=True),
+    ClownIntel(clown_name='Bimbo', can_juggle=False),    
+    ClownIntel(clown_name='Bongo', can_juggle=True),
+])
+
+clowns_intel.append(ClownIntel(clown_name='Bubba', can_juggle=True))
+
+print(len(clowns_intel))
+
+for clown_intel in clowns_intel:
+    print(clown_intel)
+```
+
 ## Include and Exclude Fields
 
 In the `process` method of the `LlmBot` class we can now include and exclude fields from the `Intel` object.

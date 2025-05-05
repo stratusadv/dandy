@@ -1,4 +1,3 @@
-import logging
 from functools import wraps
 
 from tests.llm.constants import TESTING_LLM_CONFIGS

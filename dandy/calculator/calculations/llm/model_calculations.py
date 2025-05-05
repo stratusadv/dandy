@@ -2,7 +2,7 @@ from typing_extensions import Literal
 
 from dandy.calculator.calculations.calculations import bits_to_bytes
 
-BitSizes = Literal[64, 32, 16, 8, 6, 5, 4, 3, 2]
+QuantizationBitSizes = Literal[64, 32, 16, 8, 6, 5, 4, 3, 2]
 
 
 def hidden_dimension_and_number_of_layers_from_parameter_count(
@@ -54,7 +54,7 @@ def model_inference_activation_size_bytes_calculation(
 
 def model_size_bytes_calculation(
         parameter_count: int | float,
-        quantization_size_bits: BitSizes
+        quantization_size_bits: QuantizationBitSizes
 ) -> int | float:
     return parameter_count * bits_to_bytes(quantization_size_bits)
 

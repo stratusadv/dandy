@@ -4,6 +4,7 @@ from dandy.map.map import Map
 
 
 class FunLlmMap(BaseLlmMap):
+    map_keys_description = 'Personalities'
     map = Map({
         'someone that needs a laugh and needs clowns': 113,
         'someone is interested in seeing animals': 782,
@@ -13,14 +14,16 @@ class FunLlmMap(BaseLlmMap):
 
 
 class DragonLlmMap(BaseLlmMap):
+    map_keys_description = 'Battle Outcomes'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
-        'Player brought a sword': 'The battle was won',
-        'Player did not bring a sword': 'The battle was lost'
+        'The player is packing other stuff': 'The battle was lost',
+        'The player brought a sword': 'The battle was won',
     })
 
 
 class TreasureLlmMap(BaseLlmMap):
+    map_keys_description = 'Treasure Outcomes'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
         'Player brought a shovel': 'The treasure was recovered',
@@ -29,15 +32,17 @@ class TreasureLlmMap(BaseLlmMap):
 
 
 class AdventureGameLlmMap(BaseLlmMap):
+    map_keys_description = 'Adventure Direction Decisions'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
-        'The player goes left': DragonLlmMap,
-        'The player goes right': TreasureLlmMap
+        'The player travels down the path to the left': DragonLlmMap,
+        'The player goes right into the jungle': TreasureLlmMap
     })
 
 
 class NestedBirdMap(BaseLlmMap):
     config_options = LlmConfigOptions(temperature=0)
+    map_keys_description = 'Bird Descriptions'
     map = Map({
         'the bird is dark colored': Map({
             'it is a crow': 'caw crow',
