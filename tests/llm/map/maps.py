@@ -17,8 +17,8 @@ class DragonLlmMap(BaseLlmMap):
     map_keys_description = 'Battle Outcomes'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
+        'The player is packing other stuff': 'The battle was lost',
         'The player brought a sword': 'The battle was won',
-        'The player did not bring a sword': 'The battle was lost'
     })
 
 

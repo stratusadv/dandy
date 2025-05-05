@@ -9,7 +9,7 @@ from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException
-from dandy.map.intel import MapValuesIntel
+from dandy.map.intel import MapValuesIntel, MapValueIntel
 from dandy.map.map import Map
 
 
@@ -88,8 +88,10 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
 
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'
+            intel_class = MapValuesIntel[cls.map.as_enum()]
         else:
             key_str = 'key'
+            intel_class = MapValueIntel[cls.map.as_enum()]
 
         system_prompt = Prompt()
         system_prompt.prompt(cls.instructions_prompt)
@@ -120,9 +122,14 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
             llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
-            intel_class=MapValuesIntel[cls.map.as_enum()],
+            intel_class=intel_class,
             system_prompt=system_prompt
         )
+
+        if isinstance(return_values_intel, MapValueIntel):
+            return_values_intel = MapValuesIntel[cls.map.as_enum()](
+                items=[return_values_intel.item.value]
+            )
 
         if len(return_values_intel) == 0:
             raise MapRecoverableException(f'No {cls.map_keys_description} found.')
