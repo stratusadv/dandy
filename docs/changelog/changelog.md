@@ -14,6 +14,7 @@
 ### Fixes
 
 - Changed `Prompt` into a dataclass to allow typing with `BaseIntel`, `BaseListIntel` and `BaseModel`.
+- Fixed a problem with the way `BaseLlmMap` was prompting for single responses using `max_return_values=1`.
 
 ## v0.17.0
 

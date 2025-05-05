@@ -38,7 +38,7 @@ class TestMap(TestCase):
 
         user_dictionary = {}
 
-        for _ in range(fake.random_int(min=1000, max=1200)):
+        for _ in range(fake.random_int(min=100, max=500)):
             pk += fake.random_int(min=5, max=50)
             user_dictionary[f'{fake.unique.name()}'] = pk
 

@@ -17,7 +17,7 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
 
             else:
                 loop_count = int(10 * nines)
-                raised_one_exception = False
+                has_raised_one_exception = False
 
                 for _ in range(loop_count):
                     try:
@@ -27,19 +27,16 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
                             **kwargs
                         )
 
-                        print(f'{func.__qualname__} {nines} nines testing ... Passed')
-
                     except Exception as e:
-                        if isinstance(e, DandyException):
-                            if raised_one_exception:
-                                print(f'{func.__qualname__} {nines} nines testing ... Failed')
-                                raise e
-
-                            raised_one_exception = True
+                        if isinstance(e, DandyException) and not has_raised_one_exception:
+                            has_raised_one_exception = True
 
                         else:
                             print(f'{func.__qualname__} {nines} nines testing ... Failed')
                             raise e
+
+                print(f'{func.__qualname__} {nines} nines testing ... Passed')
+
 
         return wrapper
 
