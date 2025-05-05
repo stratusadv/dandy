@@ -6,6 +6,7 @@ from dandy.core.exceptions import DandyException
 
 def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
     def decorator(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
             if nines == 0:
                 func(
@@ -14,6 +15,8 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
                 )
 
             else:
+                print(f'Running {func.__qualname__} {nines} nines testing ...')
+
                 loop_count = 10 ** nines
                 has_raised_one_exception = False
 
@@ -29,11 +32,7 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
                             has_raised_one_exception = True
 
                         else:
-                            print(f'{func.__qualname__} {nines} nines testing ... Failed')
                             raise e
-
-                print(f'{func.__qualname__} {nines} nines testing ... Passed')
-
 
         return wrapper
 
