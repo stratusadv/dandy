@@ -40,11 +40,11 @@ jobs:
         env:
           TESTING_NINES: 1
         run: |
-          python -m unittest discover -v -x --top-level .
+          python -m unittest discover -v -f --top-level .
 
       - name: 2 Nine Testing (99.0%)
         if: ${{ success() }}
         env:
           TESTING_NINES: 2
         run: |
-          python -m unittest discover -v -x --top-level .
+          python -m unittest discover -v -f --top-level .
