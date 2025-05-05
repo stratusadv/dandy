@@ -26,7 +26,7 @@ class ClimateLlmMap(BaseLlmMap):
     config_options = LlmConfigOptions(
         temperature=0.0
     )
-
+    map_keys_description = 'Climate Descriptions'
     map = Map({
         'very hot and rainy': 'rainforest',
         'very cold and sunny': 'tundra',

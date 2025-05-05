@@ -18,6 +18,7 @@ from dandy.cache import cache_to_memory
 
 
 class NumberMap(BaseLlmMap):
+    map_keys_description = 'Verbose Number Descriptions'
     map = Map({
         'small numbers': 1,
         'medium numbers': 30,

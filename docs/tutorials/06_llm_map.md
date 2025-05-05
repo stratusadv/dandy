@@ -14,13 +14,14 @@ Maps always return a list of values and this can be controlled by the `choice_co
 from dandy.llm import BaseLlmMap, Map
 
 class AnimalFamilyMap(BaseLlmMap):
+    map_keys_description = 'Animal Sounds'
     map = Map({
         'barking': 'dog',
         'meowing': 'cat',
         'quacking': 'duck'
     })
     
-animal_families = AnimalFamilyMap.process('I was out on a walk and heard some barking', choice_count=1)
+animal_families = AnimalFamilyMap.process('I was out on a walk and heard some barking', max_return_values=1)
 
 print(animal_families[0])
 ```
@@ -34,6 +35,7 @@ While a map is traversing if it comes across another `LlmMap` or `Map` it will c
 from dandy.llm import BaseLlmMap, Map
 
 class LearningMap(BaseLlmMap):
+    map_keys_description = 'Learning Subjects'
     map = Map({
         'history': 'Social Studies Book',
         'science': 'Laboratory Book',
@@ -41,6 +43,7 @@ class LearningMap(BaseLlmMap):
     })
 
 class ActivityMap(BaseLlmMap):
+    map_keys_description = 'Physical Activities'
     map = Map({
         'running around outdoors': Map({
             'throwing': 'Ball',
