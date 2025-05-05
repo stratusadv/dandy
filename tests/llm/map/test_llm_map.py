@@ -30,7 +30,7 @@ class TestMap(TestCase):
         self.assertEqual(1, len(values))
         self.assertEqual(NestedBirdMap.map['the bird is dark colored']['it is a raven'], values[0])
 
-    @nines_testing
+    @nines_testing()
     def test_big_user_llm_map(self):
         fake = Faker()
 

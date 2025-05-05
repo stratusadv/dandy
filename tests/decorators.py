@@ -6,23 +6,20 @@ from dandy.core.exceptions import DandyException
 
 def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
     def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(*args, **kwargs):
             if nines == 0:
                 func(
-                    self,
                     *args,
                     **kwargs
                 )
 
             else:
-                loop_count = int(10 * nines)
+                loop_count = 10 ** nines
                 has_raised_one_exception = False
 
                 for _ in range(loop_count):
                     try:
                         func(
-                            self,
                             *args,
                             **kwargs
                         )
