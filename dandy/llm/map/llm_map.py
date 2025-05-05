@@ -8,7 +8,7 @@ from dandy.llm.conf import llm_configs
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
-from dandy.map.exceptions import MapCriticalException
+from dandy.map.exceptions import MapCriticalException, MapRecoverableException
 from dandy.map.intel import MapValuesIntel
 from dandy.map.map import Map
 
@@ -16,10 +16,7 @@ from dandy.map.map import Map
 class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
-    instructions_prompt: Prompt = (
-        Prompt()
-        .text('You\'re a assistant that looks through sets of key value pairs.')
-    )
+    instructions_prompt: Prompt = Prompt()
     intel_class = MapValuesIntel
     map_keys_description: str
     map: Map
@@ -89,35 +86,51 @@ class BaseLlmMap(BaseLlmProcessor[MapValuesIntel], ABC):
             max_return_values: int | None = None,
     ) -> MapValuesIntel:
 
+        if max_return_values is not None and max_return_values > 1:
+            key_str = 'keys'
+        else:
+            key_str = 'key'
+
         system_prompt = Prompt()
         system_prompt.prompt(cls.instructions_prompt)
+        system_prompt.text(f'You\'re an "{cls.map_keys_description}" assistant')
+
         system_prompt.line_break()
 
-        system_prompt.heading('Instructions:')
+        system_prompt.text(
+            f'Read through all of the "{cls.map_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
 
-        system_prompt.text('Read through all of the key value pairs.')
         system_prompt.line_break()
 
-        if max_return_values:
-            system_prompt.text(f'Please select up to a maximum of {max_return_values} of the keys that are most relevant to the user\'s input.')
-            system_prompt.line_break()
+        if max_return_values is not None and max_return_values > 0:
+            if max_return_values == 1:
+                system_prompt.text(f'You must return exactly one numbered {key_str}.')
+            else:
+                system_prompt.text(f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.')
         else:
-            system_prompt.text('Please select the keys you find that are most relevant to the user\'s input.')
-            system_prompt.line_break()
-
-        system_prompt.text('Make sure you select at least one key.')
+            system_prompt.text(f'Return the numbered {key_str} you find that are most relevant and return at least one.')
 
         system_prompt.line_break()
-        system_prompt.heading(f'{cls.map_keys_description}:')
+        system_prompt.heading(f'"{cls.map_keys_description}"')
+        system_prompt.line_break()
+
         system_prompt.dict(map.keyed_choices_dict)
 
-        return llm_configs[cls.config].generate_service(
+        return_values_intel = llm_configs[cls.config].generate_service(
             llm_options=cls.config_options
         ).process_prompt_to_intel(
             prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
             intel_class=MapValuesIntel[cls.map.as_enum()],
             system_prompt=system_prompt
         )
+
+        if len(return_values_intel) == 0:
+            raise MapRecoverableException(f'No {cls.map_keys_description} found.')
+
+        if max_return_values is not None and len(return_values_intel) > max_return_values:
+            raise MapRecoverableException(f'Too many {cls.map_keys_description} found.')
+
+        return return_values_intel
 
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:

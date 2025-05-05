@@ -16,8 +16,9 @@ class TestMap(TestCase):
         self.assertIn(391, values)
         self.assertIn(782, values)
 
+    @recorder_to_html_file('test_llm_map')
     def test_seperated_nested_llm_map(self):
-        values = AdventureGameLlmMap.process('The player usually goes left, and has a bucket with them.', 1)
+        values = AdventureGameLlmMap.process('The player goes left, and brought only a bucket on the adventure.', 1)
 
         self.assertEqual(1, len(values))
         self.assertEqual(DragonLlmMap.map['The player did not bring a sword'], values[0])
@@ -28,7 +29,6 @@ class TestMap(TestCase):
         self.assertEqual(1, len(values))
         self.assertEqual(NestedBirdMap.map['the bird is dark colored']['it is a raven'], values[0])
 
-    @recorder_to_html_file('test_big_user_llm_map')
     def test_big_user_llm_map(self):
         fake = Faker()
 

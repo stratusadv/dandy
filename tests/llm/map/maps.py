@@ -35,8 +35,8 @@ class AdventureGameLlmMap(BaseLlmMap):
     map_keys_description = 'Adventure Direction Decisions'
     config_options = LlmConfigOptions(temperature=0)
     map = Map({
-        'The player goes left': DragonLlmMap,
-        'The player goes right': TreasureLlmMap
+        'The player travels down the path to the left': DragonLlmMap,
+        'The player goes right into the jungle': TreasureLlmMap
     })
 
 
