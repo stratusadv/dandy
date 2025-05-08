@@ -21,7 +21,7 @@ class TestService(TestCase):
             'dandy.core.http.service.BaseHttpService.post_request',
             return_value={
                 'message': {
-                    'content': '{"textx": "Hello, World!"}',
+                    'content': '{"invalid_key": "Hello, World!"}',
                 }
             }
         ):
