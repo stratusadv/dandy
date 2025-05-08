@@ -46,6 +46,7 @@ class LlmService(BaseHttpService):
             seed=self._llm_options.seed,
             temperature=self._llm_options.temperature,
         )
+        self._response_content = None
         self._retry_attempt = 0
 
     def process_prompt_to_intel(
@@ -108,17 +109,17 @@ class LlmService(BaseHttpService):
     ) -> IntelType:
         recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self._event_id)
 
-        message_content = self._llm_config.get_response_content(
+        self._response_content = self._llm_config.get_response_content(
             self.post_request(
                 self._request_body.model_dump()
             )
         )
 
-        recorder_add_llm_response_event(message_content, self._event_id)
+        recorder_add_llm_response_event(self._response_content, self._event_id)
 
         try:
             intel_object = IntelFactory.json_to_intel_object(
-                message_content,
+                self._response_content,
                 self._intel
             )
 
@@ -137,28 +138,38 @@ class LlmService(BaseHttpService):
         except ValidationError as e:
             recorder_add_llm_validation_failure_event(e, self._event_id)
 
-            if self._retry_attempt < self._llm_config.options.prompt_retry_count:
-                self._retry_attempt += 1
+            return self.retry_process_request_to_intel(
+                event_description='Validation of response to intel object failed retrying with validation errors prompt.',
+                retry_message_content=service_system_validation_error_prompt(e).to_str()
+            )
 
-                recorder_add_llm_retry_event(
-                    'Validation of response to intel object failed retrying with validation errors prompt.',
-                    self._event_id,
-                    remaining_attempts=self._llm_config.options.prompt_retry_count - (self._retry_attempt + 1)
-                )
+    def retry_process_request_to_intel(
+            self,
+            event_description: str,
+            retry_message_content: str,
+    ) -> IntelType:
+        if self._retry_attempt < self._llm_config.options.prompt_retry_count:
+            self._retry_attempt += 1
 
-                self._request_body.add_message(
-                    role='assistant',
-                    content=message_content
-                )
+            recorder_add_llm_retry_event(
+                event_description,
+                self._event_id,
+                remaining_attempts=self._llm_config.options.prompt_retry_count - (self._retry_attempt + 1)
+            )
 
-                self._request_body.add_message(
-                    role='user',
-                    content=service_system_validation_error_prompt(e).to_str()
-                )
+            self._request_body.add_message(
+                role='assistant',
+                content=self._response_content
+            )
 
-                return self._process_request_to_intel(
-                )
+            self._request_body.add_message(
+                role='user',
+                content=retry_message_content
+            )
 
-            else:
-                raise LlmRecoverableException(
-                    f'Failed to validate response from prompt into intel object after {self._llm_config.options.prompt_retry_count} attempts.')
+            return self._process_request_to_intel(
+            )
+
+        else:
+            raise LlmRecoverableException(
+                f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.')
