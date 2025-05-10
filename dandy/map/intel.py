@@ -12,5 +12,5 @@ class MapKeyIntel(BaseIntel, Generic[T]):
     key: T
 
 
-class MapKeysIntel(BaseListIntel, Generic[T]):
+class MapKeysIntel(BaseListIntel[T], Generic[T]):
     keys: List[T] = Field(default_factory=list)
