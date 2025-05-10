@@ -6,7 +6,7 @@ from typing import Type
 from pydantic import BaseModel, Field
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict
+from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
 
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation
@@ -179,26 +179,32 @@ class BaseIntel(BaseModel, ABC):
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     """
     A class that behaves like a list of Intel objects
-
-    :ivar items:
     """
-    items: List[T] = Field(default_factory=list)
+    def model_post_init(self, __context):
+        list_fields = [
+            name for name, field in self.model_fields.items()
+            if get_origin(field.annotation) is list
+        ]
+
+        if len(list_fields) != 1:
+            raise ValueError(f'BaseListIntel sub classes can only have exactly one list field must be declared with typing')
+
+        self._list_name = list_fields[0]
 
     def __getitem__(self, index) -> Union[List[T], T]:
-        return self.items[index]
+        return getattr(self, self._list_name)[index]
 
-    def __iter__(self) -> Generator[T]:
-        for item in self.items:
-            yield item
+    def __iter__(self) -> Generator[T, None, None]:
+        yield from getattr(self, self._list_name)
 
-    def __len__(self):
-        return len(self.items)
+    def __len__(self) -> int:
+        return len(getattr(self, self._list_name))
 
     def __setitem__(self, index, value: T):
-        self.items[index] = value
+        getattr(self, self._list_name)[index] = value
 
     def append(self, item: T):
-        self.items.append(item)
+        getattr(self, self._list_name).append(item)
 
     def extend(self, items: List[T]):
-        self.items.extend(items)
+        getattr(self, self._list_name).extend(items)

@@ -16,7 +16,7 @@ from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalExce
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, \
-    recorder_add_llm_validation_failure_event, recorder_add_llm_retry_event
+    recorder_add_llm_failure_event, recorder_add_llm_retry_event
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
 
@@ -35,9 +35,10 @@ class LlmService(BaseHttpService):
     ):
         super().__init__(config=llm_config.http_config)
 
+        self.event_id = generate_new_recorder_event_id()
+
         self._llm_config = llm_config
         self._llm_options = llm_options
-        self._event_id = generate_new_recorder_event_id()
         self._intel = None
         self._intel_json_schema = None
         self._request_body = self._llm_config.generate_request_body(
@@ -48,6 +49,10 @@ class LlmService(BaseHttpService):
         )
         self._response_content = None
         self._retry_attempt = 0
+
+    @property
+    def has_retry_attempts_available(self) -> bool:
+        return self._retry_attempt < self._llm_config.options.prompt_retry_count
 
     def process_prompt_to_intel(
             self,
@@ -107,7 +112,7 @@ class LlmService(BaseHttpService):
     def _process_request_to_intel(
             self,
     ) -> IntelType:
-        recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self._event_id)
+        recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self.event_id)
 
         self._response_content = self._llm_config.get_response_content(
             self.post_request(
@@ -115,7 +120,7 @@ class LlmService(BaseHttpService):
             )
         )
 
-        recorder_add_llm_response_event(self._response_content, self._event_id)
+        recorder_add_llm_response_event(self._response_content, self.event_id)
 
         try:
             intel_object = IntelFactory.json_to_intel_object(
@@ -126,7 +131,7 @@ class LlmService(BaseHttpService):
             if intel_object is not None:
                 recorder_add_llm_success_event(
                     'Validated response from prompt into intel object.',
-                    self._event_id,
+                    self.event_id,
                     intel=intel_object
                 )
 
@@ -135,25 +140,25 @@ class LlmService(BaseHttpService):
             else:
                 raise LlmRecoverableException('Failed to validate response from prompt into intel object.')
 
-        except ValidationError as e:
-            recorder_add_llm_validation_failure_event(e, self._event_id)
+        except ValidationError as error:
+            recorder_add_llm_failure_event(error, self.event_id)
 
             return self.retry_process_request_to_intel(
-                event_description='Validation of response to intel object failed retrying with validation errors prompt.',
-                retry_message_content=service_system_validation_error_prompt(e).to_str()
+                retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
+                retry_user_prompt=service_system_validation_error_prompt(error)
             )
 
     def retry_process_request_to_intel(
             self,
-            event_description: str,
-            retry_message_content: str,
+            retry_event_description: str,
+            retry_user_prompt: Prompt | str,
     ) -> IntelType:
-        if self._retry_attempt < self._llm_config.options.prompt_retry_count:
+        if self.has_retry_attempts_available:
             self._retry_attempt += 1
 
             recorder_add_llm_retry_event(
-                event_description,
-                self._event_id,
+                retry_event_description,
+                self.event_id,
                 remaining_attempts=self._llm_config.options.prompt_retry_count - (self._retry_attempt + 1)
             )
 
@@ -164,7 +169,7 @@ class LlmService(BaseHttpService):
 
             self._request_body.add_message(
                 role='user',
-                content=retry_message_content
+                content=Prompt(retry_user_prompt).to_str()
             )
 
             return self._process_request_to_intel(

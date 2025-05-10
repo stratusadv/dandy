@@ -7,3 +7,11 @@ class MapCriticalException(DandyCriticalException):
 
 class MapRecoverableException(DandyRecoverableException):
     pass
+
+
+class MapNoKeysRecoverableException(MapRecoverableException):
+    pass
+
+
+class MapToManyKeysRecoverableException(MapRecoverableException):
+    pass

@@ -11,16 +11,19 @@ from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 @dataclass
 class Prompt:
-    text_str: Union[str, None] = None,
+    input: Union[Self, str, None] = None,
     tag: Union[str, None] = None,
 
     def __post_init__(
             self,
     ):
         self.snippets: List[snippet.BaseSnippet] = []
-        
-        if isinstance(self.text_str, str):
-            self.text(text=self.text_str)
+
+        if isinstance(self.input, Prompt):
+            self.text(text=self.input.to_str())
+
+        if isinstance(self.input, str):
+            self.text(text=self.input)
 
     def __str__(self) -> str:
         return self.to_str()

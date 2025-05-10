@@ -16,18 +16,16 @@ class TestService(TestCase):
 
         self.assertTrue(response.text != '' and response.text is not None)
 
-    def test_retry_process_prompt_to_intel(self):
-        with mock.patch(
-            'dandy.core.http.service.BaseHttpService.post_request',
-            return_value={
+    @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
+    def test_pydantic_validation_error_retry_process_prompt_to_intel(self, mock_post_request: mock.MagicMock):
+        mock_post_request.return_value = {
                 'message': {
                     'content': '{"invalid_key": "Hello, World!"}',
                 }
             }
-        ):
 
-            with self.assertRaises(LlmRecoverableException):
-                response = llm_configs['DEFAULT'].service.process_prompt_to_intel(
-                    prompt='Hello, World!',
-                    intel_class=DefaultLlmIntel,
-                )
+        with self.assertRaises(LlmRecoverableException):
+            response = llm_configs['DEFAULT'].service.process_prompt_to_intel(
+                prompt='Hello, World!',
+                intel_class=DefaultLlmIntel,
+            )
