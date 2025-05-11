@@ -1,15 +1,17 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from faker import Faker
 
 from dandy.llm import BaseLlmMap
+from dandy.llm.exceptions import LlmRecoverableException
 from dandy.map import Map
+from dandy.map.exceptions import MapRecoverableException
 from dandy.recorder import recorder_to_html_file
 from tests.decorators import nines_testing
 from tests.llm.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedBirdMap
 
 
-class TestMap(TestCase):
+class TestLlmMap(TestCase):
     def test_llm_map(self):
         values = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
 
@@ -17,7 +19,6 @@ class TestMap(TestCase):
         self.assertIn(391, values)
         self.assertIn(782, values)
 
-    @recorder_to_html_file('test_llm_map')
     def test_seperated_nested_llm_map(self):
         values = AdventureGameLlmMap.process('The player goes left, and is carrying only a bucket on the adventure.', 1)
 
@@ -56,3 +57,26 @@ class TestMap(TestCase):
             name,
             {val: key for key, val in user_dictionary.items()}[values[0]]
         )
+
+    @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
+    def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
+        mock_post_request.return_value = {
+                'message': {
+                    'content': '{"keys": []}',
+                }
+            }
+
+        with self.assertRaises(MapRecoverableException):
+            value = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
+
+    @recorder_to_html_file('test_llm_map')
+    @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
+    def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
+        mock_post_request.return_value = {
+                'message': {
+                    'content': '{"keys": ["1", "2", "3", "4"]}',
+                }
+            }
+
+        with self.assertRaises(MapRecoverableException):
+            value = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)

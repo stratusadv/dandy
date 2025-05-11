@@ -1,17 +1,20 @@
-from enum import Enum
-from typing import List, Any
+from typing import List
 
 from pydantic import Field
-from typing_extensions import Generic, TypeVar, Self
+from typing_extensions import Generic, TypeVar, Any
 
-from dandy.intel import BaseListIntel, BaseIntel
+from dandy.intel import BaseIntel, BaseListIntel
 
 T = TypeVar('T')
 
 
-class MapValueIntel(BaseIntel, Generic[T]):
-    item: T
+class MapKeyIntel(BaseIntel, Generic[T]):
+    key: T
 
 
-class MapValuesIntel(BaseListIntel[T], Generic[T]):
-    items: List[T] = Field(default_factory=list)
+class MapKeysIntel(BaseListIntel[T], Generic[T]):
+    keys: T = Field(default_factory=list)
+
+
+class MapValuesIntel(BaseListIntel[Any]):
+    values: List[Any] = Field(default_factory=list)

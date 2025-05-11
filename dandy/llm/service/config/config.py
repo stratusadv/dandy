@@ -73,7 +73,7 @@ class BaseLlmConfig:
     def generate_service(
             self,
             llm_options: Union[LlmConfigOptions, None] = None,
-    ):
+    ) -> LlmService:
         return LlmService(
             self,
             llm_options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,

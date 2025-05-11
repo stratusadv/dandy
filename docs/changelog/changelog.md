@@ -2,6 +2,10 @@
 
 ## v0.18.0
 
+### Breaking
+
+- `BaseListIntel` now works by creating a single attribute in the subclass that must be typed as a list.
+
 ### Features
 
 - The `BaseLlmMap` class now has a new required attribute `map_keys_description` that drastically improves accuracy.
@@ -15,6 +19,7 @@
 
 - Changed `Prompt` into a dataclass to allow typing with `BaseIntel`, `BaseListIntel` and `BaseModel`.
 - Fixed a problem with the way `BaseLlmMap` was prompting for single responses using `max_return_values=1`.
+- `LlmService` has been refactored to handle retrying and progressive exceptions much better.
 
 ## v0.17.0
 

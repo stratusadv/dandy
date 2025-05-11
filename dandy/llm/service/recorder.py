@@ -2,7 +2,7 @@ import json
 
 from pydantic import ValidationError
 
-from dandy.core.utils import pydantic_validation_error_to_str
+from dandy.core.utils import pydantic_validation_error_to_str, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
 from dandy.intel import BaseIntel
 from dandy.llm.service.request.request import BaseRequestBody
@@ -12,20 +12,20 @@ from dandy.recorder.events import Event, EventAttribute, EventType
 _EVENT_OBJECT_NAME = 'LLM Service'
 
 
-def recorder_add_llm_validation_failure_event(
-        error: ValidationError,
+def recorder_add_llm_failure_event(
+        error: Exception,
         event_id: str
 ):
     Recorder.add_event(
         Event(
             id=event_id,
             object_name=_EVENT_OBJECT_NAME,
-            callable_name='Validation',
+            callable_name=pascal_to_title_case(error.__class__.__name__),
             type=EventType.FAILURE,
             attributes=[
                 EventAttribute(
                     key='Error',
-                    value=pydantic_validation_error_to_str(error)
+                    value=pydantic_validation_error_to_str(error) if isinstance(error, ValidationError) else str(error),
                 )
             ]
         )
