@@ -1,7 +1,7 @@
 from typing import List
 
 from pydantic import Field
-from typing_extensions import Generic, TypeVar
+from typing_extensions import Generic, TypeVar, Any
 
 from dandy.intel import BaseIntel, BaseListIntel
 
@@ -13,4 +13,8 @@ class MapKeyIntel(BaseIntel, Generic[T]):
 
 
 class MapKeysIntel(BaseListIntel[T], Generic[T]):
-    keys: List[T] = Field(default_factory=list)
+    keys: T = Field(default_factory=list)
+
+
+class MapValuesIntel(BaseListIntel[Any]):
+    values: List[Any] = Field(default_factory=list)

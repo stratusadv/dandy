@@ -13,7 +13,7 @@ from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException
-from dandy.map.intel import MapKeysIntel, MapKeyIntel
+from dandy.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
 from dandy.map.map import Map
 
 
@@ -43,7 +43,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             cls,
             prompt: Union[Prompt, str],
             max_return_values: int | None = None,
-    ) -> MapKeysIntel[Any]:
+    ) -> MapValuesIntel:
         return cls.process_map_to_intel(
             cls.map,
             prompt,
@@ -56,35 +56,35 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             map: Map,
             prompt: Union[Prompt, str],
             max_return_values: int | None = None
-    ) -> MapKeysIntel[Any]:
-        map_keys_intel = MapKeysIntel()
+    ) -> MapValuesIntel:
+        map_values_intel = MapValuesIntel()
 
         for map_enum in cls.process_prompt_to_intel(map, prompt, max_return_values):
             map_value = map.get_selected_value(map_enum.value)
 
             if isinstance(map_value, type):
                 if issubclass(map_value, BaseLlmMap):
-                    map_keys_intel.extend(
+                    map_values_intel.extend(
                         map_value.process(
                             prompt,
                             max_return_values
-                        ).keys
+                        ).values
                     )
                 else:
-                    map_keys_intel.append(map_value)
+                    map_values_intel.append(map_value)
 
             elif isinstance(map_value, Map):
-                map_keys_intel.extend(
+                map_values_intel.extend(
                     cls.process_map_to_intel(
                         map_value,
                         prompt,
                         max_return_values
-                    ).keys
+                    ).values
                 )
             else:
-                map_keys_intel.append(map_value)
+                map_values_intel.append(map_value)
 
-        return map_keys_intel
+        return map_values_intel
 
     @classmethod
     def process_prompt_to_intel(
@@ -96,7 +96,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
 
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'
-            intel_class = MapKeysIntel[cls._map_enum]
+            intel_class = MapKeysIntel[list[cls._map_enum]]
         else:
             key_str = 'key'
             intel_class = MapKeyIntel[cls._map_enum]
@@ -186,7 +186,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             return_keys_intel: MapKeysIntel | MapKeyIntel
     ) -> MapKeysIntel:
         if isinstance(return_keys_intel, MapKeyIntel):
-            return_keys_intel = MapKeysIntel[cls._map_enum](
+            return_keys_intel = MapKeysIntel[list[cls._map_enum]](
                 keys=[return_keys_intel.key.value]
             )
 
@@ -205,5 +205,5 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             raise MapToManyKeysRecoverableException(f'Too many {cls.map_keys_description} found.')
 
     @classmethod
-    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapKeysIntel]:
-        return AsyncFuture[MapKeysIntel](cls.process, *args, **kwargs)
+    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:
+        return AsyncFuture[MapValuesIntel](cls.process, *args, **kwargs)

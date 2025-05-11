@@ -187,7 +187,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         ]
 
         if len(list_fields) != 1:
-            raise ValueError(f'BaseListIntel sub classes can only have exactly one list field must be declared with typing')
+            raise ValueError(f'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing')
 
         self._list_name = list_fields[0]
 

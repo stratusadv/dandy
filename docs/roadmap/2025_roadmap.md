@@ -2,16 +2,16 @@
 
 ## June
 
-- Text to Speech
 - Speech to Text
+- Text to Speech
 - Tools (Prototype)
 
 ## May
 
-- Correction & Negative Prompts
-- User Input Cleaning Llm Bot (Contrib)
-- Guardrails System
 - Agents (Prototype) 🚧
+- Correction & Negative Prompts 🚧
+- Guardrails System
+- User Input Cleaning Llm Bot (Contrib)
 
 ## April
 
@@ -21,17 +21,17 @@
 
 ## March
 
-- Map & LlmMap ✅
+- Caching ✅
 - Completely New Example ✅
 - Intel Field Include / Exclude ✅
+- Map & LlmMap ✅
 - Vision ✅
-- Caching ✅
 
 ## February
 
+- Initial Documentation & Website ✅
 - JSON Schema (Ollama & OpenAI) ✅
 - LLM Bot Upgrade ✅
-- Initial Documentation & Website ✅
 
 ## January
 

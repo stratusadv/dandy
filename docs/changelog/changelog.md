@@ -2,6 +2,10 @@
 
 ## v0.18.0
 
+### Breaking
+
+- `BaseListIntel` now works by creating a single attribute in the subclass that must be typed as a list.
+
 ### Features
 
 - The `BaseLlmMap` class now has a new required attribute `map_keys_description` that drastically improves accuracy.
