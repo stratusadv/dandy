@@ -159,7 +159,7 @@ class LlmService(BaseHttpService):
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self.event_id,
-                remaining_attempts=self._llm_config.options.prompt_retry_count - (self._retry_attempt + 1)
+                remaining_attempts=self._llm_config.options.prompt_retry_count - self._retry_attempt
             )
 
             self._request_body.add_message(

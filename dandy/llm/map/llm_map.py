@@ -6,7 +6,7 @@ from typing_extensions import Union
 
 from dandy.core.future import AsyncFuture
 from dandy.llm.conf import llm_configs
-from dandy.llm.map.prompts import map_no_key_error_prompt
+from dandy.llm.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
@@ -162,10 +162,21 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
                 if llm_service.has_retry_attempts_available:
                     return_keys_intel = llm_service.retry_process_request_to_intel(
                         retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many keys prompt.',
+                        retry_user_prompt=map_max_key_count_error_prompt(
+                            returned_count=len(return_keys_intel),
+                            max_count=max_return_values if max_return_values is not None else 0,
+                        )
                     )
 
                 else:
                     raise error
+
+        try:
+            cls._validate_return_keys_intel(return_keys_intel, max_return_values)
+
+        except MapRecoverableException as error:
+            recorder_add_llm_failure_event(error, llm_service.event_id)
+            raise error
 
         return return_keys_intel
 
