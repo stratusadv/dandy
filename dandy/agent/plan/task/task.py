@@ -1,0 +1,2 @@
+class AgentTask:
+    description: str

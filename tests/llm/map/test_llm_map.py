@@ -69,7 +69,6 @@ class TestLlmMap(TestCase):
         with self.assertRaises(MapRecoverableException):
             value = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
 
-    @recorder_to_html_file('test_llm_map')
     @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
     def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = {

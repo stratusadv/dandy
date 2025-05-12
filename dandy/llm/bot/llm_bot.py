@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic.main import IncEx
 from typing_extensions import Type, Generic, Union, List, TYPE_CHECKING
 
+from dandy.bot.bot import BaseBot
 from dandy.core.future import AsyncFuture
 from dandy.core.utils import encode_file_to_base64
 from dandy.intel import BaseIntel
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
     from dandy.llm import MessageHistory
 
 
-class BaseLlmBot(BaseLlmProcessor, ABC, Generic[IntelType]):
+class BaseLlmBot(BaseLlmProcessor, BaseBot, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
