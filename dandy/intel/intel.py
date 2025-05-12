@@ -182,7 +182,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     """
     def model_post_init(self, __context):
         list_fields = [
-            name for name, field in self.model_fields.items()
+            name for name, field in self.__class__.model_fields.items()
             if get_origin(field.annotation) is list
         ]
 
