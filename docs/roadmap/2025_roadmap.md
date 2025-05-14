@@ -1,5 +1,9 @@
 # 2025 Roadmap
 
+## July
+
+- Model Context Protocol (Prototype)
+
 ## June
 
 - Speech to Text
