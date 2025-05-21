@@ -4,6 +4,7 @@ from unittest import TestCase
 from dandy.constants import RECORDING_POSTFIX_NAME
 from dandy.llm import LlmBot
 from dandy.recorder import recorder_to_html_file
+from dandy.recorder.exceptions import RecorderCriticalException
 from dandy.recorder.recorder import Recorder, DEFAULT_RECORDER_OUTPUT_PATH
 
 RENDERER_AND_EXTENSIONS = (
@@ -82,3 +83,16 @@ class TestRecorder(TestCase):
 
             with open(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension), 'r') as f:
                 self.assertTrue(f.read() != '')
+
+    def test_invalid_recorder_name_throws_critical_exception(self):
+        Recorder.start_recording(RECORDING_NAME)
+        Recorder.stop_recording(RECORDING_NAME)
+
+        Recorder.check_recording_is_valid(RECORDING_NAME)
+
+        invalid_recorder_name = f'invalid_{RECORDING_NAME}'
+        exception_message = f'Recording "{invalid_recorder_name}" does not exist. Choices are {list(Recorder.recordings.keys())}'
+
+        with self.assertRaises(RecorderCriticalException) as recorder_exception:
+            Recorder.check_recording_is_valid(invalid_recorder_name)
+
