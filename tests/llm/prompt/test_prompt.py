@@ -13,6 +13,7 @@ class TestPrompt(TestCase):
         )
 
         self.assertEqual(new_prompt.to_str(), 'Hello World\n')
+        self.assertEqual(str(new_prompt), new_prompt.to_str())
 
     def test_prompt_snippets(self):
         class PersonIntel(BaseIntel):

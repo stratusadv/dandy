@@ -43,4 +43,12 @@ class TestRequest(TestCase):
                          'You are a helpful assistant.')
 
         self.assertEqual(request_body.messages[0].content[1]['type'], 'image_url')
-        self.assertEqual(request_body.messages[0].content[1]['image_url']['url'], f'data:{get_image_mime_type_from_base64_string(test_image_string)};base64,{test_image_string}')
+        self.assertEqual(request_body.messages[0].content[1]['image_url']['url'],
+                         f'data:{get_image_mime_type_from_base64_string(test_image_string)};base64,{test_image_string}')
+
+        request_body_dict = request_body.to_dict()
+
+        self.assertEqual(type(request_body_dict),dict)
+
+        request_body.set_format_to_text()
+        self.assertEqual(request_body.response_format['type'], 'text')

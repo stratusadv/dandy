@@ -4,7 +4,7 @@ from dandy.llm import Prompt
 from dandy.llm.utils import get_estimated_token_count_for_prompt, get_image_mime_type_from_base64_string
 
 
-class TestUtils(TestCase):
+class TestLlmUtils(TestCase):
     def test_get_estimated_token_count_for_prompt(self):
         token_count = get_estimated_token_count_for_prompt(
             prompt=(
