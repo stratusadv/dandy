@@ -41,6 +41,18 @@ class TestCoreUtils(TestCase):
 
         self.assertEqual(md, '**a**\n\n1\n\n**b**\n\n2\n\n')
 
+    def test_python_obj_to_markdown_list(self):
+        python_list = [
+            'a',
+            'b',
+            'c',
+            'd'
+        ]
+
+        md = python_obj_to_markdown(python_list)
+
+        self.assertEqual(md, '\n\n'.join(python_list) + '\n\n')
+
 class CampFireIntel(BaseIntel):
     logs: int
     temperature: float
