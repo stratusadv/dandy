@@ -44,6 +44,14 @@ class TestSnippet(TestCase):
 
         self.assertEqual(new_snippet.to_str(), 'Hello World\n')
 
+    def test_text_snippet_with_label(self):
+        text = 'Hello World'
+        label = 'Label'
+
+        new_snippet = snippet.TextSnippet(text=text, label=label)
+
+        self.assertEqual(new_snippet.to_str(), f'**{label}**: {text}\n')
+
     def test_ordered_list_snippet(self):
         snippet.OrderedListSnippet(
             items=self.items

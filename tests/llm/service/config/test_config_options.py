@@ -27,3 +27,6 @@ class TestConfigOptions(TestCase):
 
     def test_default_settings(self):
         self.assertEqual(self.config_options.max_output_tokens, settings.DEFAULT_LLM_MAX_OUTPUT_TOKENS)
+
+    def test_random_seed(self):
+        self.assertTrue(0 <= self.config_options.seed, 2**63 - 1)

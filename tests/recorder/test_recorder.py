@@ -3,7 +3,8 @@ from unittest import TestCase
 
 from dandy.constants import RECORDING_POSTFIX_NAME
 from dandy.llm import LlmBot
-from dandy.recorder import recorder_to_html_file
+from dandy.recorder import recorder_to_html_file, recorder_to_json_file, \
+    recorder_to_markdown_file
 from dandy.recorder.exceptions import RecorderCriticalException
 from dandy.recorder.recorder import Recorder, DEFAULT_RECORDER_OUTPUT_PATH
 
@@ -46,6 +47,26 @@ class TestRecorder(TestCase):
         func()
 
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.html'), 'r') as f:
+            self.assertTrue(f.read() != '')
+
+    def test_record_to_json_file_decorator(self):
+        @recorder_to_json_file(RECORDING_NAME)
+        def func():
+            _ = LlmBot.process('How many countries are in the world?')
+
+        func()
+
+        with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.json'), 'r') as f:
+            self.assertTrue(f.read() != '')
+
+    def test_record_to_md_file_decorator(self):
+        @recorder_to_markdown_file(RECORDING_NAME)
+        def func():
+            _ = LlmBot.process('How many countries are in the world?')
+
+        func()
+
+        with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.md'), 'r') as f:
             self.assertTrue(f.read() != '')
 
     def test_no_event_recording(self):
