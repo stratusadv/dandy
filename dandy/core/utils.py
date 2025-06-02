@@ -71,7 +71,7 @@ def python_obj_to_markdown(
             else:
                 markdown_str += f'{value}\n\n'
 
-    elif isinstance(python_obj, Iterable):
+    elif isinstance(python_obj, Iterable) and not isinstance(python_obj, str):
         for item in python_obj:
             markdown_str = python_obj_to_markdown(item, markdown_str, level)
 

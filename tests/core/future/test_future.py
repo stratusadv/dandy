@@ -41,3 +41,10 @@ class TestFuture(TestCase):
         )
 
         self.assertTrue(len(response_future.result.text) > 0)
+
+    def test_future_cancel(self):
+        squared_future = AsyncFuture(square_number, 5)
+        self.assertNotEqual(squared_future.cancel(), squared_future._future.running())
+
+
+

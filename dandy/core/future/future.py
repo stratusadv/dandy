@@ -20,9 +20,8 @@ class AsyncFuture(Generic[FutureResultType]):
         self._result_timeout = None
         self._using_result_timeout = False
 
-    def cancel(self):
-        if not self._future.done():
-            self._future.cancel()
+    def cancel(self) -> bool:
+        return self._future.cancel()
 
     @property
     def result(self) -> FutureResultType:
