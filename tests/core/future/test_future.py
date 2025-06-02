@@ -41,3 +41,13 @@ class TestFuture(TestCase):
         )
 
         self.assertTrue(len(response_future.result.text) > 0)
+
+    def test_future_cancel(self):
+        squared_future = AsyncFuture(square_number, 5)
+
+        # To make this return true, would need to max out threads:
+        # https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Future.cancel
+        self.assertFalse(squared_future.cancel())
+
+
+
