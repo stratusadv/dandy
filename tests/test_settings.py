@@ -31,13 +31,7 @@ class TestSettings(TestCase):
 
         self.assertEqual(dandy_settings._user_settings, dandy_settings_module_in_tests)
 
-        dandy_settings = DandySettings()
-        dandy_settings_module_in_tests = importlib.import_module('tests.dandy_settings')
-
-        self.assertEqual(dandy_settings._user_settings, dandy_settings_module_in_tests)
-
     def test_dandy_settings_raises_dandy_critical_exception_with_none_BASE_PATH(self):
-
         from dandy import default_settings
         original_default_base_path = default_settings.BASE_PATH
         default_settings.BASE_PATH = None
