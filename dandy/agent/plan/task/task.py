@@ -1,7 +1,14 @@
 from dandy.intel import BaseIntel
 
 
-class BaseAgentTaskIntel(BaseIntel):
-    is_complete: bool = False
+class AgentTaskIntel(BaseIntel):
     description: str
-    result: str
+    desired_result: str
+    actual_result: str = ''
+    _is_complete: bool = False
+
+    def set_complete(self):
+        self._is_complete = True
+
+    def set_incomplete(self):
+        self._is_complete = False

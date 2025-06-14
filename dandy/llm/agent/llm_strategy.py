@@ -1,7 +1,9 @@
+from typing import Union
+
 from typing_extensions import List, Iterable, Type
 
 from dandy.agent.strategy.strategy import BaseAgentStrategy
-from dandy.llm import BaseLlmMap
+from dandy.llm import BaseLlmMap, Prompt
 
 
 class BaseLlmAgentStrategy(BaseAgentStrategy):
@@ -16,4 +18,10 @@ class BaseLlmAgentStrategy(BaseAgentStrategy):
 
     def __init_subclass__(cls):
         super().__init_subclass__()
+
+    def generate_from_prompt(
+            self,
+            prompt: Union[Prompt, str]
+    ):
+        pass
 

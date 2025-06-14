@@ -9,10 +9,16 @@
 
 Make AI development as deterministic as possible while empowering the probabilistic nature of intelligence.
 
+## Features
+
+- Fully pythonic control of inputs and outputs so you always have control.
+- Configure your AI Services and Models at any scope of your project quickly and easily.
+- Simple interfacing to allow for chaining and logic flow that is easily readable.
+
 ## Yet Another AI Framework?
 
-Intelligence programming is a very different experience than conventional programming as it's very probabilistic.
-Based on our experience most of the existing frameworks / libraries are designed to focus more on deterministic outcomes which is not realistic or in our opinion, or beneficial to developers. 
+Intelligence programming is a very different experience, and most of the existing frameworks / libraries are designed to 
+focus more on deterministic outcomes which is not realistic or in our opinion, or beneficial to developers. 
 
 We created Dandy to focus on the flow and validation of data with your artificial intelligence systems to allow you to embrace the probabilistic nature of intelligence.
 

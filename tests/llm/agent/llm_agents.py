@@ -1,5 +1,3 @@
-from typing import Any
-
 from dandy.llm import BaseLlmAgent, Prompt
 from tests.llm.agent.intel import EmailIntel
 
