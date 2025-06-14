@@ -60,6 +60,13 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
         print(plan.model_dump_json(indent=4))
 
+        if postfix_system_prompt is None:
+            postfix_system_prompt = Prompt()
+
+        postfix_system_prompt.text(f'Use the results of the below simulated plan to accomplish the user request:')
+        postfix_system_prompt.line_break()
+        postfix_system_prompt.prompt(plan.to_prompt())
+
         return cls.process_prompt_to_intel(
             prompt=prompt,
             intel_class=intel_class or cls.intel_class,
