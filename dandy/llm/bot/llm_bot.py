@@ -76,6 +76,7 @@ class BaseLlmBot(BaseLlmProcessor, BaseBot, ABC, Generic[IntelType]):
 
 
 class LlmBot(BaseLlmBot, Generic[IntelType]):
+    description = 'Default large language model bot that processes prompts into responses.'
     intel_class: Type[BaseIntel] = DefaultLlmIntel
 
     @classmethod
