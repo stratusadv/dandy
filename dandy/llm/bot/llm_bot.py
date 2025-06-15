@@ -95,7 +95,7 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
 
         return cls.process_prompt_to_intel(
             prompt=prompt,
-            intel_class= intel_class or cls.intel_class,
+            intel_class=intel_class or cls.intel_class if intel_object is None else None,
             intel_object=intel_object,
             images=images,
             image_files=image_files,

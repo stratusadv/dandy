@@ -7,3 +7,7 @@ class AgentCriticalException(DandyCriticalException):
 
 class AgentRecoverableException(DandyRecoverableException):
     pass
+
+
+class AgentOverThoughtRecoverableException(AgentRecoverableException):
+    pass

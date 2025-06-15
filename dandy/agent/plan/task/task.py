@@ -3,12 +3,13 @@ from dandy.intel import BaseIntel
 
 class AgentTaskIntel(BaseIntel):
     description: str
-    desired_result: str
+    desired_result_description: str
+    strategy_resource_key: str
     actual_result: str = ''
-    _is_complete: bool = False
+    is_complete: bool = False
 
     def set_complete(self):
-        self._is_complete = True
+        self.is_complete = True
 
     def set_incomplete(self):
-        self._is_complete = False
+        self.is_complete = False

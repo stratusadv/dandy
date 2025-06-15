@@ -11,7 +11,7 @@ from dandy.llm.bot.llm_bot import Prompt, LlmBot
 
 
 class BaseLlmAgentStrategy(BaseAgentStrategy, ABC):
-    _resources: List[str] = [
+    _resources_names: List[str] = [
         'agents',
         'bots',
         'workflows',
@@ -26,5 +26,5 @@ class BaseLlmAgentStrategy(BaseAgentStrategy, ABC):
 
 class DefaultLlmAgentStrategy(BaseLlmAgentStrategy):
     bots = (
-        LlmBot
+        LlmBot,
     )

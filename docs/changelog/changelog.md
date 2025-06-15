@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.XX.0
+
+### Features
+
+- Agents are now usable in a Prototype phase.
+
+### Fixes
+
+- Fixed a bug on `LlmBot` that prevented you from using the `intel_object` argument in the `process` method.
+
 ## v0.18.0
 
 ### Breaking
