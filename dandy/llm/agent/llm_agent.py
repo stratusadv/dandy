@@ -9,6 +9,7 @@ from dandy.agent import BaseAgent
 from dandy.agent.strategy.strategy import BaseAgentStrategy
 from dandy.intel.type_vars import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
+from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy
 from dandy.llm.bot.llm_bot import BaseLlmBot, LlmBot
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.prompt.prompt import Prompt
@@ -22,7 +23,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     description: Union[Prompt, str, None] = None
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
     intel_class: Type[IntelType] = DefaultLlmIntel
-    strategy: Type[BaseAgentStrategy] | None = None
+    strategy: Type[BaseAgentStrategy] = DefaultLlmAgentStrategy
 
     @classmethod
     def process(
