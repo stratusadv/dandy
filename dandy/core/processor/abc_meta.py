@@ -1,3 +1,4 @@
+import inspect
 import json
 from abc import ABCMeta
 
@@ -16,6 +17,7 @@ class ProcessorABCMeta(ABCMeta):
 
             if isinstance(original_process, classmethod):
                 original_func = original_process.__func__
+                original_process_signature = inspect.signature(original_func)
 
                 def wrapped_process(cls, *args, **kwargs):
                     if getattr(cls, "_debugger_called", None) is None:
@@ -86,6 +88,8 @@ class ProcessorABCMeta(ABCMeta):
                         cls._debugger_called = False
 
                     return result
+
+                wrapped_process.__signature__ = original_process_signature
 
                 setattr(processor_class, 'process', classmethod(wrapped_process))
 

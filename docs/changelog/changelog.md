@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fixed a bug on `LlmBot` that prevented you from using the `intel_object` argument in the `process` method.
+- `BaseProcessor` method `process` now maintains it's signature properly.
 
 ## v0.18.0
 

@@ -1,5 +1,5 @@
 from dandy.agent.plan.task.task import AgentTaskIntel
-from dandy.llm import Prompt
+from dandy.llm.prompt.prompt import Prompt
 
 
 class LlmAgentTaskIntel(AgentTaskIntel):

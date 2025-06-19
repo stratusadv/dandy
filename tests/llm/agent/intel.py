@@ -6,3 +6,7 @@ class EmailIntel(BaseIntel):
     from_email_address: str
     subject: str
     body: str
+
+
+class EmailAddressIntel(BaseIntel):
+    email_address: str

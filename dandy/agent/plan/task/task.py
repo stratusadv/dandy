@@ -1,7 +1,11 @@
+from pydantic import PrivateAttr
+
 from dandy.intel import BaseIntel
 
 
 class AgentTaskIntel(BaseIntel):
+    _number: int = PrivateAttr(default=0)
+
     description: str
     desired_result_description: str
     strategy_resource_key: str
@@ -13,3 +17,11 @@ class AgentTaskIntel(BaseIntel):
 
     def set_incomplete(self):
         self.is_complete = False
+
+    @property
+    def number(self) -> int:
+        return self._number
+
+    @number.setter
+    def number(self, value: int):
+        self._number = value

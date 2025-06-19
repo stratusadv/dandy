@@ -30,7 +30,7 @@ class Event(BaseModel):
     object_name: str
     callable_name: str
     type: EventType
-    attributes: List[EventAttribute] = Field(default_factory=list)
+    attributes: List[EventAttribute] | None = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
     run_time_seconds: float = 0.0

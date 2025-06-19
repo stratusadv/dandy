@@ -1,7 +1,7 @@
 from time import time
 
 from pydantic import Field, PrivateAttr
-from typing_extensions import List
+from typing_extensions import List, Any
 
 from dandy.agent.plan.task.task import AgentTaskIntel
 from dandy.intel import BaseIntel
@@ -16,6 +16,9 @@ class AgentPlanIntel(BaseIntel):
     def __len__(self) -> int:
         return len(self.tasks)
 
+    def model_post_init(self, context: Any):
+        self.set_task_numbers()
+
     @property
     def active_task(self) -> AgentTaskIntel:
         return self.tasks[self._active_task_index]
@@ -26,6 +29,7 @@ class AgentPlanIntel(BaseIntel):
 
     def add_task_after_active(self, task: AgentTaskIntel):
         self.tasks.insert(self._active_task_index + 1, task)
+        self.set_task_numbers()
 
     @property
     def has_exceeded_time_limit(self) -> bool:
@@ -44,4 +48,8 @@ class AgentPlanIntel(BaseIntel):
 
     def set_plan_time_limit(self, seconds: int):
         self._plan_time_limit_seconds = seconds
+
+    def set_task_numbers(self):
+        for index, task in enumerate(self.tasks, start=1):
+            task.number = index
 

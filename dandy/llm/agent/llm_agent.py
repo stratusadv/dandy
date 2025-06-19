@@ -11,8 +11,12 @@ from dandy.agent.strategy import BaseAgentStrategy
 from dandy.conf import settings
 from dandy.intel.type_vars import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
-from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy
-from dandy.llm.agent.recorder import recorder_add_llm_agent_event
+from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy, BaseLlmAgentStrategy
+from dandy.llm.agent.prompts import agent_create_plan_prompt, agent_do_task_prompt
+from dandy.llm.agent.recorder import _recorder_add_llm_agent_event, recorder_add_llm_agent_create_plan_event, \
+    recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
+    recorder_add_llm_agent_start_task_event, recorder_add_llm_agent_completed_task_event, \
+    recorder_add_llm_agent_done_executing_plan_event, recorder_add_llm_agent_processing_final_result_event
 from dandy.llm.bot.llm_bot import BaseLlmBot, LlmBot
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.prompt.prompt import Prompt
@@ -29,7 +33,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     intel_class: Type[IntelType] = DefaultLlmIntel
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
-    strategy: Type[BaseAgentStrategy] = DefaultLlmAgentStrategy
+    strategy: Type[BaseLlmAgentStrategy] = DefaultLlmAgentStrategy
 
     @classmethod
     def process(
@@ -47,13 +51,13 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
         recorder_event_id = generate_new_recorder_event_id()
 
-        recorder_add_llm_agent_event('Creating Plan', recorder_event_id)
+        recorder_add_llm_agent_create_plan_event(prompt, recorder_event_id)
 
         plan = cls._create_plan(prompt)
 
-        recorder_add_llm_agent_event('Finished Plan', recorder_event_id)
+        recorder_add_llm_agent_finished_creating_plan_event(plan, recorder_event_id)
 
-        recorder_add_llm_agent_event('Running Plan', recorder_event_id)
+        recorder_add_llm_agent_running_plan_event(plan, recorder_event_id)
 
         while not plan.is_complete:
             if plan.has_exceeded_time_limit:
@@ -63,23 +67,12 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
             task = plan.active_task
 
-            task_description = f'Task #{plan.active_task_number}'
-            recorder_add_llm_agent_event(f'Starting {task_description}', recorder_event_id)
-
-            do_task_prompt = (
-                Prompt()
-                .text('Use the description and desired result to accomplish the task:')
-                .line_break()
-                .text(f'Description: {task.description}')
-                .line_break()
-                .text(f'Desired Result: {task.desired_result_description}')
-                .line_break()
-            )
+            recorder_add_llm_agent_start_task_event(task, cls.strategy, recorder_event_id)
 
             resource = cls.strategy.get_resource_from_key(task.strategy_resource_key)
 
-            updated_task = resource.process(
-                prompt=do_task_prompt,
+            updated_task = resource.use(
+                prompt=agent_do_task_prompt(task),
                 intel_object=task,
                 include_fields={'actual_result'}
             )
@@ -87,13 +80,11 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             task.actual_result = updated_task.actual_result
             plan.set_active_task_complete()
 
-            recorder_add_llm_agent_event(f'Finished {task_description}', recorder_event_id)
+            recorder_add_llm_agent_completed_task_event(task, cls.strategy, recorder_event_id)
 
-        recorder_add_llm_agent_event('Done Executing Plan', recorder_event_id)
+        recorder_add_llm_agent_done_executing_plan_event(plan, recorder_event_id)
 
-        recorder_add_llm_agent_event('Creating Final Result', recorder_event_id)
-
-        print(plan.model_dump_json(indent=4))
+        recorder_add_llm_agent_processing_final_result_event(recorder_event_id)
 
         if postfix_system_prompt is None:
             postfix_system_prompt = Prompt()
@@ -119,20 +110,12 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             cls,
             prompt: Union[Prompt, str],
     ) -> LlmAgentPlanIntel:
-        create_plan_prompt = (
-            Prompt()
-            .prompt(cls.instructions_prompt)
-            .line_break()
-            .text('You need to create a plan with a set of tasks based on a given request by the user.')
-            .text('Make sure to assign a strategy resource to each task created.')
-            .line_break()
-            .sub_heading('Strategy Resources')
-            .dict(cls.strategy.as_dict())
-            .prompt(prompt)
-        )
-
         plan = LlmBot.process(
-            prompt=create_plan_prompt,
+            prompt=agent_create_plan_prompt(
+                user_prompt=prompt,
+                instructions_prompt=cls.instructions_prompt,
+                strategy=cls.strategy,
+            ),
             intel_class=LlmAgentPlanIntel,
             include_fields={
                 'tasks': {'description', 'desired_result'}
