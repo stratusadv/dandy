@@ -7,9 +7,8 @@ from typing_extensions import Type, Union, List
 
 from dandy.agent import BaseAgent
 from dandy.agent.exceptions import AgentRecoverableException, AgentOverThoughtRecoverableException
-from dandy.agent.strategy.strategy import BaseAgentStrategy
+from dandy.agent.strategy import BaseAgentStrategy
 from dandy.conf import settings
-from dandy.intel import BaseIntel
 from dandy.intel.type_vars import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
 from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy

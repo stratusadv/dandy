@@ -1,13 +1,10 @@
 from abc import ABC
-from typing import Union
 
 from typing_extensions import List, Iterable, Type
 
-from dandy.agent.strategy.strategy import BaseAgentStrategy
-from dandy.bot.bot import BaseBot
+from dandy.agent.strategy import BaseAgentStrategy
+from dandy.llm.bot.llm_bot import LlmBot
 from dandy.llm.map.llm_map import BaseLlmMap
-from dandy.llm.bot.llm_bot import Prompt, LlmBot
-
 
 
 class BaseLlmAgentStrategy(BaseAgentStrategy, ABC):

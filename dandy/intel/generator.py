@@ -7,9 +7,9 @@ from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.intel import BaseIntel
 
 
-class IntelGenerator:
+class IntelClassGenerator:
     @staticmethod
-    def intel_from_callable_signature(call: Callable) -> Type[BaseIntel]:
+    def from_callable_signature(call: Callable) -> Type[BaseIntel]:
         signature = inspect.signature(call)
 
         intel_attributes = {}

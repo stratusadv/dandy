@@ -44,6 +44,9 @@ class BaseIntel(BaseModel, ABC):
                     f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
                 )
 
+    def model_to_kwargs(self) -> dict:
+        return dict(self)
+
     @classmethod
     def model_inc_ex_class_copy(
             cls,

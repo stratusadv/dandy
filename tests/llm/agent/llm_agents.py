@@ -1,5 +1,7 @@
-from dandy.llm import BaseLlmAgent, Prompt
+from dandy.llm.agent.llm_agent import BaseLlmAgent
+from dandy.llm.prompt.prompt import Prompt
 from tests.llm.agent.intel import EmailIntel
+from tests.llm.agent.llm_strategy import MuseumEmailLlmStrategy
 
 
 class MuseumEmailLlmAgent(BaseLlmAgent[EmailIntel]):
@@ -9,4 +11,5 @@ class MuseumEmailLlmAgent(BaseLlmAgent[EmailIntel]):
         .text('Make up an email address to send to based on the museum name.')
     )
     intel_class = EmailIntel
+    strategy = MuseumEmailLlmStrategy
 
