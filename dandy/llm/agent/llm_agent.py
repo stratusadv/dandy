@@ -7,13 +7,12 @@ from typing_extensions import Type, Union, List
 
 from dandy.agent import BaseAgent
 from dandy.agent.exceptions import AgentRecoverableException, AgentOverThoughtRecoverableException
-from dandy.agent.strategy import BaseAgentStrategy
 from dandy.conf import settings
 from dandy.intel.type_vars import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
 from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy, BaseLlmAgentStrategy
 from dandy.llm.agent.prompts import agent_create_plan_prompt, agent_do_task_prompt
-from dandy.llm.agent.recorder import _recorder_add_llm_agent_event, recorder_add_llm_agent_create_plan_event, \
+from dandy.llm.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
     recorder_add_llm_agent_start_task_event, recorder_add_llm_agent_completed_task_event, \
     recorder_add_llm_agent_done_executing_plan_event, recorder_add_llm_agent_processing_final_result_event
@@ -51,7 +50,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
         recorder_event_id = generate_new_recorder_event_id()
 
-        recorder_add_llm_agent_create_plan_event(prompt, recorder_event_id)
+        recorder_add_llm_agent_create_plan_event(prompt, cls.strategy, recorder_event_id)
 
         plan = cls._create_plan(prompt)
 

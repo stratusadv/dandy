@@ -1,6 +1,8 @@
+import json
+
 from typing_extensions import Type
 
-from dandy.agent.plan.plan import AgentPlanIntel
+from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
 from dandy.llm.agent.llm_strategy import BaseLlmAgentStrategy
 from dandy.llm.agent.llm_task import LlmAgentTaskIntel
@@ -29,6 +31,7 @@ def _recorder_add_llm_agent_event(
 
 def recorder_add_llm_agent_create_plan_event(
         prompt: Prompt | str,
+        strategy: Type[BaseLlmAgentStrategy],
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -38,6 +41,15 @@ def recorder_add_llm_agent_create_plan_event(
             EventAttribute(
                 key='Goal',
                 value=str(prompt),
+                is_card=True,
+            ),
+            EventAttribute(
+                key=pascal_to_title_case(strategy.__qualname__),
+                value=json.dumps(
+                    strategy.as_dict(),
+                    indent=4,
+                    default=json_default
+                ),
                 is_card=True,
             )
         ]

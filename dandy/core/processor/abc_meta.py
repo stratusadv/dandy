@@ -27,7 +27,7 @@ class ProcessorABCMeta(ABCMeta):
                         Recorder.add_event(
                             Event(
                                 id=cls._debugger_event_id,
-                                object_name=pascal_to_title_case(cls.__name__),
+                                object_name=pascal_to_title_case(cls.__qualname__),
                                 callable_name='Process',
                                 type=EventType.RUN,
                                 attributes=[
@@ -65,7 +65,7 @@ class ProcessorABCMeta(ABCMeta):
                         Recorder.add_event(
                             Event(
                                 id=cls._debugger_event_id,
-                                object_name=pascal_to_title_case(cls.__name__),
+                                object_name=pascal_to_title_case(cls.__qualname__),
                                 callable_name='Process Returned Result',
                                 type=EventType.RESULT,
                                 attributes=[

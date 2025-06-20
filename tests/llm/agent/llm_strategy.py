@@ -4,7 +4,7 @@ from tests.llm.agent.llm_bots import MuseumEmailFinderBot
 
 
 class MuseumEmailLlmStrategy(BaseLlmAgentStrategy):
-    bots = [
+    resources = (
         LlmBot,
         MuseumEmailFinderBot,
-    ]
+    )
