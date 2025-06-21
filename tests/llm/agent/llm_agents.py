@@ -1,7 +1,9 @@
+from dandy.llm.bot.llm_bot import LlmBot
 from dandy.llm.agent.llm_agent import BaseLlmAgent
 from dandy.llm.prompt.prompt import Prompt
 from tests.llm.agent.intel import EmailIntel
-from tests.llm.agent.llm_strategy import MuseumEmailLlmStrategy
+
+from tests.llm.agent.llm_bots import MuseumEmailFinderBot
 
 
 class MuseumEmailLlmAgent(BaseLlmAgent[EmailIntel]):
@@ -11,5 +13,7 @@ class MuseumEmailLlmAgent(BaseLlmAgent[EmailIntel]):
         .text('Make up an email address to send to based on the museum name.')
     )
     intel_class = EmailIntel
-    strategy = MuseumEmailLlmStrategy
-
+    processors = (
+        LlmBot,
+        MuseumEmailFinderBot,
+    )

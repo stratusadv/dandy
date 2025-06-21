@@ -3,14 +3,15 @@ from pathlib import Path
 from typing import Generic
 
 from pydantic.main import IncEx
-from typing_extensions import Type, Union, List
+from typing_extensions import Type, Union, List, Sequence
 
 from dandy.agent import BaseAgent
 from dandy.agent.exceptions import AgentRecoverableException, AgentOverThoughtRecoverableException
 from dandy.conf import settings
 from dandy.intel.type_vars import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
-from dandy.llm.agent.llm_strategy import DefaultLlmAgentStrategy, BaseLlmAgentStrategy
+from dandy.llm.processor.llm_processor import BaseLlmProcessor
+from dandy.llm.processor.llm_strategy import BaseLlmProcessorsStrategy
 from dandy.llm.agent.prompts import agent_create_plan_prompt, agent_do_task_prompt
 from dandy.llm.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
@@ -32,7 +33,11 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     intel_class: Type[IntelType] = DefaultLlmIntel
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
-    strategy: Type[BaseLlmAgentStrategy] = DefaultLlmAgentStrategy
+    _processors_strategy_class = BaseLlmProcessorsStrategy
+    _processors_strategy: BaseLlmProcessorsStrategy
+    processors: Sequence[Type[BaseLlmProcessor]] = (
+        LlmBot,
+    )
 
     @classmethod
     def process(
@@ -50,7 +55,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
         recorder_event_id = generate_new_recorder_event_id()
 
-        recorder_add_llm_agent_create_plan_event(prompt, cls.strategy, recorder_event_id)
+        recorder_add_llm_agent_create_plan_event(prompt, cls._processors_strategy, recorder_event_id)
 
         plan = cls._create_plan(prompt)
 
@@ -66,9 +71,9 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
             task = plan.active_task
 
-            recorder_add_llm_agent_start_task_event(task, cls.strategy, recorder_event_id)
+            recorder_add_llm_agent_start_task_event(task, cls._processors_strategy, recorder_event_id)
 
-            resource = cls.strategy.get_resource_from_key(task.strategy_resource_key)
+            resource = cls._processors_strategy.get_processor_from_key(task.processors_key)
 
             updated_task = resource.use(
                 prompt=agent_do_task_prompt(task),
@@ -79,11 +84,11 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             task.actual_result = updated_task.actual_result
             plan.set_active_task_complete()
 
-            recorder_add_llm_agent_completed_task_event(task, cls.strategy, recorder_event_id)
+            recorder_add_llm_agent_completed_task_event(task, cls._processors_strategy, recorder_event_id)
 
         recorder_add_llm_agent_done_executing_plan_event(plan, recorder_event_id)
 
-        recorder_add_llm_agent_processing_final_result_event(recorder_event_id)
+        recorder_add_llm_agent_processing_final_result_event(plan, recorder_event_id)
 
         if postfix_system_prompt is None:
             postfix_system_prompt = Prompt()
@@ -113,7 +118,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
                 instructions_prompt=cls.instructions_prompt,
-                strategy=cls.strategy,
+                processors_strategy=cls._processors_strategy,
             ),
             intel_class=LlmAgentPlanIntel,
             include_fields={
@@ -142,3 +147,6 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
 class LlmAgent(BaseLlmAgent, Generic[IntelType]):
     description = 'Default large language model agent that processes prompts into responses.'
+    processors: Sequence[Type[BaseLlmProcessor]] = (
+        LlmBot,
+    )

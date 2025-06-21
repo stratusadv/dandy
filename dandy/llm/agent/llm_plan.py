@@ -6,7 +6,7 @@ from dandy.llm.agent.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.prompt import Prompt
 
 
-class LlmAgentPlanIntel(AgentPlanIntel):
+class LlmAgentPlanIntel(AgentPlanIntel[LlmAgentTaskIntel]):
     tasks: List[LlmAgentTaskIntel] = Field(default_factory=list)
 
 

@@ -4,7 +4,7 @@ from typing_extensions import Type
 
 from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
-from dandy.llm.agent.llm_strategy import BaseLlmAgentStrategy
+from dandy.llm.processor.llm_strategy import BaseLlmProcessorsStrategy
 from dandy.llm.agent.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.prompt import Prompt
 from dandy.recorder.events import Event, EventAttribute, EventType
@@ -31,7 +31,7 @@ def _recorder_add_llm_agent_event(
 
 def recorder_add_llm_agent_create_plan_event(
         prompt: Prompt | str,
-        strategy: Type[BaseLlmAgentStrategy],
+        processors_strategy: BaseLlmProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -44,9 +44,9 @@ def recorder_add_llm_agent_create_plan_event(
                 is_card=True,
             ),
             EventAttribute(
-                key=pascal_to_title_case(strategy.__qualname__),
+                key=pascal_to_title_case(processors_strategy.__class__.__qualname__),
                 value=json.dumps(
-                    strategy.as_dict(),
+                    processors_strategy.as_dict(),
                     indent=4,
                     default=json_default
                 ),
@@ -92,7 +92,7 @@ def recorder_add_llm_agent_running_plan_event(
 
 def recorder_add_llm_agent_start_task_event(
         task: LlmAgentTaskIntel,
-        strategy: Type[BaseLlmAgentStrategy],
+        processors_strategy: BaseLlmProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -101,8 +101,8 @@ def recorder_add_llm_agent_start_task_event(
         attributes=[
             EventAttribute(
                 key=f'Resource Processor',
-                value=strategy.get_resource_processor_module_and_qualname_from_key(
-                    task.strategy_resource_key
+                value=processors_strategy.get_processor_module_and_qualname_from_key(
+                    task.processors_key
                 )
             ),
             EventAttribute(
@@ -116,7 +116,7 @@ def recorder_add_llm_agent_start_task_event(
 
 def recorder_add_llm_agent_completed_task_event(
         task: LlmAgentTaskIntel,
-        strategy: Type[BaseLlmAgentStrategy],
+        processors_strategy: BaseLlmProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -125,8 +125,8 @@ def recorder_add_llm_agent_completed_task_event(
         attributes=[
             EventAttribute(
                 key=f'Resource Processor',
-                value=strategy.get_resource_processor_module_and_qualname_from_key(
-                    task.strategy_resource_key
+                value=processors_strategy.get_processor_module_and_qualname_from_key(
+                    task.processors_key
                 )
             ),
             EventAttribute(
@@ -156,9 +156,19 @@ def recorder_add_llm_agent_done_executing_plan_event(
 
 
 def recorder_add_llm_agent_processing_final_result_event(
+        plan: LlmAgentPlanIntel,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
         action_description='Processing Final Result',
         event_id=event_id,
+        attributes=[
+            EventAttribute(
+                key='Final Results',
+                value='\n\n'.join(
+                    [task.actual_result for task in plan.tasks]
+                ),
+                is_card=True,
+            )
+        ]
     )

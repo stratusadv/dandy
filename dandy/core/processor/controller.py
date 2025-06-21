@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
 
-from typing_extensions import Type
+from typing_extensions import Type, Any
 
 from dandy.agent.exceptions import AgentCriticalException
 from dandy.core.processor.processor import BaseProcessor
-from dandy.intel import BaseIntel
 
 
-class BaseAgentResource(ABC):
+class BaseProcessorController(ABC):
     def __init__(
             self,
             processor: Type[BaseProcessor]
@@ -18,5 +17,5 @@ class BaseAgentResource(ABC):
         self.processor = processor
 
     @abstractmethod
-    def use(self, *args, **kwargs) -> BaseIntel | None:
+    def use(self, *args, **kwargs) -> Any:
         raise NotImplementedError

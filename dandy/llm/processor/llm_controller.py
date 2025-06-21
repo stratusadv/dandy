@@ -3,7 +3,7 @@ from pydantic.main import IncEx
 from typing_extensions import Union, Type
 
 from dandy.agent.exceptions import AgentCriticalException
-from dandy.agent.resource import BaseAgentResource
+from dandy.core.processor.controller import BaseProcessorController
 from dandy.intel.generator import IntelClassGenerator
 from dandy.llm.bot.llm_bot import LlmBot, BaseLlmBot
 from dandy.llm.prompt.prompt import Prompt
@@ -11,7 +11,7 @@ from dandy.llm.prompt.prompt import Prompt
 from dandy.intel.intel import BaseIntel
 
 
-class UseAgentResourceLlmBot(BaseLlmBot):
+class UseProcessorLlmBot(BaseLlmBot):
     instructions_prompt = 'You are a bot that is given a task and a resource, provide a response that best uses the resource to complete the task.'
     @classmethod
     def process(
@@ -32,7 +32,7 @@ class UseAgentResourceLlmBot(BaseLlmBot):
         )
 
 
-class LlmAgentResource(BaseAgentResource):
+class LlmProcessorController(BaseProcessorController):
     def use(
             self,
             prompt: Prompt,
@@ -54,7 +54,7 @@ class LlmAgentResource(BaseAgentResource):
                 self.processor.process
             )
 
-            processor_kwargs_intel = UseAgentResourceLlmBot.process(
+            processor_kwargs_intel = UseProcessorLlmBot.process(
                 prompt=prompt,
                 processor_kwargs_intel_class=processor_kwargs_intel_class,
                 processor_description=self.processor.description

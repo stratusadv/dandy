@@ -1,24 +1,24 @@
 from typing_extensions import Type
 
 from dandy.agent.plan.task.task import AgentTaskIntel
-from dandy.agent.strategy import BaseAgentStrategy
+from dandy.core.processor.strategy import BaseProcessorsStrategy
 from dandy.llm.prompt.prompt import Prompt
 
 
 def agent_create_plan_prompt(
         user_prompt: Prompt,
         instructions_prompt: Prompt,
-        strategy: Type[BaseAgentStrategy]
+        processors_strategy: BaseProcessorsStrategy
 ) -> Prompt:
     return (
         Prompt()
         .prompt(instructions_prompt)
         .line_break()
-        .text('You need to create a plan with a set of tasks based on a given request by the user.')
-        .text('Make sure to assign a strategy resource to each task created.')
+        .text('Please create a good plan with a set of tasks to accomplish the given request by the user.')
+        .text('Make sure to assign the mos relevant processor to each task created.')
         .line_break()
-        .sub_heading('Strategy Resources')
-        .dict(strategy.as_dict())
+        .sub_heading('Processors')
+        .dict(processors_strategy.as_dict())
         .line_break()
         .prompt(user_prompt)
     )

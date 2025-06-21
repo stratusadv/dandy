@@ -8,7 +8,7 @@ class AgentTaskIntel(BaseIntel):
 
     description: str
     desired_result_description: str
-    strategy_resource_key: int
+    processors_key: int
     actual_result: str = ''
     is_complete: bool = False
 
