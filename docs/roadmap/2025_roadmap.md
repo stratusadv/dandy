@@ -1,21 +1,25 @@
 # 2025 Roadmap
 
+## August
+
+- Agents (Alpha) 🚧
+- Speech to Text
+- Text to Speech
+
 ## July
 
 - Model Context Protocol (Prototype)
+- Guardrails System
+- User Input Cleaning Llm Bot (Contrib)
+- Correction & Negative Prompts 🚧
 
 ## June
 
-- Speech to Text
-- Text to Speech
-- Tools (Prototype)
+- Agents (Prototype) ✅
 
 ## May
 
-- Agents (Prototype) 🚧
-- Correction & Negative Prompts 🚧
-- Guardrails System
-- User Input Cleaning Llm Bot (Contrib)
+- Agents (Concept) ✅
 
 ## April
 

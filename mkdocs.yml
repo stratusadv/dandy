@@ -43,8 +43,9 @@ nav:
       - 7. Workflow: tutorials/07_workflow.md
       - 8. Futures: tutorials/08_futures.md
       - 9. Caching: tutorials/09_caching.md
-      - 10. Project Structure: tutorials/10_project_structure.md
-      - 11. Example Project: tutorials/11_example_project.md
+      - 10. LLM Agent: tutorials/10_llm_agent.md
+      - 11. Project Structure: tutorials/11_project_structure.md
+      - 12. Example Project: tutorials/12_example_project.md
   - API Reference:
       - Bot:
           - BaseBot: api/bot/bot.md

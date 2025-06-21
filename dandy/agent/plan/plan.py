@@ -42,6 +42,10 @@ class AgentPlanIntel(BaseIntel, Generic[AgentTaskIntelType]):
     def is_complete(self) -> bool:
         return False not in [task.is_complete for task in self.tasks]
 
+    @property
+    def is_incomplete(self) -> bool:
+        return not self.is_complete
+
     def set_active_task_complete(self):
         self.active_task.is_complete = True
         self._active_task_index += 1

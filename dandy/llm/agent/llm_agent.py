@@ -55,15 +55,25 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
         recorder_event_id = generate_new_recorder_event_id()
 
-        recorder_add_llm_agent_create_plan_event(prompt, cls._processors_strategy, recorder_event_id)
+        recorder_add_llm_agent_create_plan_event(
+            prompt,
+            cls._processors_strategy,
+            recorder_event_id
+        )
 
         plan = cls._create_plan(prompt)
 
-        recorder_add_llm_agent_finished_creating_plan_event(plan, recorder_event_id)
+        recorder_add_llm_agent_finished_creating_plan_event(
+            plan,
+            recorder_event_id
+        )
 
-        recorder_add_llm_agent_running_plan_event(plan, recorder_event_id)
+        recorder_add_llm_agent_running_plan_event(
+            plan,
+            recorder_event_id
+        )
 
-        while not plan.is_complete:
+        while plan.is_incomplete:
             if plan.has_exceeded_time_limit:
                 raise AgentOverThoughtRecoverableException(
                     f'{cls.__name__} exceeded the time limit of {cls.plan_time_limit_seconds} seconds running a plan.'
@@ -71,7 +81,11 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
 
             task = plan.active_task
 
-            recorder_add_llm_agent_start_task_event(task, cls._processors_strategy, recorder_event_id)
+            recorder_add_llm_agent_start_task_event(
+                task,
+                cls._processors_strategy,
+                recorder_event_id
+            )
 
             resource = cls._processors_strategy.get_processor_from_key(task.processors_key)
 
@@ -84,11 +98,21 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             task.actual_result = updated_task.actual_result
             plan.set_active_task_complete()
 
-            recorder_add_llm_agent_completed_task_event(task, cls._processors_strategy, recorder_event_id)
+            recorder_add_llm_agent_completed_task_event(
+                task,
+                cls._processors_strategy,
+                recorder_event_id
+            )
 
-        recorder_add_llm_agent_done_executing_plan_event(plan, recorder_event_id)
+        recorder_add_llm_agent_done_executing_plan_event(
+            plan,
+            recorder_event_id
+        )
 
-        recorder_add_llm_agent_processing_final_result_event(plan, recorder_event_id)
+        recorder_add_llm_agent_processing_final_result_event(
+            plan,
+            recorder_event_id
+        )
 
         if postfix_system_prompt is None:
             postfix_system_prompt = Prompt()
