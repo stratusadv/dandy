@@ -7,6 +7,7 @@ from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
 from dandy.llm.processor.llm_strategy import BaseLlmProcessorsStrategy
 from dandy.llm.agent.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr
 from dandy.recorder.events import Event, EventAttribute, EventType
 from dandy.recorder.recorder import Recorder
 
@@ -30,7 +31,7 @@ def _recorder_add_llm_agent_event(
 
 
 def recorder_add_llm_agent_create_plan_event(
-        prompt: Prompt | str,
+        prompt: PromptOrStr,
         processors_strategy: BaseLlmProcessorsStrategy,
         event_id: str,
 ):

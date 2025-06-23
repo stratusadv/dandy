@@ -1,12 +1,9 @@
-import inspect
 from abc import abstractmethod, ABC
 
-from typing_extensions import Any, Union, AnyStr, Tuple, Dict
+from typing_extensions import Any, Union
 
-from dandy.core.exceptions import DandyCriticalException
 from dandy.core.future import AsyncFuture
 from dandy.core.processor.abc_meta import ProcessorABCMeta
-from dandy.core.typing import TypedKwargsDict
 
 
 class BaseProcessor(ABC, metaclass=ProcessorABCMeta):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING, Union
 
+from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
 from dandy.llm.service.prompts import service_system_prompt, service_user_prompt
 
 if TYPE_CHECKING:
@@ -9,8 +10,8 @@ if TYPE_CHECKING:
 
 
 def get_estimated_token_count_for_prompt(
-        prompt: Prompt,
-        postfix_system_prompt: Union[Prompt, None] = None
+        prompt: PromptOrStr,
+        postfix_system_prompt: PromptOrStrOrNone = None
 ) -> int:
 
     return service_system_prompt(

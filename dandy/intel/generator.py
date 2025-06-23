@@ -4,7 +4,8 @@ from typing import Any
 from pydantic import create_model
 from typing_extensions import Callable, Type, Dict, Tuple
 
-from dandy.core.typing import TypedKwargsDict
+from dandy.core.typing.typed_kwargs import TypedKwargs
+from dandy.core.typing.typing import TypedKwargsDict
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.intel import BaseIntel
 
@@ -13,31 +14,31 @@ class IntelClassGenerator:
     @classmethod
     def from_callable_signature(
             cls,
-            call: Callable
+            callable_: Callable
     ) -> Type[BaseIntel]:
-        signature = inspect.signature(call)
+        signature = inspect.signature(callable_)
 
-        intel_attributes = {}
+        typed_kwargs = TypedKwargs()
 
         for name, param in signature.parameters.items():
             if param.annotation is inspect._empty:
-                raise IntelCriticalException(f'Parameter {name} of {call} has no annotation')
+                raise IntelCriticalException(f'Parameter {name} of {callable_} has no annotation')
 
-            intel_attributes[name] = (param.annotation, ...)
+            typed_kwargs[name] = (param.annotation, ...)
 
-        return cls.from_attributes_dict(
-            f'{call.__name__}Intel',
-            **intel_attributes
+        return cls.from_typed_kwargs(
+            f'{callable_.__name__}Intel',
+            typed_kwargs
         )
 
     @staticmethod
-    def from_attributes_dict(
+    def from_typed_kwargs(
             intel_class_name: str,
-            attributes_dict: TypedKwargsDict
+            typed_kwargs: TypedKwargs
     ) -> Type[BaseIntel]:
         return create_model(
             intel_class_name,
             __base__=BaseIntel,
-            **attributes_dict
+            **typed_kwargs
         )
 

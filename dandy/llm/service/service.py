@@ -7,11 +7,12 @@ from pydantic.main import IncEx
 from typing_extensions import Type, Union, TYPE_CHECKING
 
 from dandy.core.http.service import BaseHttpService
+from dandy.llm.prompt.typing import PromptOrStrOrNone
 from dandy.recorder.recorder import Recorder
 from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel import BaseIntel
 from dandy.intel.factory import IntelFactory
-from dandy.intel.type_vars import IntelType
+from dandy.intel.typing import IntelType
 from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException, LlmRecoverableException
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
@@ -56,13 +57,13 @@ class LlmService(BaseHttpService):
 
     def process_prompt_to_intel(
             self,
-            prompt: Prompt | str,
+            prompt: PromptOrStr,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            system_prompt: Union[Prompt, None] = None,
+            system_prompt: PromptOrStrOrNone = None,
             message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 
@@ -151,7 +152,7 @@ class LlmService(BaseHttpService):
     def retry_process_request_to_intel(
             self,
             retry_event_description: str,
-            retry_user_prompt: Prompt | str,
+            retry_user_prompt: PromptOrStr,
     ) -> IntelType:
         if self.has_retry_attempts_available:
             self._retry_attempt += 1

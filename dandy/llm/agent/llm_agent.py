@@ -8,7 +8,7 @@ from typing_extensions import Type, Union, List, Sequence
 from dandy.agent import BaseAgent
 from dandy.agent.exceptions import AgentRecoverableException, AgentOverThoughtRecoverableException
 from dandy.conf import settings
-from dandy.intel.type_vars import IntelType
+from dandy.intel.typing import IntelType
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.processor.llm_strategy import BaseLlmProcessorsStrategy
@@ -20,6 +20,7 @@ from dandy.llm.agent.recorder import recorder_add_llm_agent_create_plan_event, \
 from dandy.llm.bot.llm_bot import BaseLlmBot, LlmBot
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.prompt.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service.config import LlmConfigOptions
 from dandy.llm.service.request.message import MessageHistory
 from dandy.recorder.utils import generate_new_recorder_event_id
@@ -28,7 +29,7 @@ from dandy.recorder.utils import generate_new_recorder_event_id
 class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     config: str = 'DEFAULT'
     config_options: LlmConfigOptions = LlmConfigOptions()
-    description: Union[Prompt, str, None] = None
+    description: PromptOrStrOrNone = None
     instructions_prompt: Prompt = Prompt("You're a helpful assistant please follow the users instructions.")
     intel_class: Type[IntelType] = DefaultLlmIntel
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
@@ -42,14 +43,14 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     @classmethod
     def process(
             cls,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
             image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            postfix_system_prompt: Union[Prompt, None] = None,
+            postfix_system_prompt: PromptOrStrOrNone = None,
             message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 
@@ -136,7 +137,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
     @classmethod
     def _create_plan(
             cls,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
     ) -> LlmAgentPlanIntel:
         plan = LlmBot.process(
             prompt=agent_create_plan_prompt(

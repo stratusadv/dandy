@@ -10,11 +10,12 @@ from dandy.bot.bot import BaseBot
 from dandy.core.future import AsyncFuture
 from dandy.core.utils import encode_file_to_base64
 from dandy.intel import BaseIntel
-from dandy.intel.type_vars import IntelType
+from dandy.intel.typing import IntelType
 from dandy.llm.conf import llm_configs
 from dandy.llm.intel import DefaultLlmIntel
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service.config.options import LlmConfigOptions
 
 if TYPE_CHECKING:
@@ -30,14 +31,14 @@ class BaseLlmBot(BaseLlmProcessor, BaseBot, ABC, Generic[IntelType]):
     @classmethod
     def process_prompt_to_intel(
             cls,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
             image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            postfix_system_prompt: Union[Prompt, None] = None,
+            postfix_system_prompt: PromptOrStrOrNone = None,
             message_history: Union[MessageHistory, None] = None
     ) -> IntelType:
 
@@ -82,14 +83,14 @@ class LlmBot(BaseLlmBot, Generic[IntelType]):
     @classmethod
     def process(
             cls,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             intel_class: Union[Type[IntelType], None] = None,
             intel_object: Union[IntelType, None] = None,
             images: Union[List[str], None] = None,
             image_files: Union[List[str | Path], None] = None,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-            postfix_system_prompt: Union[Prompt, None] = None,
+            postfix_system_prompt: PromptOrStrOrNone = None,
             message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 

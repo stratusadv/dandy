@@ -3,10 +3,11 @@ from typing_extensions import Type
 from dandy.agent.plan.task.task import AgentTaskIntel
 from dandy.core.processor.strategy import BaseProcessorsStrategy
 from dandy.llm.prompt.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr
 
 
 def agent_create_plan_prompt(
-        user_prompt: Prompt,
+        user_prompt: PromptOrStr,
         instructions_prompt: Prompt,
         processors_strategy: BaseProcessorsStrategy
 ) -> Prompt:
