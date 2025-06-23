@@ -1,4 +1,3 @@
-
 from pydantic.main import IncEx
 from typing_extensions import Union, Type
 
@@ -12,7 +11,8 @@ from dandy.intel.intel import BaseIntel
 
 
 class UseProcessorLlmBot(BaseLlmBot):
-    instructions_prompt = 'You are a bot that is given a task and a resource, provide a response that best uses the resource to complete the task.'
+    instructions_prompt = 'You are a bot that is given a task and a processor, provide a response that best uses the processor to complete the task.'
+
     @classmethod
     def process(
             cls,
@@ -39,15 +39,16 @@ class LlmProcessorController(BaseProcessorController):
             intel_object: BaseIntel,
             include_fields: Union[IncEx, None] = None,
             exclude_fields: Union[IncEx, None] = None,
-
     ) -> BaseIntel | None:
+        available_kwargs = {
+            'prompt': prompt,
+            'intel_object': intel_object,
+            'include_fields': include_fields,
+            'exclude_fields': exclude_fields,
+        }
+
         if self.processor is LlmBot:
-            return self.processor.process(
-                prompt=prompt,
-                intel_object=intel_object,
-                include_fields=include_fields,
-                exclude_fields=exclude_fields,
-            )
+            return self.processor.process(**available_kwargs)
 
         else:
             processor_kwargs_intel_class = IntelClassGenerator.from_callable_signature(
@@ -85,3 +86,8 @@ class LlmProcessorController(BaseProcessorController):
                 include_fields=include_fields,
                 exclude_fields=exclude_fields,
             )
+
+    def get_missing_arguments_from_callable(
+            self
+    ):
+        pass
