@@ -4,6 +4,7 @@ from typing import Any
 from pydantic import create_model
 from typing_extensions import Callable, Type, Dict, Tuple
 
+from dandy.core.typing import TypedKwargsDict
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.intel import BaseIntel
 
@@ -32,7 +33,7 @@ class IntelClassGenerator:
     @staticmethod
     def from_attributes_dict(
             intel_class_name: str,
-            attributes_dict: Dict[str, type | Tuple[type, Any]]
+            attributes_dict: TypedKwargsDict
     ) -> Type[BaseIntel]:
         return create_model(
             intel_class_name,
