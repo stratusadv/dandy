@@ -22,25 +22,24 @@ class TypedKwargs(UserDict):
                 f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
             )
 
-        # THIS IS ALL FUCKED UP RIGHT NOW
-
-        0 / 0
-
-        if not self.keys() >= item.keys():
+        if not self.data.keys() >= item.data.keys():
             return False
 
         for key, value in item.items():
-            if isinstance(self[key][0], str):
-                first_type = resolve_type_from_registry(self[key][0])
-            else:
-                first_type = self[key][0]
+            first_type = self[key][0]
+            second_type = item[key][0]
 
-            if isinstance(item[key][0], str):
-                second_type = resolve_type_from_registry(item[key][0])
-            else:
-                second_type = item[key][0]
+            if isinstance(first_type, str):
+                first_type = resolve_type_from_registry(
+                    type_str=first_type
+                )
 
-            if not isinstance(first_type, second_type):
+            if isinstance(second_type, str):
+                second_type = resolve_type_from_registry(
+                    type_str=second_type
+                )
+
+            if not first_type is second_type:
                 return False
 
         return True

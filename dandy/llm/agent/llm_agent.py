@@ -54,7 +54,7 @@ class BaseLlmAgent(BaseLlmBot, BaseAgent, ABC, Generic[IntelType]):
             message_history: Union[MessageHistory, None] = None,
     ) -> IntelType:
 
-        recorder_event_id = generate_new_recorder_event_id()
+        recorder_event_id = cls._recorder_event_id
 
         recorder_add_llm_agent_create_plan_event(
             prompt,

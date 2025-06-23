@@ -10,6 +10,7 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
     """
     Base class for all processing classes in dandy.
     """
+    _recorder_event_id: str = ''
     description: Union[str, None] = None
 
     @classmethod
