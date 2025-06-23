@@ -2,24 +2,23 @@
 
 ## August
 
-- Agents (Alpha) 🚧
 - Speech to Text
 - Text to Speech
+- Model Context Protocol (Prototype)
 
 ## July
 
-- Model Context Protocol (Prototype)
 - Guardrails System
 - User Input Cleaning Llm Bot (Contrib)
 - Correction & Negative Prompts 🚧
 
 ## June
 
-- Agents (Prototype) ✅
+- Agents ✅
 
 ## May
 
-- Agents (Concept) ✅
+- Agents (Experimental) ✅
 
 ## April
 
