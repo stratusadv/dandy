@@ -21,7 +21,7 @@ class TestLlmAgent(TestCase):
     @recorder_to_html_file('test_llm_agent')
     def test_llm_agent_process(self):
         email = MuseumEmailLlmAgent.process(
-            f'The Royal Tyrell Palaeontology Museum, my email is {FROM_EMAIL_ADDRESS}'
+            f'The Royal Tyrell Palaeontology Museum, green colors are awesome and my email is {FROM_EMAIL_ADDRESS}'
         )
 
         self.assertEqual(email.from_email_address, FROM_EMAIL_ADDRESS)
@@ -31,7 +31,7 @@ class TestLlmAgent(TestCase):
 
         with self.assertRaises(AgentOverThoughtRecoverableException):
             MuseumEmailLlmAgent.process(
-                f'The Royal Ontario Museum, my email is {FROM_EMAIL_ADDRESS}'
+                f'The Royal Ontario Museum, I like the color blue and my email is {FROM_EMAIL_ADDRESS}'
             )
 
     def test_llm_agent_plan_task_count_limit(self):
@@ -39,7 +39,7 @@ class TestLlmAgent(TestCase):
 
         with self.assertRaises(AgentOverThoughtRecoverableException):
             MuseumEmailLlmAgent.process(
-                f'The Canadian Museum of Nature, with proof reading, my email is {FROM_EMAIL_ADDRESS}'
+                f'The Canadian Museum of Nature with proof reading, my favorite color is purple and my email is {FROM_EMAIL_ADDRESS}'
             )
 
 

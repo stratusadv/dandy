@@ -59,7 +59,15 @@ class LlmProcessorController(BaseProcessorController):
         )
 
         if required_processor_typed_kwargs in get_typed_kwargs_from_callable(self.use):
-            return self.processor.process(**available_kwargs_and_values)
+            processor_intel = self.processor.process(
+                **{
+                    key: available_kwargs_and_values[key] for key in required_processor_typed_kwargs.keys() if
+                    key in available_kwargs_and_values
+                }
+            )
+
+            if isinstance(processor_intel, type(intel_object)):
+                return processor_intel
 
         else:
             processor_kwargs_intel_class = IntelClassGenerator.from_typed_kwargs(
@@ -79,24 +87,24 @@ class LlmProcessorController(BaseProcessorController):
                 **processor_kwargs_intel.model_to_kwargs()
             )
 
-            if not issubclass(processor_intel.__class__, BaseIntel):
-                raise AgentCriticalException(
-                    f'Processor {self.processor.__name__} did not return an instance of "BaseIntel" while being used as a resource. It returned an instance of {processor_intel.__class__.__name__}.'
-                )
-
-            return LlmBot.process(
-                prompt=(
-                    Prompt()
-                    .text('Fill out the actual result to this task using the answer below.')
-                    .text('This answer does not need to be validated.')
-                    .line_break()
-                    .sub_heading('Task:')
-                    .prompt(prompt)
-                    .line_break()
-                    .sub_heading('Answer:')
-                    .intel(processor_intel)
-                ),
-                intel_object=intel_object,
-                include_fields=include_fields,
-                exclude_fields=exclude_fields,
+        if not issubclass(processor_intel.__class__, BaseIntel):
+            raise AgentCriticalException(
+                f'Processor {self.processor.__name__} did not return an instance of "BaseIntel" while being used as a resource. It returned an instance of {processor_intel.__class__.__name__}.'
             )
+
+        return LlmBot.process(
+            prompt=(
+                Prompt()
+                .text('Fill out the actual result to this task using the answer below.')
+                .text('This answer does not need to be validated.')
+                .line_break()
+                .sub_heading('Task:')
+                .prompt(prompt)
+                .line_break()
+                .sub_heading('Answer:')
+                .intel(processor_intel)
+            ),
+            intel_object=intel_object,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+        )

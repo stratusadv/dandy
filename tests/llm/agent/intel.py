@@ -10,3 +10,7 @@ class EmailIntel(BaseIntel):
 
 class EmailAddressIntel(BaseIntel):
     email_address: str
+
+
+class EmailBodyIntel(BaseIntel):
+    body: str
