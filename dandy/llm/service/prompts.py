@@ -3,10 +3,11 @@ from typing_extensions import Union
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStrOrNone
 
 
 def service_system_prompt(
-        system_prompt: Union[Prompt, None] = None
+        system_prompt: PromptOrStrOrNone = None
 ) -> Prompt:
     prompt = Prompt()
 

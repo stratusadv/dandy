@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
-from pydantic import BaseModel, Field, PrivateAttr
-from typing_extensions import Self
+from pydantic import BaseModel, PrivateAttr
 
 
 class Map(BaseModel):

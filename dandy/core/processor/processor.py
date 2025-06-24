@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from typing_extensions import Any
+from typing_extensions import Any, Union
 
 from dandy.core.future import AsyncFuture
 from dandy.core.processor.abc_meta import ProcessorABCMeta
@@ -10,6 +10,9 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
     """
     Base class for all processing classes in dandy.
     """
+    _recorder_event_id: str = ''
+    description: Union[str, None] = None
+
     @classmethod
     @abstractmethod
     def process(cls, *args, **kwargs) -> Any:
@@ -27,8 +30,6 @@ class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
         This method is used to generate an AsyncFuture of the process method
         :param args: Arguments
         :param kwargs: Keyword Arguments
-        :return: AsyncFuture 
+        :return: AsyncFuture
         """
         return AsyncFuture(cls.process, *args, **kwargs)
-
-

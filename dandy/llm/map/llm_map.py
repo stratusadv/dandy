@@ -9,6 +9,7 @@ from dandy.llm.conf import llm_configs
 from dandy.llm.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
@@ -41,7 +42,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
     @classmethod
     def process(
             cls,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             max_return_values: int | None = None,
     ) -> MapValuesIntel:
         return cls.process_map_to_intel(
@@ -54,7 +55,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
     def process_map_to_intel(
             cls,
             map: Map,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             max_return_values: int | None = None
     ) -> MapValuesIntel:
         map_values_intel = MapValuesIntel()
@@ -90,7 +91,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
     def process_prompt_to_intel(
             cls,
             map: Map,
-            prompt: Union[Prompt, str],
+            prompt: PromptOrStr,
             max_return_values: int | None = None,
     ) -> MapKeysIntel:
 

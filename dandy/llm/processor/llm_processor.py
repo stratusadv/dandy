@@ -6,7 +6,7 @@ from dandy.core.exceptions import DandyCriticalException
 from dandy.core.future import AsyncFuture
 from dandy.core.processor.processor import BaseProcessor
 from dandy.intel import BaseIntel
-from dandy.intel.type_vars import IntelType
+from dandy.intel.typing import IntelType
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.config.options import LlmConfigOptions
 

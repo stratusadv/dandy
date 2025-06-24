@@ -117,6 +117,7 @@ Take a look at the next ...
 ```python exec="True" source="above" source="material-block" session="intel"
 from enum import Enum
 
+
 class Color(Enum):
     RED = 'red'
     GREEN = 'green'
@@ -129,12 +130,12 @@ class HatIntel(BaseIntel):
     has_feather: bool
     name: str | None = None
 
-    
+
 class ParrotIntel(BaseIntel):
     nick_name: str
     color: Color
-    
-    
+
+
 class PirateIntel(BaseIntel):
     first_name: str
     last_name: str

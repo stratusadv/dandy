@@ -2,6 +2,7 @@ __pycache__/
 .coverage_html_report/
 .dandy*/
 .idea/
+.junie/
 .venv*/
 venv*/
 build/

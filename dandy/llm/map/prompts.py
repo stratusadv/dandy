@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy.llm.prompt.prompt import Prompt
 
 
 def map_max_key_count_error_prompt(

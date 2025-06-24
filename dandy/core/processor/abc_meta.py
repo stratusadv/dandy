@@ -1,3 +1,4 @@
+import inspect
 import json
 from abc import ABCMeta
 
@@ -16,16 +17,17 @@ class ProcessorABCMeta(ABCMeta):
 
             if isinstance(original_process, classmethod):
                 original_func = original_process.__func__
+                original_process_signature = inspect.signature(original_func)
 
                 def wrapped_process(cls, *args, **kwargs):
-                    if getattr(cls, "_debugger_called", None) is None:
-                        cls._debugger_event_id = generate_new_recorder_event_id()
+                    if getattr(cls, "_recorder_called", None) is None:
+                        cls._recorder_event_id = generate_new_recorder_event_id()
 
-                    if Recorder.is_recording and not getattr(cls, "_debugger_called", False):
+                    if Recorder.is_recording and not getattr(cls, "_recorder_called", False):
                         Recorder.add_event(
                             Event(
-                                id=cls._debugger_event_id,
-                                object_name=pascal_to_title_case(cls.__name__),
+                                id=cls._recorder_event_id,
+                                object_name=pascal_to_title_case(cls.__qualname__),
                                 callable_name='Process',
                                 type=EventType.RUN,
                                 attributes=[
@@ -55,15 +57,15 @@ class ProcessorABCMeta(ABCMeta):
                             )
                         )
 
-                        cls._debugger_called = True
+                        cls._recorder_called = True
 
                     result = original_func(cls, *args, **kwargs)
 
-                    if Recorder.is_recording and getattr(cls, "_debugger_called", True):
+                    if Recorder.is_recording and getattr(cls, "_recorder_called", True):
                         Recorder.add_event(
                             Event(
-                                id=cls._debugger_event_id,
-                                object_name=pascal_to_title_case(cls.__name__),
+                                id=cls._recorder_event_id,
+                                object_name=pascal_to_title_case(cls.__qualname__),
                                 callable_name='Process Returned Result',
                                 type=EventType.RESULT,
                                 attributes=[
@@ -83,9 +85,11 @@ class ProcessorABCMeta(ABCMeta):
                                 ],
                             )
                         )
-                        cls._debugger_called = False
+                        cls._recorder_called = False
 
                     return result
+
+                wrapped_process.__signature__ = original_process_signature
 
                 setattr(processor_class, 'process', classmethod(wrapped_process))
 

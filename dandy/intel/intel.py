@@ -44,6 +44,9 @@ class BaseIntel(BaseModel, ABC):
                     f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
                 )
 
+    def model_to_kwargs(self) -> dict:
+        return dict(self)
+
     @classmethod
     def model_inc_ex_class_copy(
             cls,
@@ -182,7 +185,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     """
     def model_post_init(self, __context):
         list_fields = [
-            name for name, field in self.model_fields.items()
+            name for name, field in self.__class__.model_fields.items()
             if get_origin(field.annotation) is list
         ]
 
