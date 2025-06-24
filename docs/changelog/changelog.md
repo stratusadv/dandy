@@ -6,7 +6,7 @@
 
 - LLM Agents
   - Dandy now supports agentic processing through the `LlmAgent` module located in `dandy.llm`.
-  - Works very similar to a `LlmBot` but requires `processors` attribute that is a sequence of `BaseProcessor` subclasses.
+  - Works very similarly to a `LlmBot` but requires `processors` attribute that is a sequence of `BaseProcessor` subclasses.
   - All `processors` must have a `description` attribute to tell the agent how to use them and when.
 
 ### Fixes

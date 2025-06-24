@@ -83,7 +83,7 @@ In the `process` method of the `LlmBot` class we can now include and exclude fie
 
 another_clown = LlmBot.process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
-    processor_kwargs_intel_class=ClownIntel,
+    intel_class=ClownIntel,
     exclude_fields={'real_name'},
 )
 
@@ -97,7 +97,7 @@ You can also get the same result by including both the `can_juggle` and `clown_n
 
 another_clown = LlmBot.process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
-    processor_kwargs_intel_class=ClownIntel,
+    intel_class=ClownIntel,
     include_fields={'can_juggle', 'clown_name'},
 )
 
@@ -145,7 +145,7 @@ class PirateIntel(BaseIntel):
 
 new_pirate = LlmBot.process(
     prompt='Can you please generate me a pirate?',
-    processor_kwargs_intel_class=PirateIntel
+    intel_class=PirateIntel
 )
 
 print(new_pirate.hat.color)
@@ -162,7 +162,7 @@ We do this by creating a more complex `IncEx`/`Dict` object where the keys are t
 
 new_pirate = LlmBot.process(
     prompt='Can you please generate me a pirate?',
-    processor_kwargs_intel_class=PirateIntel,
+    intel_class=PirateIntel,
     exclude_fields={'parrot': True, 'hat': {'name': True}},
 )
 
