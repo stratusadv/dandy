@@ -18,17 +18,17 @@ class IntelClassGenerator:
     ) -> Type[BaseIntel]:
         signature = inspect.signature(callable_)
 
-        typed_kwargs = TypedKwargs()
+        typed_kwarg_dict = {}
 
         for name, param in signature.parameters.items():
             if param.annotation is inspect._empty:
                 raise IntelCriticalException(f'Parameter {name} of {callable_} has no annotation')
 
-            typed_kwargs[name] = (param.annotation, ...)
+            typed_kwarg_dict[name] = (param.annotation, ...)
 
         return cls.from_typed_kwargs(
             f'{callable_.__name__}Intel',
-            typed_kwargs
+            TypedKwargs(typed_kwarg_dict)
         )
 
     @staticmethod

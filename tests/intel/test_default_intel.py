@@ -10,4 +10,4 @@ class TestDefaultIntel(TestCase):
 
         default_intel = DefaultLlmIntel(text=test_text)
 
-        self.assertEquals(default_intel.text, test_text)
+        self.assertEqual(default_intel.text, test_text)
