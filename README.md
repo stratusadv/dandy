@@ -28,4 +28,3 @@ Check out the [Dandy Website](https://dandysoftware.com) for documentation inclu
     </a>
 </p>
 
-
