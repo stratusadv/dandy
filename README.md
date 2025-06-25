@@ -1,7 +1,5 @@
 # Dandy
 
----
-
 ![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/dandy/run_tests.yml)
 ![Python Versions](https://img.shields.io/pypi/pyversions/dandy)
 ![PyPI Version](https://img.shields.io/pypi/v/dandy)
