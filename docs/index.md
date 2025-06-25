@@ -18,10 +18,10 @@ Get started with `pip install dandy` and you're ready to go!
 ## Features
 
 - **Pythonic:** Use Python to handle all data instead of messy strings, so you’re always working with code.
-- **Customizable:** Adjust how the AI works at any time, by switching between different tools, models, services and settings.
+- **Customizable:** Adjust how the AI works at any time by switching between different tools, models, services and settings.
 - **Simple:** We put developers first, so chaining tools and logic flow are straightforward and very readable.
 - **Reliable:** Dandy is designed with self-correction and will automatically adjust to get the correct result.
-- 
+
 ## Ready to Go?
 
 Now that you know more about Dandy let's get started!
