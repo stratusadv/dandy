@@ -47,6 +47,9 @@ nav:
       - 11. Project Structure: tutorials/11_project_structure.md
       - 12. Example Project: tutorials/12_example_project.md
   - API Reference:
+      - Agent:
+          - Agent: api/agent/agent.md
+          - LlmAgent: api/agent/llm_agent.md
       - Bot:
           - BaseBot: api/bot/bot.md
           - LlmBot: api/bot/llm_bot.md

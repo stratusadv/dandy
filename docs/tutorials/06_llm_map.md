@@ -21,7 +21,10 @@ class AnimalFamilyMap(BaseLlmMap):
         'quacking': 'duck'
     })
     
-animal_families = AnimalFamilyMap.process('I was out on a walk and heard some barking', max_return_values=1)
+animal_families = AnimalFamilyMap.process(
+    'I was out on a walk and heard some barking', 
+    max_return_values=1
+)
 
 print(animal_families[0])
 ```
@@ -34,12 +37,18 @@ While a map is traversing if it comes across another `LlmMap` or `Map` it will c
 ```python exec="True" source="above" source="material-block" session="map"
 from dandy.llm import BaseLlmMap, Map
 
+class MathBook:
+    def __str__(self):
+        return 'Math Book'
+
+golf = 'Golf'
+
 class LearningMap(BaseLlmMap):
     map_keys_description = 'Learning Subjects'
     map = Map({
         'history': 'Social Studies Book',
         'science': 'Laboratory Book',
-        'numbers': 'Math Book'
+        'numbers': MathBook()
     })
 
 class ActivityMap(BaseLlmMap):
@@ -48,7 +57,7 @@ class ActivityMap(BaseLlmMap):
         'running around outdoors': Map({
             'throwing': 'Ball',
             'flinging': 'Frisbee',
-            'walking': 'Golf'
+            'walking': golf
         }),
         'playing with friends': Map({
             'kicking': 'soccer',
@@ -60,15 +69,19 @@ class ActivityMap(BaseLlmMap):
             'thinking': 'chess',
             'creative': 'painting'
         }),
-        'learning more': LearningMap
+        'learning more': LearningMap,
+        'no valid choice': None
     })
     
-activities = ActivityMap.process('Getting more education with something fun like numbers is what I like to do')
+activities = ActivityMap.process(
+    'Getting more education with something fun like numbers is what I like to do'
+)
 
-print(activities[0])
+for activity in activities:
+    print(activity)
 ```
 
 !!! note
 
-    All the examples are using strings for values in the map for simplicty, 
-    but maps can be used with any type of object so that you can get really creative when making maps.
+    All the examples are mostly using strings for values, but map values can be any type of 
+    object so that you can get really creative when making maps.
