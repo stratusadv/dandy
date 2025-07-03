@@ -2,7 +2,7 @@
 
 ## Installation
 
-Just like most python packages you can easily install Dandy using pip.
+Just like most python packages, you can easily install Dandy using pip.
 
 ``` bash
 pip install dandy
@@ -44,7 +44,7 @@ LLM_CONFIGS = {
 
 ## Simple LLM Interaction
 
-Once you have Dandy setup and configured you can easily get started with a simple LLM interaction.
+Once you have Dandy setup and configured, you can easily get started with a simple LLM interaction.
 
 ```python exec="True" source="above" source="material-block"
 
@@ -60,4 +60,4 @@ print(response.text)
 
 Wow, that was easy ... we are only beginning to dive into the power of Dandy.
 
-If you have already got the [setup](../tutorials/01_setup.md) process complete you can skip right to the [intel tutorial](../tutorials/02_intel.md).
+If you have already got the [project setup](../tutorials/setup.md) process complete, you can skip right to the [intel tutorial](../tutorials/intel.md).

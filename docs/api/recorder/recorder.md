@@ -2,5 +2,3 @@
 
 ::: dandy.recorder.recording.Recording
 
-::: dandy.recorder.events
-

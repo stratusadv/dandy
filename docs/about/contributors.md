@@ -11,4 +11,6 @@
 - Brayden Carlson
 - Ralph Malvin Uy
 - O'Brien Little
+- Chase Mossing
+- Tyrell Martens
 

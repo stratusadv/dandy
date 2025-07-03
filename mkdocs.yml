@@ -33,19 +33,37 @@ nav:
       - What is Dandy: index.md
       - Read this First: landing/read_this_first.md
       - Quick Start: landing/quick_start.md
+      - Concepts: guides/concepts_guide.md
+      - Setting Up a Project: tutorials/setup.md
   - Tutorial:
-      - 01. Setup: tutorials/01_setup.md
-      - 02. Intel: tutorials/02_intel.md
-      - 03. Prompts: tutorials/03_prompts.md
-      - 04. LLM Bot: tutorials/04_llm_bot.md
-      - 05. Recorder: tutorials/05_recorder.md
-      - 06. LLM Map: tutorials/06_llm_map.md
-      - 07. Workflow: tutorials/07_workflow.md
-      - 08. Futures: tutorials/08_futures.md
-      - 09. Caching: tutorials/09_caching.md
-      - 10. LLM Agent: tutorials/10_llm_agent.md
-      - 11. Project Structure: tutorials/11_project_structure.md
-      - 12. Example Project: tutorials/12_example_project.md
+      - 01. Setup: tutorials/setup.md
+      - 02. Intel: tutorials/intel.md
+      - 03. Prompts: tutorials/prompts.md
+      - 04. LLM Bot: tutorials/llm_bot.md
+      - 05. Recorder: tutorials/recorder.md
+      - 06. LLM Map: tutorials/llm_map.md
+      - 07. Workflow: tutorials/workflow.md
+      - 08. Futures: tutorials/futures.md
+      - 09. Caching: tutorials/caching.md
+      - 10. LLM Agent: tutorials/llm_agent.md
+      - 11. Project Structure: tutorials/project_structure.md
+      - 12. Example Project: tutorials/example_project.md
+  - Guides:
+      - Concepts: guides/concepts_guide.md
+      - Intelligence: guides/intelligence_guide.md
+      - Bots: guides/bots_guide.md
+      - Agents: guides/agents_guide.md
+      - Maps: guides/maps_guide.md
+      - Caching: guides/caching_guide.md
+      - Futures: guides/futures_guide.md
+      - Intel: guides/intel_guide.md
+      - Prompt: guides/prompts_guide.md
+      - Processors: guides/processors_guide.md
+      - Recorder: guides/recorder_guide.md
+      - Settings: guides/settings_guide.md
+      - Workflows: guides/workflows_guide.md
+      - Debugging: guides/debugging_guide.md
+      - LLM Service: guides/llm_service_guide.md
   - API Reference:
       - Agent:
           - Agent: api/agent/agent.md
@@ -58,7 +76,8 @@ nav:
       - Future:
           - AsyncFuture: api/future/future.md
       - Intel:
-          - BaseIntel: api/intel/intel.md
+          - BaseIntel: api/intel/base_intel.md
+          - BaseListIntel: api/intel/base_list_intel.md
       - LLM:
           - Config Options: api/llm/service/config/options.md
           - Prompt: api/llm/prompt/prompt.md
@@ -66,18 +85,22 @@ nav:
           - Request: api/llm/service/request/message.md
           - Service: api/llm/service/service.md
       - Map:
+          - Map: api/map/map.md
           - LLM Map: api/map/llm_map.md
       - Processor:
           - BaseProcessor: api/processor/processor.md
           - BaseLlmProcessor: api/processor/llm_processor.md
       - Recorder:
           - Recorder: api/recorder/recorder.md
+          - Events: api/recorder/events.md
+          - Decorators: api/recorder/decorators.md
       - Workflow:
           - BaseWorkflow: api/workflow/workflow.md
   - Exceptions:
       - Handling Errors: exceptions/handling_errors.md
       - Dandy: exceptions/dandy_exceptions.md
       - Sub Exceptions:
+          - Agent: exceptions/agent_exceptions.md
           - Bot: exceptions/bot_exceptions.md
           - Cache: exceptions/cache_exceptions.md
           - Future: exceptions/future_exceptions.md

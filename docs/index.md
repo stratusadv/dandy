@@ -28,7 +28,7 @@ Now that you know more about Dandy let's get started!
 
 - [Read This First](landing/read_this_first.md): Understand what will be required of you to develop with Dandy.
 - [Quick Start](landing/quick_start.md): Want to dive in a get something happening this quick start is for you!
-- [Tutorial](tutorials/01_setup.md): All done with the above two? Let's get started and really learn how to use Dandy!
+- [Tutorial](tutorials/setup.md): All done with the above two? Let's get started and really learn how to use Dandy!
 
 [//]: # (Do not delete below this line, it hides the title) 
 # 
