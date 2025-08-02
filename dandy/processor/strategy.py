@@ -5,8 +5,8 @@ from abc import ABC
 from typing_extensions import Type, Sequence, TYPE_CHECKING
 
 from dandy.core.exceptions import DandyCriticalException
-from dandy.core.processor.controller import BaseProcessorController
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor.controller import BaseProcessorController
+from dandy.processor.processor import BaseProcessor
 
 if TYPE_CHECKING:
     pass

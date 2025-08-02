@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor import BaseProcessor
 
 
 class TestWorkflow(TestCase):

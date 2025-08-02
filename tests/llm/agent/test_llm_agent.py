@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from dandy.agent.exceptions import AgentOverThoughtRecoverableException
 from dandy.conf import settings
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor import BaseProcessor
 from dandy.recorder import recorder_to_html_file
 from tests.llm.agent.llm_agents import MuseumEmailLlmAgent
 

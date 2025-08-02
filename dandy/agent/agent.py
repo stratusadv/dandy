@@ -1,11 +1,11 @@
-from abc import ABC, ABCMeta
+from abc import ABC
 
 from typing_extensions import Type, Sequence
 
 from dandy.agent.exceptions import AgentCriticalException
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor import BaseProcessor
 from dandy.conf import settings
-from dandy.core.processor.strategy import BaseProcessorsStrategy
+from dandy.processor import BaseProcessorsStrategy
 
 
 class BaseAgent(BaseProcessor, ABC):

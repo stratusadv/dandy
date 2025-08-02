@@ -4,7 +4,7 @@ from typing_extensions import Type, Generic
 
 from dandy.core.exceptions import DandyCriticalException
 from dandy.core.future import AsyncFuture
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor import BaseProcessor
 from dandy.intel import BaseIntel
 from dandy.intel.typing import IntelType
 from dandy.llm.prompt import Prompt
