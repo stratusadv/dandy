@@ -4,7 +4,7 @@ from abc import ABC
 from pathlib import Path
 
 from pydantic.main import IncEx
-from typing_extensions import Type, Generic, Union, List, TYPE_CHECKING
+from typing import Type, Generic, Union, List, TYPE_CHECKING
 
 from dandy.bot.bot import BaseBot
 from dandy.core.future import AsyncFuture

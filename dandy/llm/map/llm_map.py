@@ -2,7 +2,7 @@ from abc import ABC
 from enum import Enum
 from typing import Any
 
-from typing_extensions import Union
+from typing import Union
 
 from dandy.core.future import AsyncFuture
 from dandy.llm.conf import llm_configs

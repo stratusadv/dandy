@@ -1,7 +1,7 @@
 import hashlib
 
 from pydantic import BaseModel
-from typing_extensions import Any
+from typing import Any
 
 from dandy.cache.exceptions import CacheCriticalException
 

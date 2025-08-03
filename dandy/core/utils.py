@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Type, List, Any, Iterable
 
 from pydantic import ValidationError
-from typing_extensions import Union
+from typing import Union
 
 from dandy.constants import DEFAULT_SETTINGS_MODULE
 from dandy.core.exceptions import DandyCriticalException

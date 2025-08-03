@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from dandy.llm import Prompt
 from example.book.intelligence.character.prompts import characters_intel_prompt

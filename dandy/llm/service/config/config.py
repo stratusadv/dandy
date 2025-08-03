@@ -1,10 +1,9 @@
 from abc import abstractmethod
-from base64 import b64encode
 
-from typing_extensions import List, Union
+from typing import List, Union
 
-from dandy.core.http.config import HttpConfig
-from dandy.core.http.url import Url
+from dandy.connector.http.config import HttpConnectorConfig
+from dandy.connector.http.url import Url
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.service import LlmService
 from dandy.llm.service.config.options import LlmConfigOptions
@@ -29,7 +28,7 @@ class BaseLlmConfig:
             prompt_retry_count: Union[int, None] = None,
     ):
 
-        self.http_config = HttpConfig(
+        self.http_config = HttpConnectorConfig(
             url=Url(
                 host=host,
                 port=port,

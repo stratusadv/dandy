@@ -1,6 +1,6 @@
 import json
 
-from typing_extensions import Type
+from typing import Type
 
 from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.llm.agent.llm_plan import LlmAgentPlanIntel

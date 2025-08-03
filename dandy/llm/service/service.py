@@ -4,16 +4,14 @@ from typing import List
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
-from typing_extensions import Type, Union, TYPE_CHECKING
+from typing import Type, Union, TYPE_CHECKING
 
-from dandy.core.http.service import BaseHttpService
+from dandy.connector.http.connector import BaseHttpConnector
 from dandy.llm.prompt.typing import PromptOrStrOrNone
-from dandy.recorder.recorder import Recorder
 from dandy.recorder.utils import generate_new_recorder_event_id
-from dandy.intel import BaseIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
-from dandy.llm.exceptions import LlmCriticalException, LlmValidationCriticalException, LlmRecoverableException
+from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.prompt import Prompt
 from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, \
@@ -23,12 +21,11 @@ from dandy.llm.service.prompts import service_system_validation_error_prompt, se
 
 if TYPE_CHECKING:
     from dandy.llm.service.config import BaseLlmConfig
-    from dandy.llm.service.request.request import BaseRequestBody
     from dandy.llm.service.config import LlmConfigOptions
     from dandy.llm.service.request.message import MessageHistory
 
 
-class LlmService(BaseHttpService):
+class LlmService(BaseHttpConnector):
     def __init__(
             self,
             llm_config: BaseLlmConfig,

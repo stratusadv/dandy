@@ -1,6 +1,6 @@
 from abc import ABC
 
-from typing_extensions import Type
+from typing import Type
 
 from dandy.processor.controller import BaseProcessorController
 from dandy.processor import BaseProcessorsStrategy

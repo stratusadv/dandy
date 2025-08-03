@@ -1,4 +1,4 @@
-from typing_extensions import Union
+from typing import Union
 
 from dandy.llm.service.config import BaseLlmConfig
 from dandy.llm.service.request.openai import OpenaiRequestBody

@@ -1,6 +1,6 @@
 from collections import UserDict
 
-from typing_extensions import Self
+from typing import Self
 
 from dandy.core.exceptions import DandyCriticalException
 from dandy.core.typing.registry import resolve_type_from_registry

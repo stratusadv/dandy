@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.0
+
+### Breaking
+
+### Features
+
+### Changes
+
+- Refactored all imports from a mix of `typing_extensions` and `typing` to `typing` exclusively.
+- All `processor` based objects must be instance operated instead of class operated.
+
+### Bugs
+
 ## v0.20.0
 
 ### Features

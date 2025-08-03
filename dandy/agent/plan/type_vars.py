@@ -1,4 +1,4 @@
-from typing_extensions import TypeVar
+from typing import TypeVar
 
 from dandy.agent.plan.task.task import AgentTaskIntel
 

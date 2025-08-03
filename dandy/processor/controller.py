@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from typing_extensions import Type, Any
+from typing import Type, Any
 
 from dandy.agent.exceptions import AgentCriticalException
 from dandy.processor.processor import BaseProcessor

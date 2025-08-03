@@ -1,7 +1,7 @@
 from time import time
 
 from pydantic import Field, PrivateAttr
-from typing_extensions import List, Any, Generic
+from typing import List, Any, Generic
 
 from dandy.agent.plan.type_vars import AgentTaskIntelType
 from dandy.intel import BaseIntel

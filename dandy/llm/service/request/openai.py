@@ -1,4 +1,4 @@
-from typing_extensions import Union, List, Literal
+from typing import Union, List, Literal
 
 from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.service.request.request import BaseRequestBody

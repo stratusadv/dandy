@@ -2,7 +2,7 @@ import concurrent.futures
 from concurrent.futures import Future
 from time import perf_counter
 
-from typing_extensions import Callable, TypeVar, Generic
+from typing import Callable, TypeVar, Generic
 
 from dandy.core.future.exceptions import FutureCriticalException
 

@@ -1,5 +1,5 @@
 from pydantic.main import IncEx
-from typing_extensions import Type, Union, Dict, Any
+from typing import Type, Union, Dict, Any
 
 from dandy.intel import BaseIntel
 from dandy.intel.exceptions import IntelCriticalException

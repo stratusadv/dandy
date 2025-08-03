@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt

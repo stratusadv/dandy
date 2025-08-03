@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
-from typing_extensions import List, Dict, Union
+from typing import List, Dict, Union
+
+from pydantic import BaseModel
 
 
-@dataclass(kw_only=True)
-class Url:
+class Url(BaseModel):
     host: str
     port: int = 443
     path_parameters: Union[List[str], None] = None

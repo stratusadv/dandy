@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from pydantic import BaseModel, Field
-from typing_extensions import List, Union, Any, Literal
+from typing import List, Union, Any, Literal
 
 from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string

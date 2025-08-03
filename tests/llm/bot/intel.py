@@ -1,4 +1,4 @@
-from typing_extensions import Union, List
+from typing import Union, List
 
 from dandy.intel import BaseIntel
 

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import Field
-from typing_extensions import List, Generator, Union
+from typing import List, Generator, Union
 
 from dandy.intel import BaseIntel, BaseListIntel
 

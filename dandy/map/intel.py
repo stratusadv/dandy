@@ -1,7 +1,7 @@
 from typing import List
 
 from pydantic import Field
-from typing_extensions import Generic, TypeVar, Any
+from typing import Generic, TypeVar, Any
 
 from dandy.intel import BaseIntel, BaseListIntel
 

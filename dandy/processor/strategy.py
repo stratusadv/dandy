@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 
-from typing_extensions import Type, Sequence, TYPE_CHECKING
+from typing import Type, Sequence, TYPE_CHECKING
 
 from dandy.core.exceptions import DandyCriticalException
 from dandy.processor.controller import BaseProcessorController

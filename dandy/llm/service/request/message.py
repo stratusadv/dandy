@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing_extensions import List, Union, Any, Literal
+from typing import List, Union, Any, Literal
 
 RoleLiteralStr = Literal['user', 'assistant', 'system']
 

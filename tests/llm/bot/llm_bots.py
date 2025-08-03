@@ -1,5 +1,5 @@
 from pydantic.main import IncEx
-from typing_extensions import Union, Type
+from typing import Union, Type
 
 from dandy.llm import BaseLlmBot, Prompt
 from tests.llm.bot.intel import MoneyBagIntel

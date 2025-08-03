@@ -1,5 +1,5 @@
 from pydantic import ValidationError
-from typing_extensions import Union
+from typing import Union
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.llm.prompt import Prompt

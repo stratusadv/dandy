@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing_extensions import Union, List, Any, Literal
+from typing import Union, List, Any, Literal
 
 from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.service.request.request import BaseRequestBody

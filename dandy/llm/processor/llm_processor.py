@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from typing_extensions import Type, Generic
+from typing import Type, Generic
 
 from dandy.core.exceptions import DandyCriticalException
 from dandy.core.future import AsyncFuture

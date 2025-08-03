@@ -1,5 +1,5 @@
 from pydantic.main import IncEx
-from typing_extensions import Union, Type
+from typing import Union, Type
 
 from dandy.agent.exceptions import AgentCriticalException
 from dandy.processor.controller import BaseProcessorController

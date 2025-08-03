@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest import TestCase
 
-from typing_extensions import List, Type
+from typing import List, Type
 
 from dandy.conf import settings
 from dandy.intel import BaseIntel

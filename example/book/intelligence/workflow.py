@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from dandy.workflow import BaseWorkflow
 from example.book.intelligence.bots import BookStartLlmBot

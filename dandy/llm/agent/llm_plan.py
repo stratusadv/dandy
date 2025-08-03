@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing_extensions import List
+from typing import List
 
 from dandy.agent.plan.plan import AgentPlanIntel
 from dandy.llm.agent.llm_task import LlmAgentTaskIntel

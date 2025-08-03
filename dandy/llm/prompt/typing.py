@@ -1,4 +1,4 @@
-from typing_extensions import NewType
+from typing import NewType
 
 from dandy.llm.prompt.prompt import Prompt
 

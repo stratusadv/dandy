@@ -1,6 +1,6 @@
 from abc import ABC
 
-from typing_extensions import Type, Sequence
+from typing import Type, Sequence
 
 from dandy.agent.exceptions import AgentCriticalException
 from dandy.processor import BaseProcessor

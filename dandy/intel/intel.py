@@ -6,7 +6,7 @@ from typing import Type
 from pydantic import BaseModel, Field
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
+from typing import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
 
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation

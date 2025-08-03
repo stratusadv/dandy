@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Generic
 
 from pydantic.main import IncEx
-from typing_extensions import Type, Union, List, Sequence
+from typing import Type, Union, List, Sequence
 
 from dandy.agent import BaseAgent
 from dandy.agent.exceptions import AgentRecoverableException, AgentOverThoughtRecoverableException

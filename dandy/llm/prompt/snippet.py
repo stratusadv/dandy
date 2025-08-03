@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
 
-from typing_extensions import List, Type, TYPE_CHECKING, Dict, Union
+from typing import List, Type, TYPE_CHECKING, Dict, Union
 
 from dandy.core.path.tools import get_file_path_or_exception
 from dandy.intel import BaseIntel

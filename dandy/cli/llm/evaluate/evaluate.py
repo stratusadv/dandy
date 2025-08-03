@@ -2,7 +2,7 @@ import importlib
 import inspect
 from enum import Enum
 
-from typing_extensions import Union
+from typing import Union
 
 from dandy.cli.llm.evaluate.intelligence.prompts.prompt_evaluation_prompts import evaluate_prompt_system_prompt, \
     evaluate_prompt_user_prompt

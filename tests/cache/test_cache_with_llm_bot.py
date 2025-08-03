@@ -1,7 +1,7 @@
 import time
 from unittest import TestCase
 
-from typing_extensions import Callable
+from typing import Callable
 
 from dandy.cache import cache_to_memory
 from dandy.cache import cache_to_sqlite
