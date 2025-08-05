@@ -9,13 +9,14 @@ import httpx
 from httpx import Response
 
 from dandy.conf import settings
+from dandy.connector.connector import BaseConnector
 from dandy.connector.http.exceptions import HttpConnectorCriticalException
 
 if TYPE_CHECKING:
     from dandy.connector.http.config import HttpConnectorConfig
 
 
-class BaseHttpConnector(ABC):
+class BaseHttpConnector(ABC, BaseConnector):
     def __init__(self, config: HttpConnectorConfig):
         self._config = config
 

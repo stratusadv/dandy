@@ -3,9 +3,9 @@ from abc import ABC
 from typing import Type, Sequence
 
 from dandy.agent.exceptions import AgentCriticalException
-from dandy.processor import BaseProcessor
+from dandy.processor.processor import BaseProcessor
 from dandy.conf import settings
-from dandy.processor import BaseProcessorsStrategy
+from dandy.processor.strategy import BaseProcessorsStrategy
 
 
 class BaseAgent(BaseProcessor, ABC):

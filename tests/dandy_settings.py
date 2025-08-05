@@ -34,6 +34,9 @@ LLM_CONFIGS = {
     'DEEPSEEK_R1_14B': {
         'MODEL': 'deepseek-r1:14b',
     },
+    'DEEPSEEK_R1_8B': {
+        'MODEL': 'deepseek-r1:8b',
+    },
     'GEMMA_3_12B_VISION': {
         'MODEL': 'gemma3:12b',
     },

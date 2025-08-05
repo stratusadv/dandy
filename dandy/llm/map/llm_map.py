@@ -150,7 +150,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
                 recorder_add_llm_failure_event(error, llm_service.event_id)
 
                 if llm_service.has_retry_attempts_available:
-                    return_keys_intel = llm_service.retry_process_request_to_intel(
+                    return_keys_intel = llm_service.retry_request_to_intel(
                         retry_event_description=f'Map keys intel object came back empty, retrying with no keys prompt.',
                         retry_user_prompt=map_no_key_error_prompt()
                     )
@@ -161,7 +161,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
                 recorder_add_llm_failure_event(error, llm_service.event_id)
 
                 if llm_service.has_retry_attempts_available:
-                    return_keys_intel = llm_service.retry_process_request_to_intel(
+                    return_keys_intel = llm_service.retry_request_to_intel(
                         retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many keys prompt.',
                         retry_user_prompt=map_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),

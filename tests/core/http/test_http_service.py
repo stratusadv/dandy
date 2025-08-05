@@ -3,7 +3,7 @@ from httpx import Response
 
 from dandy.connector.http.config import HttpConnectorConfig
 from dandy.connector.http.exceptions import HttpConnectorCriticalException
-from dandy.connector.http.connector import BaseHttpConnector
+from dandy.connector.http.http_connector import BaseHttpConnector
 from dandy.connector.http.url import Url
 
 
