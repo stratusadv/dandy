@@ -1,4 +1,4 @@
-from dandy.connector.exceptions import ConnectorCriticalException, ConnectorRecoverableException
+from dandy.core.connector.exceptions import ConnectorCriticalException, ConnectorRecoverableException
 
 
 class HttpConnectorCriticalException(ConnectorCriticalException):

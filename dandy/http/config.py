@@ -2,7 +2,7 @@ from base64 import b64encode
 
 from typing import Union
 
-from dandy.connector.http.url import Url
+from dandy.http.url import Url
 from dandy.core.config.config import BaseConfig
 
 

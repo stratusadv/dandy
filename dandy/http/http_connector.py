@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from abc import ABC
 from time import sleep
 from typing import TYPE_CHECKING
 
@@ -9,14 +8,14 @@ import httpx
 from httpx import Response
 
 from dandy.conf import settings
-from dandy.connector.connector import BaseConnector
-from dandy.connector.http.exceptions import HttpConnectorCriticalException
+from dandy.core.connector.connector import BaseConnector
+from dandy.http.exceptions import HttpConnectorCriticalException
 
 if TYPE_CHECKING:
-    from dandy.connector.http.config import HttpConnectorConfig
+    from dandy.http.config import HttpConnectorConfig
 
 
-class BaseHttpConnector(ABC, BaseConnector):
+class HttpConnector(BaseConnector):
     def __init__(self, config: HttpConnectorConfig):
         self._config = config
 

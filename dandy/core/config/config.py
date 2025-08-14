@@ -3,7 +3,7 @@ from typing import Any
 
 
 class BaseConfig(ABC):
-    _config_values: set = {}
+    _config_values: set = set()
 
     def register_setting(
             self,

@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Any, Generic, TypeVar
 
-from dandy.service.exceptions import ServiceCriticalException
+from dandy.core.service.exceptions import ServiceCriticalException
 
 TypeAny = TypeVar('TypeAny', bound=Any, covariant=True)
 

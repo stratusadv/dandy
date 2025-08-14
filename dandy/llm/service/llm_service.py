@@ -1,20 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from pydantic.main import IncEx
-
-from dandy.intel.typing import IntelType
-from dandy.llm import MessageHistory
-from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
-from dandy.service.service import BaseService
-from typing import List
+from dandy.llm.conf import llm_configs
+from dandy.llm.prompt.typing import PromptOrStr
+from dandy.core.service.service import BaseService
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
-from typing import Type, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from dandy.connector.http.http_connector import BaseHttpConnector
+from dandy.http.http_connector import HttpConnector
 from dandy.llm.prompt.typing import PromptOrStrOrNone
 from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel.factory import IntelFactory
@@ -26,13 +20,10 @@ from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_
     recorder_add_llm_failure_event, recorder_add_llm_retry_event
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
+from dandy.llm.service.config import LlmConfigOptions
 
 if TYPE_CHECKING:
-    from dandy.llm.service.config import BaseLlmConfig
-    from dandy.llm.service.config import LlmConfigOptions
     from dandy.llm.service.request.message import MessageHistory
-
-
 
 if TYPE_CHECKING:
     from dandy.processor.processor import BaseProcessor
@@ -40,13 +31,15 @@ if TYPE_CHECKING:
 
 class LlmService(BaseService['BaseProcessor']):
     obj: BaseProcessor
+    Prompt: Prompt = Prompt
 
     def __post_init__(self):
         self._retry_attempts = 0
         self.event_id = generate_new_recorder_event_id()
 
-        self._llm_config = llm_config
-        self._llm_options = llm_options
+        self._llm_config = llm_configs.DEFAULT
+        self._llm_options = LlmConfigOptions()
+
         self._intel = None
         self._intel_json_schema = None
         self._request_body = self._llm_config.generate_request_body(
@@ -122,8 +115,10 @@ class LlmService(BaseService['BaseProcessor']):
     ) -> IntelType:
         recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self.event_id)
 
+        http_connector = HttpConnector(self._llm_config.http_config)
+
         self._response_content = self._llm_config.get_response_content(
-            self.post_request(
+            http_connector.post_request(
                 self._request_body.model_dump()
             )
         )

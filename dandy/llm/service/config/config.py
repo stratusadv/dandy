@@ -2,10 +2,10 @@ from abc import abstractmethod
 
 from typing import List, Union
 
-from dandy.connector.http.config import HttpConnectorConfig
-from dandy.connector.http.url import Url
+from dandy.http.config import HttpConnectorConfig
+from dandy.http.url import Url
 from dandy.llm.exceptions import LlmCriticalException
-from dandy.llm.service import LlmService
+# from dandy.llm.service import LlmService
 from dandy.llm.service.config.options import LlmConfigOptions
 from dandy.llm.service.request.request import BaseRequestBody
 
@@ -69,18 +69,18 @@ class BaseLlmConfig:
     ) -> BaseRequestBody:
         ...
 
-    def generate_service(
-            self,
-            llm_options: Union[LlmConfigOptions, None] = None,
-    ) -> LlmService:
-        return LlmService(
-            self,
-            llm_options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
-        )
-
-    @property
-    def service(self) -> LlmService:
-        return self.generate_service()
+    # def generate_service(
+    #         self,
+    #         llm_options: Union[LlmConfigOptions, None] = None,
+    # ) -> LlmService:
+    #     return LlmService(
+    #         self,
+    #         llm_options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
+    #     )
+    #
+    # @property
+    # def service(self) -> LlmService:
+    #     return self.generate_service()
 
     def validate_value(self, value: Union[str, int], value_name: str, value_type: type):
         exception_postfix = f'{self.__class__.__name__}: {value_name}'

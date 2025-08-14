@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import dataclass
 
 from typing import Type, Sequence
 
@@ -8,6 +9,7 @@ from dandy.conf import settings
 from dandy.processor.strategy import BaseProcessorsStrategy
 
 
+@dataclass(kw_only=True)
 class BaseAgent(BaseProcessor, ABC):
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT

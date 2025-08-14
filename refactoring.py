@@ -10,10 +10,17 @@ class PoemIntel(BaseIntel):
 
 
 class Bot(BaseBot):
-    def process(self):
-        self.services.llm.prompt_to_intel(
-            prompt='Write me a random poem',
+    def __post_init__(self):
+        self.llm_instructions_prompt = self.llm.Prompt('You are a poetic assistant. that always uses pink and green words in your poems.')
+
+    def process(self, user_input: str = '') -> PoemIntel:
+        poem_intel = self.llm.prompt_to_intel(
+            prompt=self.llm.Prompt(user_input),
             intel_class=PoemIntel,
         )
 
-print(Bot().process())
+        return poem_intel
+
+allan_bot = Bot()
+
+print(allan_bot.process('There is a crab in my garden and I think he wants money!'))
