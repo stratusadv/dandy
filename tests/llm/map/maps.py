@@ -1,11 +1,11 @@
 from dandy.llm import LlmConfigOptions
-from dandy.map.llm_map import BaseLlmMap
-from dandy.map.map import Map
+from dandy.map.map import BaseLlmMap
+from dandy.map.mapping import Mapping
 
 
 class FunLlmMap(BaseLlmMap):
     map_keys_description = 'Personalities'
-    map = Map({
+    map = Mapping({
         'someone that needs a laugh and needs clowns': 113,
         'someone is interested in seeing animals': 782,
         'someone looking for something more technical': 927,
@@ -16,7 +16,7 @@ class FunLlmMap(BaseLlmMap):
 class DragonLlmMap(BaseLlmMap):
     map_keys_description = 'Battle Outcomes'
     config_options = LlmConfigOptions(temperature=0)
-    map = Map({
+    map = Mapping({
         'The player is packing other stuff': 'The battle was lost',
         'The player brought a sword': 'The battle was won',
     })
@@ -25,7 +25,7 @@ class DragonLlmMap(BaseLlmMap):
 class TreasureLlmMap(BaseLlmMap):
     map_keys_description = 'Treasure Outcomes'
     config_options = LlmConfigOptions(temperature=0)
-    map = Map({
+    map = Mapping({
         'Player brought a shovel': 'The treasure was recovered',
         'Player did not bring a shovel': 'The treasure was lost'
     })
@@ -34,7 +34,7 @@ class TreasureLlmMap(BaseLlmMap):
 class AdventureGameLlmMap(BaseLlmMap):
     map_keys_description = 'Adventure Direction Decisions'
     config_options = LlmConfigOptions(temperature=0)
-    map = Map({
+    map = Mapping({
         'The player travels down the path to the left': DragonLlmMap,
         'The player goes right into the jungle': TreasureLlmMap
     })
@@ -43,12 +43,12 @@ class AdventureGameLlmMap(BaseLlmMap):
 class NestedBirdMap(BaseLlmMap):
     config_options = LlmConfigOptions(temperature=0)
     map_keys_description = 'Bird Descriptions'
-    map = Map({
-        'the bird is dark colored': Map({
+    map = Mapping({
+        'the bird is dark colored': Mapping({
             'it is a crow': 'caw crow',
             'it is a raven': 'caw raven'
         }),
-        'the bird is colorful': Map({
+        'the bird is colorful': Mapping({
             'it is a parrot': 'caw parrot',
             'it is a parakeet': 'caw parakeet'
         })

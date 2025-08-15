@@ -4,7 +4,7 @@ from faker import Faker
 
 from dandy.llm import BaseLlmMap
 from dandy.llm.exceptions import LlmRecoverableException
-from dandy.map import Map
+from dandy.map import Mapping
 from dandy.map.exceptions import MapRecoverableException
 from dandy.recorder import recorder_to_html_file
 from tests.decorators import nines_testing
@@ -45,7 +45,7 @@ class TestLlmMap(TestCase):
 
         class UserLlmMap(BaseLlmMap):
             map_keys_description = 'Employee First and Last Names'
-            map = Map(user_dictionary)
+            map = Mapping(user_dictionary)
 
         name = fake.random_element(user_dictionary.keys())
 

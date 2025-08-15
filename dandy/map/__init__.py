@@ -1,5 +1,5 @@
-from dandy.map.map import Map
+from dandy.map.mapping import Mapping
 
 __all__ = [
-    'Map'
+    'Mapping'
 ]
