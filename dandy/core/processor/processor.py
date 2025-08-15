@@ -1,14 +1,14 @@
 from abc import abstractmethod, ABC
 
-from typing import Any, Union, get_type_hints
+from typing import Any, get_type_hints
 
 from dandy.core.future import AsyncFuture
-from dandy.processor.abc_meta import ProcessorABCMeta
+from dandy.core.processor.abc_meta import ProcessorABCMeta
 
 
 class BaseProcessor(ABC, metaclass=ProcessorABCMeta):
     _recorder_event_id: str = ''
-    description: Union[str, None] = None
+    description: str | None = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

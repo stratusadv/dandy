@@ -1,12 +1,10 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any
+from abc import ABC
 
 from dandy.bot.service import BotService
 from dandy.http.mixin import HttpProcessorMixin
-from dandy.processor.processor import BaseProcessor
 from dandy.llm.mixin import LlmProcessorMixin
-from dandy.llm.service.llm_service import LlmService
+from dandy.core.processor.processor import BaseProcessor
+from dandy.vision.mixin import VisionProcessorMixin
 
 
 class BaseBot(
@@ -14,6 +12,7 @@ class BaseBot(
     ABC,
     LlmProcessorMixin,
     HttpProcessorMixin,
+    VisionProcessorMixin,
 ):
-    services: BotService = BotService()
+    bot: BotService = BotService()
 

@@ -6,7 +6,7 @@ from typing import Union
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
     generate_llm_bot_user_prompt
 from dandy.intel import BaseIntel
-from dandy.llm.service.config import BaseLlmConfig
+from dandy.llm.config import BaseLlmConfig
 
 
 class LlmBotSourceIntel(BaseIntel):

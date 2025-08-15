@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from pydantic.main import IncEx
 from typing import TYPE_CHECKING
 
-from dandy.http.http_connector import HttpConnector
+from dandy.http.connector import HttpConnector
 from dandy.llm.prompt.typing import PromptOrStrOrNone
 from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel.factory import IntelFactory
@@ -20,28 +20,26 @@ from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_
     recorder_add_llm_failure_event, recorder_add_llm_retry_event
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
-from dandy.llm.service.config import LlmConfigOptions
+from dandy.llm.config import LlmConfigOptions
 
 if TYPE_CHECKING:
-    from dandy.llm.service.request.message import MessageHistory
+    from dandy.llm.mixin import LlmProcessorMixin
+    from dandy.llm.request.message import MessageHistory
 
-if TYPE_CHECKING:
-    from dandy.processor.processor import BaseProcessor
-
-
-class LlmService(BaseService['BaseProcessor']):
-    obj: BaseProcessor
+class LlmService(BaseService['LlmProcessorMixin']):
+    obj: LlmProcessorMixin
     Prompt: Prompt = Prompt
 
     def __post_init__(self):
         self._retry_attempts = 0
         self.event_id = generate_new_recorder_event_id()
 
-        self._llm_config = llm_configs.DEFAULT
+        self._llm_config = llm_configs[self.obj.llm_config]
         self._llm_options = LlmConfigOptions()
 
         self._intel = None
         self._intel_json_schema = None
+
         self._request_body = self._llm_config.generate_request_body(
             max_input_tokens=self._llm_options.max_input_tokens,
             max_output_tokens=self._llm_options.max_output_tokens,
@@ -50,6 +48,37 @@ class LlmService(BaseService['BaseProcessor']):
         )
         self._response_content = None
         self._retry_attempt = 0
+
+    def _generate_system_prompt_str(
+            self,
+            postfix_system_prompt: PromptOrStrOrNone
+    ) -> str:
+        if self.obj.llm_system_override_prompt:
+            system_override_prompt = self.Prompt()
+            system_override_prompt.prompt(self.obj.llm_system_override_prompt)
+
+            system_override_prompt.line_break()
+            system_override_prompt.prompt(self.obj.llm_instructions_prompt)
+
+            if postfix_system_prompt:
+                system_override_prompt.line_break()
+                system_override_prompt.prompt(postfix_system_prompt)
+
+            system_prompt_str = system_override_prompt.to_str()
+
+        else:
+            system_prompt = Prompt()
+            system_prompt.prompt(self.obj.llm_instructions_prompt)
+
+            if postfix_system_prompt:
+                system_prompt.line_break()
+                system_prompt.prompt(postfix_system_prompt)
+
+            system_prompt_str = service_system_prompt(
+                system_prompt=system_prompt
+            ).to_str()
+
+        return system_prompt_str
 
     @property
     def has_retry_attempts_available(self) -> bool:
@@ -63,7 +92,7 @@ class LlmService(BaseService['BaseProcessor']):
             images: list[str] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
-            system_prompt: PromptOrStrOrNone = None,
+            postfix_system_prompt: PromptOrStrOrNone = None,
             message_history: MessageHistory | None = None,
     ) -> IntelType:
 
@@ -87,9 +116,7 @@ class LlmService(BaseService['BaseProcessor']):
 
         self._request_body.add_message(
             role='system',
-            content=service_system_prompt(
-                system_prompt=system_prompt
-            ).to_str()
+            content=self._generate_system_prompt_str(postfix_system_prompt)
         )
 
         if message_history:

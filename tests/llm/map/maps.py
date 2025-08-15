@@ -1,5 +1,5 @@
 from dandy.llm import LlmConfigOptions
-from dandy.llm.map.llm_map import BaseLlmMap
+from dandy.map.llm_map import BaseLlmMap
 from dandy.map.map import Map
 
 

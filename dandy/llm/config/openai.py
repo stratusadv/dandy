@@ -1,8 +1,8 @@
 from typing import Union
 
-from dandy.llm.service.config import BaseLlmConfig
-from dandy.llm.service.request.openai import OpenaiRequestBody
-from dandy.llm.service.request.request import BaseRequestBody
+from dandy.llm.config import BaseLlmConfig
+from dandy.llm.request.openai import OpenaiRequestBody
+from dandy.llm.request.request import BaseRequestBody
 
 
 class OpenaiLlmConfig(BaseLlmConfig):

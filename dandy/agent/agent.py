@@ -4,18 +4,30 @@ from dataclasses import dataclass
 from typing import Type, Sequence
 
 from dandy.agent.exceptions import AgentCriticalException
-from dandy.processor.processor import BaseProcessor
+from dandy.agent.service import AgentService
+from dandy.http.mixin import HttpProcessorMixin
+from dandy.llm.mixin import LlmProcessorMixin
+from dandy.core.processor.processor import BaseProcessor
 from dandy.conf import settings
-from dandy.processor.strategy import BaseProcessorsStrategy
+from dandy.core.processor.processor import BaseProcessorsStrategy
+from dandy.vision.mixin import VisionProcessorMixin
 
 
 @dataclass(kw_only=True)
-class BaseAgent(BaseProcessor, ABC):
+class BaseAgent(
+    BaseProcessor,
+    ABC,
+    LlmProcessorMixin,
+    HttpProcessorMixin,
+    VisionProcessorMixin,
+):
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
     _processors_strategy_class: Type[BaseProcessorsStrategy]
     _processors_strategy: BaseProcessorsStrategy
     processors: Sequence[Type[BaseProcessor]]
+
+    agent: AgentService = AgentService()
 
     def __init_subclass__(cls, **kwargs):
         if cls.processors is None or len(cls.processors) == 0:

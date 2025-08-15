@@ -7,7 +7,7 @@ from typing import Union
 from dandy.cli.llm.evaluate.intelligence.prompts.prompt_evaluation_prompts import evaluate_prompt_system_prompt, \
     evaluate_prompt_user_prompt
 from dandy.intel import BaseIntel
-from dandy.llm.service.config import BaseLlmConfig
+from dandy.llm.config import BaseLlmConfig
 
 
 class EvaluatedSourceIntel(BaseIntel):

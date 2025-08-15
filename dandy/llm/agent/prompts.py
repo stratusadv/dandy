@@ -1,5 +1,5 @@
 from dandy.agent.plan.task.task import AgentTaskIntel
-from dandy.processor import BaseProcessorsStrategy
+from dandy.core.processor import BaseProcessorsStrategy
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 

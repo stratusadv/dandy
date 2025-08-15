@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from dandy.core.utils import pydantic_validation_error_to_str, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
 from dandy.intel import BaseIntel
-from dandy.llm.service.request.request import BaseRequestBody
+from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.recorder.events import Event, EventAttribute, EventType
 

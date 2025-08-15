@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 
 from dandy.llm.intel import DefaultLlmIntel
-from dandy.llm.service.config import OllamaLlmConfig
+from dandy.llm.config import OllamaLlmConfig
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.conf import llm_configs
 

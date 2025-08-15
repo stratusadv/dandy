@@ -1,16 +1,13 @@
 from abc import ABC
 from enum import Enum
-from typing import Any
-
-from typing import Union
 
 from dandy.core.future import AsyncFuture
 from dandy.llm.conf import llm_configs
-from dandy.llm.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
+from dandy.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
-from dandy.llm.service.config.options import LlmConfigOptions
+from dandy.llm.config import LlmConfigOptions
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException

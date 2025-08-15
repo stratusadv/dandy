@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from typing import Union, List, Any, Literal
+from typing import Union, List
 
-from dandy.llm.service.request.message import RequestMessage, RoleLiteralStr
-from dandy.llm.service.request.request import BaseRequestBody
+from dandy.llm.request.message import RequestMessage, RoleLiteralStr
+from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 

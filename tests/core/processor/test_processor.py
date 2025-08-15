@@ -1,12 +1,12 @@
 from unittest import TestCase, mock
 
 from dandy.core.future import AsyncFuture
-from dandy.processor import BaseProcessor
+from dandy.core.processor import BaseProcessor
 
 
 class TestProcessor(TestCase):
     def test_processor_import(self):
-        from dandy.processor import BaseProcessor
+        from dandy.core.processor import BaseProcessor
         self.assertTrue(type(BaseProcessor) is type(BaseProcessor))
 
     @mock.patch.multiple(BaseProcessor, __abstractmethods__=set())
