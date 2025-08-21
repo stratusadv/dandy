@@ -1,40 +1,77 @@
 from abc import ABC
 from enum import Enum
+from typing import Dict, Any
 
 from dandy.core.future import AsyncFuture
+from dandy.core.processor.processor import BaseProcessor
 from dandy.llm.conf import llm_configs
+from dandy.llm.mixin import LlmProcessorMixin
 from dandy.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
-from dandy.llm.processor.llm_processor import BaseLlmProcessor
 from dandy.llm.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
-from dandy.llm.config import LlmConfigOptions
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException
 from dandy.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
-from dandy.map.mapping import Mapping
 
 
-class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
-    config: str = 'DEFAULT'
-    config_options: LlmConfigOptions = LlmConfigOptions()
-    instructions_prompt: Prompt = Prompt()
-    intel_class = MapKeysIntel
-    map_keys_description: str
-    map: Mapping
+class Map(
+    BaseProcessor,
+    ABC,
+    LlmProcessorMixin,
+):
+    mapping_keys_description: str
+    mapping: Dict[str, Any]
+    _keyed_mapping: Dict[str, tuple[str, Any]] = dict()
     _map_enum: Enum | None = None
+
+    def __post_init__(self):
+        self._process_mapping_to_keyed()
 
     def __init_subclass__(cls):
         super().__init_subclass__()
 
-        if cls.map_keys_description is None:
+        if cls.mapping_keys_description is None:
             raise MapCriticalException(f'{cls.__name__} `map_keys_description` is not set.')
 
-        if cls.map is None:
+        if cls.mapping is None:
             raise MapCriticalException(f'{cls.__name__} `map` is not set.')
 
         if cls._map_enum is None:
-            cls._map_enum = cls.map.as_enum()
+            cls._map_enum = cls.mapping.as_enum()
+
+    def __getitem__(self, item):
+        return self.mapping[item]
+
+    def as_enum(self) -> Enum:
+        enum_choices = {}
+        for key, value in self._keyed_mapping.items():
+            enum_choices[value[0]] = key
+
+        return Enum(f'{self.__class__.__name__}Enum', enum_choices)
+
+    @property
+    def keyed_mapping_choices(self) -> list[str]:
+        return [f'{key}. {value[0]}\n' for key, value in self._keyed_mapping.items()]
+
+    @property
+    def keyed_mapping_choices_dict(self) -> Dict[str, str]:
+        return {key: value[0] for key, value in self._keyed_mapping.items()}
+
+    @property
+    def keyed_mapping_choices_str(self) -> str:
+        return ''.join(self.keyed_mapping_choices)
+
+    def _get_selected_value(self, choice_key: str) -> Any:
+        return self._keyed_mapping[choice_key][1]
+
+    def _process_mapping_to_keyed(self):
+        for i, (choice, value) in enumerate(self.mapping.items(), start=1):
+            key = str(i)
+            if isinstance(value, dict):
+                self._keyed_mapping[key] = (choice, self._process_mapping_to_keyed())
+            else:
+                self._keyed_mapping[key] = (choice, value)
 
     @classmethod
     def process(
@@ -43,7 +80,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             max_return_values: int | None = None,
     ) -> MapValuesIntel:
         return cls.process_map_to_intel(
-            cls.map,
+            # cls.mapping,
             prompt,
             max_return_values
         )
@@ -51,17 +88,17 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
     @classmethod
     def process_map_to_intel(
             cls,
-            map: Mapping,
+            # map: Mapping,
             prompt: PromptOrStr,
             max_return_values: int | None = None
     ) -> MapValuesIntel:
         map_values_intel = MapValuesIntel()
 
         for map_enum in cls.process_prompt_to_intel(map, prompt, max_return_values):
-            map_value = map.get_selected_value(map_enum.value)
+            map_value = cls._get_selected_value(map_enum.value)
 
             if isinstance(map_value, type):
-                if issubclass(map_value, BaseLlmMap):
+                if issubclass(map_value, Map):
                     map_values_intel.extend(
                         map_value.process(
                             prompt,
@@ -74,7 +111,7 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             elif isinstance(map_value, Mapping):
                 map_values_intel.extend(
                     cls.process_map_to_intel(
-                        map_value,
+                        # map_value,
                         prompt,
                         max_return_values
                     ).values
@@ -100,13 +137,13 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             intel_class = MapKeyIntel[cls._map_enum]
 
         system_prompt = Prompt()
-        system_prompt.prompt(cls.instructions_prompt)
-        system_prompt.text(f'You\'re an "{cls.map_keys_description}" assistant')
+        system_prompt.prompt(cls.llm_instructions_prompt)
+        system_prompt.text(f'You\'re an "{cls.mapping_keys_description}" assistant')
 
         system_prompt.line_break()
 
         system_prompt.text(
-            f'Read through all of the "{cls.map_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
+            f'Read through all of the "{cls.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
 
         system_prompt.line_break()
 
@@ -121,12 +158,12 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
                 f'Return the numbered {key_str} you find that are most relevant and return at least one.')
 
         system_prompt.line_break()
-        system_prompt.heading(f'"{cls.map_keys_description}"')
+        system_prompt.heading(f'"{cls.mapping_keys_description}"')
         system_prompt.line_break()
 
-        system_prompt.dict(map.keyed_choices_dict)
+        system_prompt.dict(cls.keyed_mapping_choices_dict)
 
-        llm_service = llm_configs[cls.config].generate_service(
+        llm_service = llm_configs[cls.llm_config].generate_service(
             llm_options=cls.config_options
         )
 
@@ -197,10 +234,10 @@ class BaseLlmMap(BaseLlmProcessor[MapKeysIntel], ABC):
             max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
-            raise MapNoKeysRecoverableException(f'No {cls.map_keys_description} found.')
+            raise MapNoKeysRecoverableException(f'No {cls.mapping_keys_description} found.')
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
-            raise MapToManyKeysRecoverableException(f'Too many {cls.map_keys_description} found.')
+            raise MapToManyKeysRecoverableException(f'Too many {cls.mapping_keys_description} found.')
 
     @classmethod
     def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:

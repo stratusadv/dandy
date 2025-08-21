@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from pydantic import BaseModel, Field
 from typing import List, Union
@@ -6,7 +6,7 @@ from typing import List, Union
 from dandy.llm.request.message import RequestMessage, RoleLiteralStr
 
 
-class BaseRequestBody(BaseModel):
+class BaseRequestBody(BaseModel, ABC):
     model: str
     messages: List[RequestMessage] = Field(default_factory=list)
 

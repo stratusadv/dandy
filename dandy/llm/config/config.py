@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 from typing import List, Union
 
+from dandy.core.config.config import BaseConfig
 from dandy.http.config import HttpConnectorConfig
 from dandy.http.url import Url
 from dandy.llm.exceptions import LlmCriticalException
@@ -10,7 +11,7 @@ from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.request.request import BaseRequestBody
 
 
-class BaseLlmConfig:
+class BaseLlmConfig(BaseConfig):
     def __init__(
             self,
             host: str,
@@ -47,6 +48,22 @@ class BaseLlmConfig:
             seed=seed,
             randomize_seed=randomize_seed,
             temperature=temperature,
+        )
+
+        self.register_settings(
+            'host',
+            'port',
+            'model',
+            'path_parameters',
+            'query_parameters',
+            'headers',
+            'api_key',
+            'seed',
+            'randomize_seed',
+            'max_input_tokens',
+            'max_output_tokens',
+            'temperature',
+            'prompt_retry_count',
         )
 
         self.__llm_config_post_init__()

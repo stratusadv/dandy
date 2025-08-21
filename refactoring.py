@@ -10,9 +10,8 @@ class PoemIntel(BaseIntel):
 
 
 class Bot(BaseBot):
-    # llm_instructions_prompt = 'You are a poetic assistant. that always uses pink and green words in your poems.'
-    # def __post_init__(self):
-    #     self.llm_instructions_prompt = self.llm.Prompt('You are a poetic assistant. that always uses pink and green words in your poems.')
+    def __post_init__(self):
+        self.llm_instructions_prompt = self.llm.Prompt('You are a poetic assistant that writes poems for users. that always uses pink and green words in your poems.')
 
     def process(self, user_input: str = '') -> PoemIntel:
         poem_intel = self.llm.prompt_to_intel(
@@ -25,4 +24,4 @@ class Bot(BaseBot):
 
 allan_bot = Bot()
 
-print(allan_bot.process('There is a crab in my garden and I think he wants money!'))
+print(allan_bot.process('There is a crab in my garden and I think he wants money!').poem)

@@ -1,12 +1,14 @@
 # Changelog
 
-## v1.0.0
+## v1.0.0a1
 
 ### Breaking
 
 - Almost all the Dandy API has been refactored in v1 and is not compatible with the v0 API.
 
 ### Features
+
+- `Map` is now a stand alone processor that is much easier to operate and chain.
 
 ### Changes
 
