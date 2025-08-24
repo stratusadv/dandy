@@ -1,5 +1,5 @@
-from dandy.agent.agent import BaseAgent
+from dandy.agent.agent import Agent
 
 __all__ = [
-    'BaseAgent'
+    'Agent'
 ]

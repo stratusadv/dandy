@@ -29,6 +29,12 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
+    'FAST': {
+        'MODEL': 'gemma3:4b',
+        'TEMPERATURE': 0.1,
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 16000,
+    },
     'THINKING': {
         'HOST': os.getenv("THINKING_OLLAMA_HOST"),
         'MODEL': 'qwen3:235b',

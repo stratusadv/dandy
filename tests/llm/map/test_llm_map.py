@@ -2,11 +2,8 @@ from unittest import TestCase, mock
 
 from faker import Faker
 
-from dandy.llm import BaseLlmMap
-from dandy.llm.exceptions import LlmRecoverableException
-from dandy.map import Mapping
 from dandy.map.exceptions import MapRecoverableException
-from dandy.recorder import recorder_to_html_file
+from dandy.map.map import Map
 from tests.decorators import nines_testing
 from tests.llm.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedBirdMap
 
@@ -43,9 +40,9 @@ class TestLlmMap(TestCase):
             pk += fake.random_int(min=5, max=50)
             user_dictionary[f'{fake.unique.name()}'] = pk
 
-        class UserLlmMap(BaseLlmMap):
+        class UserLlmMap(Map):
             map_keys_description = 'Employee First and Last Names'
-            map = Mapping(user_dictionary)
+            map = Map(mapping=user_dictionary)
 
         name = fake.random_element(user_dictionary.keys())
 

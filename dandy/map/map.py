@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import dataclass, Field, field
 from enum import Enum
 from typing import Dict, Any
 
@@ -15,30 +16,44 @@ from dandy.map.exceptions import MapCriticalException, MapRecoverableException, 
 from dandy.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
 
 
+@dataclass(kw_only=True)
 class Map(
     BaseProcessor,
-    ABC,
     LlmProcessorMixin,
 ):
-    mapping_keys_description: str
-    mapping: Dict[str, Any]
-    _keyed_mapping: Dict[str, tuple[str, Any]] = dict()
+    # These are set to None to fix a init issue with class variables
+    mapping_keys_description: str | None = None
+    mapping: Dict[str, Any] | None = None
+    # End
+
+    _keyed_mapping: Dict[str, tuple[str, Any]] = field(default_factory=dict)
     _map_enum: Enum | None = None
 
     def __post_init__(self):
+        if self.mapping_keys_description is None:
+            self.mapping_keys_description = self.__class__.mapping_keys_description
+
+        if self.mapping is None:
+            self.mapping = self.__class__.mapping
+
+        for key in self.mapping.keys():
+            if not isinstance(key, str):
+                raise MapCriticalException(f'Mapping keys must be strings, found {key} ({type(key)}).')
+
         self._process_mapping_to_keyed()
+
+        if self._map_enum is None:
+            self._map_enum = self.as_enum()
 
     def __init_subclass__(cls):
         super().__init_subclass__()
 
         if cls.mapping_keys_description is None:
-            raise MapCriticalException(f'{cls.__name__} `map_keys_description` is not set.')
+            raise MapCriticalException(f'{cls.__name__} `mapping_keys_description` is not set.')
 
         if cls.mapping is None:
-            raise MapCriticalException(f'{cls.__name__} `map` is not set.')
+            raise MapCriticalException(f'{cls.__name__} `mapping` is not set.')
 
-        if cls._map_enum is None:
-            cls._map_enum = cls.mapping.as_enum()
 
     def __getitem__(self, item):
         return self.mapping[item]
@@ -108,7 +123,7 @@ class Map(
                 else:
                     map_values_intel.append(map_value)
 
-            elif isinstance(map_value, Mapping):
+            elif isinstance(map_value):
                 map_values_intel.extend(
                     cls.process_map_to_intel(
                         # map_value,
@@ -124,7 +139,6 @@ class Map(
     @classmethod
     def process_prompt_to_intel(
             cls,
-            map: Mapping,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
     ) -> MapKeysIntel:

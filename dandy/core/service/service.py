@@ -20,6 +20,7 @@ class BaseService(ABC, Generic[TypeAny]):
         self._obj_mro_type_names = [cls.__name__ for cls in obj.__class__.__mro__]
 
         if not self._obj_type_name in self._obj_mro_type_names:
+            print(self._obj_mro_type_names)
             raise ServiceCriticalException(
                 f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
             )
@@ -51,9 +52,9 @@ class BaseService(ABC, Generic[TypeAny]):
             def __get__(self, instance, owner):
 
                 if instance is None:
-                    target: BaseService | Any = owner()
+                    target: cls | Any = owner()
                 else:
-                    target: BaseService | Any = instance
+                    target: cls | Any = instance
 
                 if issubclass(target.__class__, BaseService):
 

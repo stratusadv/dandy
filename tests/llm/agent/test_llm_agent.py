@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from dandy.agent.exceptions import AgentOverThoughtRecoverableException
 from dandy.conf import settings
-from dandy.core.processor import BaseProcessor
+from dandy.core.processor.processor import BaseProcessor
 from dandy.recorder import recorder_to_html_file
 from tests.llm.agent.llm_agents import MuseumEmailLlmAgent
 
@@ -14,9 +14,9 @@ class TestLlmAgent(TestCase):
         MuseumEmailLlmAgent.plan_task_count_limit = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
 
     def test_llm_agent_import(self):
-        from dandy.llm import BaseLlmAgent
+        from dandy.agent import Agent
 
-        self.assertTrue(type(BaseLlmAgent) is type(BaseProcessor))
+        self.assertTrue(type(Agent) is type(BaseProcessor))
 
     @recorder_to_html_file('test_llm_agent')
     def test_llm_agent_process(self):

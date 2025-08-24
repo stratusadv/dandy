@@ -1,7 +1,8 @@
 from unittest import TestCase
 
+from dandy.bot import Bot
 from dandy.intel import BaseIntel
-from dandy.llm import MessageHistory, LlmBot
+from dandy.llm.request.message import MessageHistory
 
 class TestMessages(TestCase):
     def test_message_history(self):
@@ -18,7 +19,7 @@ class TestMessages(TestCase):
             past_age: int
             current_age: int
 
-        birthday_intel = LlmBot.process(
+        birthday_intel = Bot().llm.prompt_to_intel(
             prompt='What were my ages in our conversation',
             intel_class=BirthdayIntel,
             message_history=message_history

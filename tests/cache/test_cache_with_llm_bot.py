@@ -22,14 +22,13 @@ class TestCacheWithLlm(TestCase):
         cache.clear()
 
         class CachedMoneyBagLlmBot(MoneyBagLlmBot):
-            @classmethod
             @cache_decorator()
-            def process(cls, *args, **kwargs):
+            def process(self, *args, **kwargs):
                 return super().process(*args, **kwargs)
 
         start = time.perf_counter()
 
-        _ = CachedMoneyBagLlmBot.process(
+        _ = CachedMoneyBagLlmBot().process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}
@@ -39,7 +38,7 @@ class TestCacheWithLlm(TestCase):
 
         cached_start = time.perf_counter()
 
-        money_bag = CachedMoneyBagLlmBot.process(
+        money_bag = CachedMoneyBagLlmBot().process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}

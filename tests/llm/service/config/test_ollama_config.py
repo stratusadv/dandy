@@ -1,10 +1,15 @@
 import os
 from unittest import TestCase
 
-from dandy.llm.intel import DefaultLlmIntel
+from dandy.intel import BaseIntel
 from dandy.llm.config import OllamaLlmConfig
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.conf import llm_configs
+
+
+class LlmDefaultIntel(BaseIntel):
+    text: str
+
 
 class TestConfig(TestCase):
     def test_ollama_config_request_body(self):
@@ -27,7 +32,7 @@ class TestConfig(TestCase):
 
         response = ollama_config.service.process_prompt_to_intel(
             prompt='Tell me what you think about hamburgers in one word?',
-            intel_class=DefaultLlmIntel
+            intel_class=LlmDefaultIntel
         )
 
         self.assertTrue(len(response.text) <= 30)

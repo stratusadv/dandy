@@ -1,7 +1,5 @@
-from dandy.map.map import BaseMap
-from dandy.map.mapping import Mapping
+from dandy.map.map import Map
 
 __all__ = [
-    'BaseMap',
-    'Mapping'
+    'Map',
 ]

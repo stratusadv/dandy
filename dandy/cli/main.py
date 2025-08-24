@@ -18,7 +18,6 @@ def main():
     from dandy.core.utils import enum_to_list
     from dandy.llm.conf import llm_configs
     from dandy.cli.llm.generate.generate import GenerateChoices, generate
-    from dandy.cli.llm.assistant.assistant import assistant
     from dandy.conf import settings
     from dandy.cli.llm.evaluate.evaluate import EvaluateChoices, evaluate
     from dandy.constants import CLI_OUTPUT_DIRECTORY, __VERSION__
@@ -27,12 +26,6 @@ def main():
 
     parser = argparse.ArgumentParser(description='Dandy CLI Tool')
     sub_parsers = parser.add_subparsers(dest='command')
-
-    parser.add_argument(
-        '-a', '--assistant',
-        type=str,
-        help='Prompt an a generic assistant to quickly test a prompt.',
-    )
 
     parser.add_argument(
         '-c', '--calculate',
@@ -80,13 +73,7 @@ def main():
 
     llm_config = llm_configs[args.llm_config]
 
-    if args.assistant:
-        assistant(
-            llm_config=args.llm_config,
-            user_prompt=args.prompt if args.prompt else args.assistant,
-        )
-
-    elif args.calculate:
+    if args.calculate:
         print(f'A Model with {args.calculate[0]}billion parameters with {args.calculate[1]}bit quantization processing {args.calculate[2]} tokens requires {calculate(args.calculate[0], args.calculate[1], args.calculate[2])} GB of VRAM.')
 
     elif args.evaluate:

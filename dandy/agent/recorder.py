@@ -1,12 +1,9 @@
 import json
 
-from typing import Type
-
+from dandy.agent.llm_strategy import BaseLlmProcessorsStrategy
 from dandy.core.utils import json_default, pascal_to_title_case
-from dandy.llm.agent.llm_plan import LlmAgentPlanIntel
-from dandy.llm.processor.llm_strategy import BaseLlmProcessorsStrategy
-from dandy.llm.agent.llm_task import LlmAgentTaskIntel
-from dandy.llm.prompt.prompt import Prompt
+from dandy.agent.plan.llm_plan import LlmAgentPlanIntel
+from dandy.agent.plan.task.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.recorder.events import Event, EventAttribute, EventType
 from dandy.recorder.recorder import Recorder

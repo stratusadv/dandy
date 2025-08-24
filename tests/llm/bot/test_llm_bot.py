@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.core.processor import BaseProcessor
+from dandy.core.processor.processor import BaseProcessor
 from tests.llm.bot.intel import MoneyBagIntel
 from tests.llm.bot.llm_bots import MoneyBagLlmBot
 from tests.llm.decorators import run_llm_configs
@@ -8,15 +8,15 @@ from tests.llm.decorators import run_llm_configs
 
 class TestLlmBot(TestCase):
     def test_llm_bot_import(self):
-        from dandy.llm import BaseLlmBot
+        from dandy.bot.bot import Bot
 
-        self.assertTrue(type(BaseLlmBot) is type(BaseProcessor))
+        self.assertTrue(type(Bot) is type(BaseProcessor))
 
     @run_llm_configs()
     def test_llm_bot_intel_class_include(self, llm_config: str):
-        MoneyBagLlmBot.config = llm_config
+        MoneyBagLlmBot().llm_config = llm_config
 
-        money_bag = MoneyBagLlmBot.process(
+        money_bag = MoneyBagLlmBot().process(
             user_input='I have 14 coins',
             intel_class=MoneyBagIntel,
             include={'coins'},
@@ -28,10 +28,10 @@ class TestLlmBot(TestCase):
 
     @run_llm_configs()
     def test_llm_bot_intel_class_exclude(self, llm_config: str):
-        MoneyBagLlmBot.config = llm_config
+        MoneyBagLlmBot().llm_config = llm_config
 
-        money_bag = MoneyBagLlmBot.process(
-            user_input='Make me rich with lots of new gems and coins!',
+        money_bag = MoneyBagLlmBot().process(
+            user_input='Make me rich with by giving me lots of gems and coins!',
             intel_class=MoneyBagIntel,
             exclude={'bills': True, 'gems': {'quality': True}},
         )
@@ -48,16 +48,19 @@ class TestLlmBot(TestCase):
 
     @run_llm_configs()
     def test_llm_bot_intel_object_include(self, llm_config: str):
-        MoneyBagLlmBot.config = llm_config
+        MoneyBagLlmBot().llm_config = llm_config
 
         coins = 10
         bills = 50
         
-        old_money_bag = MoneyBagIntel(coins=coins, bills=bills)
+        old_money_bag = MoneyBagIntel(
+            coins=coins,
+            bills=bills
+        )
 
         additional_coins = 15
 
-        new_money_bag = MoneyBagLlmBot.process(
+        new_money_bag = MoneyBagLlmBot().process(
             user_input=f'I have {coins} coins can you please add {additional_coins} more?',
             intel_object=old_money_bag,
             include={'coins'},

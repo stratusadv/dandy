@@ -3,6 +3,7 @@ from typing import List, Union, Any, Literal
 
 RoleLiteralStr = Literal['user', 'assistant', 'system']
 
+
 class RequestMessage(BaseModel):
     role: RoleLiteralStr
     content: Union[str, List[Any]]

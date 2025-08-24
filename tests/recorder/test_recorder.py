@@ -2,7 +2,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.constants import RECORDING_POSTFIX_NAME
-from dandy.llm import LlmBot
+from dandy.bot.bot import Bot
 from dandy.recorder import recorder_to_html_file, recorder_to_json_file, \
     recorder_to_markdown_file
 from dandy.recorder.exceptions import RecorderCriticalException
@@ -33,7 +33,7 @@ class TestRecorder(TestCase):
 
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = LlmBot.process('How many countries are in the world?')
+        _ = Bot().process('How many countries are in the world?')
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -42,7 +42,7 @@ class TestRecorder(TestCase):
     def test_record_to_html_file_decorator(self):
         @recorder_to_html_file(RECORDING_NAME)
         def func():
-            _ = LlmBot.process('How many countries are in the world?')
+            _ = Bot().process('How many countries are in the world?')
 
         func()
 
@@ -52,7 +52,7 @@ class TestRecorder(TestCase):
     def test_record_to_json_file_decorator(self):
         @recorder_to_json_file(RECORDING_NAME)
         def func():
-            _ = LlmBot.process('How many countries are in the world?')
+            _ = Bot().process('How many countries are in the world?')
 
         func()
 
@@ -62,7 +62,7 @@ class TestRecorder(TestCase):
     def test_record_to_md_file_decorator(self):
         @recorder_to_markdown_file(RECORDING_NAME)
         def func():
-            _ = LlmBot.process('How many countries are in the world?')
+            _ = Bot().process('How many countries are in the world?')
 
         func()
 
@@ -78,7 +78,7 @@ class TestRecorder(TestCase):
     def test_recording_to_str(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = LlmBot.process('How many countries are in the world?')
+        _ = Bot().process('How many countries are in the world?')
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -90,7 +90,7 @@ class TestRecorder(TestCase):
     def test_recorder_to_file(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = LlmBot.process('How many countries are in the world?')
+        _ = Bot().process('How many countries are in the world?')
 
         Recorder.stop_recording(RECORDING_NAME)
 

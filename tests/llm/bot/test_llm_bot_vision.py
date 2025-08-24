@@ -1,12 +1,11 @@
 from pathlib import Path
+from typing import List, Type
 from unittest import TestCase
 
-from typing import List, Type
-
-from dandy.conf import settings
+from dandy.bot import Bot
 from dandy.intel import BaseIntel
-from dandy.llm import BaseLlmBot, Prompt, LlmConfigOptions
-from tests.llm.decorators import run_llm_configs
+from dandy.llm.config import LlmConfigOptions
+from dandy.llm.prompt import Prompt
 
 
 class PersonIntel(BaseIntel):
@@ -24,20 +23,19 @@ class ImageBreakdownIntel(BaseIntel):
     people: list[PersonIntel]
 
 
-class ImageBreakdownLlmBot(BaseLlmBot[ImageBreakdownIntel]):
+class ImageBreakdownLlmBot(Bot):
     config = 'GEMMA_3_12B_VISION'
     config_options = LlmConfigOptions(
         temperature=0.1,
     )
 
-    @classmethod
     def process(
-            cls,
+            self,
             prompt: Prompt,
             intel_class: Type[ImageBreakdownIntel],
             image_files: List[str | Path],
     ) -> ImageBreakdownIntel:
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompt,
             intel_class=intel_class,
             image_files=image_files,

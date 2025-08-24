@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from dandy.core.utils import encode_file_to_base64
 from dandy.llm.conf import llm_configs
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.core.service.service import BaseService
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, List
 
 from dandy.http.connector import HttpConnector
 from dandy.llm.prompt.typing import PromptOrStrOrNone
@@ -90,6 +93,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
             images: list[str] | None = None,
+            image_files: Union[List[str | Path], None] = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             postfix_system_prompt: PromptOrStrOrNone = None,
@@ -101,6 +105,12 @@ class LlmService(BaseService['LlmProcessorMixin']):
 
         if intel_class is None and intel_object is None:
             raise LlmCriticalException('Must specify either intel_class or intel_object.')
+
+        if image_files:
+            images = [] if images is None else images
+
+            for image_file in image_files:
+                images.append(encode_file_to_base64(image_file))
 
         self._intel = intel_class or intel_object
 

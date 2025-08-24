@@ -1,17 +1,19 @@
 from unittest import TestCase
 
-from pydantic import BaseModel
-
-from dandy.map.mapping import Mapping
+from dandy.core.processor.processor import BaseProcessor
+from dandy.map import Map
+from dandy.map.exceptions import MapCriticalException
 
 
 class TestMap(TestCase):
     def test_map_import(self):
-        self.assertTrue(type(Mapping) is type(BaseModel))
+        self.assertTrue(type(Map) is type(BaseProcessor))
 
     def test_invalid_map(self):
-        with self.assertRaises(ValueError):
-            _ = Mapping({
-                123: 'this map is invalid as it needs string keys'
-            })
-
+        with self.assertRaises(MapCriticalException):
+            _ = Map(
+                mapping_keys_description='Numbers to a String',
+                mapping={
+                    123: 'this map is invalid as it needs string keys'
+                }
+            )

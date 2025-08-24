@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from dandy.core.processor import BaseProcessor
+from dandy.core.processor.processor import BaseProcessor
 
 
 class TestBot(TestCase):
     def test_bot_import(self):
-        from dandy.bot import BaseBot
-        self.assertTrue(type(BaseBot) is type(BaseProcessor))
+        from dandy.bot import Bot
+        self.assertTrue(type(Bot) is type(BaseProcessor))

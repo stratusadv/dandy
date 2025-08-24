@@ -1,13 +1,13 @@
-from dandy.llm import BaseLlmMap, Map
+from dandy.map import Map
 
 
-class MuseumSubjectLlmMap(BaseLlmMap):
-    map_keys_description = 'Colors of Museum Subjects'
+class MuseumSubjectLlmMap(Map):
+    mapping_keys_description = 'Colors of Museum Subjects'
     description = 'Matches colors to figure out which subject to learn in a museum.'
-    map = Map({
+    mapping = {
         'green': 'Dinosaurs',
         'red': 'Birds',
         'blue': 'Fishes',
         'yellow': 'Reptiles',
         'purple': 'Monkeys',
-    })
+    }

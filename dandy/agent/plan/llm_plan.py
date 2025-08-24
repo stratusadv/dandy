@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import List
 
 from dandy.agent.plan.plan import AgentPlanIntel
-from dandy.llm.agent.llm_task import LlmAgentTaskIntel
+from dandy.agent.plan.task.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.prompt import Prompt
 
 

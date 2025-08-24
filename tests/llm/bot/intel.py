@@ -12,4 +12,4 @@ class GemIntel(BaseIntel):
 class MoneyBagIntel(BaseIntel):
     coins: int
     bills: int | None = None
-    gems: Union[List[GemIntel], None] = None
+    gems: List[GemIntel] | None = None

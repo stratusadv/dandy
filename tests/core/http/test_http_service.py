@@ -1,10 +1,10 @@
 from unittest import TestCase, mock
 from httpx import Response
 
-from dandy.connector.config import HttpConnectorConfig
-from dandy.connector.exceptions import HttpConnectorCriticalException
-from dandy.connector.http_connector import HttpConnector
-from dandy.connector.url import Url
+from dandy.http.config import HttpConnectorConfig
+from dandy.http.exceptions import HttpConnectorCriticalException
+from dandy.http.connector import HttpConnector
+from dandy.http.url import Url
 
 
 class TestHttpService(TestCase):

@@ -1,11 +1,11 @@
-from typing import Any
-
-from dandy.bot.bot import BaseBot
-from dandy.llm import DefaultLlmIntel
+from dandy.bot.bot import Bot
+from dandy.intel import BaseIntel
 from tests.llm.agent.intel import EmailAddressIntel
 
+class DefaultLlmIntel(BaseIntel):
+    text: str
 
-class MuseumEmailFinderBot(BaseBot):
+class MuseumEmailFinderBot(Bot):
     description = 'Finds the email address for a museum.'
 
     @classmethod

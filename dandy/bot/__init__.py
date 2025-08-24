@@ -1,5 +1,5 @@
-from dandy.bot.bot import BaseBot
+from dandy.bot.bot import Bot
 
 __all__ = [
-    'BaseBot'
+    'Bot'
 ]

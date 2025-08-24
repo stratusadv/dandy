@@ -1,21 +1,21 @@
 from pydantic.main import IncEx
 from typing import Union, Type
 
-from dandy.llm import BaseLlmBot, Prompt
+from dandy.bot.bot import Bot
+from dandy.llm.prompt import Prompt
 from tests.llm.bot.intel import MoneyBagIntel
 
 
-class MoneyBagLlmBot(BaseLlmBot[MoneyBagIntel]):
-    @classmethod
+class MoneyBagLlmBot(Bot):
     def process(
-            cls,
+            self,
             user_input: str,
             intel_class: Union[Type[MoneyBagIntel], None] = None,
             intel_object: Union[MoneyBagIntel, None] = None,
             include: Union[IncEx, None] = None,
             exclude: Union[IncEx, None] = None,
     ) -> MoneyBagIntel:
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=Prompt(user_input),
             intel_class=intel_class,
             intel_object=intel_object,
