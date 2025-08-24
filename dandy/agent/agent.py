@@ -9,7 +9,7 @@ from dandy.http.mixin import HttpProcessorMixin
 from dandy.llm.mixin import LlmProcessorMixin
 from dandy.core.processor.processor import BaseProcessor
 from dandy.conf import settings
-from dandy.core.processor.processor import BaseProcessorsStrategy
+from dandy.core.processor.strategy import BaseProcessorsStrategy
 from dandy.vision.mixin import VisionProcessorMixin
 
 
