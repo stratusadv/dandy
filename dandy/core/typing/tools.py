@@ -15,7 +15,7 @@ def get_typed_kwargs_from_callable(
 
     for name, param in signature.parameters.items():
         if param.annotation is inspect._empty:
-            raise DandyCriticalException(f'Parameter {name} of {callable_.__qualname__} has no typed annotation')
+             raise DandyCriticalException(f'Parameter {name} of {callable_.__qualname__} has no typed annotation')
 
         if param.default is inspect._empty:
             typed_kwargs_dict[name] = (param.annotation, ...)

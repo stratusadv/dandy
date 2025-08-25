@@ -10,23 +10,23 @@ from tests.llm.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, Nes
 
 class TestLlmMap(TestCase):
     def test_llm_map(self):
-        values = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
+        values = FunLlmMap().process('I enjoy seeing my dog every day.', 2)
 
         self.assertEqual(2, len(values))
         self.assertIn(391, values)
         self.assertIn(782, values)
 
     def test_seperated_nested_llm_map(self):
-        values = AdventureGameLlmMap.process('The player goes left, and is carrying only a bucket on the adventure.', 1)
+        values = AdventureGameLlmMap().process('The player goes left, and is carrying only a bucket on the adventure.', 1)
 
         self.assertEqual(1, len(values))
-        self.assertEqual(DragonLlmMap.map['The player is packing other stuff'], values[0])
+        self.assertEqual(DragonLlmMap.mapping['The player is packing other stuff'], values[0])
 
     def test_combined_nested_llm_map(self):
-        values = NestedBirdMap.process('I am a black bird from the famous edgar allen poe poem', 1)
+        values = NestedBirdMap().process('I am a black bird from the famous edgar allen poe poem', 1)
 
         self.assertEqual(1, len(values))
-        self.assertEqual(NestedBirdMap.map['the bird is dark colored']['it is a raven'], values[0])
+        self.assertEqual(NestedBirdMap.mapping['the bird is dark colored']['it is a raven'], values[0])
 
     @nines_testing()
     def test_big_user_llm_map(self):
@@ -41,12 +41,12 @@ class TestLlmMap(TestCase):
             user_dictionary[f'{fake.unique.name()}'] = pk
 
         class UserLlmMap(Map):
-            map_keys_description = 'Employee First and Last Names'
-            map = Map(mapping=user_dictionary)
+            mapping_keys_description = 'Employee First and Last Names'
+            mapping = user_dictionary
 
         name = fake.random_element(user_dictionary.keys())
 
-        values = UserLlmMap.process(
+        values = UserLlmMap().process(
             f'I am looking for {name}',
         )
 
@@ -55,7 +55,7 @@ class TestLlmMap(TestCase):
             {val: key for key, val in user_dictionary.items()}[values[0]]
         )
 
-    @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
+    @mock.patch('dandy.http.connector.HttpConnector.post_request')
     def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = {
                 'message': {
@@ -64,9 +64,9 @@ class TestLlmMap(TestCase):
             }
 
         with self.assertRaises(MapRecoverableException):
-            value = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
+            value = FunLlmMap().process('I really like my pet dog and hope to get another one', 2)
 
-    @mock.patch('dandy.core.http.service.BaseHttpService.post_request')
+    @mock.patch('dandy.http.connector.HttpConnector.post_request')
     def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = {
                 'message': {
@@ -75,4 +75,4 @@ class TestLlmMap(TestCase):
             }
 
         with self.assertRaises(MapRecoverableException):
-            value = FunLlmMap.process('I really like my pet dog and hope to get another one', 2)
+            value = FunLlmMap().process('I really like my pet dog and hope to get another one', 2)

@@ -14,6 +14,7 @@ from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException
 from dandy.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
+from dandy.map.service import MapService
 
 
 @dataclass(kw_only=True)
@@ -28,6 +29,8 @@ class Map(
 
     _keyed_mapping: Dict[str, tuple[str, Any]] = field(default_factory=dict)
     _map_enum: Enum | None = None
+
+    services: MapService = MapService()
 
     def __post_init__(self):
         if self.mapping_keys_description is None:
@@ -88,45 +91,30 @@ class Map(
             else:
                 self._keyed_mapping[key] = (choice, value)
 
-    @classmethod
     def process(
-            cls,
+            self,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
     ) -> MapValuesIntel:
-        return cls.process_map_to_intel(
-            # cls.mapping,
+        return self.process_map_to_intel(
             prompt,
             max_return_values
         )
 
-    @classmethod
     def process_map_to_intel(
-            cls,
+            self,
             # map: Mapping,
             prompt: PromptOrStr,
             max_return_values: int | None = None
     ) -> MapValuesIntel:
         map_values_intel = MapValuesIntel()
 
-        for map_enum in cls.process_prompt_to_intel(map, prompt, max_return_values):
-            map_value = cls._get_selected_value(map_enum.value)
+        for map_enum in self.process_prompt_to_intel(prompt, max_return_values):
+            map_value = self._get_selected_value(map_enum.value)
 
-            if isinstance(map_value, type):
-                if issubclass(map_value, Map):
-                    map_values_intel.extend(
-                        map_value.process(
-                            prompt,
-                            max_return_values
-                        ).values
-                    )
-                else:
-                    map_values_intel.append(map_value)
-
-            elif isinstance(map_value):
+            if isinstance(map_value, Map):
                 map_values_intel.extend(
-                    cls.process_map_to_intel(
-                        # map_value,
+                    map_value.process(
                         prompt,
                         max_return_values
                     ).values
@@ -136,28 +124,27 @@ class Map(
 
         return map_values_intel
 
-    @classmethod
     def process_prompt_to_intel(
-            cls,
+            self,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
     ) -> MapKeysIntel:
 
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'
-            intel_class = MapKeysIntel[list[cls._map_enum]]
+            intel_class = MapKeysIntel[list[self._map_enum]]
         else:
             key_str = 'key'
-            intel_class = MapKeyIntel[cls._map_enum]
+            intel_class = MapKeyIntel[self._map_enum]
 
         system_prompt = Prompt()
-        system_prompt.prompt(cls.llm_instructions_prompt)
-        system_prompt.text(f'You\'re an "{cls.mapping_keys_description}" assistant')
+        system_prompt.prompt(self.llm_instructions_prompt)
+        system_prompt.text(f'You\'re an "{self.mapping_keys_description}" assistant')
 
         system_prompt.line_break()
 
         system_prompt.text(
-            f'Read through all of the "{cls.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
+            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
 
         system_prompt.line_break()
 
@@ -172,33 +159,33 @@ class Map(
                 f'Return the numbered {key_str} you find that are most relevant and return at least one.')
 
         system_prompt.line_break()
-        system_prompt.heading(f'"{cls.mapping_keys_description}"')
+        system_prompt.heading(f'"{self.mapping_keys_description}"')
         system_prompt.line_break()
 
-        system_prompt.dict(cls.keyed_mapping_choices_dict)
+        system_prompt.dict(self.keyed_mapping_choices_dict)
 
-        llm_service = llm_configs[cls.llm_config].generate_service(
-            llm_options=cls.config_options
-        )
+        # llm_service = llm_configs[self.llm_config].generate_service(
+        #     llm_options=self.config_options
+        # )
 
-        return_keys_intel = cls._process_return_keys_intel(
-            llm_service.process_prompt_to_intel(
+        return_keys_intel = self._process_return_keys_intel(
+            self.llm.prompt_to_intel(
                 prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
                 intel_class=intel_class,
-                system_prompt=system_prompt
+                postfix_system_prompt=system_prompt
             )
         )
 
-        while llm_service.has_retry_attempts_available:
+        while self.llm.has_retry_attempts_available:
             try:
-                cls._validate_return_keys_intel(return_keys_intel, max_return_values)
+                self._validate_return_keys_intel(return_keys_intel, max_return_values)
                 break
 
             except MapNoKeysRecoverableException as error:
-                recorder_add_llm_failure_event(error, llm_service.event_id)
+                recorder_add_llm_failure_event(error, self.llm.event_id)
 
-                if llm_service.has_retry_attempts_available:
-                    return_keys_intel = llm_service.retry_request_to_intel(
+                if self.llm.has_retry_attempts_available:
+                    return_keys_intel = self.llm.retry_request_to_intel(
                         retry_event_description=f'Map keys intel object came back empty, retrying with no keys prompt.',
                         retry_user_prompt=map_no_key_error_prompt()
                     )
@@ -206,10 +193,10 @@ class Map(
                     raise error
 
             except MapToManyKeysRecoverableException as error:
-                recorder_add_llm_failure_event(error, llm_service.event_id)
+                recorder_add_llm_failure_event(error, self.llm.event_id)
 
-                if llm_service.has_retry_attempts_available:
-                    return_keys_intel = llm_service.retry_request_to_intel(
+                if self.llm.has_retry_attempts_available:
+                    return_keys_intel = self.llm.retry_request_to_intel(
                         retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many keys prompt.',
                         retry_user_prompt=map_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),
@@ -221,38 +208,35 @@ class Map(
                     raise error
 
         try:
-            cls._validate_return_keys_intel(return_keys_intel, max_return_values)
+            self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
         except MapRecoverableException as error:
-            recorder_add_llm_failure_event(error, llm_service.event_id)
+            recorder_add_llm_failure_event(error, self.llm.event_id)
             raise error
 
         return return_keys_intel
 
-    @classmethod
     def _process_return_keys_intel(
-            cls,
+            self,
             return_keys_intel: MapKeysIntel | MapKeyIntel
     ) -> MapKeysIntel:
         if isinstance(return_keys_intel, MapKeyIntel):
-            return_keys_intel = MapKeysIntel[list[cls._map_enum]](
+            return_keys_intel = MapKeysIntel[list[self._map_enum]](
                 keys=[return_keys_intel.key.value]
             )
 
         return return_keys_intel
 
-    @classmethod
     def _validate_return_keys_intel(
-            cls,
+            self,
             return_keys_intel: MapKeysIntel | MapKeyIntel,
             max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
-            raise MapNoKeysRecoverableException(f'No {cls.mapping_keys_description} found.')
+            raise MapNoKeysRecoverableException(f'No {self.mapping_keys_description} found.')
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
-            raise MapToManyKeysRecoverableException(f'Too many {cls.mapping_keys_description} found.')
+            raise MapToManyKeysRecoverableException(f'Too many {self.mapping_keys_description} found.')
 
-    @classmethod
-    def process_to_future(cls, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:
-        return AsyncFuture[MapValuesIntel](cls.process, *args, **kwargs)
+    def process_to_future(self, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:
+        return AsyncFuture[MapValuesIntel](self.process, *args, **kwargs)

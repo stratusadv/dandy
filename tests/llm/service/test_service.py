@@ -1,5 +1,6 @@
 from unittest import TestCase, mock
 
+from dandy.bot import Bot
 from dandy.intel import BaseIntel
 from dandy.llm.conf import llm_configs
 from dandy.llm.exceptions import LlmRecoverableException
@@ -13,7 +14,12 @@ class LlmDefaultIntel(BaseIntel):
 class TestService(TestCase):
     @run_llm_configs()
     def test_process_prompt_to_intel(self, llm_config: str):
-        response = llm_configs[llm_config].service.process_prompt_to_intel(
+        new_llm_config = llm_config
+
+        class ConfigBot(Bot):
+            llm_config = new_llm_config
+
+        response = ConfigBot.llm.prompt_to_intel(
             prompt='Hello, World!',
             intel_class=LlmDefaultIntel,
         )
@@ -29,7 +35,7 @@ class TestService(TestCase):
         }
 
         with self.assertRaises(LlmRecoverableException):
-            response = llm_configs['DEFAULT'].service.process_prompt_to_intel(
+            response = Bot().llm.prompt_to_intel(
                 prompt='Hello, World!',
                 intel_class=LlmDefaultIntel,
             )

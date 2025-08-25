@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from dandy.core.service.service import BaseService
 
 if TYPE_CHECKING:
-    from dandy.map.map import BaseMap
+    from dandy.map.map import Map
 
-class BotService(BaseService['BaseMap']):
-    obj: BaseMap
+class MapService(BaseService['Map']):
+    obj: Map

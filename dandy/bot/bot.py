@@ -17,7 +17,7 @@ class Bot(
     VisionProcessorMixin,
     ABC,
 ):
-    bot: BotService = BotService()
+    services: BotService = BotService()
     description = 'Base Dandy Bot Class That Can Do Anything'
 
     def process(self, *args, **kwargs) -> Any:

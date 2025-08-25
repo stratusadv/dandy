@@ -5,12 +5,12 @@ from dandy.map.map import Map
 
 
 class FunLlmMap(Map):
-    mapping_keys_description = 'Personalities'
+    mapping_keys_description = 'Descriptions of People'
     mapping = {
-        'someone that needs a laugh and needs clowns': 113,
-        'someone is interested in seeing animals': 782,
-        'someone looking for something more technical': 927,
-        'someone who would be glad to get a free puppies': 391,
+        'Would be glad to get a free puppy': 391,
+        'Needs a laugh and needs clowns': 113,
+        'Interested in seeing animals': 782,
+        'Looking for something more technical': 927,
     }
 
 class DragonLlmMap(Map):
@@ -26,8 +26,8 @@ class TreasureLlmMap(Map):
     mapping_keys_description: str = 'Treasure Outcomes'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
-        'Player brought a shovel': 'The treasure was recovered',
-        'Player did not bring a shovel': 'The treasure was lost'
+        'Brought a shovel': 'The treasure was recovered',
+        'Did not bring a shovel': 'The treasure was lost'
     }
 
 

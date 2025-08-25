@@ -42,12 +42,12 @@ class Agent(
     # _processors_strategy: BaseProcessorsStrategy
     # processors: Sequence[Type[BaseProcessor]]
     _processors_strategy_class = BaseLlmProcessorsStrategy
-    _processors_strategy: BaseLlmProcessorsStrategy
+    _processors_strategy: BaseLlmProcessorsStrategy | None = None
     processors: Sequence[Type[BaseProcessor]] = (
         Bot,
     )
 
-    agent: AgentService = AgentService()
+    services: AgentService = AgentService()
 
     def __init_subclass__(cls, **kwargs):
         if cls.processors is None or len(cls.processors) == 0:
@@ -82,7 +82,7 @@ class Agent(
 
         recorder_add_llm_agent_create_plan_event(
             prompt,
-            self._processors_strategy,
+            self.__class__._processors_strategy,
             recorder_event_id
         )
 
@@ -101,18 +101,18 @@ class Agent(
         while plan.is_incomplete:
             if plan.has_exceeded_time_limit:
                 raise AgentOverThoughtRecoverableException(
-                    f'{self.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
+                    f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
                 )
 
             task = plan.active_task
 
             recorder_add_llm_agent_start_task_event(
                 task,
-                self._processors_strategy,
+                self.__class__._processors_strategy,
                 recorder_event_id
             )
 
-            resource = self._processors_strategy.get_processor_from_key(task.processors_key)
+            resource = self.__class__._processors_strategy.get_processor_from_key(task.processors_key)
 
             updated_task = resource.use(
                 prompt=agent_do_task_prompt(task),
@@ -125,7 +125,7 @@ class Agent(
 
             recorder_add_llm_agent_completed_task_event(
                 task,
-                self._processors_strategy,
+                self.__class__._processors_strategy,
                 recorder_event_id
             )
 
@@ -166,7 +166,7 @@ class Agent(
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
                 instructions_prompt=self.llm_instructions_prompt,
-                processors_strategy=self._processors_strategy,
+                processors_strategy=self.__class__._processors_strategy,
             ),
             intel_class=LlmAgentPlanIntel,
             include_fields={
@@ -183,12 +183,12 @@ class Agent(
     def _validate_plan_or_error(self, plan: LlmAgentPlanIntel):
         if plan.tasks is None or len(plan.tasks) == 0:
             raise AgentRecoverableException(
-                f'{self.__name__} created plan that has no tasks.'
+                f'{self.__class__.__name__} created plan that has no tasks.'
             )
 
         if len(plan.tasks) > self.plan_task_count_limit:
             raise AgentOverThoughtRecoverableException(
-                f'{self.__name__} created plan had {len(plan.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
+                f'{self.__class__.__name__} created plan had {len(plan.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
             )
 
 
