@@ -7,5 +7,5 @@ from dandy.core.service.service import BaseService
 if TYPE_CHECKING:
     from dandy.agent import Agent
 
-class AgentService(BaseService['BaseAgent']):
+class AgentService(BaseService['Agent']):
     obj: Agent
