@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from dandy.constants import RECORDING_POSTFIX_NAME
 from dandy.bot.bot import Bot
+from dandy.intel import BaseIntel
 from dandy.recorder import recorder_to_html_file, recorder_to_json_file, \
     recorder_to_markdown_file
 from dandy.recorder.exceptions import RecorderCriticalException
@@ -22,6 +23,10 @@ RECORDING_OUTPUT_FILE_PATH = Path(
 )
 
 
+class DefaultIntel(BaseIntel):
+    text: str
+
+
 class TestRecorder(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -33,7 +38,10 @@ class TestRecorder(TestCase):
 
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().process('How many countries are in the world?')
+        _ = Bot().llm.prompt_to_intel(
+            prompt='How many countries are in the world?',
+            intel_class=DefaultIntel
+        )
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -42,7 +50,10 @@ class TestRecorder(TestCase):
     def test_record_to_html_file_decorator(self):
         @recorder_to_html_file(RECORDING_NAME)
         def func():
-            _ = Bot().process('How many countries are in the world?')
+            _ = Bot().llm.prompt_to_intel(
+                prompt='How many countries are in the world?',
+                intel_class=DefaultIntel
+            )
 
         func()
 
@@ -52,7 +63,10 @@ class TestRecorder(TestCase):
     def test_record_to_json_file_decorator(self):
         @recorder_to_json_file(RECORDING_NAME)
         def func():
-            _ = Bot().process('How many countries are in the world?')
+            _ = Bot().llm.prompt_to_intel(
+                prompt='How many countries are in the world?',
+                intel_class=DefaultIntel
+            )
 
         func()
 
@@ -62,7 +76,10 @@ class TestRecorder(TestCase):
     def test_record_to_md_file_decorator(self):
         @recorder_to_markdown_file(RECORDING_NAME)
         def func():
-            _ = Bot().process('How many countries are in the world?')
+            _ = Bot().llm.prompt_to_intel(
+                prompt='How many countries are in the world?',
+                intel_class=DefaultIntel
+            )
 
         func()
 
@@ -78,7 +95,10 @@ class TestRecorder(TestCase):
     def test_recording_to_str(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().process('How many countries are in the world?')
+        _ = Bot().llm.prompt_to_intel(
+            prompt='How many countries are in the world?',
+            intel_class=DefaultIntel
+        )
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -90,7 +110,10 @@ class TestRecorder(TestCase):
     def test_recorder_to_file(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().process('How many countries are in the world?')
+        _ = Bot().llm.prompt_to_intel(
+            prompt='How many countries are in the world?',
+            intel_class=DefaultIntel
+        )
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -102,7 +125,36 @@ class TestRecorder(TestCase):
                 DEFAULT_RECORDER_OUTPUT_PATH,
             )
 
-            with open(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension), 'r') as f:
+            with open(
+                    RECORDING_OUTPUT_FILE_PATH.with_suffix(extension),
+                    'r',
+                    encoding='utf-8'
+            ) as f:
+                self.assertTrue(f.read() != '')
+
+    def test_recorder_to_file_with_emoji(self):
+        Recorder.start_recording(RECORDING_NAME)
+
+        _ = Bot().llm.prompt_to_intel(
+            prompt='How many countries are in the 🌎? please respond with emojis!',
+            intel_class=DefaultIntel
+        )
+
+        Recorder.stop_recording(RECORDING_NAME)
+
+        for renderer, extension in RENDERER_AND_EXTENSIONS:
+            render_method = getattr(Recorder, f'to_{renderer}_file')
+
+            render_method(
+                RECORDING_NAME,
+                DEFAULT_RECORDER_OUTPUT_PATH,
+            )
+
+            with open(
+                    RECORDING_OUTPUT_FILE_PATH.with_suffix(extension),
+                    'r',
+                    encoding='utf-8'
+            ) as f:
                 self.assertTrue(f.read() != '')
 
     def test_invalid_recorder_name_throws_critical_exception(self):
@@ -116,4 +168,3 @@ class TestRecorder(TestCase):
 
         with self.assertRaises(RecorderCriticalException) as recorder_exception:
             Recorder.check_recording_is_valid(invalid_recorder_name)
-

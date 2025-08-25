@@ -22,7 +22,7 @@ class Map(
     BaseProcessor,
     LlmProcessorMixin,
 ):
-    # These are set to None to fix a init issue with class variables
+    # These are set to None to fix an init issue with class variables
     mapping_keys_description: str | None = None
     mapping: Dict[str, Any] | None = None
     # End
@@ -186,7 +186,7 @@ class Map(
 
                 if self.llm.has_retry_attempts_available:
                     return_keys_intel = self.llm.retry_request_to_intel(
-                        retry_event_description=f'Map keys intel object came back empty, retrying with no keys prompt.',
+                        retry_event_description=f'Map keys intel object came back empty, retrying with no key(s) prompt.',
                         retry_user_prompt=map_no_key_error_prompt()
                     )
                 else:
@@ -197,7 +197,7 @@ class Map(
 
                 if self.llm.has_retry_attempts_available:
                     return_keys_intel = self.llm.retry_request_to_intel(
-                        retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many keys prompt.',
+                        retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many key(s) prompt.',
                         retry_user_prompt=map_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),
                             max_count=max_return_values if max_return_values is not None else 0,
