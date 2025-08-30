@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Type, Self, Dict
 from typing import Union
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt import snippet
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 

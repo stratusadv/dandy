@@ -2,7 +2,7 @@ from typing import Union
 
 from pydantic import Field
 
-from dandy.intel import BaseIntel, BaseListIntel
+from dandy.intel.intel import BaseIntel, BaseListIntel
 
 
 class ThingIntel(BaseIntel):

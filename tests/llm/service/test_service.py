@@ -1,8 +1,7 @@
 from unittest import TestCase, mock
 
-from dandy.bot import Bot
-from dandy.intel import BaseIntel
-from dandy.llm.conf import llm_configs
+from dandy.processor.bot.bot import Bot
+from dandy.intel.intel import BaseIntel
 from dandy.llm.exceptions import LlmRecoverableException
 from tests.llm.decorators import run_llm_configs
 

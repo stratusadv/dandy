@@ -1,44 +1,46 @@
 from __future__ import annotations
 
 from pathlib import Path
-
-from dandy.core.utils import encode_file_to_base64
-from dandy.llm.conf import llm_configs
-from dandy.llm.prompt.typing import PromptOrStr
-from dandy.core.service.service import BaseService
+from typing import TYPE_CHECKING, Union, List
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
-from typing import TYPE_CHECKING, Union, List
 
+from dandy.core.service.service import BaseService
+from dandy.core.utils import encode_file_to_base64
 from dandy.http.connector import HttpConnector
-from dandy.llm.prompt.typing import PromptOrStrOrNone
-from dandy.recorder.utils import generate_new_recorder_event_id
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
+from dandy.llm.conf import llm_configs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr
+from dandy.llm.prompt.typing import PromptOrStrOrNone
+from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
+    service_system_prompt
 from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, \
     recorder_add_llm_failure_event, recorder_add_llm_retry_event
-from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
-    service_system_prompt
-from dandy.llm.config import LlmConfigOptions
+from dandy.recorder.utils import generate_new_recorder_event_id
 
 if TYPE_CHECKING:
     from dandy.llm.mixin import LlmProcessorMixin
     from dandy.llm.request.message import MessageHistory
+
 
 class LlmService(BaseService['LlmProcessorMixin']):
     obj: LlmProcessorMixin
     Prompt: Prompt = Prompt
 
     def __post_init__(self):
-        self._retry_attempts = 0
-        self.event_id = generate_new_recorder_event_id()
+        self._event_id = generate_new_recorder_event_id()
 
-        self._llm_config = llm_configs[self.obj.llm_config]
-        self._llm_options = LlmConfigOptions()
+        if isinstance(self.obj.llm_config, str):
+            self._llm_config = llm_configs[self.obj.llm_config]
+        else:
+            self._llm_config = self.obj.llm_config
+
+        self._llm_options = self.obj.llm_config_options
 
         self._intel = None
         self._intel_json_schema = None
@@ -50,6 +52,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
             temperature=self._llm_options.temperature,
         )
         self._response_content = None
+        self._retry_max_attempts = 0
         self._retry_attempt = 0
 
     def _generate_system_prompt_str(
@@ -150,7 +153,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
     def _request_to_intel(
             self,
     ) -> IntelType:
-        recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self.event_id)
+        recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self._event_id)
 
         http_connector = HttpConnector(self._llm_config.http_config)
 
@@ -160,7 +163,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
             )
         )
 
-        recorder_add_llm_response_event(self._response_content, self.event_id)
+        recorder_add_llm_response_event(self._response_content, self._event_id)
 
         try:
             intel_object = IntelFactory.json_to_intel_object(
@@ -171,7 +174,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
             if intel_object is not None:
                 recorder_add_llm_success_event(
                     'Validated response from prompt into intel object.',
-                    self.event_id,
+                    self._event_id,
                     intel=intel_object
                 )
 
@@ -181,7 +184,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
                 raise LlmRecoverableException('Failed to validate response from prompt into intel object.')
 
         except ValidationError as error:
-            recorder_add_llm_failure_event(error, self.event_id)
+            recorder_add_llm_failure_event(error, self._event_id)
 
             return self.retry_request_to_intel(
                 retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
@@ -198,7 +201,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
 
             recorder_add_llm_retry_event(
                 retry_event_description,
-                self.event_id,
+                self._event_id,
                 remaining_attempts=self._llm_config.options.prompt_retry_count - self._retry_attempt
             )
 

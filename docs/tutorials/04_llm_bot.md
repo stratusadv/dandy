@@ -34,7 +34,7 @@ When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 Below is an example of how you can customize bots to make sure they work the way you want.
 
 ```python exec="True" source="above" source="material-block" session="llm_bot"
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.llm import BaseLlmBot, Prompt, LlmConfigOptions
 
 

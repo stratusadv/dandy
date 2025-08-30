@@ -13,7 +13,7 @@ A `Map/LlmMap` is used to make decisions or navigate choices, while a `Workflow`
 ```python exec="True" source="above" source="material-block" session="workflow"
 from dandy.workflow import BaseWorkflow
 from dandy.llm import BaseLlmMap, Map, BaseLlmBot, Prompt, LlmConfigOptions
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class PlantIntel(BaseIntel):

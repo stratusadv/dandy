@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class TestDefaultIntel(TestCase):

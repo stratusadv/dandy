@@ -7,12 +7,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
-
 from typing import List, Type, TYPE_CHECKING, Dict, Union
 
 from dandy.core.path.tools import get_file_path_or_exception
-from dandy.intel import BaseIntel
-from dandy.llm.exceptions import LlmCriticalException
+from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:

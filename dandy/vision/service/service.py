@@ -6,7 +6,7 @@ from dandy.core.service.service import BaseService
 
 
 if TYPE_CHECKING:
-    from dandy.core.processor.processor import BaseProcessor
+    from dandy.processor.processor import BaseProcessor
 
 
 class VisionService(BaseService['BaseProcessor']):

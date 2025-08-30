@@ -3,7 +3,7 @@ from typing import Union
 from pydantic import Field
 from typing import List, Generator
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from example.book.intelligence.character.enums import CharacterType, CharacterAlignment
 
 

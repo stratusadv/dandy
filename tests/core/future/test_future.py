@@ -1,10 +1,10 @@
 from time import perf_counter, sleep
 from unittest import TestCase
 
-from dandy.bot import Bot
+from dandy.processor.bot.bot import Bot
 from dandy.core.future import AsyncFuture
 from dandy.core.future.exceptions import FutureCriticalException
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class StoryIntel(BaseIntel):

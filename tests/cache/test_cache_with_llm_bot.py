@@ -3,13 +3,13 @@ from unittest import TestCase
 
 from typing import Callable
 
-from dandy.cache import cache_to_memory
-from dandy.cache import cache_to_sqlite
+from dandy.cache.memory.decorators import cache_to_memory
+from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.cache import BaseCache
 from tests.cache.caches import sql_lite_cache, memory_cache
 
-from tests.llm.bot.intel import MoneyBagIntel
-from tests.llm.bot.llm_bots import MoneyBagLlmBot
+from tests.bot.intel import MoneyBagIntel
+from tests.bot.llm_bots import MoneyBagLlmBot
 
 
 class TestCacheWithLlm(TestCase):
@@ -28,7 +28,9 @@ class TestCacheWithLlm(TestCase):
 
         start = time.perf_counter()
 
-        _ = CachedMoneyBagLlmBot().process(
+        cached_money_bag_llm_bot = CachedMoneyBagLlmBot()
+
+        _ = cached_money_bag_llm_bot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}
@@ -38,7 +40,7 @@ class TestCacheWithLlm(TestCase):
 
         cached_start = time.perf_counter()
 
-        money_bag = CachedMoneyBagLlmBot().process(
+        money_bag = cached_money_bag_llm_bot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}

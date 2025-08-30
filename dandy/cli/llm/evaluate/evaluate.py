@@ -6,7 +6,7 @@ from typing import Union
 
 from dandy.cli.llm.evaluate.intelligence.prompts.prompt_evaluation_prompts import evaluate_prompt_system_prompt, \
     evaluate_prompt_user_prompt
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.llm.config import BaseLlmConfig
 
 
@@ -48,7 +48,7 @@ def evaluate(
     source_code = inspect.getsource(obj)
 
     if choice == EvaluateChoices.PROMPT:
-        evaluated_source_intel = llm_config.service.process_prompt_to_intel(
+        evaluated_source_intel = llm_config.service._process_map_prompt_to_intel(
             prompt=evaluate_prompt_user_prompt(
                 prompt_name=obj_name,
                 prompt_source=source_code,

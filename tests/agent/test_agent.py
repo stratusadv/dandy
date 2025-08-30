@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor.processor import BaseProcessor
 
 
 class TestAgent(TestCase):
     def test_agent_import(self):
-        from dandy.agent import Agent
+        from dandy.processor.agent.agent import Agent
         self.assertTrue(type(Agent) is type(BaseProcessor))

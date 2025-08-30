@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from dandy.bot import Bot
-from dandy.intel import BaseIntel
+from dandy.processor.bot.bot import Bot
+from dandy.intel.intel import BaseIntel
 from dandy.llm.request.message import MessageHistory
 
 class TestMessages(TestCase):

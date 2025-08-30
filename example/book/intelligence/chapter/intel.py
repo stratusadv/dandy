@@ -2,7 +2,7 @@ from typing import List
 
 from typing import Union
 
-from dandy.intel import BaseIntel, BaseListIntel
+from dandy.intel.intel import BaseIntel, BaseListIntel
 
 
 class SceneIntel(BaseIntel):

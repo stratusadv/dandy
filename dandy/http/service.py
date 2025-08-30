@@ -1,7 +1,7 @@
 import httpx
 
 from dandy.core.service.service import BaseService
-from dandy.core.processor.processor import BaseProcessor
+from dandy.processor.processor import BaseProcessor
 
 
 class HttpService(BaseService['BaseProcessor']):

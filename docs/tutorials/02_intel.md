@@ -7,7 +7,7 @@ In Dandy we use an object called `Intel` to represent the information about obje
 Let's go ahead and create a `ClownIntel` class that inherits from the `BaseIntel` class.
 
 ```python exec="True" source="above" source="material-block" session="intel"
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 class ClownIntel(BaseIntel):
     clown_name: str

@@ -89,7 +89,7 @@ There is lots of different types of formatting that can be used to create prompt
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
 from dandy.llm.prompt import Prompt
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 class PersonIntel(BaseIntel):
     name: str

@@ -1,6 +1,6 @@
 from typing import List
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class LocationIntel(BaseIntel):

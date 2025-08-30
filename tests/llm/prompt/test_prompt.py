@@ -2,7 +2,7 @@ from pathlib import Path
 
 from unittest import TestCase
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.prompt import Prompt
 
 class TestPrompt(TestCase):
@@ -40,8 +40,8 @@ class TestPrompt(TestCase):
             .list(items=['item1 after a line break', 'item2'])
             .intel(intel=person_intel)
             .intel_schema(intel_class=PersonIntel)
-            .module_source(module_name='dandy.bot.bot')
-            .object_source(object_module_name='dandy.bot.bot.Bot')
+            .module_source(module_name='dandy.processor.bot.bot')
+            .object_source(object_module_name='dandy.processor.bot.bot.Bot')
             .ordered_list(items=['item1', 'item2'])
             .prompt(prompt=another_prompt)
             .random_choice(choices=['choice1', 'choice2'])

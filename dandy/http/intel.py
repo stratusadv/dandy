@@ -1,4 +1,4 @@
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class HttpResponseIntel(BaseIntel):

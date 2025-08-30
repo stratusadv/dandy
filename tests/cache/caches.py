@@ -1,5 +1,5 @@
-from dandy.cache import MemoryCache
-from dandy.cache import SqliteCache
+from dandy.cache.memory.cache import MemoryCache
+from dandy.cache.sqlite.cache import SqliteCache
 
 CACHE_LIMIT = 100
 

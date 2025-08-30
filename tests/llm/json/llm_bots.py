@@ -1,4 +1,4 @@
-from dandy.bot import Bot
+from dandy.processor.bot.bot import Bot
 from dandy.llm.config import LlmConfigOptions
 
 
