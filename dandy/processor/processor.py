@@ -1,17 +1,14 @@
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
-
 from typing import Any
 
 from dandy.core.future import AsyncFuture
-# from dandy.processor.abc_meta import ProcessorABCMeta
 from dandy.processor.recorder import record_process_wrapper
 
 
 @dataclass(kw_only=True)
 class BaseProcessor(
     ABC,
-    # metaclass=ProcessorABCMeta
 ):
     _recorder_event_id: str = ''
     description: str | None = None

@@ -63,17 +63,6 @@ class Map(
         if cls.mapping is None:
             raise MapCriticalException(f'{cls.__name__} `mapping` is not set.')
 
-    # def __new__(cls, *args, **kwargs):
-    #     instance = super().__new__(cls)
-    #
-    #     if instance.mapping_keys_description is None:
-    #         instance.mapping_keys_description = instance.__class__.mapping_keys_description
-    #
-    #     if instance.mapping is None:
-    #         instance.mapping = instance.__class__.mapping
-    #
-    #     return instance
-
     def __post_init__(self):
         if self.mapping_keys_description is None:
             self.mapping_keys_description = self.__class__.mapping_keys_description
@@ -193,10 +182,6 @@ class Map(
         system_prompt.line_break()
 
         system_prompt.dict(self._keyed_mapping_choices_dict)
-
-        # ANOTHER DAY!!!!
-        # if max_return_values is not None:
-        #     self.llm_config_options.max_output_tokens = max_return_values * 20
 
         return_keys_intel = self._process_return_keys_intel(
             self.llm.prompt_to_intel(

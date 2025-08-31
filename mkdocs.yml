@@ -46,34 +46,7 @@ nav:
       - 10. LLM Agent: tutorials/10_llm_agent.md
       - 11. Project Structure: tutorials/11_project_structure.md
       - 12. Example Project: tutorials/12_example_project.md
-  - API Reference:
-      - Agent:
-          - Agent: api/agent/agent.md
-          - LlmAgent: api/agent/llm_agent.md
-      - Bot:
-          - BaseBot: api/bot/bot.md
-          - LlmBot: api/bot/llm_bot.md
-      - Cache:
-          - Decorators: api/cache/decorators.md
-      - Future:
-          - AsyncFuture: api/future/future.md
-      - Intel:
-          - BaseIntel: api/intel/intel.md
-      - LLM:
-          - Config Options: api/llm/service/config/options.md
-          - Prompt: api/llm/prompt/prompt.md
-          - Prompt Snippets: api/llm/prompt/snippet.md
-          - Request: api/llm/service/request/message.md
-          - Service: api/llm/service/service.md
-      - Map:
-          - LLM Map: api/map/llm_map.md
-      - Processor:
-          - BaseProcessor: api/processor/processor.md
-          - BaseLlmProcessor: api/processor/llm_processor.md
-      - Recorder:
-          - Recorder: api/recorder/recorder.md
-      - Workflow:
-          - BaseWorkflow: api/workflow/workflow.md
+  - API Reference: reference/
   - Exceptions:
       - Handling Errors: exceptions/handling_errors.md
       - Dandy: exceptions/dandy_exceptions.md
@@ -121,6 +94,12 @@ plugins:
   - markdown-exec
   - search
   - table-reader
+  - gen-files:
+      scripts:
+        - docs/scripts/generate_api_reference.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
 
 theme:
   name: material

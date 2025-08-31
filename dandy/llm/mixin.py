@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
+from dandy import BaseIntel
+from dandy.intel.intel import DefaultIntel
 from dandy.llm.conf import llm_configs
 from dandy.llm.config import LlmConfigOptions, OllamaLlmConfig, OpenaiLlmConfig
 from dandy.llm.exceptions import LlmCriticalException
@@ -12,6 +14,7 @@ from dandy.llm.service.service import LlmService
 class LlmProcessorMixin:
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
     llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options
+    llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_instructions_prompt: PromptOrStr = 'You are a helpful assistant.'
     llm_system_override_prompt: PromptOrStrOrNone = None
 

@@ -11,7 +11,7 @@ from tests.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedB
 class TestLlmMap(TestCase):
     def test_llm_map(self):
         values = FunLlmMap().process(
-            'I enjoy seeing my dog every day and think animals are really cool.',
+            'I enjoy seeing my dog every day and think animals are really cool. Give me two choices of things to do!',
             2
         )
 

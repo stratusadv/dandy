@@ -212,3 +212,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
     def extend(self, items: List[T]):
         getattr(self, self._list_name).extend(items)
+
+
+class DefaultIntel(BaseIntel):
+    response: str

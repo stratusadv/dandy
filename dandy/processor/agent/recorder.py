@@ -1,6 +1,6 @@
 import json
 
-from dandy.processor.agent.llm_strategy import BaseLlmProcessorsStrategy
+from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.core.utils import json_default, pascal_to_title_case
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.plan.task.llm_task import LlmAgentTaskIntel
@@ -29,7 +29,7 @@ def _recorder_add_llm_agent_event(
 
 def recorder_add_llm_agent_create_plan_event(
         prompt: PromptOrStr,
-        processors_strategy: BaseLlmProcessorsStrategy,
+        processors_strategy: ProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -90,7 +90,7 @@ def recorder_add_llm_agent_running_plan_event(
 
 def recorder_add_llm_agent_start_task_event(
         task: LlmAgentTaskIntel,
-        processors_strategy: BaseLlmProcessorsStrategy,
+        processors_strategy: ProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(
@@ -114,7 +114,7 @@ def recorder_add_llm_agent_start_task_event(
 
 def recorder_add_llm_agent_completed_task_event(
         task: LlmAgentTaskIntel,
-        processors_strategy: BaseLlmProcessorsStrategy,
+        processors_strategy: ProcessorsStrategy,
         event_id: str,
 ):
     _recorder_add_llm_agent_event(

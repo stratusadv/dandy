@@ -7,7 +7,7 @@ from pydantic.main import IncEx
 
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
-from dandy.processor.agent.llm_strategy import BaseLlmProcessorsStrategy
+from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
@@ -36,14 +36,12 @@ class Agent(
 ):
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
-    # _processors_strategy_class: Type[BaseProcessorsStrategy]
-    # _processors_strategy: BaseProcessorsStrategy
-    # processors: Sequence[Type[BaseProcessor]]
-    _processors_strategy_class = BaseLlmProcessorsStrategy
-    _processors_strategy: BaseLlmProcessorsStrategy | None = None
+
     processors: Sequence[Type[BaseProcessor]] = (
         Bot,
     )
+    _processors_strategy_class: type[ProcessorsStrategy] = ProcessorsStrategy
+    _processors_strategy: ProcessorsStrategy | None = None
 
     services: ClassVar[AgentService] = AgentService()
 
@@ -58,9 +56,10 @@ class Agent(
                 f'{cls.__name__} must have a "BaseProcessorsStrategy" sub class defined on the "_processors_strategy_class" class attribute.'
             )
 
-        else:
-            cls._processors_strategy = cls._processors_strategy_class(
-                cls.processors
+    def __post_init__(self):
+        if self._processors_strategy is None:
+            self._processors_strategy = self._processors_strategy_class(
+                self.processors
             )
 
     def process(
@@ -80,7 +79,7 @@ class Agent(
 
         recorder_add_llm_agent_create_plan_event(
             prompt,
-            self.__class__._processors_strategy,
+            self._processors_strategy,
             recorder_event_id
         )
 
@@ -106,11 +105,11 @@ class Agent(
 
             recorder_add_llm_agent_start_task_event(
                 task,
-                self.__class__._processors_strategy,
+                self._processors_strategy,
                 recorder_event_id
             )
 
-            resource = self.__class__._processors_strategy.get_processor_from_key(task.processors_key)
+            resource = self._processors_strategy.get_processor_from_key(task.processors_key)
 
             updated_task = resource.use(
                 prompt=agent_do_task_prompt(task),
@@ -123,7 +122,7 @@ class Agent(
 
             recorder_add_llm_agent_completed_task_event(
                 task,
-                self.__class__._processors_strategy,
+                self._processors_strategy,
                 recorder_event_id
             )
 
@@ -146,7 +145,7 @@ class Agent(
 
         return self.llm.prompt_to_intel(
             prompt=prompt,
-            intel_class=intel_class or self.intel_class,
+            intel_class=intel_class,
             intel_object=intel_object,
             images=images,
             image_files=image_files,
@@ -164,7 +163,7 @@ class Agent(
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
                 instructions_prompt=self.llm_instructions_prompt,
-                processors_strategy=self.__class__._processors_strategy,
+                processors_strategy=self._processors_strategy,
             ),
             intel_class=LlmAgentPlanIntel,
             include_fields={

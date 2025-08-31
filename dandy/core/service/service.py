@@ -9,7 +9,18 @@ TypeAny = TypeVar('TypeAny', bound=Any, covariant=True)
 
 
 class BaseService(ABC, Generic[TypeAny]):
+    def __new__(cls, obj: Any = None):
+        service_instance = cls.get_obj_service_instance(obj)
+
+        if service_instance is not None:
+            return service_instance
+        else:
+            return super().__new__(cls)
+
     def __init__(self, obj: Any = None):
+        if self.has_obj_service_instance(obj):
+            return
+
         self._obj_type_name: str = str(
             list(self.__class__.__annotations__.values())[0]
         ).split('.')[-1]
@@ -39,6 +50,8 @@ class BaseService(ABC, Generic[TypeAny]):
 
         self.__post_init__()
 
+        self.set_obj_service_instance(obj)
+
     def __init_subclass__(cls):
         super().__init_subclass__()
 
@@ -57,7 +70,6 @@ class BaseService(ABC, Generic[TypeAny]):
                     target: cls | Any = instance
 
                 if issubclass(target.__class__, BaseService):
-
                     self._validate_base_service_target_or_error(target)
 
                     return cls(getattr(target, 'obj'))
@@ -68,6 +80,16 @@ class BaseService(ABC, Generic[TypeAny]):
 
     def __post_init__(self):
         pass
+
+    @classmethod
+    def get_obj_service_instance(cls, obj: Any) -> str | None:
+        return getattr(obj, f'_{cls.__name__}_instance', None)
+
+    def has_obj_service_instance(self, obj: Any) -> bool:
+        return self.get_obj_service_instance(obj) is not None
+
+    def set_obj_service_instance(self, obj: Any):
+        setattr(obj, f'_{self.__class__.__name__}_instance', self)
 
     @property
     def obj_class(self) -> type[TypeAny]:
@@ -81,5 +103,3 @@ class BaseService(ABC, Generic[TypeAny]):
         if self._obj_type_name not in target._obj_mro_type_names:
             raise ServiceCriticalException(
                 f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {self._obj_type_name} is not in {target._obj_mro_type_names}')
-
-

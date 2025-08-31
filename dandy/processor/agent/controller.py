@@ -12,7 +12,7 @@ from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.typing import PromptOrStr
 
 
-class UseProcessorLlmBot(Bot):
+class UseProcessorBot(Bot):
     instructions_prompt = 'You are a bot that is given a task and a processor, provide a response that best uses the processor to complete the task.'
 
     def process(
@@ -33,7 +33,7 @@ class UseProcessorLlmBot(Bot):
         )
 
 
-class LlmProcessorController(BaseProcessorController):
+class ProcessorController(BaseProcessorController):
     def use(
             self,
             prompt: PromptOrStr,
@@ -49,12 +49,12 @@ class LlmProcessorController(BaseProcessorController):
         }
 
         required_processor_typed_kwargs = get_typed_kwargs_from_callable(
-            callable_=self.processor.process,
+            callable_=self.processor().process,
             return_defaulted=False,
         )
 
         if required_processor_typed_kwargs in get_typed_kwargs_from_callable(self.use):
-            processor_intel = self.processor.process(
+            processor_intel = self.processor().process(
                 **{
                     key: available_kwargs_and_values[key] for key in required_processor_typed_kwargs.keys() if
                     key in available_kwargs_and_values
@@ -68,17 +68,17 @@ class LlmProcessorController(BaseProcessorController):
             processor_kwargs_intel_class = IntelClassGenerator.from_typed_kwargs(
                 intel_class_name=f'{self.processor.__qualname__}Intel',
                 typed_kwargs=get_typed_kwargs_from_callable(
-                    callable_=self.processor.process,
+                    callable_=self.processor().process,
                 ),
             )
 
-            processor_kwargs_intel = UseProcessorLlmBot().process(
+            processor_kwargs_intel = UseProcessorBot().process(
                 prompt=prompt,
                 processor_kwargs_intel_class=processor_kwargs_intel_class,
                 processor_description=self.processor.description
             )
 
-            processor_intel = self.processor.process(
+            processor_intel = self.processor().process(
                 **processor_kwargs_intel.model_to_kwargs()
             )
 
@@ -87,7 +87,7 @@ class LlmProcessorController(BaseProcessorController):
                 f'Processor {self.processor.__name__} did not return an instance of "BaseIntel" while being used as a resource. It returned an instance of {processor_intel.__class__.__name__}.'
             )
 
-        return UseProcessorLlmBot().llm.prompt_to_intel(
+        return UseProcessorBot().llm.prompt_to_intel(
             prompt=(
                 Prompt()
                 .text('Fill out the actual result to this task using the answer below.')

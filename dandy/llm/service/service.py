@@ -107,7 +107,10 @@ class LlmService(BaseService['LlmProcessorMixin']):
             raise LlmCriticalException('Cannot specify both intel_class and intel_object.')
 
         if intel_class is None and intel_object is None:
-            raise LlmCriticalException('Must specify either intel_class or intel_object.')
+            if self.obj_class.llm_intel_class:
+                intel_class = self.obj_class.llm_intel_class
+            else:
+                raise LlmCriticalException('Must specify either intel_class, intel_object or llm_intel_class on the processor.')
 
         if image_files:
             images = [] if images is None else images
