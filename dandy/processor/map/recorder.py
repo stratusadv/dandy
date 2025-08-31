@@ -29,7 +29,7 @@ def recorder_add_process_map_value_event(
                 ),
                 EventAttribute(
                     key='Mapping',
-                    value=json.dumps(map.mapping, indent=4),
+                    value=map.mapping,
                 ),
             ]
         )

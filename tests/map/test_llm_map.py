@@ -10,20 +10,29 @@ from tests.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedB
 
 class TestLlmMap(TestCase):
     def test_llm_map(self):
-        values = FunLlmMap().process('I enjoy seeing my dog every day.', 2)
+        values = FunLlmMap().process(
+            'I enjoy seeing my dog every day and think animals are really cool.',
+            2
+        )
 
         self.assertEqual(2, len(values))
         self.assertIn(391, values)
         self.assertIn(782, values)
 
     def test_seperated_nested_llm_map(self):
-        values = AdventureGameLlmMap().process('The player goes left, and is carrying only a bucket on the adventure.', 1)
+        values = AdventureGameLlmMap().process(
+            'The player goes left, and is carrying only a bucket on the adventure.',
+            1
+        )
 
         self.assertEqual(1, len(values))
         self.assertEqual(DragonLlmMap.mapping['The player is packing other stuff'], values[0])
 
     def test_combined_nested_llm_map(self):
-        values = NestedBirdMap().process('I am a black bird from the famous edgar allen poe poem', 1)
+        values = NestedBirdMap().process(
+            'I am a black bird from the famous edgar allen poe poem',
+            1
+        )
 
         self.assertEqual(1, len(values))
         self.assertEqual(NestedBirdMap.mapping['the bird is dark colored']['it is a raven'], values[0])
@@ -58,21 +67,27 @@ class TestLlmMap(TestCase):
     @mock.patch('dandy.http.connector.HttpConnector.post_request')
     def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = {
-                'message': {
-                    'content': '{"keys": []}',
-                }
+            'message': {
+                'content': '{"keys": []}',
             }
+        }
 
         with self.assertRaises(MapRecoverableException):
-            value = FunLlmMap().process('I really like my pet dog and hope to get another one', 2)
+            value = FunLlmMap().process(
+                'I really like my pet dog and hope to get another one',
+                2
+            )
 
     @mock.patch('dandy.http.connector.HttpConnector.post_request')
     def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = {
-                'message': {
-                    'content': '{"keys": ["1", "2", "3", "4"]}',
-                }
+            'message': {
+                'content': '{"keys": ["1", "2", "3", "4"]}',
             }
+        }
 
         with self.assertRaises(MapRecoverableException):
-            value = FunLlmMap().process('I really like my pet dog and hope to get another one', 2)
+            value = FunLlmMap().process(
+                'I really like my pet dog and hope to get another one',
+                2
+            )

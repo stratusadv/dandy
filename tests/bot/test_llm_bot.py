@@ -31,9 +31,13 @@ class TestLlmBot(TestCase):
         MoneyBagLlmBot().llm_config = llm_config
 
         money_bag = MoneyBagLlmBot().process(
-            user_input='Make me rich with by giving me good number of gems and coins in my bag!',
+            user_input='Please put some gems and coins in my money bag!',
             intel_class=MoneyBagIntel,
-            exclude={'bills': True, 'gems': {'quality': True}},
+            exclude={
+                'bills': True, 'gems': {
+                    'quality': True
+                }
+            },
         )
 
         gems_value = 0
