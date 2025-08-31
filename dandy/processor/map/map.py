@@ -20,13 +20,13 @@ from dandy.processor.map.service import MapService
 from dandy.recorder.events import EventAttribute
 
 
-@dataclass(kw_only=True, init=False)
+@dataclass(kw_only=True)
 class Map(
     BaseProcessor,
     LlmProcessorMixin,
 ):
-    mapping_keys_description: str
-    mapping: Dict[str, Any]
+    mapping_keys_description: str = None
+    mapping: Dict[str, Any] = None
 
     services: ClassVar[MapService] = MapService()
 
@@ -63,18 +63,24 @@ class Map(
         if cls.mapping is None:
             raise MapCriticalException(f'{cls.__name__} `mapping` is not set.')
 
-    def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
-
-        if instance.mapping_keys_description is None:
-            instance.mapping_keys_description = instance.__class__.mapping_keys_description
-
-        if instance.mapping is None:
-            instance.mapping = instance.__class__.mapping
-
-        return instance
+    # def __new__(cls, *args, **kwargs):
+    #     instance = super().__new__(cls)
+    #
+    #     if instance.mapping_keys_description is None:
+    #         instance.mapping_keys_description = instance.__class__.mapping_keys_description
+    #
+    #     if instance.mapping is None:
+    #         instance.mapping = instance.__class__.mapping
+    #
+    #     return instance
 
     def __post_init__(self):
+        if self.mapping_keys_description is None:
+            self.mapping_keys_description = self.__class__.mapping_keys_description
+
+        if self.mapping is None:
+            self.mapping = self.__class__.mapping
+
         for key in self.mapping.keys():
             if not isinstance(key, str):
                 raise MapCriticalException(f'Mapping keys must be strings, found {key} ({type(key)}).')
@@ -188,8 +194,9 @@ class Map(
 
         system_prompt.dict(self._keyed_mapping_choices_dict)
 
-        if max_return_values is not None:
-            self.llm_config.options.max_output_tokens = max_return_values * 20
+        # ANOTHER DAY!!!!
+        # if max_return_values is not None:
+        #     self.llm_config_options.max_output_tokens = max_return_values * 20
 
         return_keys_intel = self._process_return_keys_intel(
             self.llm.prompt_to_intel(

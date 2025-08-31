@@ -2,7 +2,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.constants import RECORDING_POSTFIX_NAME
-from dandy.processor.bot import Bot
+from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
 from dandy.recorder import recorder_to_html_file, recorder_to_json_file, \
     recorder_to_markdown_file

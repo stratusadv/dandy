@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from dandy.processor.processor import BaseProcessor
-from dandy.processor.map import Map
+from dandy.processor.map.map import Map
 from dandy.processor.map.exceptions import MapCriticalException
 
 
