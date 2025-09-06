@@ -3,10 +3,10 @@ from typing import Union, Type
 
 from dandy.processor.bot.bot import Bot
 from dandy.llm.prompt import Prompt
-from tests.bot.intel import MoneyBagIntel
+from tests.bot.intelligence.intel import MoneyBagIntel
 
 
-class MoneyBagLlmBot(Bot):
+class MoneyBagBot(Bot):
     def process(
             self,
             user_input: str,

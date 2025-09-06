@@ -1,14 +1,13 @@
 from dandy.processor.agent.agent import Agent
 from dandy.processor.bot.bot import Bot
 from dandy.llm.prompt.prompt import Prompt
-from tests.agent.intel import EmailIntel
+from tests.agent.intelligence.intel import EmailIntel
 
-from tests.agent.llm_bots import MuseumEmailFinderBot
-from tests.agent.llm_maps import MuseumSubjectLlmMap
-from tests.agent.workflows import EmailProofReadingBot
+from tests.agent.intelligence.bots import MuseumEmailFinderBot, EmailProofReadingBot
+from tests.agent.intelligence.maps import MuseumSubjectMap
 
 
-class MuseumEmailLlmAgent(Agent):
+class MuseumEmailAgent(Agent):
     llm_instructions_prompt = (
         Prompt()
         .text('Write an email to a museum based on the users input, the users email will always be the from address.')
@@ -20,6 +19,6 @@ class MuseumEmailLlmAgent(Agent):
     processors = (
         Bot,
         MuseumEmailFinderBot,
-        MuseumSubjectLlmMap,
+        MuseumSubjectMap,
         EmailProofReadingBot,
     )

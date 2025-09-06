@@ -8,8 +8,8 @@ from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.cache import BaseCache
 from tests.cache.caches import sql_lite_cache, memory_cache
 
-from tests.bot.intel import MoneyBagIntel
-from tests.bot.llm_bots import MoneyBagLlmBot
+from tests.bot.intelligence.intel import MoneyBagIntel
+from tests.bot.intelligence.bots import MoneyBagBot
 
 
 class TestCacheWithLlm(TestCase):
@@ -21,7 +21,7 @@ class TestCacheWithLlm(TestCase):
     def run_test_cache_with_llm_bot(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        class CachedMoneyBagLlmBot(MoneyBagLlmBot):
+        class CachedMoneyBagLlmBot(MoneyBagBot):
             @cache_decorator()
             def process(self, *args, **kwargs):
                 return super().process(*args, **kwargs)

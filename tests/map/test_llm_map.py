@@ -5,7 +5,7 @@ from faker import Faker
 from dandy.processor.map.exceptions import MapRecoverableException
 from dandy.processor.map.map import Map
 from tests.decorators import nines_testing
-from tests.map.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedBirdMap
+from tests.map.intelligence.maps import FunLlmMap, DragonLlmMap, AdventureGameLlmMap, NestedBirdMap
 
 
 class TestLlmMap(TestCase):
