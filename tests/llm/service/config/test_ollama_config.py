@@ -26,7 +26,7 @@ class TestConfig(TestCase):
                 host=os.getenv("OLLAMA_HOST"),
                 port=int(os.getenv("OLLAMA_PORT", 11434)),
                 api_key=os.getenv("OLLAMA_API_KEY"),
-                model='llama3.1:8b-instruct-q4_K_M',
+                model='gemma3:12b',
                 max_output_tokens=10,
                 temperature=1.0,
                 prompt_retry_count=3,

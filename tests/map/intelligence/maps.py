@@ -2,7 +2,7 @@ from dandy.llm.config import LlmConfigOptions
 from dandy.processor.map.map import Map
 
 
-class FunLlmMap(Map):
+class FunMap(Map):
     mapping_keys_description = 'Descriptions of People'
     mapping = {
         'Would be glad to get a free puppy': 391,
@@ -11,7 +11,7 @@ class FunLlmMap(Map):
         'Looking for something more technical': 927,
     }
 
-class DragonLlmMap(Map):
+class DragonMap(Map):
     mapping_keys_description = 'Battle Outcomes'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
@@ -20,7 +20,7 @@ class DragonLlmMap(Map):
     }
 
 
-class TreasureLlmMap(Map):
+class TreasureMap(Map):
     mapping_keys_description: str = 'Treasure Outcomes'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
@@ -29,12 +29,12 @@ class TreasureLlmMap(Map):
     }
 
 
-class AdventureGameLlmMap(Map):
+class AdventureGameMap(Map):
     mapping_keys_description = 'Adventure Direction Decisions'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
-        'The player travels down the path to the left': DragonLlmMap(),
-        'The player goes right into the jungle': TreasureLlmMap()
+        'The player travels down the path to the left': DragonMap(),
+        'The player goes right into the jungle': TreasureMap()
     }
 
 

@@ -6,7 +6,7 @@ from typing import Callable
 from dandy.cache.memory.decorators import cache_to_memory
 from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.cache import BaseCache
-from tests.cache.caches import sql_lite_cache, memory_cache
+from tests.cache.intelligence.caches import sql_lite_cache, memory_cache
 
 from tests.bot.intelligence.intel import MoneyBagIntel
 from tests.bot.intelligence.bots import MoneyBagBot
@@ -24,6 +24,7 @@ class TestCacheWithLlm(TestCase):
         class CachedMoneyBagLlmBot(MoneyBagBot):
             @cache_decorator()
             def process(self, *args, **kwargs):
+                print('Processing ...')
                 return super().process(*args, **kwargs)
 
         start = time.perf_counter()
@@ -35,6 +36,8 @@ class TestCacheWithLlm(TestCase):
             intel_class=MoneyBagIntel,
             include={'coins'}
         )
+
+        print(time.perf_counter() - start)
 
         self.assertGreater(time.perf_counter() - start, 0.1)
 
