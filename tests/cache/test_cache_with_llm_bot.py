@@ -24,7 +24,6 @@ class TestCacheWithLlm(TestCase):
         class CachedMoneyBagLlmBot(MoneyBagBot):
             @cache_decorator()
             def process(self, *args, **kwargs):
-                print('Processing ...')
                 return super().process(*args, **kwargs)
 
         start = time.perf_counter()

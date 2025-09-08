@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import httpx
 
 from dandy.core.service.service import BaseService
-from dandy.processor.processor import BaseProcessor
+
+if TYPE_CHECKING:
+    from dandy.http.mixin import HttpProcessorMixin
 
 
-class HttpService(BaseService['BaseProcessor']):
-    obj: BaseProcessor
+class HttpService(BaseService['HttpProcessorMixin']):
+    obj: HttpProcessorMixin
 
     @staticmethod
     def get(url: str):
