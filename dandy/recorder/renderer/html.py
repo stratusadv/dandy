@@ -18,7 +18,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
             return debug_html.read(
             ).replace(
                 '__recording_json__',
-                self.recording.model_dump_json(),
+                self.recording.model_dump_json(indent=4),
             ).replace(
                 '__dandy_version__',
                 f'{__VERSION__}'
