@@ -29,6 +29,7 @@ markdown_extensions:
   - attr_list
 
 nav:
+  - Home: home.md
   - Welcome:
       - What is Dandy: index.md
       - Read this First: landing/read_this_first.md

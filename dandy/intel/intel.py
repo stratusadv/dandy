@@ -215,4 +215,4 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
 
 class DefaultIntel(BaseIntel):
-    response: str
+    content: str

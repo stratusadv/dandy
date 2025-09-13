@@ -81,10 +81,17 @@ In the `process` method of the `LlmBot` class we can now include and exclude fie
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-another_clown = Bot().process(
-    prompt='I am a big fan of juggling, can you please create me a clown!',
-    intel_class=ClownIntel,
-    exclude_fields={'real_name'},
+class FakeClownBot(Bot):
+    def process(self, clown_description: str) -> ClownIntel:
+        return self.llm.prompt_to_intel(
+            prompt=clown_description,
+            intel_class=ClownIntel,
+            exclude_fields={'real_name'},
+        )
+
+
+another_clown = FakeClownBot().process(
+    clown_description='I am a big fan of juggling, can you please create me a clown!',
 )
 
 print(another_clown)
@@ -95,10 +102,17 @@ You can also get the same result by including both the `can_juggle` and `clown_n
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-another_clown = Bot().process(
-    prompt='I am a big fan of juggling, can you please create me a clown!',
-    intel_class=ClownIntel,
-    include_fields={'can_juggle', 'clown_name'},
+class RealClownBot(Bot):
+    def process(self, clown_description: str) -> ClownIntel:
+        return self.llm.prompt_to_intel(
+            prompt=clown_description,
+            intel_class=ClownIntel,
+            include_fields={'can_juggle', 'clown_name'},
+        )
+
+
+another_clown = RealClownBot().process(
+    clown_description='I am a big fan of juggling, can you please create me a clown!',
 )
 
 print(another_clown)
@@ -160,10 +174,17 @@ We do this by creating a more complex `IncEx`/`Dict` object where the keys are t
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using PirateIntel from earlier
 
-new_pirate = Bot().process(
-    prompt='Can you please generate me a pirate?',
-    intel_class=PirateIntel,
-    exclude_fields={'parrot': True, 'hat': {'name': True}},
+class AdvancedPirateBot(Bot):
+    def process(self, pirate_description: str) -> PirateIntel:
+        return self.llm.prompt_to_intel(
+            prompt=pirate_description,
+            intel_class=PirateIntel,
+            exclude_fields={'parrot': True, 'hat': {'name': True}},
+        )
+        
+
+new_pirate = AdvancedPirateBot().process(
+    pirate_description='Can you please generate me a pirate?',
 )
 
 print(new_pirate.hat.color)

@@ -12,15 +12,17 @@ To create an agent using the `Agent` class from the `dandy` module similar to ho
 ```python exec="True" source="above" source="material-block" session="llm_agent"
 from dandy import Agent, Bot
 
+
 class AssistantAgent(Agent):
     # This attribute is required and determines which other processors you want this agent to have access to using.
     processors = (
         Bot,
     )
-    
+
+
 intel = AssistantAgent().process('Can you give me an idea for a drawing?')
 
-print(intel.text)
+print(intel.content)
 ```
 
 !!! note

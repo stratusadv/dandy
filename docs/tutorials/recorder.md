@@ -14,7 +14,7 @@ Recorder.start_recording(recording_name='tutorial')
 
 canada_capital_intel = Bot().process(prompt='Please tell me just the name only of the city that is the capital of Canada?')
 
-capital_description_intel = Bot().process(prompt=f'Please describe the following city: {canada_capital_intel.text}')
+capital_description_intel = Bot().process(prompt=f'Please describe the following city: {canada_capital_intel.content}')
 
 Recorder.stop_recording('tutorial')
 
@@ -37,7 +37,7 @@ from dandy import Bot, recorder_to_html_file
 @recorder_to_html_file(recording_name='tutorial')
 def get_canada_capital_description():
     canada_capital_intel = Bot().process(prompt='Please tell me just the name only of the city that is the capital of Canada?')
-    return Bot().process(prompt=f'Please describe the following city: {canada_capital_intel.text}')
+    return Bot().process(prompt=f'Please describe the following city: {canada_capital_intel.content}')
 
 capital_description_intel = get_canada_capital_description()
 ```

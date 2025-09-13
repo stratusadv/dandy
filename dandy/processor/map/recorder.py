@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import json
 from dandy.recorder.recorder import Recorder
@@ -37,9 +37,13 @@ def recorder_add_process_map_value_event(
 
 def recorder_add_chosen_mappings_event(
         map: Map,
-        chosen_mappings: dict[str, str],
+        chosen_mappings: dict[Any, str],
         event_id: str,
 ):
+    chosen_mappings = {
+        str(key): value for key, value in chosen_mappings.items()
+    }
+
     Recorder.add_event(
         Event(
             id=event_id,

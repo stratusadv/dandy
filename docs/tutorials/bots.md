@@ -22,7 +22,7 @@ class AssistantBot(Bot):
 
 intel = AssistantBot().process('Can you give me an idea for a book?')
 
-print(intel.text)
+print(intel.content)
 ```
 
 ## Advanced LLM Bot

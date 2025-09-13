@@ -52,7 +52,7 @@ from dandy import Bot
 
 response = Bot().process('What is the capital of Canada?')
 
-print(response.text)
+print(response.content)
 
 ```
 

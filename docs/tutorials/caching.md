@@ -18,12 +18,12 @@ from dandy import Map, cache_to_memory
 
 class NumberMap(Map):
     mapping_keys_description = 'Verbose Number Descriptions'
-    mapping = Map({
+    mapping = {
         'small numbers': 1,
         'medium numbers': 30,
         'large numbers': 100,
         'over 9000 numbers': 9002,
-    })
+    }
     
     @cache_to_memory()
     def process(self, *args, **kwargs):
