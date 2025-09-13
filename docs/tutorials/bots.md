@@ -10,19 +10,17 @@ Bots should represent a distinct and singular thing you want to do within your p
 To create your own bot we are going to use the `BaseLlmBot` class from the `dandy.llm` module.
 
 ```python exec="True" source="above" source="material-block" session="llm_bot"
-from dandy.llm import BaseLlmBot, Prompt, DefaultLlmIntel
+from dandy import Bot, Prompt
 
-class AssistantBot(BaseLlmBot):
-    @classmethod
-    def process(cls, user_prompt: Prompt | str) -> DefaultLlmIntel:
-        default_intel = cls.process_prompt_to_intel(
+class AssistantBot(Bot):
+    def process(self, user_prompt: Prompt | str):
+        default_intel = self.llm.prompt_to_intel(
             prompt=user_prompt,
-            intel_class=DefaultLlmIntel
         )
         
         return default_intel
 
-intel = AssistantBot.process('Can you give me an idea for a book?')
+intel = AssistantBot().process('Can you give me an idea for a book?')
 
 print(intel.text)
 ```
@@ -34,8 +32,7 @@ When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 Below is an example of how you can customize bots to make sure they work the way you want.
 
 ```python exec="True" source="above" source="material-block" session="llm_bot"
-from dandy.intel.intel import BaseIntel
-from dandy.llm import BaseLlmBot, Prompt, LlmConfigOptions
+from dandy import BaseIntel, Bot, Prompt
 
 
 class CandyIntel(BaseIntel):
@@ -44,15 +41,15 @@ class CandyIntel(BaseIntel):
     description: str
 
 
-class CandyDesignBot(BaseLlmBot):
-    config = 'LLAMA_3_2_3B'
-    config_options = LlmConfigOptions(
-        temperature=0.1,
-        max_input_tokens=2000,
-        max_output_tokens=2000,
-        prompt_retry_count=3,
-        randomize_seed=True
-    )
+class CandyDesignBot(Bot):
+    llm_config = 'LLAMA_3_2_3B'
+    # llm_config_options = LlmConfigOptions(
+    #     temperature=0.1,
+    #     max_input_tokens=2000,
+    #     max_output_tokens=2000,
+    #     prompt_retry_count=3,
+    #     randomize_seed=True
+    # )
     instructions_prompt = (
         Prompt()
         .text('You are a candy design bot and will be given a request to make a new type of candy.')
@@ -66,8 +63,7 @@ class CandyDesignBot(BaseLlmBot):
     )
     intel_class = CandyIntel
 
-    @classmethod
-    def process(cls, user_prompt: Prompt | str, candy_theme: str) -> CandyIntel:
+    def process(self, user_prompt: Prompt | str, candy_theme: str) -> CandyIntel:
         prompt = (
             Prompt()
             .heading('Request')
@@ -77,12 +73,12 @@ class CandyDesignBot(BaseLlmBot):
             .prompt(candy_theme)
         )
 
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompt,
         )
 
 
-candy_intel = CandyDesignBot.process(
+candy_intel = CandyDesignBot().process(
     user_prompt='Strawberries and Cookie Dough',
     candy_theme='Medieval Times'
 )

@@ -48,9 +48,9 @@ Once you have Dandy setup and configured you can easily get started with a simpl
 
 ```python exec="True" source="above" source="material-block"
 
-from dandy.llm import LlmBot
+from dandy import Bot
 
-response = LlmBot.process('What is the capital of Canada?')
+response = Bot().process('What is the capital of Canada?')
 
 print(response.text)
 
@@ -60,4 +60,4 @@ print(response.text)
 
 Wow, that was easy ... we are only beginning to dive into the power of Dandy.
 
-If you have already got the [setup](../tutorials/01_setup.md) process complete you can skip right to the [intel tutorial](../tutorials/02_intel.md).
+If you have already got the [setup](../tutorials/setup.md) process complete you can skip right to the [intel tutorial](../tutorials/intel.md).

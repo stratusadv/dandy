@@ -29,6 +29,10 @@ class LlmConfigs:
                 raise DandyException('the "LLM_CONFIGS" in the settings are configured incorrectly.')
 
             for key in _DEFAULT_KEY_LIST:
+                if key in kwargs:
+                    if kwargs[key] is None or kwargs[key] == '':
+                        message = f'The "{key}" in "LLM_CONFIGS.{llm_config_name}" in your "{get_settings_module_name()}" cannot be empty.'
+                        raise DandyException(message)
                 kwargs[key] = kwargs[key] if kwargs.get(key) else settings.LLM_CONFIGS['DEFAULT'][key]
 
             if 'TYPE' not in kwargs:

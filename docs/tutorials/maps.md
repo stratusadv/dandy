@@ -11,17 +11,17 @@ Here is a simple example of how to create a map using the `BaseLlmMap` that retu
 Maps always return a list of values and this can be controlled by the `choice_count` argument which defaults to 1.
 
 ```python exec="True" source="above" source="material-block" session="map"
-from dandy.llm import BaseLlmMap, Map
+from dandy import Map
 
-class AnimalFamilyMap(BaseLlmMap):
-    map_keys_description = 'Animal Sounds'
-    map = Map({
+class AnimalFamilyMap(Map):
+    mapping_keys_description = 'Animal Sounds'
+    mapping = {
         'barking': 'dog',
         'meowing': 'cat',
         'quacking': 'duck'
-    })
+    }
     
-animal_families = AnimalFamilyMap.process(
+animal_families = AnimalFamilyMap().process(
     'I was out on a walk and heard some barking', 
     max_return_values=1
 )
@@ -35,7 +35,7 @@ Maps can also be nested indefinitely and link to any value you want.
 While a map is traversing if it comes across another `LlmMap` or `Map` it will continue to traverse to get the values nested within.
 
 ```python exec="True" source="above" source="material-block" session="map"
-from dandy.llm import BaseLlmMap, Map
+from dandy import Map
 
 class MathBook:
     def __str__(self):
@@ -43,37 +43,43 @@ class MathBook:
 
 golf = 'Golf'
 
-class LearningMap(BaseLlmMap):
-    map_keys_description = 'Learning Subjects'
-    map = Map({
+class LearningMap(Map):
+    mapping_keys_description = 'Learning Subjects'
+    mapping = {
         'history': 'Social Studies Book',
         'science': 'Laboratory Book',
         'numbers': MathBook()
-    })
+    }
 
-class ActivityMap(BaseLlmMap):
-    map_keys_description = 'Physical Activities'
-    map = Map({
-        'running around outdoors': Map({
+class ActivityMap(Map):
+    mapping_keys_description = 'Physical Activities'
+    mapping = {
+        'running around outdoors': Map(
+            mapping_keys_description='Activities',
+            mapping={
             'throwing': 'Ball',
             'flinging': 'Frisbee',
             'walking': golf
         }),
-        'playing with friends': Map({
+        'playing with friends': Map(
+            mapping_keys_description='Activities',
+            mapping={
             'kicking': 'soccer',
             'swinging': 'baseball',
             'climbing': 'jungle gym'    
         }),
-        'being inside': Map({
+        'being inside': Map(
+            mapping_keys_description='Activities',
+            mapping={
             'logic': 'board game',
             'thinking': 'chess',
             'creative': 'painting'
         }),
-        'learning more': LearningMap,
+        'learning more': LearningMap(),
         'no valid choice': None
-    })
+    }
     
-activities = ActivityMap.process(
+activities = ActivityMap().process(
     'Getting more education with something fun like numbers is what I like to do'
 )
 

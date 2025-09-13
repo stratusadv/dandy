@@ -12,13 +12,13 @@ Let's run three `LlmBot.process` calls at once and see how long it takes.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="futures"
 from time import perf_counter
-from dandy.llm import LlmBot
+from dandy import Bot
 
 start_time = perf_counter()
 
-pants_intel = LlmBot.process('What type of pants should I wear in the rain?')
-shirt_intel = LlmBot.process('What type of shirt should I wear in the sun?')
-shoes_intel = LlmBot.process('What type of shoes should I wear in the mud?')
+pants_intel = Bot().process('What type of pants should I wear in the rain?')
+shirt_intel = Bot().process('What type of shirt should I wear in the sun?')
+shoes_intel = Bot().process('What type of shoes should I wear in the mud?')
 
 print('Pants: ' + pants_intel.text)
 print('Shirt: ' + shirt_intel.text)
@@ -37,13 +37,13 @@ Now let's run with futures, note you have to access the `result` attribute of th
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="futures"
 from time import perf_counter
-from dandy.llm import LlmBot
+from dandy import Bot
 
 start_time = perf_counter()
 
-pants_intel_future = LlmBot.process_to_future('What type of pants should I wear in the rain?')
-shirt_intel_future = LlmBot.process_to_future('What type of shirt should I wear in the sun?')
-shoes_intel_future = LlmBot.process_to_future('What type of shoes should I wear in the mud?')
+pants_intel_future = Bot().process_to_future('What type of pants should I wear in the rain?')
+shirt_intel_future = Bot().process_to_future('What type of shirt should I wear in the sun?')
+shoes_intel_future = Bot().process_to_future('What type of shoes should I wear in the mud?')
 
 print('Pants: ' + pants_intel_future.result.text)
 print('Shirt: ' + shirt_intel_future.result.text)
@@ -58,13 +58,13 @@ Sometimes in more complex situations you might need to cancel a future or set a 
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="futures"
 
-from dandy.llm import LlmBot
+from dandy import Bot
 
 user_likes_scary_animals = True
 
-cute_animal_future = LlmBot.process_to_future('Can you tell me about a random cute animal?')
+cute_animal_future = Bot().process_to_future('Can you tell me about a random cute animal?')
 
-scary_animal_future = LlmBot.process_to_future('Can you tell me about a random scary animal?')
+scary_animal_future = Bot().process_to_future('Can you tell me about a random scary animal?')
 scary_animal_future.set_timeout(seconds=5)
 
 if user_likes_scary_animals:

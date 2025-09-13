@@ -10,7 +10,7 @@ from dandy.processor.map.recorder import recorder_add_process_map_value_event, r
 from dandy.processor.processor import BaseProcessor
 from dandy.llm.mixin import LlmProcessorMixin
 from dandy.processor.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.processor.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \

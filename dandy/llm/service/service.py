@@ -13,7 +13,7 @@ from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.conf import llm_configs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.prompt.typing import PromptOrStrOrNone
 from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \

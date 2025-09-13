@@ -7,7 +7,7 @@ In Dandy we use an object called `Intel` to represent the information about obje
 Let's go ahead and create a `ClownIntel` class that inherits from the `BaseIntel` class.
 
 ```python exec="True" source="above" source="material-block" session="intel"
-from dandy.intel.intel import BaseIntel
+from dandy import BaseIntel
 
 class ClownIntel(BaseIntel):
     clown_name: str
@@ -36,9 +36,9 @@ The `process` method of the `LlmBot` will return an `Intel` object based on the 
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-from dandy.llm import LlmBot
+from dandy import Bot
 
-new_clown = LlmBot.process(
+new_clown = Bot().process(
     prompt='Can you please generate me a clown, I am scared of jugglers!',
     intel_class=ClownIntel
 )
@@ -55,7 +55,7 @@ We can use the `BaseListIntel` class to do that.
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-from dandy.intel import BaseListIntel
+from dandy import BaseListIntel
 
 class ClownListIntel(BaseListIntel):
     items: list[ClownIntel]
@@ -81,7 +81,7 @@ In the `process` method of the `LlmBot` class we can now include and exclude fie
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-another_clown = LlmBot.process(
+another_clown = Bot().process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
     intel_class=ClownIntel,
     exclude_fields={'real_name'},
@@ -95,7 +95,7 @@ You can also get the same result by including both the `can_juggle` and `clown_n
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
-another_clown = LlmBot.process(
+another_clown = Bot().process(
     prompt='I am a big fan of juggling, can you please create me a clown!',
     intel_class=ClownIntel,
     include_fields={'can_juggle', 'clown_name'},
@@ -143,7 +143,7 @@ class PirateIntel(BaseIntel):
     parrot: ParrotIntel | None = None
 
 
-new_pirate = LlmBot.process(
+new_pirate = Bot().process(
     prompt='Can you please generate me a pirate?',
     intel_class=PirateIntel
 )
@@ -160,7 +160,7 @@ We do this by creating a more complex `IncEx`/`Dict` object where the keys are t
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using PirateIntel from earlier
 
-new_pirate = LlmBot.process(
+new_pirate = Bot().process(
     prompt='Can you please generate me a pirate?',
     intel_class=PirateIntel,
     exclude_fields={'parrot': True, 'hat': {'name': True}},

@@ -2,7 +2,7 @@ from pydantic.main import IncEx
 from typing import Union, Type
 
 from dandy.processor.bot.bot import Bot
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from tests.bot.intelligence.intel import MoneyBagIntel
 
 

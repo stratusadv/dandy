@@ -1,8 +1,7 @@
 from pydantic import ValidationError
-from typing import Union
 
 from dandy.core.utils import pydantic_validation_error_to_str
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStrOrNone
 
 

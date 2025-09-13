@@ -15,7 +15,7 @@ Creating a new prompt is simple and can be done multiple ways each have their ow
 this method is the best for creating prompts that are complex and can be statically typed.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
-from dandy.llm.prompt import Prompt
+from dandy import Prompt
 
 prompt = (
     Prompt()
@@ -39,7 +39,7 @@ print(prompt.to_str())
 This method is the best for creating prompts that are complex or need to have things injected into them.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
-from dandy.llm.prompt import Prompt
+from dandy import Prompt
 
 CAR_RULES = [
     'The car should be fast',
@@ -66,7 +66,7 @@ print(prompt.to_str())
 This method is the best for creating prompts that are simple and do not need structured formatting.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
-from dandy.llm.prompt import Prompt
+from dandy import Prompt
 
 prompt = Prompt("""
 # Car Generator
@@ -88,8 +88,7 @@ print(prompt.to_str())
 There is lots of different types of formatting that can be used to create prompts.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
-from dandy.llm.prompt import Prompt
-from dandy.intel.intel import BaseIntel
+from dandy import Prompt, BaseIntel
 
 class PersonIntel(BaseIntel):
     name: str
@@ -130,14 +129,14 @@ print(new_prompt.to_str())
 
 !!! tip
 
-    Check out the [Prompt](../api/llm/prompt/prompt.md) and [Snippets](../api/llm/prompt/snippet.md) API documentation for more information on all the possibilities.
+    Check out the [API Reference](../reference/) API documentation for more information on all the possibilities.
 
 ## Advanced Prompts
 
 Let's make a function that returns a dynamically constructed prompt based on the function arguments.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
-from dandy.llm.prompt import Prompt
+from dandy import Prompt
 
 def generate_prompt(name: str, age: int) -> Prompt:
     prompt = Prompt()

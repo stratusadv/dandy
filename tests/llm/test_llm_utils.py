@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.utils import get_estimated_token_count_for_prompt, get_image_mime_type_from_base64_string
 
 

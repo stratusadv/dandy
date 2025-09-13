@@ -6,7 +6,7 @@ from typing import Any
 from dandy.cache.exceptions import CacheCriticalException
 
 
-def generate_hash_key(func: object, *args, **kwargs) -> str:
+def generate_cache_key(func: object, *args, **kwargs) -> str:
     # Todo: Why are the args all over the map
     # hashable_args = tuple([convert_to_hashable_str(arg) for arg in args])
 

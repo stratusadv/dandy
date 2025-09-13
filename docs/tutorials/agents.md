@@ -7,18 +7,18 @@ That is where LLM Agents come in to give you an easy way to combine everything t
 
 ## Create a Basic LLM Agent
 
-To create an agent using the `BaseLlmAgent` class from the `dandy.llm` module similar to how we created the other Dandy processors (bot, map and workflow).
+To create an agent using the `Agent` class from the `dandy` module similar to how we created the other Dandy processors (bot, map and workflow).
 
 ```python exec="True" source="above" source="material-block" session="llm_agent"
-from dandy.llm import BaseLlmAgent, LlmBot
+from dandy import Agent, Bot
 
-class AssistantAgent(BaseLlmAgent):
+class AssistantAgent(Agent):
     # This attribute is required and determines which other processors you want this agent to have access to using.
     processors = (
-        LlmBot,
+        Bot,
     )
     
-intel = AssistantAgent.process('Can you give me an idea for a drawing?')
+intel = AssistantAgent().process('Can you give me an idea for a drawing?')
 
 print(intel.text)
 ```
@@ -67,7 +67,7 @@ We can now import the agent and use it to process an email.
 ```py title="museum.py"
 from intelligence.agents import MuseumEmailLlmAgent
 
-email_intel = MuseumEmailLlmAgent.process(
+email_intel = MuseumEmailLlmAgent().process(
     f'The Royal Tyrell Palaeontology Museum, green colors are awesome and my email is me.person@thisplace.com'
 )
 

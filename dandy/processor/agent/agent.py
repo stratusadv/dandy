@@ -21,7 +21,7 @@ from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmProcessorMixin
 from dandy.processor.processor import BaseProcessor
 from dandy.conf import settings
-from dandy.llm.prompt import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.request.message import MessageHistory
 from dandy.vision.mixin import VisionProcessorMixin

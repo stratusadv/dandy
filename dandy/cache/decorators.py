@@ -1,5 +1,5 @@
 from dandy.cache.cache import BaseCache
-from dandy.cache.utils import generate_hash_key
+from dandy.cache.utils import generate_cache_key
 from dandy.intel.intel import BaseIntel
 from dandy.recorder import Recorder
 from dandy.recorder.events import Event, EventAttribute, EventType
@@ -12,7 +12,7 @@ def cache_decorator_function(
         *args,
         **kwargs,
 ):
-    hash_key = generate_hash_key(
+    hash_key = generate_cache_key(
         func,
         *args,
         **kwargs

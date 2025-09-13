@@ -34,31 +34,20 @@ nav:
       - Read this First: landing/read_this_first.md
       - Quick Start: landing/quick_start.md
   - Tutorial:
-      - 01. Setup: tutorials/01_setup.md
-      - 02. Intel: tutorials/02_intel.md
-      - 03. Prompts: tutorials/03_prompts.md
-      - 04. LLM Bot: tutorials/04_llm_bot.md
-      - 05. Recorder: tutorials/05_recorder.md
-      - 06. LLM Map: tutorials/06_llm_map.md
-      - 07. Workflow: tutorials/07_workflow.md
-      - 08. Futures: tutorials/08_futures.md
-      - 09. Caching: tutorials/09_caching.md
-      - 10. LLM Agent: tutorials/10_llm_agent.md
-      - 11. Project Structure: tutorials/11_project_structure.md
-      - 12. Example Project: tutorials/12_example_project.md
+      - 01. Setup: tutorials/setup.md
+      - 02. Intel: tutorials/intel.md
+      - 03. Prompts: tutorials/prompts.md
+      - 04. Bots: tutorials/bots.md
+      - 05. Recorder: tutorials/recorder.md
+      - 06. Maps: tutorials/maps.md
+      - 07. Futures: tutorials/futures.md
+      - 08. Caching: tutorials/caching.md
+      - 09. Agents: tutorials/agents.md
+      - 10. Project Structure: tutorials/project_structure.md
+      - 11. Example Project: tutorials/example_project.md
   - API Reference: reference/
   - Exceptions:
       - Handling Errors: exceptions/handling_errors.md
-      - Dandy: exceptions/dandy_exceptions.md
-      - Sub Exceptions:
-          - Bot: exceptions/bot_exceptions.md
-          - Cache: exceptions/cache_exceptions.md
-          - Future: exceptions/future_exceptions.md
-          - HTTP: exceptions/http_exceptions.md
-          - Intel: exceptions/intel_exceptions.md
-          - Map: exceptions/map_exceptions.md
-          - LLM: exceptions/llm_exceptions.md
-          - Recorder: exceptions/recorder_exceptions.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md

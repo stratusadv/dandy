@@ -13,34 +13,32 @@ Let's make ourselves a map and add `@cache_to_memory` to the `process` method.
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from time import perf_counter
 
-from dandy.llm import BaseLlmMap, Map
-from dandy.cache import cache_to_memory
+from dandy import Map, cache_to_memory
 
 
-class NumberMap(BaseLlmMap):
-    map_keys_description = 'Verbose Number Descriptions'
-    map = Map({
+class NumberMap(Map):
+    mapping_keys_description = 'Verbose Number Descriptions'
+    mapping = Map({
         'small numbers': 1,
         'medium numbers': 30,
         'large numbers': 100,
         'over 9000 numbers': 9002,
     })
     
-    @classmethod
     @cache_to_memory()
-    def process(cls, *args, **kwargs):
+    def process(self, *args, **kwargs):
         return super().process(*args, **kwargs)
     
 
 start_time = perf_counter()
 
-print(NumberMap.process('I really like dragon ball z')[0])
+print(NumberMap().process('I really like dragon ball z')[0])
 
 uncached_finish_time = perf_counter() - start_time
 
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
-print(NumberMap.process('I really like dragon ball z')[0])
+print(NumberMap().process('I really like dragon ball z')[0])
     
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 
@@ -63,7 +61,7 @@ This allows you to set separate caches and limits for individual methods and fun
 In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `dandy_cache.db` with a row limit of 9,999,999.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
-from dandy.cache import cache_to_sqlite
+from dandy import cache_to_sqlite
 
 @cache_to_sqlite(cache_name='add', limit=9_999_999)
 def add(a, b):
@@ -97,7 +95,7 @@ Below we are going to use the `MemoryCache` and `generate_hash_key` functions to
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from time import perf_counter
 
-from dandy.cache import MemoryCache, generate_hash_key
+from dandy import MemoryCache, generate_cache_key
 
 
 def do_math(a, b, c):
@@ -106,10 +104,10 @@ def do_math(a, b, c):
         limit=9_999_999
     )
 
-    hash_key = generate_hash_key(do_math, a, b, c)
+    cache_key = generate_cache_key(do_math, a, b, c)
     
     number = sqlite_cache.get(
-        hash_key
+        cache_key
     )
 
     if number:
@@ -120,7 +118,7 @@ def do_math(a, b, c):
         number += a + b + c
 
     sqlite_cache.set(
-        hash_key,
+        cache_key,
         number
     )
     
@@ -149,7 +147,7 @@ Now that we are comfortable with caching let's take a look at how we can manage 
 In the example below we have two caches `add` and `subtract` that are both stored in a sqlite database called `dandy_cache.db`.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
-from dandy.cache import SqliteCache, cache_to_sqlite, generate_hash_key
+from dandy import SqliteCache, cache_to_sqlite, generate_cache_key
 
 @cache_to_sqlite(cache_name='add', limit=100)
 def add(a, b):
@@ -166,8 +164,8 @@ subtract_number = subtract(6, 7)
 sqlite_add_cache = SqliteCache(cache_name='add', limit=100)
 sqlite_subtract_cache = SqliteCache(cache_name='subtract', limit=100)
 
-add_hash_key = generate_hash_key(add, 3, 5)
-subtract_hash_key = generate_hash_key(subtract, 6, 7)
+add_hash_key = generate_cache_key(add, 3, 5)
+subtract_hash_key = generate_cache_key(subtract, 6, 7)
 
 
 print('Both `add` and `subtract` are cached')
