@@ -29,11 +29,11 @@ markdown_extensions:
   - attr_list
 
 nav:
-  - Home: home.md
-  - Welcome:
-      - What is Dandy: index.md
-      - Read this First: landing/read_this_first.md
-      - Quick Start: landing/quick_start.md
+  - Home: index.md
+  - Getting Started:
+      - What is Dandy: getting_started/introduction.md
+      - Read this First: getting_started/read_this_first.md
+      - Quick Start: getting_started/quick_start.md
   - Tutorial:
       - 01. Setup: tutorials/setup.md
       - 02. Intel: tutorials/intel.md
