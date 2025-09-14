@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dandy - Advanced Python AI Framework</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/landing.css">
+    <link rel="icon" href="../static/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+    <!-- Floating elements for background -->
+    <div class="floating floating-1"></div>
+    <div class="floating floating-2"></div>
+    <div class="floating floating-3"></div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>
+                    Build Intelligent AI Applications with
+                    <span style="color: var(--accent);">Dandy</span>
+                </h1>
+                <p>
+                    Dandy is a powerful Python framework that simplifies the development of machine learning and deep learning applications.
+                    Focus on building your ideas, not wrestling with complex frameworks.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#features" class="btn">
+                        Explore Features
+                    </a>
+                    <a href="getting_started/quick_start.html" class="btn" style="background: transparent; border: 2px solid var(--primary); color: var(--dark);">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="../static/img/dandy_icon_512.png">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Powerful Features</h2>
+                <p>Everything you need to build, train, and deploy AI models with ease</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Deep Learning Models</h3>
+                    <p>Pre-built architectures for CNNs, RNNs, Transformers, and more. Train complex models with minimal code.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>Optimized for performance with GPU acceleration and distributed computing support.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Elegant API</h3>
+                    <p>Simple, intuitive Python interface that makes complex AI concepts accessible to all developers.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Deployment Ready</h3>
+                    <p>Seamlessly deploy models to cloud platforms with our built-in deployment tools.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Deployment Ready</h3>
+                    <p>Seamlessly deploy models to cloud platforms with our built-in deployment tools.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Deployment Ready</h3>
+                    <p>Seamlessly deploy models to cloud platforms with our built-in deployment tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section id="examples" class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Code Examples</h2>
+                <p>See how simple it is to build AI applications with Dandy</p>
+            </div>
+            <div class="examples-container">
+                <div class="examples-sidebar">
+                    <button class="example-tab active" data-example="classification">
+                        <i class="fas fa-tasks"></i>
+                        Image Classification
+                    </button>
+                    <button class="example-tab" data-example="nlp">
+                        <i class="fas fa-language"></i>
+                        Natural Language
+                    </button>
+                    <button class="example-tab" data-example="generation">
+                        <i class="fas fa-magic"></i>
+                        Text Generation
+                    </button>
+                    <button class="example-tab" data-example="vision">
+                        <i class="fas fa-eye"></i>
+                        Computer Vision
+                    </button>
+                </div>
+                <div class="examples-content">
+                    <div class="example-block active" id="classification">
+                        <pre><code class="language-python">
+import dandy as dy
+
+# Load and prepare the model
+model = dy.vision.ClassificationModel()
+
+# Load and preprocess image
+image = dy.Image.load("cat.jpg")
+
+# Get predictions
+predictions = model.predict(image)
+print(f"This image shows: {predictions[0].label}") # is very long lines that are causing problems
+                        </code></pre>
+                    </div>
+                    <div class="example-block" id="nlp">
+                        <pre><code class="language-python">
+import dandy as dy
+
+# Create NLP pipeline
+nlp = dy.NLP.pipeline([
+    "tokenize",
+    "pos",
+    "ner"
+])
+
+# Process text
+text = "Dandy is an amazing AI framework!"
+doc = nlp.process(text)
+
+# Extract entities
+entities = doc.get_entities()
+print(f"Found entities: {entities}")
+                        </code></pre>
+                    </div>
+                    <div class="example-block" id="generation">
+                        <pre><code class="python">
+import dandy as dy
+
+# Initialize generator
+generator = dy.text.Generator()
+
+# Generate creative text
+prompt = "Write a story about a magical AI"
+story = generator.generate(
+    prompt=prompt,
+    max_length=100
+)
+
+print(story)
+                        </code></pre>
+                    </div>
+                    <div class="example-block" id="vision">
+                        <pre><code class="language-python">
+import dandy as dy
+
+# Setup vision pipeline
+vision = dy.Vision.pipeline([
+    "detect_objects",
+    "segment_image"
+])
+
+# Process image
+image = dy.Image.load("scene.jpg")
+results = vision.process(image)
+
+# Show results
+results.visualize()
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Stats Section -->
+    <section id="stats" class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Framework Statistics</h2>
+                <p>Proven performance and developer satisfaction</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-text">Active Users</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-text">Developer Satisfaction</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-text">Model Architectures</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-text">Model Architectures</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer class="section" style="background: rgba(0,0,0,0.05);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Get Started Today</h2>
+                <p>Join thousands of developers building the future with NexusAI</p>
+            </div>
+            <div style="text-align: center;>
+                <a href="https://pypi.org/project/dandy/" class="btn">Download Now</a>
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <div class="social-links">
+                    <a href="https://github.com/stratusadv/dandy" class="social-link"><i class="fab fa-github"></i></a>
+                    <a href="https://stratusadv.com/" class="social-link"><i class="fas fa-globe"></i></a>
+                    <a href="https://ca.linkedin.com/company/stratus-advanced-technologies" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 Stratus Advanced Technologies. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script>
+        // Scroll reveal animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateOnScroll = document.querySelectorAll('.animate-on-scroll');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            animateOnScroll.forEach(element => {
+                observer.observe(element);
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+
+        // Example tabs functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.example-tab');
+            const blocks = document.querySelectorAll('.example-block');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.example;
+
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Update active content
+                    blocks.forEach(block => {
+                        if (block.id === target) {
+                            block.classList.add('active');
+                        } else {
+                            block.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

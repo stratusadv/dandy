@@ -1,5 +1,5 @@
 ---
-template: home.html
+template: landing.html
 title: Dandy AI Framework
 social:
   cards_layout_options:
