@@ -12,7 +12,10 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
-    <a href="https://github.com/stratusadv/dandy" class="corner-badge" target="_blank" rel="noopener" aria-label="v1.0 now available on GitHub">v1.0 now available</a>
+    <a href="https://github.com/stratusadv/dandy" class="corner-badge" target="_blank" rel="noopener noreferrer" aria-label="Dandy v1.0 now available on GitHub" title="Dandy v1.0 now available on GitHub">
+        <i class="fa-brands fa-github" aria-hidden="true" style="margin-right:4px;"></i>
+        <span>v1.0.0</span>
+    </a>
     <!-- Floating elements for background -->
     <div class="floating floating-1"></div>
     <div class="floating floating-2"></div>
@@ -34,7 +37,7 @@
                     <a href="#features" class="btn">
                         Explore Features
                     </a>
-                    <a href="getting_started/quick_start.html" class="btn" style="background: transparent; border: 2px solid var(--primary); color: var(--dark);">
+                    <a href="getting_started/quick_start/" class="btn" style="background: transparent; border: 2px solid var(--primary); color: var(--dark);">
                         Get Started
                     </a>
                 </div>
@@ -106,7 +109,7 @@
                 <h2>Code Examples</h2>
                 <p>See how simple it is to build AI applications with Dandy</p>
             </div>
-            <div class="examples-container">
+            <div class="examples-container animate-on-scroll">
                 <div class="examples-sidebar">
                     <button class="example-tab active" data-example="classification">
                         <i class="fas fa-tasks"></i>
@@ -180,20 +183,7 @@ print(story)
                     </div>
                     <div class="example-block" id="vision">
                         <pre><code class="language-python">
-import dandy as dy
-
-# Setup vision pipeline
-vision = dy.Vision.pipeline([
-    "detect_objects",
-    "segment_image"
-])
-
-# Process image
-image = dy.Image.load("scene.jpg")
-results = vision.process(image)
-
-# Show results
-results.visualize()
+{% include 'python/example.py' %}
                         </code></pre>
                     </div>
                 </div>

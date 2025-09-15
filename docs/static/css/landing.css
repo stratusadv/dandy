@@ -211,6 +211,7 @@ h1, h2, h3, h4 {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-right: 10px;
 }
 
 .example-tab i {
@@ -252,7 +253,7 @@ h1, h2, h3, h4 {
     background: rgba(40, 44, 52);
     border-radius: 10px;
     padding: 0px 10px 0px 10px;
-    min-height: 50vh;
+    min-height: 60vh;
     overflow: auto;
 }
 
@@ -354,7 +355,7 @@ footer {
 }
 
 .copyright {
-    color: var(--accent-light);
+    color: var(--primary);
     font-size: 0.9rem;
     margin-top: 40px;
     padding-top: 40px;
@@ -423,11 +424,6 @@ footer {
         font-size: 1.1rem;
     }
 
-    .hero-buttons {
-        flex-direction: column;
-        gap: 15px;
-    }
-
     .section-title h2 {
         font-size: 2.5rem;
     }
@@ -449,6 +445,12 @@ footer {
     .feature-card, .stat-card {
         padding: 20px;
     }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
 
     .hero-image {
         top: 10%;
@@ -494,7 +496,7 @@ footer {
 }
 
 .floating-3 {
-    top: 40%;
+    top: 38%;
     right: 17%;
     width: 120px;
     height: 120px;
@@ -535,18 +537,18 @@ footer {
 .corner-badge {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
     z-index: 10000;
     display: inline-block;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    background: var(--primary);
     color: #fff;
     text-decoration: none;
     font-weight: 700;
     font-family: 'Poppins', sans-serif;
     padding: 10px 60px;
-    transform: translate(35%, -35%) rotate(45deg);
+    transform: translate(-50%, -90%) rotate(-45deg);
     transform-origin: top right;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     letter-spacing: 0.5px;
 }
 
@@ -558,6 +560,6 @@ footer {
     .corner-badge {
         padding: 8px 48px;
         font-size: 0.85rem;
-        transform: translate(40%, -40%) rotate(45deg);
+        /*transform: translate(40%, -40%) rotate(45deg);*/
     }
 }
