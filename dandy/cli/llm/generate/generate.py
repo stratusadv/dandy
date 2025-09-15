@@ -1,12 +1,12 @@
 from enum import Enum
 from pathlib import Path
 
-from typing_extensions import Union
+from typing import Union
 
 from dandy.cli.llm.generate.intelligence.prompts.generate_llm_bot_prompts import generate_llm_bot_system_prompt, \
     generate_llm_bot_user_prompt
-from dandy.intel import BaseIntel
-from dandy.llm.service.config import BaseLlmConfig
+from dandy.intel.intel import BaseIntel
+from dandy.llm.config import BaseLlmConfig
 
 
 class LlmBotSourceIntel(BaseIntel):
@@ -32,7 +32,7 @@ def generate(
     if choice == GenerateChoices.LLM_BOT:
         print(f'Generating {choice} ... depending on your llm configuration this may take up to a couple minutes')
 
-        llm_bot_source_intel = llm_config.service.process_prompt_to_intel(
+        llm_bot_source_intel = llm_config.service._process_map_prompt_to_intel(
             prompt=generate_llm_bot_user_prompt(generate_description),
             intel_class=LlmBotSourceIntel,
             system_prompt=generate_llm_bot_system_prompt(),

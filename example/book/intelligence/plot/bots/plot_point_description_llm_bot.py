@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List
 
 from dandy.cache import cache_to_sqlite
 from dandy.llm import BaseLlmBot, Prompt

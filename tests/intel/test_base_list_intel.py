@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from dandy.intel import BaseListIntel
-from tests.intel.intel import ThingIntel, ThingsIntel
+from dandy.intel.intel import BaseListIntel
+from tests.intel.intelligence.intel import ThingIntel, ThingsIntel
 
 
 class TestBaseIntel(TestCase):

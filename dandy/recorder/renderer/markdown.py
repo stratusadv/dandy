@@ -25,7 +25,11 @@ class MarkdownRecordingRenderer(BaseRecordingRenderer):
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.md'), 'w') as new_file:
+        with open(
+                Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.md'),
+                'w',
+                encoding='utf-8'
+        ) as new_file:
             new_file.write(
                 self.to_str()
             )

@@ -34,10 +34,10 @@ class TestSnippet(TestCase):
 
     def test_object_source_snippet(self):
         object_source = snippet.ObjectSourceSnippet(
-            object_module_name='dandy.llm.bot.llm_bot.BaseLlmBot'
+            object_module_name='dandy.processor.bot.bot.Bot'
         )
 
-        self.assertEqual(object_source.to_str()[:10], '\nclass Bas')
+        self.assertEqual(object_source.to_str()[:10], '\n@dataclas')
 
     def test_text_snippet(self):
         new_snippet = snippet.TextSnippet(text='Hello World')

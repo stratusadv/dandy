@@ -3,10 +3,10 @@ from __future__ import annotations
 from abc import ABC
 from typing import Type
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing_extensions import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
+from typing import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
 
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation
@@ -180,6 +180,7 @@ class BaseIntel(BaseModel, ABC):
 
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
+    _list_name: str = PrivateAttr(default=None)
     """
     A class that behaves like a list of Intel objects
     """
@@ -194,7 +195,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
         self._list_name = list_fields[0]
 
-    def __getitem__(self, index) -> Union[List[T], T]:
+    def __getitem__(self, index) -> List[T] | T:
         return getattr(self, self._list_name)[index]
 
     def __iter__(self) -> Generator[T, None, None]:
@@ -211,3 +212,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
     def extend(self, items: List[T]):
         getattr(self, self._list_name).extend(items)
+
+
+class DefaultIntel(BaseIntel):
+    content: str

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dandy - Python AI Framework</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/landing.css">
+    <link rel="icon" href="../static/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+<a href="https://github.com/stratusadv/dandy" class="corner-badge" target="_blank" rel="noopener noreferrer"
+   aria-label="Dandy v1.0 now available on GitHub" title="Dandy v1.0 now available on GitHub">
+    <i class="fa-brands fa-github" aria-hidden="true" style="margin-right:4px;"></i>
+    <span>v1.0.0</span>
+</a>
+<!-- Floating elements for background -->
+<div class="floating floating-1"></div>
+<div class="floating floating-2"></div>
+<div class="floating floating-3"></div>
+
+<!-- Hero Section -->
+<section id="hero" class="section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>
+                Build Intelligent Applications with
+                <span style="color: var(--accent);">Dandy</span>
+            </h1>
+            <p>
+                A powerful open-source Python framework that simplifies the development of artificial intelligence
+                software.
+            </p>
+            <div class="hero-buttons">
+                <a href="#features" class="btn">
+                    Explore Features
+                </a>
+                <a href="getting_started/quick_start/" class="btn"
+                   style="background: transparent; border: 2px solid var(--primary); color: var(--dark);">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="../static/img/dandy_icon_512.png">
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Powerful Features</h2>
+            <p>Everything you need to build, maintain and scale amazing AI software</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fab fa-python"></i>
+                </div>
+                <h3>Very Pythonic</h3>
+                <p>Integrate AI logic into your codebase with zero context-switching, feels like native Python.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Self Correcting</h3>
+                <p>Auto-recovers from 90% of common errors including API failures, rate limits, and malformed
+                    responses.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>Flexible API</h3>
+                <p>Pre-wired for common AI providers (OpenAI/Ollama) and connectors for custom API's.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <h3>Deployment Ready</h3>
+                <p>Add AI features to live apps in hours, not weeks, with less downtime and project refactoring.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Incredibly Fast</h3>
+                <p>Optimized for performance, in most cases adding less than 1ms to any runtime.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h3>Safety Ready</h3>
+                <p>Detailed interaction recording for building robust safety and governance.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Examples Section -->
+<section id="examples" class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Code Examples</h2>
+            <p>See how simple it is to build AI applications with Dandy</p>
+        </div>
+        <div class="examples-container animate-on-scroll">
+            <div class="examples-sidebar">
+                <button class="example-tab active" data-example="quick-start">
+                    <i class="fas fa-play"></i>
+                    Quick Start
+                </button>
+                <button class="example-tab" data-example="make-bot">
+                    <i class="fas fa-robot"></i>
+                    Make a Bot
+                </button>
+                <button class="example-tab" data-example="using-intel">
+                    <i class="fas fa-brain"></i>
+                    Using Intel
+                </button>
+                <button class="example-tab" data-example="advanced-bot">
+                    <i class="fas fa-cogs"></i>
+                    Advanced Bot
+                </button>
+                <button class="example-tab" data-example="decisions-maps">
+                    <i class="fas fa-sitemap"></i>
+                    Decisions with Maps
+                </button>
+                <button class="example-tab" data-example="agent-basics">
+                    <i class="fas fa-cube"></i>
+                    Agent Basics
+                </button>
+            </div>
+            <div class="examples-content">
+                <div class="example-block active" id="quick-start">
+                    <pre><code class="language-python">
+{% include 'python/quick_start.py' %}
+                    </code></pre>
+                </div>
+                <div class="example-block" id="make-bot">
+                    <pre><code class="language-python">
+{% include 'python/make_bot.py' %}
+                    </code></pre>
+                </div>
+                <div class="example-block" id="using-intel">
+                    <pre><code class="language-python">
+{% include 'python/using_intel.py' %}
+                    </code></pre>
+                </div>
+                <div class="example-block" id="advanced-bot">
+                    <pre><code class="language-python">
+{% include 'python/advanced_bot.py' %}
+                    </code></pre>
+                </div>
+                <div class="example-block" id="decisions-maps">
+                    <pre><code class="language-python">
+{% include 'python/decisions_map.py' %}
+                    </code></pre>
+                </div>
+                <div class="example-block" id="agent-basics">
+                    <pre><code class="language-python">
+{% include 'python/agent_basics.py' %}
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Stats Section -->
+<section id="stats" class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Framework Statistics</h2>
+            <p>Proven performance and developer satisfaction</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number">3,000+</div>
+                <div class="stat-text">Deploys a Month</div>
+            </div>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number">98%</div>
+                <div class="stat-text">Developer Satisfaction</div>
+            </div>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number">75%</div>
+                <div class="stat-text">Less Development Errors with AI Features</div>
+            </div>
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number">100+</div>
+                <div class="stat-text">Framework Features</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>What Developers Say</h2>
+            <p>Real feedback from engineers using Dandy in production</p>
+        </div>
+
+        <div class="testimonials-wrapper animate-on-scroll" aria-live="polite">
+            <div class="testimonial active">
+                <p class="quote">"Dandy cut our prototyping time from weeks to days. The Pythonic API made adoption
+                    effortless."</p>
+                <div class="author">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <div class="name">Alex R.</div>
+                        <div class="role">CTO</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <p class="quote">"We shipped AI features to production with almost no downtime. The self-healing
+                    behavior is fantastic."</p>
+                <div class="author">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <div class="name">Priya S.</div>
+                        <div class="role">CEO</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <p class="quote">"The tutorial took me just under an hour and with in another hour I had integrated a
+                    working feature into our client's project."</p>
+                <div class="author">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <div class="name">Marco D.</div>
+                        <div class="role">Developer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-dots" role="tablist" aria-label="Testimonials">
+            <button class="dot active" role="tab" aria-selected="true" aria-controls="testimonial-1"
+                    tabindex="0"></button>
+            <button class="dot" role="tab" aria-selected="false" aria-controls="testimonial-2" tabindex="-1"></button>
+            <button class="dot" role="tab" aria-selected="false" aria-controls="testimonial-3" tabindex="-1"></button>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="section" style="background: rgba(0,0,0,0.05);">
+    <div class="container">
+        <div class="section-title">
+            <h2>Get Started Today</h2>
+            <p>Join the developers building the future of intelligent software with Dandy</p>
+        </div>
+        <div style="text-align: center;">
+            <a href="getting_started/quick_start/" class="btn">Start Here</a>
+        </div>
+        <div style="text-align: center; margin-top: 50px;">
+            <div class="social-links">
+                <a href="https://github.com/stratusadv/dandy" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://stratusadv.com/" class="social-link"><i class="fas fa-globe"></i></a>
+                <a href="https://ca.linkedin.com/company/stratus-advanced-technologies" class="social-link"><i
+                        class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2023 Stratus Advanced Technologies. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script>
+    // Scroll reveal animation
+    document.addEventListener('DOMContentLoaded', function () {
+        const animateOnScroll = document.querySelectorAll('.animate-on-scroll');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        animateOnScroll.forEach(element => {
+            observer.observe(element);
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+
+    // Example tabs functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.example-tab');
+        const blocks = document.querySelectorAll('.example-block');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.example;
+
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update active content
+                blocks.forEach(block => {
+                    if (block.id === target) {
+                        block.classList.add('active');
+                    } else {
+                        block.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+
+    // Testimonials rotation
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.querySelector('#testimonials .testimonials-wrapper');
+        if (!container) return;
+        const slides = Array.from(container.querySelectorAll('.testimonial'));
+        const dots = Array.from(document.querySelectorAll('#testimonials .testimonial-dots .dot'));
+        let index = 0;
+        let timer = null;
+        const INTERVAL = 6000;
+
+        function show(i) {
+            slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+            dots.forEach((d, idx) => {
+                d.classList.toggle('active', idx === i);
+                d.setAttribute('aria-selected', String(idx === i));
+                d.tabIndex = idx === i ? 0 : -1;
+            });
+            index = i;
+        }
+
+        function next() {
+            show((index + 1) % slides.length);
+        }
+
+        function start() {
+            timer = setInterval(next, INTERVAL);
+        }
+
+        function stop() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                stop();
+                show(i);
+                start();
+            });
+            dot.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    stop();
+                    show(i);
+                    start();
+                }
+            });
+        });
+
+        container.addEventListener('mouseenter', stop);
+        container.addEventListener('mouseleave', start);
+
+        // Initialize
+        show(0);
+        start();
+    });
+</script>
+</body>
+</html>

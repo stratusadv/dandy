@@ -1,4 +1,4 @@
-from typing_extensions import List
+from typing import List
 
 
 def list_to_str(items: List, ordered: bool = False, indent: int = 0, ordered_number_prefix: str = '') -> str:

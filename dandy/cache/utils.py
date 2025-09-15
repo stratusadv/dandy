@@ -1,13 +1,14 @@
 import hashlib
 
 from pydantic import BaseModel
-from typing_extensions import Any
+from typing import Any
 
 from dandy.cache.exceptions import CacheCriticalException
 
 
-def generate_hash_key(func: object, *args, **kwargs) -> str:
-    hashable_args = tuple([convert_to_hashable_str(arg) for arg in args])
+def generate_cache_key(func: object, *args, **kwargs) -> str:
+    # Todo: Why are the args all over the map
+    # hashable_args = tuple([convert_to_hashable_str(arg) for arg in args])
 
     hashable_kwargs = tuple(
         sorted(
@@ -18,7 +19,8 @@ def generate_hash_key(func: object, *args, **kwargs) -> str:
     hashable_tuple = (
         func.__module__,
         func.__qualname__,
-        hashable_args,
+        # Todo: Why are the args all over the map
+        # hashable_args,
         hashable_kwargs,
     )
 

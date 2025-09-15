@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy.llm.prompt.prompt import Prompt
 
 
 def evaluate_prompt_system_prompt() -> Prompt:

@@ -1,6 +1,6 @@
-from typing_extensions import NewType
+from typing import NewType, TypeAlias
 
 from dandy.llm.prompt.prompt import Prompt
 
-PromptOrStr = NewType('PromptOrStr', Prompt | str)
-PromptOrStrOrNone = NewType('PromptOrStrOrNone', Prompt | str | None)
+PromptOrStr: TypeAlias = Prompt | str
+PromptOrStrOrNone: TypeAlias = Prompt | str | None

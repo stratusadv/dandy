@@ -17,7 +17,11 @@ class JsonRecordingRenderer(BaseRecordingRenderer):
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.json'), 'w') as new_file:
+        with open(
+                Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.json'),
+                'w',
+                encoding='utf-8'
+        ) as new_file:
             new_file.write(self.to_str())
 
     def to_str(self) -> str:

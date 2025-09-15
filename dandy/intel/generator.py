@@ -2,7 +2,7 @@ import inspect
 from typing import Any
 
 from pydantic import create_model
-from typing_extensions import Callable, Type, Dict, Tuple
+from typing import Callable, Type, Dict, Tuple
 
 from dandy.core.typing.typed_kwargs import TypedKwargs
 from dandy.core.typing.typing import TypedKwargsDict

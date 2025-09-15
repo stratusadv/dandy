@@ -1,1 +1,0 @@
-::: dandy.bot.exceptions

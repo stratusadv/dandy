@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from typing_extensions import Dict, Type
+from typing import Dict, Type
 
 from dandy.conf import settings
 from dandy.constants import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
-from typing_extensions import Any, Union
+from typing import Any, Union
 
 import dandy.constants
 

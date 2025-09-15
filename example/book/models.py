@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from typing_extensions import List, Any, Iterable
+from typing import List, Any, Iterable
 
 from pydantic import BaseModel
 

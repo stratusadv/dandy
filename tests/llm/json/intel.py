@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import Field
 from pydantic.fields import FieldInfo
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 class Sector(Enum):

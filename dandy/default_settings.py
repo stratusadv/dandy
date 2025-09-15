@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from typing_extensions import Union
+from typing import Union
 
 ALLOW_RECORDING_TO_FILE: bool = False
 
