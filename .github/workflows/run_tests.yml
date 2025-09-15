@@ -23,6 +23,8 @@ jobs:
 
     env:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      ACTION_OLLAMA_HOST: ${{ secrets.ACTION_OLLAMA_HOST }}
+      THINKING_OLLAMA_HOST: ${{ secrets.THINKING_OLLAMA_HOST }}
       OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
       OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
