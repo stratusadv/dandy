@@ -1,14 +1,18 @@
-import dandy as dy
+from dandy import Map
 
-# Setup vision pipeline
-vision = dy.Vision.pipeline([
-    "detect_objects",
-    "segment_image"
-])
+class AnimalFamilyMap(Map):
+    mapping_keys_description = 'Animal Sounds'
+    mapping = {
+        'barking': 'dog',
+        'meowing': 'cat',
+        'quacking': 'duck'
+    }
 
-# Process image
-image = dy.Image.load("scene.jpg")
-results = vision.process(image)
+animal_families = AnimalFamilyMap().process(
+    'I was out on a walk and heard some barking', 
+    max_return_values=1
+)
 
-# Show results
-results.visualize()
+print(animal_families[0])
+
+# Output: dog

@@ -1,14 +1,15 @@
-import dandy as dy
+from dandy import Agent, Bot
 
-# Setup vision pipeline
-vision = dy.Vision.pipeline([
-    "detect_objects",
-    "segment_image"
-])
 
-# Process image
-image = dy.Image.load("scene.jpg")
-results = vision.process(image)
+class AssistantAgent(Agent):
+    # This attribute is required and determines which other processors you want this agent to have access to using.
+    processors = (
+        Bot,
+    )
 
-# Show results
-results.visualize()
+
+intel = AssistantAgent().process('Can you give me an idea for a drawing?')
+
+print(intel.content)
+
+# Output: Here's a creative drawing idea for you: A steampunk robot cat ...

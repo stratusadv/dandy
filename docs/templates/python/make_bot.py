@@ -1,14 +1,15 @@
-import dandy as dy
+from dandy import Bot, Prompt
 
-# Setup vision pipeline
-vision = dy.Vision.pipeline([
-    "detect_objects",
-    "segment_image"
-])
+class AssistantBot(Bot):
+    def process(self, user_prompt: Prompt | str):
+        default_intel = self.llm.prompt_to_intel(
+            prompt=user_prompt,
+        )
 
-# Process image
-image = dy.Image.load("scene.jpg")
-results = vision.process(image)
+        return default_intel
 
-# Show results
-results.visualize()
+intel = AssistantBot().process('Can you give me an idea for a book?')
+
+print(intel.content)
+
+# Output: Here's an idea for a book: 'The Memory Thief's Daughter' - A mystery thriller ...

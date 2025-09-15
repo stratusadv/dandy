@@ -1,14 +1,28 @@
-import dandy as dy
+# dandy_settings.py
 
-# Setup vision pipeline
-vision = dy.Vision.pipeline([
-    "detect_objects",
-    "segment_image"
-])
+import os
+from pathlib import Path
 
-# Process image
-image = dy.Image.load("scene.jpg")
-results = vision.process(image)
+ALLOW_DEBUG_RECORDING = True
 
-# Show results
-results.visualize()
+BASE_PATH = Path.resolve(Path(__file__)).parent
+
+LLM_CONFIGS = {
+    'DEFAULT': {
+        'TYPE': 'openai',
+        'HOST': 'https://api.openai.com',
+        'PORT': 443,
+        'API_KEY': os.getenv('OPENAI_API_KEY'),
+        'MODEL': 'gpt-4o-mini',
+    }
+}
+
+# main.py
+
+from dandy import Bot
+
+response = Bot().process('What is the capital of Canada?')
+
+print(response.content)
+
+# Output: The capital of Canada is Ottawa
