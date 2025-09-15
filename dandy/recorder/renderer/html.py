@@ -15,11 +15,10 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
     def _render_base_html_template_to_str(self) -> str:
         with open(Path(self._template_directory, 'base_recording_output_template.html'),
                   'r') as debug_html:
-
             return debug_html.read(
             ).replace(
                 '__recording_json__',
-                self.recording.model_dump_json(),
+                self.recording.model_dump_json(indent=4),
             ).replace(
                 '__dandy_version__',
                 f'{__VERSION__}'
@@ -44,7 +43,11 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
     ):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-        with open(Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.html'), 'w') as new_file:
+        with open(
+                Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.html'),
+                'w',
+                encoding='utf-8'
+        ) as new_file:
             new_file.write(self.to_str())
 
     def to_str(self) -> str:

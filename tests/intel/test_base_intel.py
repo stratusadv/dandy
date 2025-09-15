@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.intel.exceptions import IntelCriticalException
-from tests.intel.intel import ThingIntel, BagIntel, PersonIntel
+from tests.intel.intelligence.intel import ThingIntel, BagIntel, PersonIntel
 
 
 class TestBaseIntel(TestCase):

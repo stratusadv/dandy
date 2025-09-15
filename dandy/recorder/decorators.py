@@ -1,7 +1,7 @@
 from functools import wraps
 from pathlib import Path
 
-from typing_extensions import Callable
+from typing import Callable
 
 from dandy.constants import RECORDING_DEFAULT_NAME
 from dandy.recorder import Recorder

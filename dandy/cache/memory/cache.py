@@ -1,4 +1,4 @@
-from typing_extensions import OrderedDict, Union, Any
+from typing import OrderedDict, Union, Any
 
 import dandy.constants
 from dandy.cache.cache import BaseCache

@@ -2,7 +2,7 @@ from enum import Enum
 from time import perf_counter
 
 from pydantic import BaseModel, Field
-from typing_extensions import Self, Any, List
+from typing import Self, Any, List
 
 
 class EventType(str, Enum):

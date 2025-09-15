@@ -1,6 +1,6 @@
 from typing import Union
 
-from dandy.intel import BaseIntel
+from dandy.intel.intel import BaseIntel
 from example.book.enums import BookTheme
 from example.book.intelligence.chapter.intel import ChaptersIntel
 

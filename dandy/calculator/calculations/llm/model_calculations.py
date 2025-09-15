@@ -1,4 +1,4 @@
-from typing_extensions import Literal
+from typing import Literal
 
 from dandy.calculator.calculations.calculations import bits_to_bytes
 

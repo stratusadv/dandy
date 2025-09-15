@@ -9,9 +9,9 @@ from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 class TestRequest(TestCase):
     def test_ollama_config_request_body(self):
-        request_body = llm_configs.LLAMA_3_1_8B.generate_request_body(
-            temperature=llm_configs.LLAMA_3_1_8B.options.temperature,
-            seed=llm_configs.LLAMA_3_1_8B.options.seed,
+        request_body = llm_configs.FAST.generate_request_body(
+            temperature=llm_configs.FAST.options.temperature,
+            seed=llm_configs.FAST.options.seed,
         )
 
         request_body.add_message(

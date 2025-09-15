@@ -1,7 +1,10 @@
 mkdocs
 markdown-exec[ansi]
-mkdocs-include-markdown-plugin
-mkdocs-material
-mkdocs-table-reader-plugin
 mkdocstrings-python
+mkdocs-gen-files
+mkdocs-include-markdown-plugin
+mkdocs-literate-nav
+mkdocs-material
+mkdocs-section-index
+mkdocs-table-reader-plugin
 openpyxl

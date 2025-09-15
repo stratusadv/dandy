@@ -1,8 +1,8 @@
 from typing import List
 
-from typing_extensions import Union
+from typing import Union
 
-from dandy.intel import BaseIntel, BaseListIntel
+from dandy.intel.intel import BaseIntel, BaseListIntel
 
 
 class SceneIntel(BaseIntel):

@@ -9,10 +9,10 @@ from tests.llm.json.llm_bots import JsonSchemaLlmBot
 class TestJsonSchemaWithLlm(TestCase):
     @run_llm_configs()
     def test_json_schema_with_gt_lt_field(self, llm_config: str):
-        JsonSchemaLlmBot.config = llm_config
+        JsonSchemaLlmBot().llm_config = llm_config
 
         try:
-            _ = JsonSchemaLlmBot.process(
+            _ = JsonSchemaLlmBot().llm.prompt_to_intel(
                 prompt='Describe my dream office',
                 intel_class=OfficeIntel
             )

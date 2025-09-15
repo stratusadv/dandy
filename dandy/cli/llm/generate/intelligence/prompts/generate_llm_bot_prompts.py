@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy.llm.prompt.prompt import Prompt
 
 
 def generate_llm_bot_system_prompt() -> Prompt:

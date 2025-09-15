@@ -1,6 +1,6 @@
 from types import NoneType
 
-from typing_extensions import get_origin, get_args, Type, List, Tuple, Set, Any, Union
+from typing import get_origin, get_args, Type, List, Tuple, Set, Any, Union
 
 from dandy.intel.exceptions import IntelCriticalException
 
