@@ -47,7 +47,7 @@ jobs:
 
       - name: Package Tests
         run: |
-          python -m unittest discover -v --top-level .
+          python -m unittest discover -v --top-level tests/
 
       - name: Documentation Tests
         run: |
