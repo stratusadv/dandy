@@ -530,3 +530,34 @@ footer {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* Corner badge */
+.corner-badge {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 10000;
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    padding: 10px 60px;
+    transform: translate(35%, -35%) rotate(45deg);
+    transform-origin: top right;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    letter-spacing: 0.5px;
+}
+
+.corner-badge:hover {
+    opacity: 0.95;
+}
+
+@media (max-width: 576px) {
+    .corner-badge {
+        padding: 8px 48px;
+        font-size: 0.85rem;
+        transform: translate(40%, -40%) rotate(45deg);
+    }
+}
