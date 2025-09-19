@@ -21,7 +21,7 @@ def main():
     # from dandy.cli.llm.generate.generate import GenerateChoices, generate
     # from dandy.conf import settings
     # from dandy.cli.llm.evaluate.evaluate import EvaluateChoices, evaluate
-    # from dandy.constants import CLI_OUTPUT_DIRECTORY, __VERSION__
+    # from dandy.consts import CLI_OUTPUT_DIRECTORY, __VERSION__
     #
     # CLI_OUTPUT_PATH = Path(settings.BASE_PATH, CLI_OUTPUT_DIRECTORY)
     #

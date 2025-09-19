@@ -1,6 +1,6 @@
 from functools import wraps
 
-from tests.constants import TESTING_LLM_CONFIGS
+from tests.consts import TESTING_LLM_CONFIGS
 
 
 def run_llm_configs(llm_configs: list[str] = TESTING_LLM_CONFIGS):

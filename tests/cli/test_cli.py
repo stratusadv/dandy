@@ -10,7 +10,7 @@
 # from dandy.cli.main import main
 # from dandy.cli.utils import check_or_create_settings
 # from dandy.conf import settings
-# from dandy.constants import CLI_OUTPUT_DIRECTORY
+# from dandy.consts import CLI_OUTPUT_DIRECTORY
 # from dandy.intel.intel import BaseIntel
 #
 #

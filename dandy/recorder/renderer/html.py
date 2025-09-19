@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from dandy.constants import __VERSION__, RECORDING_POSTFIX_NAME
+from dandy.consts import __VERSION__, RECORDING_POSTFIX_NAME
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 from dandy.recorder.utils import generate_new_recorder_event_id
 

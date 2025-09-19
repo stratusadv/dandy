@@ -17,6 +17,7 @@ class LlmProcessorMixin:
     llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_instructions_prompt: PromptOrStr = 'You are a helpful assistant.'
     llm_system_override_prompt: PromptOrStrOrNone = None
+    _LlmService_instance: LlmService | None = None
 
     llm: ClassVar[LlmService] = LlmService()
 

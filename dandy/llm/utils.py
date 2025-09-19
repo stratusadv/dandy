@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
-
 from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
 from dandy.llm.service.prompts import service_system_prompt, service_user_prompt
 

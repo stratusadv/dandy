@@ -36,8 +36,6 @@ class TestCacheWithLlm(TestCase):
             include={'coins'}
         )
 
-        print(time.perf_counter() - start)
-
         self.assertGreater(time.perf_counter() - start, 0.1)
 
         cached_start = time.perf_counter()

@@ -5,6 +5,7 @@ __VERSION__ = '1.0.0'
 SQLITE_CACHE_TABLE_NAME = 'cache'
 SQLITE_CACHE_DB_NAME = 'dandy_cache.db'
 DEFAULT_CACHE_NAME: str = 'dandy'
+HASH_KEY_LAYER_LIMIT: int = 2
 
 # CLI
 
@@ -15,6 +16,7 @@ CLI_DEFAULT_ENV_FILE_NAMES = [
     'dev.env',
     '.env',
 ]
+
 
 # Debug
 
