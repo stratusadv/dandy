@@ -21,7 +21,7 @@ requires-python = ">=3.11"
 dynamic = ["version", "dependencies"]
 
 [project.scripts]
-dandy = "dandy.cli.main:main"
+dandy = "dandy.toolbox.main:main"
 
 [project.urls]
 Homepage = "https://dandysoftware.com"

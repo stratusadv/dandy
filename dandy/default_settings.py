@@ -10,6 +10,8 @@ CACHE_MEMORY_LIMIT: int = 1000
 CACHE_SQLITE_DATABASE_PATH: Union[Path, str] = BASE_PATH
 CACHE_SQLITE_LIMIT: int = 10000
 
+DEBUG: bool = False
+
 # Use 0 to disable the limit on agents think time and thought count
 DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS: int = 600 # 10 minutes
 DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT: int = 100 # This is per agent plan
