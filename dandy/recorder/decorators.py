@@ -3,7 +3,7 @@ from pathlib import Path
 
 from typing import Callable
 
-from dandy.constants import RECORDING_DEFAULT_NAME
+from dandy.consts import RECORDING_DEFAULT_NAME
 from dandy.recorder import Recorder
 from dandy.recorder.recorder import DEFAULT_RECORDER_OUTPUT_PATH
 

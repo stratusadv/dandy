@@ -1,10 +1,11 @@
-__VERSION__ = '1.0.0'
+__VERSION__ = '1.0.0a1'
 
 # Cache
 
 SQLITE_CACHE_TABLE_NAME = 'cache'
 SQLITE_CACHE_DB_NAME = 'dandy_cache.db'
 DEFAULT_CACHE_NAME: str = 'dandy'
+HASH_KEY_LAYER_LIMIT = 4
 
 # CLI
 

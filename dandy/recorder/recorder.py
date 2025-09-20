@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, Type
 
 from dandy.conf import settings
-from dandy.constants import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
+from dandy.consts import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
 from dandy.core.singleton import Singleton
 from dandy.recorder.events import Event
 from dandy.recorder.exceptions import RecorderCriticalException

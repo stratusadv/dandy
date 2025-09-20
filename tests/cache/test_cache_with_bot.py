@@ -12,7 +12,7 @@ from tests.bot.intelligence.intel import MoneyBagIntel
 from tests.bot.intelligence.bots import MoneyBagBot
 
 
-class TestCacheWithLlm(TestCase):
+class TestCacheBot(TestCase):
     @classmethod
     def tearDownClass(cls):
         sql_lite_cache.destroy_all()
@@ -21,16 +21,16 @@ class TestCacheWithLlm(TestCase):
     def run_test_cache_with_llm_bot(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        class CachedMoneyBagLlmBot(MoneyBagBot):
+        class CachedMoneyBagBot(MoneyBagBot):
             @cache_decorator()
             def process(self, *args, **kwargs):
                 return super().process(*args, **kwargs)
 
         start = time.perf_counter()
 
-        cached_money_bag_llm_bot = CachedMoneyBagLlmBot()
+        cached_money_bag_bot = CachedMoneyBagBot()
 
-        _ = cached_money_bag_llm_bot.process(
+        _ = cached_money_bag_bot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}
@@ -42,7 +42,7 @@ class TestCacheWithLlm(TestCase):
 
         cached_start = time.perf_counter()
 
-        money_bag = cached_money_bag_llm_bot.process(
+        money_bag = cached_money_bag_bot.process(
             user_input='I have 10 coins',
             intel_class=MoneyBagIntel,
             include={'coins'}

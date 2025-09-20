@@ -8,7 +8,7 @@ from typing import Type, List, Any, Iterable
 from pydantic import ValidationError
 from typing import Union
 
-from dandy.constants import DEFAULT_SETTINGS_MODULE
+from dandy.consts import DEFAULT_SETTINGS_MODULE
 from dandy.core.exceptions import DandyCriticalException
 from dandy.intel.intel import BaseIntel
 
