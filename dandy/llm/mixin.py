@@ -23,7 +23,7 @@ class LlmServiceMixin(BaseServiceMixin):
 
     _LlmService_instance: LlmService | None = None
 
-    _required_attrs = (
+    _required_attrs: ClassVar[tuple[str, ...]] = (
         'llm_config',
         'llm_config_options',
         'llm_instructions_prompt',
