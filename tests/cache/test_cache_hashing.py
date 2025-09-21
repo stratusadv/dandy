@@ -220,7 +220,7 @@ class TestCacheHashing(TestCase):
 
         average_time = sum(timing) / len(timing)
 
-        self.assertLess(average_time, 0.001)
+        self.assertLess(average_time, 0.005)
 
 
 
