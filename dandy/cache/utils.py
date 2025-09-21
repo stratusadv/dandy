@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Any
 
 from dandy.cache.exceptions import CacheCriticalException
-from dandy.consts import HASH_KEY_LAYER_LIMIT
+from dandy.consts import CACHE_KEY_HASH_LAYER_LIMIT
 
 
 def generate_cache_key(func: object, *args, **kwargs) -> str:
@@ -30,8 +30,8 @@ def generate_cache_key(func: object, *args, **kwargs) -> str:
     return hash_key
 
 
-def convert_to_hashable_str(obj: Any, hash_layer: int = 0) -> str:
-    if hash_layer <= HASH_KEY_LAYER_LIMIT:
+def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
+    if hash_layer <= CACHE_KEY_HASH_LAYER_LIMIT:
         if isinstance(obj, type):
             if issubclass(obj, BaseModel):
                 return str(obj.model_json_schema())

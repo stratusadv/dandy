@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 from dandy.core.service.exceptions import ServiceCriticalException
 
 
+@dataclass(kw_only=True)
 class BaseServiceMixin:
-    _required_attrs: tuple = ()
+    _required_attrs: ClassVar[tuple[str, ...]] = ()
 
     def __init_subclass__(cls):
         super().__init_subclass__()
