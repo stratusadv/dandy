@@ -7,11 +7,11 @@ import httpx
 from dandy.core.service.service import BaseService
 
 if TYPE_CHECKING:
-    from dandy.http.mixin import HttpProcessorMixin
+    from dandy.http.mixin import HttpServiceMixin
 
 
 class HttpService(BaseService['HttpProcessorMixin']):
-    obj: HttpProcessorMixin
+    obj: HttpServiceMixin
 
     @staticmethod
     def get(url: str):

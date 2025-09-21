@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cache.cache import BaseCache
 from dandy.cache.utils import generate_cache_key
 from dandy.intel.intel import BaseIntel
@@ -11,14 +13,14 @@ def cache_decorator_function(
         func,
         *args,
         **kwargs,
-):
-    hash_key = generate_cache_key(
+) -> Any:
+    cache_key = generate_cache_key(
         func,
         *args,
         **kwargs
     )
 
-    cached_value = cache.get(hash_key)
+    cached_value = cache.get(cache_key)
 
     if cached_value:
         if Recorder.is_recording:
@@ -46,6 +48,6 @@ def cache_decorator_function(
 
     value = func(*args, **kwargs)
 
-    cache.set(hash_key, value)
+    cache.set(cache_key, value)
 
     return value

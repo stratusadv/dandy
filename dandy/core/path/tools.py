@@ -15,4 +15,5 @@ def get_file_path_or_exception(
         return Path(settings.BASE_PATH, file_path)
 
     else:
-        raise DandyCriticalException(f'File "{file_path}" does not exist')
+        message = f'File "{file_path}" does not exist'
+        raise DandyCriticalException(message)

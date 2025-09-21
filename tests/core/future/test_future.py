@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from dandy.processor.bot.bot import Bot
 from dandy.core.future import AsyncFuture
-from dandy.core.future.exceptions import FutureCriticalException
+from dandy.core.future.exceptions import FutureCriticalException, FutureRecoverableException
 from dandy.intel.intel import BaseIntel
 
 
@@ -45,7 +45,7 @@ class TestFuture(TestCase):
         self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
     def test_future_timeout(self):
-        with self.assertRaises(FutureCriticalException):
+        with self.assertRaises(FutureRecoverableException):
             squared_future = AsyncFuture(square_number, 5)
             squared_future.set_timeout(1)
             _ = squared_future.result

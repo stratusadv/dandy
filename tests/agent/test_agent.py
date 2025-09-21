@@ -21,7 +21,7 @@ class TestAgent(TestCase):
     @recorder_to_html_file('test_agent')
     def test_agent_process(self):
         email = MuseumEmailAgent().process(
-            prompt=f'The Royal Tyrell Palaeontology Museum, green colors are awesome and my email is {FROM_EMAIL_ADDRESS}'
+            prompt=f'The Royal Tyrell Palaeontology Museum, green colors are awesome and the email I am sending from is {FROM_EMAIL_ADDRESS}'
         )
 
         self.assertEqual(email.from_email_address, FROM_EMAIL_ADDRESS)

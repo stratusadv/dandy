@@ -8,7 +8,7 @@ from dandy.core.future import AsyncFuture
 from dandy.processor.map.recorder import recorder_add_process_map_value_event, recorder_add_chosen_mappings_event
 
 from dandy.processor.processor import BaseProcessor
-from dandy.llm.mixin import LlmProcessorMixin
+from dandy.llm.mixin import LlmServiceMixin
 from dandy.processor.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
@@ -23,12 +23,13 @@ from dandy.recorder.events import EventAttribute
 @dataclass(kw_only=True)
 class Map(
     BaseProcessor,
-    LlmProcessorMixin,
+    LlmServiceMixin,
 ):
     mapping_keys_description: str = None
     mapping: Dict[str, Any] = None
 
     services: ClassVar[MapService] = MapService()
+    _MapService_instance: MapService | None = None
 
     @property
     def _keyed_mapping_choices_dict(self) -> Dict[str, str]:

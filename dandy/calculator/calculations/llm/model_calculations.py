@@ -1,9 +1,10 @@
-from typing import Literal
+from typing import Literal, TypeVar
 
 from dandy.calculator.calculations.calculations import bits_to_bytes
 
-QuantizationBitSizes = Literal[64, 32, 16, 8, 6, 5, 4, 3, 2]
+BitSizes = Literal[64, 32, 16, 8, 6, 5, 4, 3, 2]
 
+QuantizationBitSizes = TypeVar("QuantizationBitSizes", bound=BitSizes)
 
 def hidden_dimension_and_number_of_layers_from_parameter_count(
         parameter_count: int | float,

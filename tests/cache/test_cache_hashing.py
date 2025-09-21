@@ -85,7 +85,7 @@ class TestCacheHashing(TestCase):
 
         self.assertEqual(
             converted_treasure,
-            "{'quantity': 456, 'quality': 7.8}"
+            "{'quantity': 456, 'quality': 7.8, 'contains_puppet': False}"
         )
 
     def test_class_hashing(self):

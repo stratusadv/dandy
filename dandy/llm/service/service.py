@@ -24,12 +24,12 @@ from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_
 from dandy.recorder.utils import generate_new_recorder_event_id
 
 if TYPE_CHECKING:
-    from dandy.llm.mixin import LlmProcessorMixin
+    from dandy.llm.mixin import LlmServiceMixin
     from dandy.llm.request.message import MessageHistory
 
 
 class LlmService(BaseService['LlmProcessorMixin']):
-    obj: LlmProcessorMixin
+    obj: LlmServiceMixin
     Prompt: Prompt = Prompt
 
     def __post_init__(self):

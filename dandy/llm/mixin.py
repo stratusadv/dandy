@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from dandy import BaseIntel
+from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import DefaultIntel
 from dandy.llm.conf import llm_configs
 from dandy.llm.config import LlmConfigOptions, OllamaLlmConfig, OpenaiLlmConfig
@@ -11,7 +12,7 @@ from dandy.llm.service.service import LlmService
 
 
 @dataclass(kw_only=True)
-class LlmProcessorMixin:
+class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
     llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options
     llm_intel_class: type[BaseIntel] = DefaultIntel
@@ -20,12 +21,10 @@ class LlmProcessorMixin:
 
     llm: ClassVar[LlmService] = LlmService()
 
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        for attr in [
-            'llm_config',
-            'llm_config_options',
-            'llm_instructions_prompt'
-        ]:
-            if getattr(cls, attr) is None:
-                raise LlmCriticalException(f'{cls.__name__} {attr} is not set')
+    _LlmService_instance: LlmService | None = None
+
+    _required_attrs = (
+        'llm_config',
+        'llm_config_options',
+        'llm_instructions_prompt',
+    )

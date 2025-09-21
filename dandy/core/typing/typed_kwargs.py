@@ -1,6 +1,6 @@
 from collections import UserDict
 
-from typing import Self
+from typing import Self, Any
 
 from dandy.core.exceptions import DandyCriticalException
 from dandy.core.typing.registry import resolve_type_from_registry
@@ -10,7 +10,7 @@ from dandy.core.typing.typing import TypedKwargsDict
 class TypedKwargs(UserDict):
     def __init__(
             self,
-            data: TypedKwargsDict,
+            data: TypedKwargsDict | dict[Any, Any],
             metadata = None
     ):
         super().__init__(data)
@@ -18,9 +18,8 @@ class TypedKwargs(UserDict):
 
     def __contains__(self, item: Self) -> bool:
         if not isinstance(item, TypedKwargs):
-            raise DandyCriticalException(
-                f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
-            )
+            message = f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
+            raise DandyCriticalException(message)
 
         if not self.data.keys() >= item.data.keys():
             return False

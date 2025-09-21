@@ -1,4 +1,4 @@
-from typing import OrderedDict, Union, Any
+from typing import OrderedDict, Any
 
 import dandy.consts
 from dandy.cache.cache import BaseCache
@@ -20,7 +20,7 @@ class MemoryCache(BaseCache):
     def __len__(self) -> int:
         return len(self._cache)
 
-    def get(self, key: str) -> Union[Any, None]:
+    def get(self, key: str) -> Any | None:
         return self._cache.get(key)
 
     def set(self, key: str, value: Any):

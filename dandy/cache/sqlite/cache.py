@@ -1,6 +1,6 @@
 import pickle
 import sqlite3
-from typing import Any, Union
+from typing import Any
 
 import dandy.consts
 from dandy.cache.cache import BaseCache
@@ -54,7 +54,7 @@ class SqliteCache(BaseCache):
 
             connection.commit()
 
-    def get(self, key: str) -> Union[Any, None]:
+    def get(self, key: str) -> Any | None:
         if not self._table_exists():
             return None
 

@@ -18,7 +18,7 @@ class TestCacheBot(TestCase):
         sql_lite_cache.destroy_all()
         memory_cache.destroy_all()
 
-    def run_test_cache_with_llm_bot(self, cache: BaseCache, cache_decorator: Callable):
+    def run_test_cache_with_bot(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
         class CachedMoneyBagBot(MoneyBagBot):
@@ -36,8 +36,6 @@ class TestCacheBot(TestCase):
             include={'coins'}
         )
 
-        print(time.perf_counter() - start)
-
         self.assertGreater(time.perf_counter() - start, 0.1)
 
         cached_start = time.perf_counter()
@@ -53,8 +51,8 @@ class TestCacheBot(TestCase):
         self.assertEqual(10, money_bag.coins)
 
     def test_memory_cache(self):
-        self.run_test_cache_with_llm_bot(memory_cache, cache_to_memory)
+        self.run_test_cache_with_bot(memory_cache, cache_to_memory)
 
     def test_sqlite_cache(self):
-        self.run_test_cache_with_llm_bot(sql_lite_cache, cache_to_sqlite)
+        self.run_test_cache_with_bot(sql_lite_cache, cache_to_sqlite)
 

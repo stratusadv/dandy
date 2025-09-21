@@ -56,4 +56,4 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 0) -> str:
             message = f'Object "{obj}" is not hashable'
             raise CacheCriticalException(message)
     else:
-        return ''
+        return str(None)

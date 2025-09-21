@@ -8,6 +8,10 @@ Thank you for making Dandy possible!
 
 ### Development
 
+#### Bottle
+[https://bottlepy.org/](https://bottlepy.org/){:target="_blank"}<br>
+by [bottle](https://github.com/bottlepy){:target="_blank"}
+
 #### Httpx
 [https://www.python-httpx.org/](https://www.python-httpx.org/){:target="_blank"}<br>
 by [python-httpx](https://github.com/encode/httpx){:target="_blank"}

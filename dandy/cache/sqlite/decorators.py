@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Callable
 
 import dandy.consts
 from dandy.cache.decorators import cache_decorator_function
@@ -9,7 +10,7 @@ from dandy.conf import settings
 def cache_to_sqlite(
         cache_name: str = dandy.consts.DEFAULT_CACHE_NAME,
         limit: int = settings.CACHE_SQLITE_LIMIT
-):
+) -> Callable:
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

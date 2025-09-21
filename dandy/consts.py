@@ -5,7 +5,7 @@ __VERSION__ = '1.0.0a1'
 SQLITE_CACHE_TABLE_NAME = 'cache'
 SQLITE_CACHE_DB_NAME = 'dandy_cache.db'
 DEFAULT_CACHE_NAME: str = 'dandy'
-HASH_KEY_LAYER_LIMIT = 4
+HASH_KEY_LAYER_LIMIT = 2 # This should be set to 2 as right now the services have no instances on the first instance.
 
 # CLI
 

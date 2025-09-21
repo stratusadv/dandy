@@ -16,9 +16,9 @@ from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_ev
     recorder_add_llm_agent_done_executing_plan_event, recorder_add_llm_agent_processing_final_result_event
 from dandy.processor.agent.service import AgentService
 from dandy.processor.bot.bot import Bot
-from dandy.http.mixin import HttpProcessorMixin
+from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.typing import IntelType
-from dandy.llm.mixin import LlmProcessorMixin
+from dandy.llm.mixin import LlmServiceMixin
 from dandy.processor.processor import BaseProcessor
 from dandy.conf import settings
 from dandy.llm.prompt.prompt import Prompt
@@ -30,8 +30,8 @@ from dandy.vision.mixin import VisionProcessorMixin
 @dataclass(kw_only=True)
 class Agent(
     BaseProcessor,
-    LlmProcessorMixin,
-    HttpProcessorMixin,
+    LlmServiceMixin,
+    HttpServiceMixin,
     VisionProcessorMixin,
 ):
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
@@ -44,6 +44,7 @@ class Agent(
     _processors_strategy: ProcessorsStrategy | None = None
 
     services: ClassVar[AgentService] = AgentService()
+    _AgentService_instance: AgentService | None = None
 
     def __init_subclass__(cls, **kwargs):
         if cls.processors is None or len(cls.processors) == 0:

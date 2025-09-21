@@ -4,7 +4,7 @@ from time import perf_counter
 
 from typing import Callable, TypeVar, Generic
 
-from dandy.core.future.exceptions import FutureCriticalException
+from dandy.core.future.exceptions import FutureRecoverableException
 
 async_executor = concurrent.futures.ThreadPoolExecutor()
 
@@ -29,7 +29,10 @@ class AsyncFuture(Generic[FutureResultType]):
             return self._result
         
         try:
-            done, not_done = concurrent.futures.wait([self._future], timeout=self._result_timeout)
+            done, not_done = concurrent.futures.wait(
+                [self._future],
+                timeout=self._result_timeout
+            )
             
             if self._future in done:
                 self._result: FutureResultType = self._future.result()
@@ -38,7 +41,8 @@ class AsyncFuture(Generic[FutureResultType]):
             else:
                 raise concurrent.futures.TimeoutError
         except concurrent.futures.TimeoutError:
-            raise FutureCriticalException(f'Future timed out after {self._result_timeout} seconds')
+            message = f'Future timed out after {self._result_timeout} seconds'
+            raise FutureRecoverableException(message)
         finally:
             del self._future
                 

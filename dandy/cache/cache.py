@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from pydantic import BaseModel
-from typing import Any, Union
 
 import dandy.consts
 
@@ -15,7 +15,7 @@ class BaseCache(ABC, BaseModel):
         pass
 
     @abstractmethod
-    def get(self, key: str) -> Union[Any, None]:
+    def get(self, key: str) -> Any | None:
         pass
 
     @abstractmethod
