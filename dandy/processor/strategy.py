@@ -22,18 +22,17 @@ class BaseProcessorsStrategy(ABC):
         self.processors = processors
 
         if self._processor_controller is None:
-            raise DandyCriticalException(f'{self.__name__}._processor_controller is not set')
+            message = f'{self.__name__}._processor_controller is not set'
+            raise DandyCriticalException(message)
 
         for processor_class in self.processors:
             if not issubclass(processor_class, BaseProcessor):
-                raise DandyCriticalException(
-                    'All resources must be sub classed from the "BaseProcessor" sub class.'
-                )
+                message = 'All resources must be sub classed from the "BaseProcessor" sub class.'
+                raise DandyCriticalException(message)
 
             if processor_class.description is None:
-                raise DandyCriticalException(
-                    f'{processor_class.__name__} did not have the class attribute "description". All "processors" must have a "description" class attribute to be used with a "ProcessorStrategy".'
-                )
+                message = f'{processor_class.__name__} did not have the class attribute "description". All "processors" must have a "description" class attribute to be used with a "ProcessorStrategy".'
+                raise DandyCriticalException(message)
 
     def as_dict(self) -> dict:
         processor_strategy_dict = {}

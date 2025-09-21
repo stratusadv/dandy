@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
-
 from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
-from dandy.llm.service.prompts import service_system_prompt, service_user_prompt
+from dandy.llm.service.intelligence.prompts import service_system_prompt, service_user_prompt
 
 
 def get_estimated_token_count_for_prompt(
@@ -16,7 +14,7 @@ def get_estimated_token_count_for_prompt(
     ).estimated_token_count + service_user_prompt(prompt).estimated_token_count
 
 
-def get_image_mime_type_from_base64_string(base64_string):
+def get_image_mime_type_from_base64_string(base64_string) -> str | None:
     SIGNATURES = {
         "JVBERi0": "application/pdf",
         "R0lGODdh": "image/gif",

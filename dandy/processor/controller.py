@@ -12,7 +12,8 @@ class BaseProcessorController(ABC):
             processor: Type[BaseProcessor]
     ):
         if not issubclass(processor, BaseProcessor):
-            raise AgentCriticalException(f'{processor} is not a sub class of "BaseProcessor"')
+            message = f'{processor} is not a sub class of "BaseProcessor"'
+            raise AgentCriticalException(message)
 
         self.processor = processor
 

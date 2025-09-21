@@ -1,6 +1,6 @@
 from typing import Union
 
-from dandy.llm.config import BaseLlmConfig
+from dandy.llm.config.config import BaseLlmConfig
 from dandy.llm.request.ollama import OllamaRequestBody, OllamaRequestOptions
 from dandy.llm.request.request import BaseRequestBody
 
@@ -30,7 +30,8 @@ class OllamaLlmConfig(BaseLlmConfig):
             )
         )
 
-    def get_response_content(self, response) -> str:
+    @staticmethod
+    def get_response_content(response) -> str:
         return response['message']['content']
 
 

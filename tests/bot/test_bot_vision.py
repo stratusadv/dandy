@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.llm.config import LlmConfigOptions
+from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.prompt.prompt import Prompt
 
 

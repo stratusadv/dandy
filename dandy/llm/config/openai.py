@@ -1,6 +1,6 @@
 from typing import Union
 
-from dandy.llm.config import BaseLlmConfig
+from dandy.llm.config.config import BaseLlmConfig
 from dandy.llm.request.openai import OpenaiRequestBody
 from dandy.llm.request.request import BaseRequestBody
 
@@ -28,5 +28,6 @@ class OpenaiLlmConfig(BaseLlmConfig):
             temperature=self.options.temperature if temperature is None else temperature,
         )
 
-    def get_response_content(self, response) -> str:
+    @staticmethod
+    def get_response_content(response) -> str:
         return response['choices'][0]['message']['content']

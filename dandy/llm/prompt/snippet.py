@@ -7,20 +7,20 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
-from typing import List, Type, TYPE_CHECKING, Dict, Union
+from typing import List, Type, TYPE_CHECKING, Dict
 
 from dandy.core.path.tools import get_file_path_or_exception
 from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
-    from dandy.llm.prompt import Prompt
+    from dandy.llm.prompt.prompt import Prompt
 
 
 @dataclass(kw_only=True)
 class BaseSnippet(ABC):
     triple_quote: bool = False
-    triple_quote_label: Union[str, None] = None
+    triple_quote_label: str | None = None
 
     def __str__(self):
         return self.to_str()
@@ -70,7 +70,7 @@ class DividerSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class FileSnippet(BaseSnippet):
-    file_path: Union[str, Path]
+    file_path: str | Path
     relative_parents: int = 0
     encoding: str = 'utf-8'
 

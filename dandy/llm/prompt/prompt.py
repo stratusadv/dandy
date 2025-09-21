@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from typing import List, Type, Self, Dict
-from typing import Union
 
 from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt import snippet
@@ -11,8 +10,8 @@ from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 @dataclass
 class Prompt:
-    input: Union[Self, str, None] = None,
-    tag: Union[str, None] = None,
+    input: Self | str | None = None,
+    tag: str | None = None,
 
     def __post_init__(
             self,
@@ -73,7 +72,7 @@ class Prompt:
 
     def file(
             self,
-            file_path: Union[str, Path],
+            file_path: str | Path,
             encoding: str = 'utf-8',
             triple_quote: bool = False
     ) -> Self:
@@ -244,7 +243,7 @@ class Prompt:
             text: str = '',
             label: str = '',
             triple_quote: bool = False,
-            triple_quote_label: Union[str, None] = None,
+            triple_quote_label: str | None = None,
     ) -> Self:
 
         self.snippets.append(

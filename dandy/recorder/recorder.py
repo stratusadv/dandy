@@ -38,7 +38,8 @@ class Recorder(Singleton):
             if len(cls.recordings.keys()) == 0:
                 choices_message = f' Choices are {list(cls.recordings.keys())}'
 
-            raise RecorderCriticalException(f'Recording "{recording_name}" does not exist. {choices_message}')
+            message = f'Recording "{recording_name}" does not exist. {choices_message}'
+            raise RecorderCriticalException(message)
 
     @classmethod
     def delete_all_recordings(cls):
@@ -82,8 +83,8 @@ class Recorder(Singleton):
             path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ) -> str | None:
         if renderer not in cls.renderers:
-            raise RecorderCriticalException(
-                f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}')
+            message = f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
+            raise RecorderCriticalException(message)
 
         cls.check_recording_is_valid(recording_name)
 

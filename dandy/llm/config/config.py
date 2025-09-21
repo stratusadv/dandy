@@ -1,12 +1,9 @@
 from abc import abstractmethod
-
 from typing import List, Union
 
 from dandy.core.config.config import BaseConfig
 from dandy.http.config import HttpConnectorConfig
 from dandy.http.url import Url
-from dandy.llm.exceptions import LlmCriticalException
-# from dandy.llm.service import LlmService
 from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.request.request import BaseRequestBody
 
@@ -72,8 +69,9 @@ class BaseLlmConfig(BaseConfig):
     def __llm_config_post_init__(self):
         ...
 
+    @staticmethod
     @abstractmethod
-    def get_response_content(self, response) -> str:
+    def get_response_content(response) -> str:
         ...
 
     @abstractmethod
@@ -85,25 +83,3 @@ class BaseLlmConfig(BaseConfig):
             temperature: Union[float, None] = None,
     ) -> BaseRequestBody:
         ...
-
-    # def generate_service(
-    #         self,
-    #         llm_options: Union[LlmConfigOptions, None] = None,
-    # ) -> LlmService:
-    #     return LlmService(
-    #         self,
-    #         llm_options=llm_options.merge_to_copy(self.options) if llm_options is not None else self.options,
-    #     )
-    #
-    # @property
-    # def service(self) -> LlmService:
-    #     return self.generate_service()
-
-    # def validate_value(self, value: Union[str, int], value_name: str, value_type: type):
-    #     exception_postfix = f'{self.__class__.__name__}: {value_name}'
-    #     if not isinstance(value, value_type):
-    #         raise LlmCriticalException(f'"{exception_postfix}" must be type {value_type}')
-    #     elif value is None:
-    #         raise LlmCriticalException(f'"{exception_postfix}" cannot be None')
-    #     elif value == '' or value == 0:
-    #         raise LlmCriticalException(f'"{exception_postfix}" cannot be empty')

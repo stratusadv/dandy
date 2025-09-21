@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.llm.config import OllamaLlmConfig
+from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.conf import llm_configs
 

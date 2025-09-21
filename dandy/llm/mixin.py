@@ -5,8 +5,9 @@ from dandy import BaseIntel
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import DefaultIntel
 from dandy.llm.conf import llm_configs
-from dandy.llm.config import LlmConfigOptions, OllamaLlmConfig, OpenaiLlmConfig
-from dandy.llm.exceptions import LlmCriticalException
+from dandy.llm.config.config import LlmConfigOptions
+from dandy.llm.config.ollama import OllamaLlmConfig
+from dandy.llm.config.openai import OpenaiLlmConfig
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service.service import LlmService
 

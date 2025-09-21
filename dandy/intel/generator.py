@@ -22,7 +22,8 @@ class IntelClassGenerator:
 
         for name, param in signature.parameters.items():
             if param.annotation is inspect._empty:
-                raise IntelCriticalException(f'Parameter {name} of {callable_} has no annotation')
+                message = f'Parameter {name} of {callable_} has no annotation'
+                raise IntelCriticalException(message)
 
             typed_kwarg_dict[name] = (param.annotation, ...)
 

@@ -6,14 +6,13 @@ from pathlib import Path
 from typing import Type, List, Any, Iterable
 
 from pydantic import ValidationError
-from typing import Union
 
 from dandy.consts import DEFAULT_SETTINGS_MODULE
 from dandy.core.exceptions import DandyCriticalException
 from dandy.intel.intel import BaseIntel
 
 
-def encode_file_to_base64(file_path: Union[str, Path]) -> str:
+def encode_file_to_base64(file_path: str | Path) -> str:
     if not Path(file_path).is_file():
         raise DandyCriticalException(f'File "{file_path}" does not exist')
 

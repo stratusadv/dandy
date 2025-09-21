@@ -1,4 +1,3 @@
-from typing import Union
 
 from pydantic import Field
 from typing import List, Generator
@@ -18,7 +17,7 @@ class CharacterIntel(BaseIntel):
 
 
 class CharactersIntel(BaseIntel):
-    characters: Union[List[CharacterIntel], None] = Field(default_factory=list)
+    characters: List[CharacterIntel] | None = Field(default_factory=list)
 
     def __iter__(self) -> Generator[CharacterIntel]:
         for character in self.characters:

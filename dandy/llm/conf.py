@@ -1,6 +1,8 @@
 from dandy.conf import settings
 from dandy.core.exceptions import DandyException
-from dandy.llm.config import OllamaLlmConfig, OpenaiLlmConfig, BaseLlmConfig
+from dandy.llm.config.config import BaseLlmConfig
+from dandy.llm.config.openai import OpenaiLlmConfig
+from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.core.utils import get_settings_module_name
 
 _LLM_CONFIG_MAP = {

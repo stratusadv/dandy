@@ -1,14 +1,13 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
-import json
-from dandy.recorder.recorder import Recorder
 from dandy.recorder.events import EventAttribute, Event, EventType
+from dandy.recorder.recorder import Recorder
 
 if TYPE_CHECKING:
     from dandy.processor.map.map import Map
-    from enum import Enum
 
 
 def recorder_add_process_map_value_event(

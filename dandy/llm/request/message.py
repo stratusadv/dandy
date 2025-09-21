@@ -1,13 +1,14 @@
+from typing import List, Any, Literal
+
 from pydantic import BaseModel, Field
-from typing import List, Union, Any, Literal
 
 RoleLiteralStr = Literal['user', 'assistant', 'system']
 
 
 class RequestMessage(BaseModel):
     role: RoleLiteralStr
-    content: Union[str, List[Any]]
-    images: Union[List[str], None] = None
+    content: str | List[Any]
+    images: List[str] |None = None
 
 
 class MessageHistory(BaseModel):
@@ -17,7 +18,7 @@ class MessageHistory(BaseModel):
             self,
             role: RoleLiteralStr,
             content: str,
-            images: Union[List[str], None] = None
+            images: List[str] | None = None
     ) -> None:
         self.messages.append(
             RequestMessage(

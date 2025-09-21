@@ -1,5 +1,5 @@
 from dandy.processor.bot.bot import Bot
-from dandy.llm.config import LlmConfigOptions
+from dandy.llm.config.options import LlmConfigOptions
 
 
 class JsonSchemaLlmBot(Bot):

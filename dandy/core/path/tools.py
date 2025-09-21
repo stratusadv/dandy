@@ -1,12 +1,11 @@
 from pathlib import Path
-from typing import Union, List
 
 from dandy.conf import settings
 from dandy.core.exceptions import DandyCriticalException
 
 
 def get_file_path_or_exception(
-        file_path: Union[str, Path],
+        file_path: str | Path,
 ) -> Path:
     if Path(file_path).is_file():
         return Path(file_path)

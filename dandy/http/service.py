@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from dandy.http.mixin import HttpServiceMixin
 
 
-class HttpService(BaseService['HttpProcessorMixin']):
+class HttpService(BaseService['HttpServiceMixin']):
     obj: HttpServiceMixin
 
     @staticmethod

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Union, List
+from typing import TYPE_CHECKING, List
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
@@ -16,7 +16,7 @@ from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.prompt.typing import PromptOrStrOrNone
-from dandy.llm.service.prompts import service_system_validation_error_prompt, service_user_prompt, \
+from dandy.llm.service.intelligence.prompts import service_system_validation_error_prompt, service_user_prompt, \
     service_system_prompt
 from dandy.llm.service.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, \
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
 
 
-class LlmService(BaseService['LlmProcessorMixin']):
+class LlmService(BaseService['LlmServiceMixin']):
     obj: LlmServiceMixin
     Prompt: Prompt = Prompt
 
@@ -96,7 +96,7 @@ class LlmService(BaseService['LlmProcessorMixin']):
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
             images: list[str] | None = None,
-            image_files: Union[List[str | Path], None] = None,
+            image_files: List[str | Path] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             postfix_system_prompt: PromptOrStrOrNone = None,
@@ -222,5 +222,5 @@ class LlmService(BaseService['LlmProcessorMixin']):
             )
 
         else:
-            raise LlmRecoverableException(
-                f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.')
+            message = f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.'
+            raise LlmRecoverableException(message)

@@ -1,8 +1,5 @@
 from typing import Optional
 
-from pydantic import Field
-from typing import List, Generator, Union
-
 from dandy.intel.intel import BaseIntel, BaseListIntel
 
 

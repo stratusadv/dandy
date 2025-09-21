@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from dandy import BaseIntel
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmServiceMixin

@@ -1,5 +1,5 @@
 from pydantic.main import IncEx
-from typing import Type, Union, Dict, Any
+from typing import Type, Dict, Any, Callable
 
 from dandy.intel.intel import BaseIntel
 from dandy.intel.exceptions import IntelCriticalException
@@ -7,14 +7,15 @@ from dandy.intel.exceptions import IntelCriticalException
 
 class IntelFactory:
     @staticmethod
-    def _raise_invalid_intel_type(intel: Union[BaseIntel, Type[BaseIntel]]):
-        raise IntelCriticalException(f'{intel} is not subclass of BaseIntel or an instance of BaseIntel')
+    def _raise_invalid_intel_type(intel: BaseIntel | Type[BaseIntel]):
+        message = f'{intel} is not subclass of BaseIntel or an instance of BaseIntel'
+        raise IntelCriticalException(message)
 
     @staticmethod
     def _run_for_intel_class_or_object(
-            intel: Union[BaseIntel, Type[BaseIntel]],
-            class_func: callable,
-            object_func: callable,
+            intel: BaseIntel | Type[BaseIntel],
+            class_func: Callable,
+            object_func: Callable,
             **kwargs,
     ) -> Any:
         if isinstance(intel, BaseIntel):
@@ -29,9 +30,9 @@ class IntelFactory:
     @classmethod
     def intel_to_json_inc_ex_schema(
             cls,
-            intel: Union[BaseIntel, Type[BaseIntel]],
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None,
+            intel: BaseIntel | Type[BaseIntel],
+            include: IncEx | None = None,
+            exclude: IncEx | None = None,
     ) -> Dict:
         inc_ex_kwargs = {'include': include, 'exclude': exclude}
 
@@ -46,7 +47,7 @@ class IntelFactory:
     def json_to_intel_object(
             cls,
             json: str,
-            intel: Union[BaseIntel, Type[BaseIntel]]
+            intel: BaseIntel | Type[BaseIntel]
     ) -> BaseIntel:
 
         return cls._run_for_intel_class_or_object(

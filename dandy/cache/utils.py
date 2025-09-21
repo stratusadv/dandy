@@ -8,12 +8,12 @@ from dandy.consts import HASH_KEY_LAYER_LIMIT
 
 
 def generate_cache_key(func: object, *args, **kwargs) -> str:
-    hashable_args = tuple([convert_to_hashable_str(arg) for arg in args])
+    hashable_args = tuple(
+        convert_to_hashable_str(arg) for arg in args
+    )
 
     hashable_kwargs = tuple(
-        sorted(
-            (key, convert_to_hashable_str(value)) for key, value in kwargs.items()
-        )
+        (key, convert_to_hashable_str(value)) for key, value in kwargs.items()
     )
 
     hashable_tuple = (
@@ -41,7 +41,7 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 0) -> str:
             return str(obj.model_dump())
         elif isinstance(obj, dict):
             return str({
-                k: convert_to_hashable_str(v, hash_layer + 1) for k, v in obj.items()
+                key: convert_to_hashable_str(value, hash_layer + 1) for key, value in obj.items()
             })
         elif isinstance(obj, (list, tuple, set, frozenset)):
             return str([

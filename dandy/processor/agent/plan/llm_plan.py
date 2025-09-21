@@ -9,7 +9,6 @@ from dandy.llm.prompt.prompt import Prompt
 class LlmAgentPlanIntel(AgentPlanIntel[LlmAgentTaskIntel]):
     tasks: List[LlmAgentTaskIntel] = Field(default_factory=list)
 
-
     def to_prompt(self) -> Prompt:
         prompt = Prompt()
 

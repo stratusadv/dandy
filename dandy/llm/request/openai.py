@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List
 
 from dandy.llm.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.request.request import BaseRequestBody
@@ -10,15 +10,15 @@ class OpenaiRequestBody(BaseRequestBody):
     stream: bool = False
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
     response_format: dict = {'type': 'json_schema', 'json_schema': {'name': 'response', 'strict': False, 'schema': ...}}
-    max_completion_tokens: Union[int, None] = None
-    seed: Union[int, None] = None
-    temperature: Union[float, None] = None
+    max_completion_tokens: int | None = None
+    seed: int |None = None
+    temperature: float | None = None
 
     def add_message(
             self,
             role: RoleLiteralStr,
             content: str,
-            images: Union[List[str], None] = None
+            images: List[str] | None = None
     ) -> None:
         message_content: List[dict] = [{
             'type': 'text',
@@ -51,13 +51,13 @@ class OpenaiRequestBody(BaseRequestBody):
 
         return token_usage
 
-    def get_max_completion_tokens(self) -> int:
+    def get_max_completion_tokens(self) -> int | None:
         return self.max_completion_tokens
 
-    def get_seed(self) -> int:
+    def get_seed(self) -> int | None:
         return self.seed
 
-    def get_temperature(self) -> float:
+    def get_temperature(self) -> float | None:
         return self.temperature
 
     def set_format_to_json_schema(self, json_schema: dict):

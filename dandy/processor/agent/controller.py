@@ -83,9 +83,8 @@ class ProcessorController(BaseProcessorController):
             )
 
         if not issubclass(processor_intel.__class__, BaseIntel):
-            raise AgentCriticalException(
-                f'Processor {self.processor.__name__} did not return an instance of "BaseIntel" while being used as a resource. It returned an instance of {processor_intel.__class__.__name__}.'
-            )
+            message = f'Processor {self.processor.__name__} did not return an instance of "BaseIntel" while being used as a resource. It returned an instance of {processor_intel.__class__.__name__}.'
+            raise AgentCriticalException(message)
 
         return UseProcessorBot().llm.prompt_to_intel(
             prompt=(

@@ -15,19 +15,23 @@ class DandySettings:
             try:
                 self._user_settings = importlib.import_module(self._settings_module_name)
             except ImportError:
-                raise DandyCriticalException(f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.')
+                message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.'
+                raise DandyCriticalException(message)
         else:
             try:
                 from tests import dandy_settings as user_settings
                 self._user_settings = user_settings
             except ImportError:
-                raise DandyCriticalException(f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project root directory or python path directory.')
+                message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project root directory or python path directory.'
+                raise DandyCriticalException(message)
 
         if self._default_settings.BASE_PATH is None and self._user_settings.BASE_PATH is None:
-            raise DandyCriticalException(f'You need a BASE_PATH in your "{self._settings_module_name}".')
+            message = f'You need a BASE_PATH in your "{self._settings_module_name}".'
+            raise DandyCriticalException(message)
 
         if self._default_settings.LLM_CONFIGS is None and self._user_settings.LLM_CONFIGS is None:
-            raise DandyCriticalException(f'You need a "default" to the "LLM_CONFIG" in your "{self._settings_module_name}".')
+            message = f'You need a "default" to the "LLM_CONFIG" in your "{self._settings_module_name}".'
+            raise DandyCriticalException(message)
 
     def __getattr__(self, name):
         if hasattr(self._user_settings, name):
@@ -36,7 +40,8 @@ class DandySettings:
         if hasattr(self._default_settings, name):
             return getattr(self._default_settings, name)
 
-        raise DandyCriticalException(f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.')
+        message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
+        raise DandyCriticalException(message)
 
 
 settings = DandySettings()

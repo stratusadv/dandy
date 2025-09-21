@@ -6,7 +6,7 @@ from typing import Type
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing import Generator, Union, List, Generic, TypeVar, Self, Dict, get_origin
+from typing import Generator, List, Generic, TypeVar, Self, Dict, get_origin
 
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation
@@ -15,10 +15,6 @@ T = TypeVar('T')
 
 
 class BaseIntel(BaseModel, ABC):
-    """
-    Base class for all Dandy intel
-    """
-
     @classmethod
     def check_inc_ex(
             cls,
@@ -32,17 +28,15 @@ class BaseIntel(BaseModel, ABC):
             include_field_names = set(include_dict.keys())
 
             if not include_field_names.issubset(field_names):
-                raise IntelCriticalException(
-                    f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
-                )
+                message = f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
+                raise IntelCriticalException(message)
 
         if exclude_dict:
             exclude_field_names = set(exclude_dict.keys())
 
             if not exclude_field_names.issubset(field_names):
-                raise IntelCriticalException(
-                    f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
-                )
+                message = f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
+                raise IntelCriticalException(message)
 
     def model_to_kwargs(self) -> dict:
         return dict(self)
@@ -50,9 +44,9 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def model_inc_ex_class_copy(
             cls,
-            include: Union[IncEx, Dict, None] = None,
-            exclude: Union[IncEx, Dict, None] = None,
-            intel_object: Union[Self, None] = None
+            include: IncEx | Dict | None = None,
+            exclude: IncEx | Dict | None = None,
+            intel_object: Self | None = None
     ) -> Type[BaseIntel]:
         if include is None and exclude is None:
             return create_model(
@@ -61,9 +55,10 @@ class BaseIntel(BaseModel, ABC):
             )
 
         if include and exclude:
-            raise IntelCriticalException('include and exclude cannot be used together')
+            message = 'include and exclude cannot be used together'
+            raise IntelCriticalException(message)
 
-        def inc_ex_dict(inc_ex: Union[IncEx, None]) -> Dict:
+        def inc_ex_dict(inc_ex: IncEx | None) -> Dict:
             if inc_ex is not None:
                 return inc_ex if isinstance(inc_ex, dict) else {key: True for key in inc_ex}
             else:
@@ -84,17 +79,21 @@ class BaseIntel(BaseModel, ABC):
             if not isinstance(include_value, Dict) and not isinstance(exclude_value, Dict):
                 if include is None and exclude_value and field_info.is_required():
                     if intel_object is None:
-                        raise IntelCriticalException(f"{field_name} is required and cannot be excluded")
+                        message = f'{field_name} is required and cannot be excluded'
+                        raise IntelCriticalException(message)
 
                     elif getattr(intel_object, field_name) is None:
-                        raise IntelCriticalException(f"{field_name} is required and has no value therefore cannot be excluded")
+                        message = f'{field_name} is required and has no value therefore cannot be excluded'
+                        raise IntelCriticalException(message)
 
                 if exclude is None and include_value is None and field_info.is_required():
                     if intel_object is None:
-                        raise IntelCriticalException(f"{field_name} is required and must be included")
+                        message = f'{field_name} is required and must be included'
+                        raise IntelCriticalException(message)
 
                     elif getattr(intel_object, field_name) is None:
-                        raise IntelCriticalException(f"{field_name} is required and has no value therefore it must be included")
+                        message = f"{field_name} is required and has no value therefore it must be included"
+                        raise IntelCriticalException(message)
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
             field_factory = field_info.default_factory or field_info.default
@@ -136,8 +135,8 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def model_json_inc_ex_schema(
             cls,
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None,
+            include: IncEx | None = None,
+            exclude: IncEx | None = None,
     ) -> Dict:
         return cls.model_inc_ex_class_copy(
             include=include,
@@ -146,8 +145,8 @@ class BaseIntel(BaseModel, ABC):
 
     def model_object_json_inc_ex_schema(
             self,
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None
+            include: IncEx | None = None,
+            exclude: IncEx | None = None
     ) -> Dict:
         return self.model_inc_ex_class_copy(
             include=include,
@@ -155,14 +154,7 @@ class BaseIntel(BaseModel, ABC):
             intel_object=self
         ).model_json_schema()
 
-
     def model_validate_and_copy(self, update: dict) -> Self:
-        """
-        Copies this object with field updates from a dict and validates
-
-        :param update:
-        :return:
-        """
         return self.model_validate(
             obj=self.model_copy(update=update).model_dump(
                 warnings=False
@@ -170,20 +162,12 @@ class BaseIntel(BaseModel, ABC):
         )
 
     def model_validate_json_and_copy(self, json_data: str) -> Self:
-        """
-        Copies this object with field updates from a json str and validates
-
-        :param json_data:
-        :return:
-        """
         return self.model_validate_and_copy(update=from_json(json_data))
 
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     _list_name: str = PrivateAttr(default=None)
-    """
-    A class that behaves like a list of Intel objects
-    """
+
     def model_post_init(self, __context):
         list_fields = [
             name for name, field in self.__class__.model_fields.items()
@@ -191,7 +175,8 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         ]
 
         if len(list_fields) != 1:
-            raise ValueError(f'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing')
+            message = f'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing'
+            raise ValueError(message)
 
         self._list_name = list_fields[0]
 

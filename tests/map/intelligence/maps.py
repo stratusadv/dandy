@@ -1,4 +1,4 @@
-from dandy.llm.config import LlmConfigOptions
+from dandy.llm.config.options import LlmConfigOptions
 from dandy.processor.map.map import Map
 
 

@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
+from typing import List
 
 from pydantic import BaseModel, Field
-from typing import List, Union
 
 from dandy.llm.request.message import RequestMessage, RoleLiteralStr
 
@@ -15,7 +15,7 @@ class BaseRequestBody(BaseModel, ABC):
             self,
             role: RoleLiteralStr,
             content: str,
-            images: Union[List[str], None] = None
+            images: List[str] | None = None
     ): ...
 
     @abstractmethod

@@ -1,13 +1,18 @@
 from dataclasses import dataclass
 from pathlib import Path
-
 from typing import Type, Sequence, List, ClassVar
 
 from pydantic.main import IncEx
 
+from dandy.conf import settings
+from dandy.http.mixin import HttpServiceMixin
+from dandy.intel.typing import IntelType
+from dandy.llm.mixin import LlmServiceMixin
+from dandy.llm.prompt.prompt import Prompt
+from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
+from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
-from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
@@ -15,15 +20,9 @@ from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_ev
     recorder_add_llm_agent_start_task_event, recorder_add_llm_agent_completed_task_event, \
     recorder_add_llm_agent_done_executing_plan_event, recorder_add_llm_agent_processing_final_result_event
 from dandy.processor.agent.service import AgentService
+from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.processor.bot.bot import Bot
-from dandy.http.mixin import HttpServiceMixin
-from dandy.intel.typing import IntelType
-from dandy.llm.mixin import LlmServiceMixin
 from dandy.processor.processor import BaseProcessor
-from dandy.conf import settings
-from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
-from dandy.llm.request.message import MessageHistory
 from dandy.vision.mixin import VisionProcessorMixin
 
 
@@ -48,14 +47,12 @@ class Agent(
 
     def __init_subclass__(cls, **kwargs):
         if cls.processors is None or len(cls.processors) == 0:
-            raise AgentCriticalException(
-                f'{cls.__name__} must have a sequence of "BaseProcessor" sub classes defined on the "processors" class attribute.'
-            )
+            message = f'{cls.__name__} must have a sequence of "BaseProcessor" sub classes defined on the "processors" class attribute.'
+            raise AgentCriticalException(message)
 
         if cls._processors_strategy_class is None:
-            raise AgentCriticalException(
-                f'{cls.__name__} must have a "BaseProcessorsStrategy" sub class defined on the "_processors_strategy_class" class attribute.'
-            )
+            message = f'{cls.__name__} must have a "BaseProcessorsStrategy" sub class defined on the "_processors_strategy_class" class attribute.'
+            raise AgentCriticalException(message)
 
     def __post_init__(self):
         if self._processors_strategy is None:
@@ -98,9 +95,8 @@ class Agent(
 
         while plan.is_incomplete:
             if plan.has_exceeded_time_limit:
-                raise AgentOverThoughtRecoverableException(
-                    f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
-                )
+                message = f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
+                raise AgentOverThoughtRecoverableException(message)
 
             task = plan.active_task
 
@@ -180,13 +176,9 @@ class Agent(
 
     def _validate_plan_or_error(self, plan: LlmAgentPlanIntel):
         if plan.tasks is None or len(plan.tasks) == 0:
-            raise AgentRecoverableException(
-                f'{self.__class__.__name__} created plan that has no tasks.'
-            )
+            message = f'{self.__class__.__name__} created plan that has no tasks.'
+            raise AgentRecoverableException(message)
 
         if len(plan.tasks) > self.plan_task_count_limit:
-            raise AgentOverThoughtRecoverableException(
-                f'{self.__class__.__name__} created plan had {len(plan.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
-            )
-
-
+            message = f'{self.__class__.__name__} created plan had {len(plan.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
+            raise AgentOverThoughtRecoverableException(message)

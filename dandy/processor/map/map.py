@@ -1,23 +1,19 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Any, ClassVar
 
-from pydantic import json
-
 from dandy.core.future import AsyncFuture
-from dandy.processor.map.recorder import recorder_add_process_map_value_event, recorder_add_chosen_mappings_event
-
-from dandy.processor.processor import BaseProcessor
 from dandy.llm.mixin import LlmServiceMixin
-from dandy.processor.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.processor.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException
 from dandy.processor.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
+from dandy.processor.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
+from dandy.processor.map.recorder import recorder_add_process_map_value_event, recorder_add_chosen_mappings_event
 from dandy.processor.map.service import MapService
-from dandy.recorder.events import EventAttribute
+from dandy.processor.processor import BaseProcessor
 
 
 @dataclass(kw_only=True)
@@ -59,10 +55,12 @@ class Map(
         super().__init_subclass__()
 
         if cls.mapping_keys_description is None:
-            raise MapCriticalException(f'{cls.__name__} `mapping_keys_description` is not set.')
+            message = f'{cls.__name__} `mapping_keys_description` is not set.'
+            raise MapCriticalException(message)
 
         if cls.mapping is None:
-            raise MapCriticalException(f'{cls.__name__} `mapping` is not set.')
+            message = f'{cls.__name__} `mapping` is not set.'
+            raise MapCriticalException(message)
 
     def __post_init__(self):
         if self.mapping_keys_description is None:
@@ -73,7 +71,8 @@ class Map(
 
         for key in self.mapping.keys():
             if not isinstance(key, str):
-                raise MapCriticalException(f'Mapping keys must be strings, found {key} ({type(key)}).')
+                message = f'Mapping keys must be strings, found {key} ({type(key)}).'
+                raise MapCriticalException(message)
 
     def __getitem__(self, item):
         return self.mapping[item]
@@ -249,10 +248,12 @@ class Map(
             max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
-            raise MapNoKeysRecoverableException(f'No {self.mapping_keys_description} found.')
+            message = f'No {self.mapping_keys_description} found.'
+            raise MapNoKeysRecoverableException(message)
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
-            raise MapToManyKeysRecoverableException(f'Too many {self.mapping_keys_description} found.')
+            message = f'Too many {self.mapping_keys_description} found.'
+            raise MapToManyKeysRecoverableException(message)
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:
         return AsyncFuture[MapValuesIntel](self.process, *args, **kwargs)

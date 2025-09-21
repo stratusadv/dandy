@@ -1,13 +1,11 @@
 from pathlib import Path
 
-from typing import Union
-
 ALLOW_RECORDING_TO_FILE: bool = False
 
-BASE_PATH: Union[Path, str] = Path.cwd()
+BASE_PATH: Path | str = Path.cwd()
 
 CACHE_MEMORY_LIMIT: int = 1000
-CACHE_SQLITE_DATABASE_PATH: Union[Path, str] = BASE_PATH
+CACHE_SQLITE_DATABASE_PATH: Path | str = BASE_PATH
 CACHE_SQLITE_LIMIT: int = 10000
 
 DEBUG: bool = False
@@ -20,7 +18,7 @@ DEFAULT_LLM_MAX_INPUT_TOKENS: int = 8000
 DEFAULT_LLM_MAX_OUTPUT_TOKENS: int = 4000
 DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 DEFAULT_LLM_RANDOMIZE_SEED: bool = False
-DEFAULT_LLM_REQUEST_TIMEOUT: Union[int, None] = None
+DEFAULT_LLM_REQUEST_TIMEOUT: int | None = None
 DEFAULT_LLM_SEED: int = 77
 DEFAULT_LLM_TEMPERATURE: float = 0.7
 

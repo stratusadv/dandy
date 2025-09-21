@@ -1,7 +1,12 @@
 from typing import List
 
 
-def list_to_str(items: List, ordered: bool = False, indent: int = 0, ordered_number_prefix: str = '') -> str:
+def list_to_str(
+        items: List,
+        ordered: bool = False,
+        indent: int = 0,
+        ordered_number_prefix: str = ''
+) -> str:
     output_str = ''
     ordered_correction = 1
 

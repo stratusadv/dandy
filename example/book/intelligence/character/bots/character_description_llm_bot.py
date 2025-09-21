@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Union
-
 from typing import TYPE_CHECKING
 
 from dandy.cache import cache_to_sqlite
@@ -28,7 +26,7 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
             cls,
             book_intel: BookIntel,
             character_type: CharacterType,
-            characters_intel: Union[CharactersIntel, None] = None,
+            characters_intel: CharactersIntel | None = None,
     ) -> CharacterIntel:
         prompt = Prompt()
 

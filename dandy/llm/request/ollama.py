@@ -1,5 +1,6 @@
+from typing import List
+
 from pydantic import BaseModel
-from typing import Union, List
 
 from dandy.llm.request.message import RequestMessage, RoleLiteralStr
 from dandy.llm.request.request import BaseRequestBody
@@ -7,22 +8,22 @@ from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 class OllamaRequestOptions(BaseModel):
-    num_ctx: Union[int, None] = None
-    num_predict: Union[int, None] = None
-    seed: Union[int, None] = None
-    temperature: Union[float, None] = None
+    num_ctx: int | None = None
+    num_predict: int | None = None
+    seed: int | None = None
+    temperature: float | None = None
 
 
 class OllamaRequestBody(BaseRequestBody):
     options: OllamaRequestOptions
     stream: bool = False
-    format: Union[dict, None] = {}
+    format: dict | None = {}
 
     def add_message(
             self,
             role: RoleLiteralStr,
             content: str,
-            images: Union[List[str], None] = None
+            images: List[str] | None = None
     ) -> None:
         self.messages.append(
             RequestMessage(
@@ -42,13 +43,13 @@ class OllamaRequestBody(BaseRequestBody):
 
         return token_usage
 
-    def get_max_completion_tokens(self) -> int:
+    def get_max_completion_tokens(self) -> int | None:
         return self.options.num_predict
 
-    def get_seed(self):
+    def get_seed(self) -> int | None:
         return self.options.seed
 
-    def get_temperature(self):
+    def get_temperature(self) -> float | None:
         return self.options.temperature
 
     def set_format_to_json_schema(self, json_schema: dict):
