@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 
 from faker import Faker
 
+from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.processor.map.exceptions import MapRecoverableException, MapCriticalException
 from dandy.processor.map.map import Map
 from dandy.processor.processor import BaseProcessor
@@ -21,6 +22,7 @@ class TestLlmMap(TestCase):
                     123: 'this map is invalid as it needs string keys'
                 }
             )
+
     def test_llm_map(self):
         values = FunMap().process(
             'I enjoy seeing my dog every day and think animals are really cool. Give me two choices of things to do!',
@@ -76,13 +78,16 @@ class TestLlmMap(TestCase):
             {val: key for key, val in user_dictionary.items()}[values[0]]
         )
 
-    @mock.patch('dandy.http.connector.HttpConnector.post_request')
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
-        mock_post_request.return_value = {
-            'message': {
-                'content': '{"keys": []}',
+        mock_post_request.return_value = HttpResponseIntel(
+            status_code=200,
+            json={
+                'message': {
+                    'content': '{"keys": []}',
+                }
             }
-        }
+        )
 
         with self.assertRaises(MapRecoverableException):
             value = FunMap().process(
@@ -90,13 +95,16 @@ class TestLlmMap(TestCase):
                 2
             )
 
-    @mock.patch('dandy.http.connector.HttpConnector.post_request')
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
-        mock_post_request.return_value = {
-            'message': {
-                'content': '{"keys": ["1", "2", "3", "4"]}',
+        mock_post_request.return_value = HttpResponseIntel(
+            status_code=200,
+            json={
+                'message': {
+                    'content': '{"keys": ["1", "2", "3", "4"]}',
+                }
             }
-        }
+        )
 
         with self.assertRaises(MapRecoverableException):
             value = FunMap().process(

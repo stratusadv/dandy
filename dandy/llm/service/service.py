@@ -51,7 +51,7 @@ class LlmService(BaseService['LlmServiceMixin']):
             seed=self._llm_options.seed,
             temperature=self._llm_options.temperature,
         )
-        self._response_content = None
+        self._response_str = None
         self._retry_max_attempts = 0
         self._retry_attempt = 0
 
@@ -110,7 +110,8 @@ class LlmService(BaseService['LlmServiceMixin']):
             if self.obj_class.llm_intel_class:
                 intel_class = self.obj_class.llm_intel_class
             else:
-                raise LlmCriticalException('Must specify either intel_class, intel_object or llm_intel_class on the processor.')
+                raise LlmCriticalException(
+                    'Must specify either intel_class, intel_object or llm_intel_class on the processor.')
 
         if image_files:
             images = [] if images is None else images
@@ -158,26 +159,32 @@ class LlmService(BaseService['LlmServiceMixin']):
     ) -> IntelType:
         recorder_add_llm_request_event(self._request_body, self._intel_json_schema, self._event_id)
 
-        http_connector = HttpConnector(self._llm_config.http_config)
+        http_connector = HttpConnector()
 
-        self._response_content = self._llm_config.get_response_content(
-            http_connector.post_request(
-                self._request_body.model_dump()
+        http_request_intel = self._llm_config.http_request_intel
+        http_request_intel.json = self._request_body.model_dump()
+
+        self._response_str = self._llm_config.get_response_content(
+            http_connector.request_to_response(
+                request_intel=http_request_intel
             )
         )
 
-        recorder_add_llm_response_event(self._response_content, self._event_id)
+        recorder_add_llm_response_event(
+            message_content=self._response_str,
+            event_id=self._event_id
+        )
 
         try:
             intel_object = IntelFactory.json_to_intel_object(
-                self._response_content,
-                self._intel
+                json_str=self._response_str,
+                intel=self._intel
             )
 
             if intel_object is not None:
                 recorder_add_llm_success_event(
-                    'Validated response from prompt into intel object.',
-                    self._event_id,
+                    description='Validated response from prompt into intel object.',
+                    event_id=self._event_id,
                     intel=intel_object
                 )
 
@@ -210,7 +217,7 @@ class LlmService(BaseService['LlmServiceMixin']):
 
             self._request_body.add_message(
                 role='assistant',
-                content=self._response_content
+                content=self._response_str
             )
 
             self._request_body.add_message(

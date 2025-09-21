@@ -46,7 +46,7 @@ class IntelFactory:
     @classmethod
     def json_to_intel_object(
             cls,
-            json: str,
+            json_str: str,
             intel: BaseIntel | Type[BaseIntel]
     ) -> BaseIntel:
 
@@ -54,6 +54,6 @@ class IntelFactory:
             intel=intel,
             class_func=intel.model_validate_json,
             object_func=intel.model_validate_json_and_copy,
-            json_data=json
+            json_data=json_str
         )
 

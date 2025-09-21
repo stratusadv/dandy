@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from typing import List, Union
+from typing import List
 
 from dandy.core.config.config import BaseConfig
-from dandy.http.config import HttpConnectorConfig
+from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 from dandy.http.url import Url
 from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.request.request import BaseRequestBody
@@ -14,19 +14,20 @@ class BaseLlmConfig(BaseConfig):
             host: str,
             port: int,
             model: str,
-            path_parameters: Union[List[str], None] = None,
-            query_parameters: Union[dict, None] = None,
-            headers: Union[dict, None] = None,
-            api_key: Union[str, None] = None,
-            seed: Union[int, None] = None,
-            randomize_seed: Union[bool, None] = None,
-            max_input_tokens: Union[int, None] = None,
-            max_output_tokens: Union[int, None] = None,
-            temperature: Union[float, None] = None,
-            prompt_retry_count: Union[int, None] = None,
+            path_parameters: List[str] | None = None,
+            query_parameters: dict | None = None,
+            headers: dict | None = None,
+            api_key: str | None = None,
+            seed: int | None = None,
+            randomize_seed: bool | None = None,
+            max_input_tokens: int | None = None,
+            max_output_tokens: int | None = None,
+            temperature: float | None = None,
+            prompt_retry_count: int | None = None,
     ):
 
-        self.http_config = HttpConnectorConfig(
+        self.http_request_intel = HttpRequestIntel(
+            method='POST',
             url=Url(
                 host=host,
                 port=port,
@@ -34,8 +35,9 @@ class BaseLlmConfig(BaseConfig):
                 query_parameters=query_parameters,
             ),
             headers=headers,
-            basic_auth=api_key,
+            bearer_token=api_key,
         )
+
         self.model = model
 
         self.options = LlmConfigOptions(
@@ -71,15 +73,15 @@ class BaseLlmConfig(BaseConfig):
 
     @staticmethod
     @abstractmethod
-    def get_response_content(response) -> str:
-        ...
+    def get_response_content(response_intel: HttpResponseIntel) -> str:
+        raise NotImplementedError
 
     @abstractmethod
     def generate_request_body(
             self,
-            max_input_tokens: Union[int, None] = None,
-            max_output_tokens: Union[int, None] = None,
-            seed: Union[int, None] = None,
-            temperature: Union[float, None] = None,
+            max_input_tokens: int | None = None,
+            max_output_tokens: int | None = None,
+            seed: int | None = None,
+            temperature: float | None = None,
     ) -> BaseRequestBody:
         ...

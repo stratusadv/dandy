@@ -1,0 +1,70 @@
+from base64 import b64encode
+from typing import Any, Self
+from weakref import finalize
+
+import httpx
+
+from dandy.http.url import Url
+from dandy.intel.intel import BaseIntel
+
+
+class HttpResponseIntel(BaseIntel):
+    status_code: int
+    response_phrase: str | None = None
+    text: str | None = None
+    json: dict | None = None
+
+    @classmethod
+    def from_httpx_response(cls, httpx_response: httpx.Response) -> Self:
+        try:
+            json = httpx_response.json()
+        except ValueError:
+            json = {}
+
+        return HttpResponseIntel(
+            status_code=httpx_response.status_code,
+            response_phrase=httpx_response.reason_phrase,
+            text=httpx_response.text,
+            json=json
+        )
+
+
+class HttpRequestIntel(BaseIntel):
+    method: str
+    url: str | Url
+    params: dict | None = None
+    headers: dict | None = {
+        'Content-Type': 'text/html'
+    }
+    cookies: dict | None = None
+    content: str | None = None
+    data: dict | None = None
+    files: dict | None = None
+    json: dict | None = None
+    stream: bool | None = None
+    bearer_token: str | None = None
+
+    def model_post_init(self, context: Any):
+        self.generate_headers()
+
+    def as_httpx(self) -> httpx.Request:
+        if isinstance(self.url, Url):
+            self.url = self.url.to_str()
+
+        return httpx.Request(
+            **self.model_dump(
+                exclude={
+                    'bearer_token'
+                }
+            )
+        )
+
+    def generate_headers(self):
+        if self.bearer_token is not None:
+            if self.headers is None:
+                self.headers = {}
+
+            encoded_bearer_token = b64encode(f"Bearer:{self.bearer_token}".encode()).decode()
+
+            self.headers['Authorization'] = f'Basic {encoded_bearer_token}'
+

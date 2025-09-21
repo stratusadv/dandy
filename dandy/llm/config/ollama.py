@@ -1,5 +1,6 @@
 from typing import Union
 
+from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.llm.config.config import BaseLlmConfig
 from dandy.llm.request.ollama import OllamaRequestBody, OllamaRequestOptions
 from dandy.llm.request.request import BaseRequestBody
@@ -7,7 +8,7 @@ from dandy.llm.request.request import BaseRequestBody
 
 class OllamaLlmConfig(BaseLlmConfig):
     def __llm_config_post_init__(self):
-        self.http_config.url.path_parameters = [
+        self.http_request_intel.url.path_parameters = [
             'api',
             'chat',
         ]
@@ -31,7 +32,7 @@ class OllamaLlmConfig(BaseLlmConfig):
         )
 
     @staticmethod
-    def get_response_content(response) -> str:
-        return response['message']['content']
+    def get_response_content(response_intel: HttpResponseIntel) -> str:
+        return response_intel.json['message']['content']
 
 

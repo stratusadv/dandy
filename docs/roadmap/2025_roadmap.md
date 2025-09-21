@@ -1,16 +1,30 @@
 # 2025 Roadmap
 
+## December
+
+- Advanced Agents
+- Improved Vision
+
+## November
+
+- Text to Speech
+- Speech to Text
+
+## October
+
+- v1 Stable Release 📖
+
+## September
+
+- v1 Alpha Release 🚧
+
 ## August
 
-- Speech to Text
-- Text to Speech
-- Model Context Protocol (Prototype)
+- v1 Prototype ✅
 
 ## July
 
-- Guardrails System
-- User Input Cleaning Llm Bot (Contrib)
-- Correction & Negative Prompts 🚧
+- v1 Refactor ✅
 
 ## June
 
