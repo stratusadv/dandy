@@ -6,6 +6,7 @@ from pydantic.main import IncEx
 
 from dandy.conf import settings
 from dandy.http.mixin import HttpServiceMixin
+from dandy.intel.mixin import IntelServiceMixin
 from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.prompt import Prompt
@@ -14,7 +15,7 @@ from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
-from dandy.processor.agent.prompts import agent_do_task_prompt, agent_create_plan_prompt
+from dandy.processor.agent.intelligence.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
     recorder_add_llm_agent_start_task_event, recorder_add_llm_agent_completed_task_event, \
@@ -31,6 +32,7 @@ class Agent(
     BaseProcessor,
     LlmServiceMixin,
     HttpServiceMixin,
+    IntelServiceMixin,
     VisionProcessorMixin,
 ):
     plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS

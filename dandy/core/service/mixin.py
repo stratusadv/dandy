@@ -12,4 +12,5 @@ class BaseServiceMixin:
         super().__init_subclass__()
         for attr in cls._required_attrs:
             if getattr(cls, attr) is None:
-                raise ServiceCriticalException(f'"{cls.__name__}.{attr}" is not set')
+                message = f'"{cls.__name__}.{attr}" is not set'
+                raise ServiceCriticalException(message)

@@ -3,7 +3,6 @@ from pathlib import Path
 
 from typing import Callable
 
-from dandy.consts import RECORDING_DEFAULT_NAME
 from dandy.recorder import Recorder
 from dandy.recorder.recorder import DEFAULT_RECORDER_OUTPUT_PATH
 
@@ -12,10 +11,19 @@ def _recorder_to_file_decorator_function(
         func: Callable,
         args: tuple,
         kwargs: dict,
-        recording_name: str,
+        recording_name: str | None,
         renderer: str,
         path: Path | str,
 ):
+    if recording_name is None:
+        recording_name = (
+            str(func.__qualname__)
+            .replace('.', '_')
+            .replace('<', '')
+            .replace('>', '')
+            .lower()
+        )
+
     try:
         Recorder.start_recording(recording_name)
 
@@ -23,11 +31,11 @@ def _recorder_to_file_decorator_function(
 
     finally:
         Recorder.stop_recording(recording_name)
-        Recorder._to_file(recording_name, renderer, path)
+        Recorder.to_file(recording_name, renderer, path)
         Recorder.delete_recording(recording_name)
 
 
-def recorder_to_html_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_html_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -38,7 +46,7 @@ def recorder_to_html_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Pa
     return decorator
 
 
-def recorder_to_json_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_json_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -49,7 +57,7 @@ def recorder_to_json_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Pa
     return decorator
 
 
-def recorder_to_markdown_file(recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_markdown_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -58,5 +66,3 @@ def recorder_to_markdown_file(recording_name: str = RECORDING_DEFAULT_NAME, path
         return wrapper
 
     return decorator
-
-

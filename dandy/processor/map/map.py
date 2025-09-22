@@ -10,7 +10,7 @@ from dandy.llm.service.recorder import recorder_add_llm_failure_event
 from dandy.processor.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
     MapToManyKeysRecoverableException
 from dandy.processor.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
-from dandy.processor.map.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
+from dandy.processor.map.intelligence.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
 from dandy.processor.map.recorder import recorder_add_process_map_value_event, recorder_add_chosen_mappings_event
 from dandy.processor.map.service import MapService
 from dandy.processor.processor import BaseProcessor

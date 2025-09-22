@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import json
 from time import sleep
-from typing import TYPE_CHECKING
 
 import httpx
-from httpx import Response
 
 from dandy.conf import settings
 from dandy.core.connector.connector import BaseConnector
 from dandy.http.exceptions import HttpConnectorCriticalException
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
+
 
 class HttpConnector(BaseConnector):
     @staticmethod

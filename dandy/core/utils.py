@@ -14,7 +14,8 @@ from dandy.intel.intel import BaseIntel
 
 def encode_file_to_base64(file_path: str | Path) -> str:
     if not Path(file_path).is_file():
-        raise DandyCriticalException(f'File "{file_path}" does not exist')
+        message = f'File "{file_path}" does not exist'
+        raise DandyCriticalException(message)
 
     with open(file_path, 'rb') as f:
         return base64.b64encode(f.read()).decode('utf-8')

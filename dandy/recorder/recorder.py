@@ -98,7 +98,7 @@ class Recorder(Singleton):
             ).to_str()
 
     @classmethod
-    def _to_file(
+    def to_file(
             cls,
             recording_name: str,
             renderer: str,
@@ -129,7 +129,7 @@ class Recorder(Singleton):
             recording_name: str = RECORDING_DEFAULT_NAME,
             path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
-        cls._to_file(
+        cls.to_file(
             recording_name,
             'html',
             path
@@ -151,7 +151,7 @@ class Recorder(Singleton):
             recording_name: str = RECORDING_DEFAULT_NAME,
             path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
-        cls._to_file(
+        cls.to_file(
             recording_name,
             'json',
             path
@@ -173,7 +173,7 @@ class Recorder(Singleton):
             recording_name: str = RECORDING_DEFAULT_NAME,
             path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
     ):
-        cls._to_file(
+        cls.to_file(
             recording_name,
             'markdown',
             path

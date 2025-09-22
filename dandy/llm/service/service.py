@@ -104,7 +104,8 @@ class LlmService(BaseService['LlmServiceMixin']):
     ) -> IntelType:
 
         if intel_class and intel_object:
-            raise LlmCriticalException('Cannot specify both intel_class and intel_object.')
+            message = 'Cannot specify both intel_class and intel_object.'
+            raise LlmCriticalException(message)
 
         if intel_class is None and intel_object is None:
             if self.obj_class.llm_intel_class:
@@ -191,7 +192,7 @@ class LlmService(BaseService['LlmServiceMixin']):
                 return intel_object
 
             else:
-                raise LlmRecoverableException('Failed to validate response from prompt into intel object.')
+                raise LlmRecoverableException(message)
 
         except ValidationError as error:
             recorder_add_llm_failure_event(error, self._event_id)

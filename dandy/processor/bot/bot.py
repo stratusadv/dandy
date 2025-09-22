@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from dandy.http.mixin import HttpServiceMixin
+from dandy.intel.mixin import IntelServiceMixin
 from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.typing import PromptOrStr
@@ -15,6 +16,7 @@ class Bot(
     BaseProcessor,
     LlmServiceMixin,
     HttpServiceMixin,
+    IntelServiceMixin,
     VisionProcessorMixin,
 ):
     services: ClassVar[BotService] = BotService()

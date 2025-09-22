@@ -9,7 +9,14 @@ from dandy.llm.utils import get_image_mime_type_from_base64_string
 class OpenaiRequestBody(BaseRequestBody):
     stream: bool = False
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
-    response_format: dict = {'type': 'json_schema', 'json_schema': {'name': 'response', 'strict': False, 'schema': ...}}
+    response_format: dict = {
+        'type': 'json_schema',
+        'json_schema': {
+            'name': 'response',
+            'strict': False,
+            'schema': ...
+        }
+    }
     max_completion_tokens: int | None = None
     seed: int |None = None
     temperature: float | None = None
