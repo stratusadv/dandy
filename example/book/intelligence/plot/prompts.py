@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 if TYPE_CHECKING:
     from example.book.intelligence.plot.intel import PlotIntel

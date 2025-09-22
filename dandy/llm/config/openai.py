@@ -31,4 +31,4 @@ class OpenaiLlmConfig(BaseLlmConfig):
 
     @staticmethod
     def get_response_content(response_intel: HttpResponseIntel) -> str:
-        return response_intel.json['choices'][0]['message']['content']
+        return response_intel.json_data['choices'][0]['message']['content']

@@ -39,7 +39,7 @@ if __name__ == '__main__':
         )
 
     except DandyRecoverableException as e:
-        cookie_recipe_intel = CookieRecipeLlmBot.process(
+        cookie_recipe_intel = CookieRecipeLlmBot().process(
             prompt=(
                 Prompt()
                 .text('I love broccoli and oatmeal!')
@@ -49,12 +49,8 @@ if __name__ == '__main__':
             ),
         )
 
-    except DandyCriticalException as e:
-        # Please note this is just an example and not recommended practice
-        raise e 
-
-    except DandyException:
-        print('Failed to generate a cookie recipe ... please try again')
+    except DandyCriticalException as dandy_exception:
+        print(f'Failed to generate a cookie recipe for the following reason "{dandy_exception}" ... please try again')
 
     if cookie_recipe_intel:
         print(cookie_recipe_intel.model_dump_json(indent=4))

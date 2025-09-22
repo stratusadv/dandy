@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy import Prompt
 from example.book.intelligence.character.intel import CharactersIntel
 
 
@@ -7,7 +7,7 @@ def characters_intel_prompt(characters_intel: CharactersIntel) -> Prompt:
 
     prompt.heading('Characters:')
 
-    for character in characters_intel.characters:
+    for character in characters_intel:
         prompt.text(label='First Name', text=character.first_name)
         prompt.text(label='Last Name', text=character.last_name)
         prompt.text(label='Age', text=str(character.age))

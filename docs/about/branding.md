@@ -16,12 +16,6 @@ All the Dandy branding assets are provided here as a reference for you to use in
 
 ## Logo
 
-<p align="center">
-  <img src="/static/img/dandy_logo_512.png" />
-</p>
-
-## Icons
-
 ### Color
 
 <p align="center">

@@ -33,6 +33,6 @@ class OllamaLlmConfig(BaseLlmConfig):
 
     @staticmethod
     def get_response_content(response_intel: HttpResponseIntel) -> str:
-        return response_intel.json['message']['content']
+        return response_intel.json_data['message']['content']
 
 

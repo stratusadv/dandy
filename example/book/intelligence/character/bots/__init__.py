@@ -1,1 +1,1 @@
-from example.book.intelligence.character.bots.character_description_llm_bot import CharacterGeneratorLlmBot
+from example.book.intelligence.character.bots.character_description_bot import CharacterGeneratorBot

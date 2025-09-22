@@ -20,6 +20,8 @@ ALLOW_DEBUG_RECORDING = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
+# Standard OpenAI API config
+
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'openai',
@@ -30,7 +32,7 @@ LLM_CONFIGS = {
     }
 }
 
-# or
+# or if using the Ollama API
 
 LLM_CONFIGS = {
     'DEFAULT': {
@@ -38,21 +40,21 @@ LLM_CONFIGS = {
         'HOST': os.getenv("OLLAMA_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
         'API_KEY': os.getenv("OLLAMA_API_KEY"), 
-        'MODEL': 'llama3.1:8b',
+        'MODEL': 'gemma3:12b',
     },}
 ```
 
 ## Simple LLM Interaction
 
-Once you have Dandy setup and configured you can easily get started with a simple LLM interaction.
+Once you have Dandy setup and configured, you can easily get started with a simple LLM interaction.
 
 ```python exec="True" source="above" source="material-block"
 
 from dandy import Bot
 
-response = Bot().process('What is the capital of Canada?')
+response_intel = Bot().process('What is the capital of Canada?')
 
-print(response.content)
+print(response_intel.content)
 
 ```
 
@@ -60,4 +62,4 @@ print(response.content)
 
 Wow, that was easy ... we are only beginning to dive into the power of Dandy.
 
-If you have already got the [setup](../tutorials/setup.md) process complete you can skip right to the [intel tutorial](../tutorials/intel.md).
+If you have already got the [setup](../tutorials/setup.md) process complete you can skip right to the [intel tutorial](../tutorials/intel.md) and learn more about how Dandy works.

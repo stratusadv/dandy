@@ -1,8 +1,8 @@
+from typing import List
 
 from pydantic import Field
-from typing import List, Generator
 
-from dandy.intel.intel import BaseIntel
+from dandy import BaseIntel, BaseListIntel
 from example.book.intelligence.character.enums import CharacterType, CharacterAlignment
 
 
@@ -16,12 +16,5 @@ class CharacterIntel(BaseIntel):
     alignment: CharacterAlignment
 
 
-class CharactersIntel(BaseIntel):
-    characters: List[CharacterIntel] | None = Field(default_factory=list)
-
-    def __iter__(self) -> Generator[CharacterIntel]:
-        for character in self.characters:
-            yield character
-
-    def add_character(self, character: CharacterIntel) -> None:
-        self.characters.append(character)
+class CharactersIntel(BaseListIntel[CharacterIntel]):
+    characters: List[CharacterIntel] = Field(default_factory=list)

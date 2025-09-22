@@ -19,7 +19,7 @@ class HttpConnector(BaseConnector):
             status_code=0,
             response_phrase='',
             text='',
-            json={},
+            json_data={},
         )
 
         with httpx.Client(

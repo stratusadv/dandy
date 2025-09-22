@@ -26,13 +26,10 @@ The following list of concepts are good to understand before you start using Dan
 - __Typing__ - Dandy requires the use of [Typing](https://docs.python.org/3/library/typing.html){:target="_blank"} in a lot of its functionality.
 - __Classes__ - A strong understanding of [Classes](https://docs.python.org/3/tutorial/classes.html){:target="_blank"} will go a long way to make Dandy easier to develop.
 
-## Pyright Also Friend!
+## Onwards
 
-We highly recommend using [Pyright](https://microsoft.github.io/pyright/#/){:target="_blank"} during development with Dandy.
-Pyright is a great tool to help ensure that you are following the best practices for python development when using Dandy.
+Time to install with `pip install dandy` and then pick one of the options below. 
 
-!!! info
-
-    The use of pyright is recommended but we understand people have preferences on coding, 
-    and that's ok but we do suggest you have some type checking enabled during development.
+- [Quick Start](../getting_started/quick_start.md): Want to dive in a get something happening this quick start is for you!
+- [Tutorial](../tutorials/setup.md): All done with the above two? Let's get started and really learn how to use Dandy!
 

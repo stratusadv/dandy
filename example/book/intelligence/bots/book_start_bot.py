@@ -1,23 +1,21 @@
-from dandy.cache import cache_to_sqlite
-from dandy.llm import BaseLlmBot, Prompt
+from dandy import cache_to_sqlite, Bot, Prompt
 from example.book.intelligence.intel import BookStartIntel
 
 
-class BookStartLlmBot(BaseLlmBot):
+class BookStartLlmBot(Bot):
     instructions_prompt = (
         Prompt()
         .text('You are a book starting bot. You will be given an idea by the user.')
         .text('you will generate a book title and overview.')
     )
 
-    @classmethod
     @cache_to_sqlite('example')
     def process(
-            cls,
+            self,
             user_input: str,
     ) -> BookStartIntel:
 
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=Prompt(user_input),
             intel_class=BookStartIntel
         )

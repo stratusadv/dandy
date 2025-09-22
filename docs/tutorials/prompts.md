@@ -4,11 +4,11 @@
 
 We recommend using our `Prompt` class to create prompts as it provides a lot of extra features and capabilities over a simple string.
 
-The main advantage to this is that as feature and formatting improves over time for AI models, you can ensure that your project is using consistent formatting.
+The main advantage to this is that as `Prompt` feature and formatting improve over time for AI models, you can ensure that your project is using consistent formatting.
 
 ## Creating a Prompt
 
-Creating a new prompt is simple and can be done multiple ways each have their own pros and cons.
+Creating a new prompt is simple and can be done multiple ways each has their own pros and cons.
 
 ### Structured Style Prompt
 
@@ -130,7 +130,7 @@ print(new_prompt.to_str())
 
 !!! tip
 
-    Check out the [API Reference](../reference/) API documentation for more information on all the possibilities.
+    Check out the [API Reference](/reference/dandy/) API documentation for more information on all the possibilities.
 
 ## Advanced Prompts
 

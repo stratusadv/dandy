@@ -53,7 +53,7 @@ class HttpService(BaseService['HttpServiceMixin']):
                 content=content,
                 data=data,
                 files=files,
-                json=json,
+                json_data=json,
             )
         )
 

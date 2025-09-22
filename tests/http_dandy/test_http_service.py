@@ -14,7 +14,7 @@ class TestHttpService(TestCase):
             status_code=200,
             response_phrase='OK',
             text='ok',
-            json={'ok': True},
+            json_data={'ok': True},
         )
         
         def assert_request_and_return(request_intel: HttpRequestIntel):
@@ -29,7 +29,7 @@ class TestHttpService(TestCase):
             self.assertIsNone(request_intel.content)
             self.assertIsNone(request_intel.data)
             self.assertIsNone(request_intel.files)
-            self.assertIsNone(request_intel.json)
+            self.assertIsNone(request_intel.json_data)
             return expected_response
 
         mock_request_to_response.side_effect = assert_request_and_return
@@ -54,7 +54,7 @@ class TestHttpService(TestCase):
             status_code=201,
             response_phrase='Created',
             text='created',
-            json={'id': 1},
+            json_data={'id': 1},
         )
 
         def assert_request_and_return(request_intel: HttpRequestIntel):
@@ -67,7 +67,7 @@ class TestHttpService(TestCase):
             self.assertEqual(request_intel.content, 'raw-bytes')
             self.assertEqual(request_intel.data, {'k': 'v'})
             self.assertEqual(request_intel.files, {'file': b'data'})
-            self.assertEqual(request_intel.json, {'name': 'Item'})
+            self.assertEqual(request_intel.json_data, {'name': 'Item'})
             return expected_response
 
         mock_request_to_response.side_effect = assert_request_and_return

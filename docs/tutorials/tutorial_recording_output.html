@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dandy Debug: AKHF</title>
+    <title>Dandy Debug: 965I</title>
     <link rel="icon"
           href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJyZWQiIC8+Cjwvc3ZnPg=="
           type="image/svg+xml">
@@ -19,7 +19,7 @@
         }
 
         .bg-run {
-            background-color: #DDDDDD !important;
+            background-color: #DDE0DD !important;
         }
 
         .text-retry {
@@ -51,7 +51,7 @@
         }
 
         .bg-result {
-            background-color: #CCCCCC !important;
+            background-color: #D0CCCC !important;
         }
 
         .text-success {
@@ -78,16 +78,24 @@
             background-color: #FFCCCC !important;
         }
 
-        .text-item {
+        .text-other {
+            color: #9999BB !important;
+        }
+
+        .bg-other {
+            background-color: #EEEEF3 !important;
+        }
+
+        .text-attribute {
             color: #777777 !important;
         }
 
-        .bg-item {
+        .bg-attribute {
             background-color: #f9f9f9 !important;
         }
 
         .bg-top {
-            background-color: #F3F3F3 !important;
+            background-color: #FFFFFF !important;
         }
 
         .white-space-pre-wrap {
@@ -96,6 +104,10 @@
 
         .cursor-pointer {
             cursor: pointer !important;
+        }
+
+        .fs-7 {
+            font-size: 0.8rem !important;
         }
 
     </style>
@@ -110,24 +122,342 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('dandy_recording', () => ({
             init() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = false
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = false
                 }
             },
 
             open_all() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = true
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = true
                 }
             },
 
             close_all() {
-                for (let i = 0; i < this.recording.event_manager.events.length; i++) {
-                    this.recording.event_manager.events[i].show_details = false
+                for (let i = 0; i < this.recording.event_store.events.length; i++) {
+                    this.recording.event_store.events[i].show_details = false
                 }
             },
 
-            recording: {"name":"tutorial","is_running":false,"start_datetime":"2025-04-01T22:16:39.641837","stop_datetime":"2025-04-01T22:16:44.018298","run_time_seconds":4.376461,"event_manager":{"events":[{"id":"PUOX","object_name":"Llm Bot","callable_name":"Process","type":"run","items":[{"key":"Args","value":"[]","is_dropdown":false,"is_card":true,"is_base64_image":false},{"key":"Kwargs","value":"{\n    \"prompt\": \"Please tell me just the name only of the city that is the capital of Canada?\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806311.9619647,"run_time":0.0},{"id":"IKKK","object_name":"LLM Service","callable_name":"Request","type":"request","items":[{"key":"Model","value":"qwen2.5-coder:14b-instruct-q4_K_M","is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"Temperature","value":0.0,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"Estimated Tokens","value":51,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"JSON Schema","value":"{\n    \"properties\": {\n        \"text\": {\n            \"title\": \"Text\",\n            \"type\": \"string\"\n        }\n    },\n    \"required\": [\n        \"text\"\n    ],\n    \"title\": \"DefaultLlmIntel\",\n    \"type\": \"object\"\n}","is_dropdown":true,"is_card":false,"is_base64_image":false},{"key":"system","value":"You're a helpful assistant please follow the users instructions.\n\n### Rules:\n- Do not use any markdown styling in your response.\n","is_dropdown":false,"is_card":true,"is_base64_image":false},{"key":"user","value":"Please tell me just the name only of the city that is the capital of Canada?\n","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806311.9635259,"run_time":0.001561200013384223},{"id":"IKKK","object_name":"LLM Service","callable_name":"Response","type":"response","items":[{"key":"Estimated Tokens","value":5,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"LLM Response","value":"{ \"text\": \"Ottawa\" }","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806312.7704644,"run_time":0.8069385001435876},{"id":"IKKK","object_name":"LLM Service","callable_name":"Success","type":"success","items":[{"key":"Status","value":"Validated response from prompt into intel object.","is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"DefaultLlmIntel","value":"{\n    \"text\": \"Ottawa\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806312.770698,"run_time":0.00023359991610050201},{"id":"PUOX","object_name":"Llm Bot","callable_name":"Process Returned Result","type":"result","items":[{"key":"Returned Result","value":"{\n    \"text\": \"Ottawa\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806312.7708574,"run_time":0.00015940004959702492},{"id":"PUOX","object_name":"Llm Bot","callable_name":"Process","type":"run","items":[{"key":"Args","value":"[]","is_dropdown":false,"is_card":true,"is_base64_image":false},{"key":"Kwargs","value":"{\n    \"prompt\": \"Please describe the following city: Ottawa\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806312.7709753,"run_time":0.00011790008284151554},{"id":"9N23","object_name":"LLM Service","callable_name":"Request","type":"request","items":[{"key":"Model","value":"qwen2.5-coder:14b-instruct-q4_K_M","is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"Temperature","value":0.0,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"Estimated Tokens","value":42,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"JSON Schema","value":"{\n    \"properties\": {\n        \"text\": {\n            \"title\": \"Text\",\n            \"type\": \"string\"\n        }\n    },\n    \"required\": [\n        \"text\"\n    ],\n    \"title\": \"DefaultLlmIntel\",\n    \"type\": \"object\"\n}","is_dropdown":true,"is_card":false,"is_base64_image":false},{"key":"system","value":"You're a helpful assistant please follow the users instructions.\n\n### Rules:\n- Do not use any markdown styling in your response.\n","is_dropdown":false,"is_card":true,"is_base64_image":false},{"key":"user","value":"Please describe the following city: Ottawa\n","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806312.7731902,"run_time":0.0022148999851197004},{"id":"9N23","object_name":"LLM Service","callable_name":"Response","type":"response","items":[{"key":"Estimated Tokens","value":268,"is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"LLM Response","value":"{ \"text\": \"Ottawa is the capital city of Canada, located in the eastern part of the country. It's situated on the banks of the Ottawa River, which forms the boundary between Ontario and Quebec. The city has a population of around 940,000 people within its urban core, making it the fourth-largest city in Canada by population. Ottawa is known for its bilingualism, being one of the few officially bilingual cities in North America. It's also home to many government buildings, including Parliament Hill, which houses the Canadian House of Commons and Senate. The Rideau Canal, a UNESCO World Heritage Site, runs through the city and offers picturesque views during the winter when it's frozen over. Ottawa is often referred to as the 'City of Lakes' due to its numerous lakes and ponds, such as Rock Lake and Britannia Beach. The city has a diverse economy with sectors including technology, finance, and tourism. It also hosts various cultural events throughout the year, including the Ottawa International Jazz Festival and the Byward Market's winter farmers' market.\" }","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806316.3382031,"run_time":3.5650128999259323},{"id":"9N23","object_name":"LLM Service","callable_name":"Success","type":"success","items":[{"key":"Status","value":"Validated response from prompt into intel object.","is_dropdown":false,"is_card":false,"is_base64_image":false},{"key":"DefaultLlmIntel","value":"{\n    \"text\": \"Ottawa is the capital city of Canada, located in the eastern part of the country. It's situated on the banks of the Ottawa River, which forms the boundary between Ontario and Quebec. The city has a population of around 940,000 people within its urban core, making it the fourth-largest city in Canada by population. Ottawa is known for its bilingualism, being one of the few officially bilingual cities in North America. It's also home to many government buildings, including Parliament Hill, which houses the Canadian House of Commons and Senate. The Rideau Canal, a UNESCO World Heritage Site, runs through the city and offers picturesque views during the winter when it's frozen over. Ottawa is often referred to as the 'City of Lakes' due to its numerous lakes and ponds, such as Rock Lake and Britannia Beach. The city has a diverse economy with sectors including technology, finance, and tourism. It also hosts various cultural events throughout the year, including the Ottawa International Jazz Festival and the Byward Market's winter farmers' market.\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806316.3386386,"run_time":0.0004354999400675297},{"id":"PUOX","object_name":"Llm Bot","callable_name":"Process Returned Result","type":"result","items":[{"key":"Returned Result","value":"{\n    \"text\": \"Ottawa is the capital city of Canada, located in the eastern part of the country. It's situated on the banks of the Ottawa River, which forms the boundary between Ontario and Quebec. The city has a population of around 940,000 people within its urban core, making it the fourth-largest city in Canada by population. Ottawa is known for its bilingualism, being one of the few officially bilingual cities in North America. It's also home to many government buildings, including Parliament Hill, which houses the Canadian House of Commons and Senate. The Rideau Canal, a UNESCO World Heritage Site, runs through the city and offers picturesque views during the winter when it's frozen over. Ottawa is often referred to as the 'City of Lakes' due to its numerous lakes and ponds, such as Rock Lake and Britannia Beach. The city has a diverse economy with sectors including technology, finance, and tourism. It also hosts various cultural events throughout the year, including the Ottawa International Jazz Festival and the Byward Market's winter farmers' market.\"\n}","is_dropdown":false,"is_card":true,"is_base64_image":false}],"start_time":1806316.3388047,"run_time":0.00016609998419880867}]}}
+            recording: {
+    "name": "test_recorder",
+    "is_running": false,
+    "start_datetime": "2025-09-21T22:28:11.719396",
+    "stop_datetime": "2025-09-21T22:28:14.132867",
+    "token_usage": 434,
+    "run_time_seconds": 2.4129484998993576,
+    "event_count": 10,
+    "event_store": {
+        "events": [
+            {
+                "id": "UK9A",
+                "object_name": "Bot",
+                "callable_name": "Process",
+                "type": "run",
+                "attributes": [
+                    {
+                        "key": "Module",
+                        "value": "dandy.processor.bot.bot",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Args",
+                        "value": "[]",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Kwargs",
+                        "value": "{\n    \"prompt\": \"Please tell me just the name only of the city that is the capital of Canada?\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025762.4040702,
+                "token_usage": 0,
+                "run_time_seconds": 0.0
+            },
+            {
+                "id": "OTUH",
+                "object_name": "LLM Service",
+                "callable_name": "Request",
+                "type": "request",
+                "attributes": [
+                    {
+                        "key": "Model",
+                        "value": "qwen3-coder:30b",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Temperature",
+                        "value": 0.3,
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Max Context Tokens",
+                        "value": 32000,
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "JSON Schema",
+                        "value": "{\n    \"properties\": {\n        \"content\": {\n            \"title\": \"Content\",\n            \"type\": \"string\"\n        }\n    },\n    \"required\": [\n        \"content\"\n    ],\n    \"title\": \"DefaultIntel\",\n    \"type\": \"object\"\n}",
+                        "is_dropdown": true,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "system",
+                        "value": "You are a helpful assistant.\n### Rules:\n- Do not use any markdown styling in your response.\n",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "user",
+                        "value": "Please tell me just the name only of the city that is the capital of Canada?\n",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025762.4053561,
+                "token_usage": 75,
+                "run_time_seconds": 0.0012858998961746693
+            },
+            {
+                "id": "OTUH",
+                "object_name": "LLM Service",
+                "callable_name": "Response",
+                "type": "response",
+                "attributes": [
+                    {
+                        "key": "LLM Response",
+                        "value": "{\n  \"content\": \"Ottawa\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025763.1379878,
+                "token_usage": 6,
+                "run_time_seconds": 0.7326316999970004
+            },
+            {
+                "id": "OTUH",
+                "object_name": "LLM Service",
+                "callable_name": "Success",
+                "type": "success",
+                "attributes": [
+                    {
+                        "key": "Status",
+                        "value": "Validated response from prompt into intel object.",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "DefaultIntel",
+                        "value": "{\n    \"content\": \"Ottawa\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025763.1386012,
+                "token_usage": 0,
+                "run_time_seconds": 0.0006134000141173601
+            },
+            {
+                "id": "UK9A",
+                "object_name": "Bot",
+                "callable_name": "Process Returned Result",
+                "type": "result",
+                "attributes": [
+                    {
+                        "key": "Module",
+                        "value": "dandy.processor.bot.bot",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Returned Result",
+                        "value": "{\n    \"content\": \"Ottawa\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025763.138756,
+                "token_usage": 0,
+                "run_time_seconds": 0.00015480001457035542
+            },
+            {
+                "id": "D2P9",
+                "object_name": "Bot",
+                "callable_name": "Process",
+                "type": "run",
+                "attributes": [
+                    {
+                        "key": "Module",
+                        "value": "dandy.processor.bot.bot",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Args",
+                        "value": "[]",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Kwargs",
+                        "value": "{\n    \"prompt\": \"Please describe the following city: Ottawa\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025763.1389338,
+                "token_usage": 0,
+                "run_time_seconds": 0.0001778000732883811
+            },
+            {
+                "id": "RN2W",
+                "object_name": "LLM Service",
+                "callable_name": "Request",
+                "type": "request",
+                "attributes": [
+                    {
+                        "key": "Model",
+                        "value": "qwen3-coder:30b",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Temperature",
+                        "value": 0.3,
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Max Context Tokens",
+                        "value": 32000,
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "JSON Schema",
+                        "value": "{\n    \"properties\": {\n        \"content\": {\n            \"title\": \"Content\",\n            \"type\": \"string\"\n        }\n    },\n    \"required\": [\n        \"content\"\n    ],\n    \"title\": \"DefaultIntel\",\n    \"type\": \"object\"\n}",
+                        "is_dropdown": true,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "system",
+                        "value": "You are a helpful assistant.\n### Rules:\n- Do not use any markdown styling in your response.\n",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "user",
+                        "value": "Please describe the following city: Ottawa\n",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025763.1420848,
+                "token_usage": 66,
+                "run_time_seconds": 0.0031510000117123127
+            },
+            {
+                "id": "RN2W",
+                "object_name": "LLM Service",
+                "callable_name": "Response",
+                "type": "response",
+                "attributes": [
+                    {
+                        "key": "LLM Response",
+                        "value": "{ \"content\": \"Ottawa is the capital city of Canada, located in the province of Ontario. It sits on the south bank of the Rideau River, near the border with Quebec. The city is known for its bilingual nature, being officially recognized as both English and French-speaking. Ottawa has a population of around one million people and serves as the political center of Canada, housing government buildings, Parliament Hill, and numerous national institutions. The city features a mix of historic architecture and modern development, with notable landmarks including the Parliament Buildings, the National Gallery of Canada, and the Canadian War Museum. Ottawa is also famous for its beautiful parks and green spaces, particularly during the spring when cherry blossoms bloom throughout the city. The annual Canada Day celebrations and winter festivals like the Winterlude are major attractions. The city has a relatively mild climate compared to other Canadian cities, with warm summers and cold winters. It's well-connected by public transit, including a metro system, and serves as an important hub for government workers and international visitors.\" }",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025764.8169077,
+                "token_usage": 287,
+                "run_time_seconds": 1.674822899978608
+            },
+            {
+                "id": "RN2W",
+                "object_name": "LLM Service",
+                "callable_name": "Success",
+                "type": "success",
+                "attributes": [
+                    {
+                        "key": "Status",
+                        "value": "Validated response from prompt into intel object.",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "DefaultIntel",
+                        "value": "{\n    \"content\": \"Ottawa is the capital city of Canada, located in the province of Ontario. It sits on the south bank of the Rideau River, near the border with Quebec. The city is known for its bilingual nature, being officially recognized as both English and French-speaking. Ottawa has a population of around one million people and serves as the political center of Canada, housing government buildings, Parliament Hill, and numerous national institutions. The city features a mix of historic architecture and modern development, with notable landmarks including the Parliament Buildings, the National Gallery of Canada, and the Canadian War Museum. Ottawa is also famous for its beautiful parks and green spaces, particularly during the spring when cherry blossoms bloom throughout the city. The annual Canada Day celebrations and winter festivals like the Winterlude are major attractions. The city has a relatively mild climate compared to other Canadian cities, with warm summers and cold winters. It's well-connected by public transit, including a metro system, and serves as an important hub for government workers and international visitors.\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025764.8169636,
+                "token_usage": 0,
+                "run_time_seconds": 0.00005589995998889208
+            },
+            {
+                "id": "D2P9",
+                "object_name": "Bot",
+                "callable_name": "Process Returned Result",
+                "type": "result",
+                "attributes": [
+                    {
+                        "key": "Module",
+                        "value": "dandy.processor.bot.bot",
+                        "is_dropdown": false,
+                        "is_card": false,
+                        "is_base64_image": false
+                    },
+                    {
+                        "key": "Returned Result",
+                        "value": "{\n    \"content\": \"Ottawa is the capital city of Canada, located in the province of Ontario. It sits on the south bank of the Rideau River, near the border with Quebec. The city is known for its bilingual nature, being officially recognized as both English and French-speaking. Ottawa has a population of around one million people and serves as the political center of Canada, housing government buildings, Parliament Hill, and numerous national institutions. The city features a mix of historic architecture and modern development, with notable landmarks including the Parliament Buildings, the National Gallery of Canada, and the Canadian War Museum. Ottawa is also famous for its beautiful parks and green spaces, particularly during the spring when cherry blossoms bloom throughout the city. The annual Canada Day celebrations and winter festivals like the Winterlude are major attractions. The city has a relatively mild climate compared to other Canadian cities, with warm summers and cold winters. It's well-connected by public transit, including a metro system, and serves as an important hub for government workers and international visitors.\"\n}",
+                        "is_dropdown": false,
+                        "is_card": true,
+                        "is_base64_image": false
+                    }
+                ],
+                "start_time": 1025764.8170187,
+                "token_usage": 0,
+                "run_time_seconds": 0.00005509995389729738
+            }
+        ]
+    }
+}
         }))
     })
 </script>
@@ -153,21 +483,54 @@
 <div x-data="dandy_recording" class="container-fluid bg-light">
 
     <div class="row sticky-top bg-top py-1 mb-1 border-bottom border-dark shadow-sm">
-        <div class="col-auto px-4 pb-1">
-            <span class="fw-bold">Dandy v0.13.3 Recording Output: AKHF</span>
-            <span class="text-muted"><br>2025-04-01 22:16:44.020304</span>
+        <div class="col-lg-auto align-middle ps-3 pe-0 py-2 d-none d-lg-block">
+            <img style="height: 2.2rem;" src="https://dandysoftware.com/static/img/dandy_icon_128.png">
         </div>
-        <div class="col text-end pe-3 me-2">
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="open_all()"><i
-                    class="bi bi-arrows-expand"></i> Open All</a>
-            <a class="btn btn-outline-dark pt-1 mt-2 me-3 shadow-sm" @click="close_all()"><i
-                    class="bi bi-arrows-collapse"></i> Close All</a>
-            <span x-html="'Total Run Time<br>' + recording.run_time_seconds.toFixed(3) + 's'"
-                  class="float-end text-end pe-1 fw-bold"></span>
+        <div class="col-12 col-md-auto ps-3 pb-1">
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Dandy</span>
+                <br>
+                <span class="fw-bold">v1.0.0a1</span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Recording</span>
+                <br>
+                <span class="fw-bold">965I</span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Events</span>
+                <br>
+                <span class="fw-bold" x-html="recording.event_count"></span>
+            </div>
+            <div class="pe-4 float-start text-center">
+                <span class="fs-7 text-muted">Date & Time</span>
+                <br>
+                <span class="fw-bold" x-html="">2025-09-21 22:28</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md text-end pe-3 me-2">
+            <a class="btn btn-outline-dark pt-1 mt-2 me-2 shadow-sm" @click="open_all()"><i
+                    class="bi bi-arrows-expand"></i></a>
+
+            <a class="btn btn-outline-dark pt-1 mt-2 me-2 shadow-sm" @click="close_all()"><i
+                    class="bi bi-arrows-collapse"></i></a>
+
+            <div style="width: 90px;" class="float-end text-end pe-1 fw-bold">
+                <span class="fw-normal fs-7 text-muted">Run Time</span>
+                <br>
+                <span x-html="recording.run_time_seconds.toFixed(3) + 's'"></span>
+            </div>
+
+            <div style="width: 120px;" class="float-end text-end pe-1 fw-bold">
+                <span class="fw-normal fs-7 text-muted">Token Usage</span>
+                <br>
+                <span x-html="recording.token_usage.toLocaleString()"></span>
+            </div>
         </div>
     </div>
 
-    <template x-for="event in recording.event_manager.events">
+    <template x-for="event in recording.event_store.events">
 
         <div class="row mb-1">
     <div x-show="event.type === 'run'" class="col-12 text-center text-run pb-1">
@@ -186,7 +549,7 @@
         <i x-show="event.type === 'warning'"
            class="bi bi-exclamation-triangle text-warning ps-5 ms-5"></i>
         <i x-show="event.type === 'failure'" class="bi bi-x-lg text-failure ps-5 ms-5"></i>
-        <i x-show="event.type === 'other'" class="bi bi-question-circle text-other"></i>
+        <i x-show="event.type === 'other'" class="bi bi-question-diamond text-other"></i>
     </div>
 
     <div class="col">
@@ -213,34 +576,42 @@
                 <span x-text="event.object_name"></span>
                 <span><i class="bi bi-arrow-right"></i></span>
                 <span x-text="event.callable_name"></span>
-                <span x-text="event.run_time.toFixed(3) + 's'" class="float-end text-end"
-                      width="130px;"></span>
-                <span x-text="event.id" class="float-end text-center" style="width: 100px;"></span>
+                <span class="float-end text-end" style="width:90px;">
+                    <span x-show="event.run_time_seconds >= 0.001"
+                          x-text="event.run_time_seconds.toLocaleString(undefined, {minimumFractionDigits: 3}) + 's'"></span>
+                    <span x-show="event.run_time_seconds < 0.001">-</span>
+                </span>
+                <span class="float-end text-end" style="width: 100px;">
+                    <span x-show="event.token_usage > 0" x-text="event.token_usage.toLocaleString()"></span>
+                    <span x-show="event.token_usage <= 0">-</span>
+                </span>
+                <span x-text="event.id" class="float-end text-center" style="width: 70px;">
+                </span>
             </div>
 
             <div x-show="show_details" class="card-body p-2"
                  style="font-size: 0.85rem; font-family: 'Courier New', serif">
 
                 <table class="w-100">
-                    <template x-for="item in event.items">
+                    <template x-for="attribute in event.attributes">
                         <tbody>
 
-                        <template x-if="item.is_dropdown">
+                        <template x-if="attribute.is_dropdown">
                             <tr>
-                                <td colspan="2" x-data="{ show_item_value: false }">
+                                <td colspan="2" x-data="{ show_attribute_value: false }">
 
-                                    <div class="card bg-item shadow-sm mx-0 mt-2">
+                                    <div class="card bg-attribute shadow-sm mx-0 mt-2">
                                         <div class="card-body py-2 px-3">
                                             <div class="row">
                                                 <div class="col-12 cursor-pointer ps-2"
-                                                     x-on:click="show_item_value = !show_item_value">
-                                                    <i class="bi bi-caret-right" x-show="!show_item_value"></i>
-                                                    <i class="bi bi-caret-down" x-show="show_item_value"></i>
-                                                    <span x-text="item.key" class="text-item"></span>
+                                                     x-on:click="show_attribute_value = !show_attribute_value">
+                                                    <i class="bi bi-caret-right" x-show="!show_attribute_value"></i>
+                                                    <i class="bi bi-caret-down" x-show="show_attribute_value"></i>
+                                                    <span x-text="attribute.key" class="text-attribute"></span>
                                                 </div>
                                             </div>
-                                            <div x-show="show_item_value" class="row">
-                                                <div class="col-12 white-space-pre-wrap" x-text="item.value">
+                                            <div x-show="show_attribute_value" class="row">
+                                                <div class="col-12 white-space-pre-wrap" x-text="attribute.value">
                                                 </div>
                                             </div>
                                         </div>
@@ -250,17 +621,17 @@
                             </tr>
                         </template>
 
-                        <template x-if="item.is_card">
+                        <template x-if="attribute.is_card">
                             <tr>
                                 <td colspan="2">
-                                    <div class="card bg-item shadow-sm mx-0 mt-2 w-100">
+                                    <div class="card bg-attribute shadow-sm mx-0 mt-2 w-100">
                                         <div class="card-body py-2 px-3">
                                             <div class="row">
-                                                <div x-text="item.key + ':'" class="col-12 text-item">
+                                                <div x-text="attribute.key + ':'" class="col-12 text-attribute">
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div x-text="item.value" class="col-12 white-space-pre-wrap">
+                                                <div x-text="attribute.value" class="col-12 white-space-pre-wrap">
                                                 </div>
                                             </div>
                                         </div>
@@ -269,16 +640,17 @@
                             </tr>
                         </template>
 
-                        <template x-if="item.is_base64_image">
+                        <template x-if="attribute.is_base64_image">
                             <img x-bind:src="'data:' + detect_mime_type(image) + ';base64,' + image"
                                  alt="image"
                                  class="img-fluid rounded border shadow-sm my-2">
                         </template>
 
-                        <template x-if="!item.is_dropdown && !item.is_card && !item.is_base64_image">
+                        <template x-if="!attribute.is_dropdown && !attribute.is_card && !attribute.is_base64_image">
                             <tr>
-                                <td x-text="item.key + ':'" class="text-item align-top text-end pe-2" nowrap></td>
-                                <td x-text="item.value" class="w-100 white-space-pre-wrap"></td>
+                                <td x-text="attribute.key + ':'" class="text-attribute align-top text-end pe-2"
+                                    nowrap></td>
+                                <td x-text="attribute.value" class="w-100 white-space-pre-wrap"></td>
                             </tr>
                         </template>
 

@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from dandy.core.service.mixin import BaseServiceMixin
-from dandy.http.service import HttpService
+from dandy.intel.service import IntelService
 
 
 @dataclass(kw_only=True)
 class IntelServiceMixin(BaseServiceMixin):
-    intel: ClassVar[HttpService] = HttpService()
-    _IntelService_instance: HttpService | None = None
+    intel: ClassVar[IntelService] = IntelService()
+    _IntelService_instance: IntelService | None = None

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.llm import Prompt
+from dandy import Prompt
 from example.book.intelligence.character.prompts import characters_intel_prompt
 from example.book.intelligence.plot.prompts import plot_intel_prompt
 

@@ -1,14 +1,14 @@
-# LLM Map
+# Map
 
 ## Making Decisions
 
-Making choices and decisions is a core part of any intelligence system and we wanted to make that as easy as possible.
-The `LlmMap` can be used to make decisions or navigate choices with minimal configuration or code.
+Making choices and decisions is a core part of any intelligence system, and we wanted to make that as easy as possible.
+The `Map` can be used to make decisions or navigate choices with minimal configuration or code.
 
-## Basic LLM Map
+## Basic Map
 
-Here is a simple example of how to create a map using the `BaseLlmMap` that returns the family of an animal.
-Maps always return a list of values and this can be controlled by the `choice_count` argument which defaults to 1.
+Here is a simple example of how to create a `Map` that returns the family of an animal.
+Maps always return a list of values, and this can be controlled by the `choice_count` argument which defaults to 1.
 
 ```python exec="True" source="above" source="material-block" session="map"
 from dandy import Map
@@ -29,10 +29,10 @@ animal_families = AnimalFamilyMap().process(
 print(animal_families[0])
 ```
 
-## Advanced LLM Map
+## Advanced Map
 
 Maps can also be nested indefinitely and link to any value you want.
-While a map is traversing if it comes across another `LlmMap` or `Map` it will continue to traverse to get the values nested within.
+While a map is traversing if it comes across another `Map` it will continue to traverse to get the values nested within.
 
 ```python exec="True" source="above" source="material-block" session="map"
 from dandy import Map

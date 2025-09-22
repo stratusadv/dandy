@@ -1,3 +1,4 @@
+from pydantic import Field
 from typing import Optional
 
 from dandy.intel.intel import BaseIntel, BaseListIntel
@@ -9,4 +10,4 @@ class PlotPointIntel(BaseIntel):
 
 
 class PlotIntel(BaseListIntel[PlotPointIntel]):
-    pass
+    items: list[PlotPointIntel] = Field(default_factory=list)

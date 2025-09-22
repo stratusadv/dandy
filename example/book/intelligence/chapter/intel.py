@@ -1,5 +1,7 @@
 from typing import List
 
+from pydantic import Field
+
 from dandy.intel.intel import BaseIntel, BaseListIntel
 
 
@@ -15,4 +17,4 @@ class ChapterIntel(BaseIntel):
 
 
 class ChaptersIntel(BaseListIntel[ChapterIntel]):
-    pass
+    items: List[ChapterIntel] = Field(default_factory=list)

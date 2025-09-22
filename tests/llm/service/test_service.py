@@ -30,7 +30,7 @@ class TestService(TestCase):
     def test_pydantic_validation_error_retry_process_prompt_to_intel(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
-            json={
+            json_data={
                 'message': {
                     'content': '{"invalid_key": "Hello, World!"}',
                 }

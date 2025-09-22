@@ -163,7 +163,7 @@ class LlmService(BaseService['LlmServiceMixin']):
         http_connector = HttpConnector()
 
         http_request_intel = self._llm_config.http_request_intel
-        http_request_intel.json = self._request_body.model_dump()
+        http_request_intel.json_data = self._request_body.model_dump()
 
         self._response_str = self._llm_config.get_response_content(
             http_connector.request_to_response(

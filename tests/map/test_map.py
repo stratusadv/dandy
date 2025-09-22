@@ -82,7 +82,7 @@ class TestLlmMap(TestCase):
     def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
-            json={
+            json_data={
                 'message': {
                     'content': '{"keys": []}',
                 }
@@ -99,7 +99,7 @@ class TestLlmMap(TestCase):
     def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
-            json={
+            json_data={
                 'message': {
                     'content': '{"keys": ["1", "2", "3", "4"]}',
                 }

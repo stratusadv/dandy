@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
 
-from dandy.cache import cache_to_sqlite
-from dandy.llm import BaseLlmBot, Prompt
+from dandy import cache_to_sqlite, Bot, Prompt
 from example.book.intelligence.plot.intel import PlotPointIntel, PlotIntel
 from example.book.intelligence.plot.prompts import plot_intel_prompt
 from example.book.intelligence.prompts import book_intel_prompt
@@ -12,7 +11,7 @@ if TYPE_CHECKING:
     from example.book.intelligence.intel import BookIntel
 
 
-class PlotPointDescriptionLlmBot(BaseLlmBot):
+class PlotPointDescriptionBot(Bot):
     config = 'ADVANCED'
     instructions_prompt = (
         Prompt()
@@ -28,10 +27,9 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
         )
     )
 
-    @classmethod
     @cache_to_sqlite('example')
     def process(
-            cls,
+            self,
             plot_point_intel: PlotPointIntel,
             book_intel: BookIntel,
             previous_plot_point_intels: List[PlotPointIntel],
@@ -49,7 +47,7 @@ class PlotPointDescriptionLlmBot(BaseLlmBot):
 
         prompt.text(label='Current Plot Point Outline', text=plot_point_intel.outline)
 
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompt,
             intel_object=plot_point_intel,
             include_fields={'description'},

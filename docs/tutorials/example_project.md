@@ -29,14 +29,20 @@ on GitHub to view and understand the code structure in more detail.
 --8<-- "example/book/intelligence/prompts.py"
 ```
 
-### LLMBot
+### Bot
 
 ```py title="example/book/intelligence/bots/book_start_llm_bot.py"
---8<-- "example/book/intelligence/bots/book_start_llm_bot.py"
+--8<-- "example/book/intelligence/bots/book_start_bot.py"
 ```
 
-### Workflow
+### Advanced Bot
 
-```py title="example/book/intelligence/workflow.py"
---8<-- "example/book/intelligence/workflow.py"
+```py title="example/book/intelligence/chapter/bots/chapters_creation_bot.py"
+--8<-- "example/book/intelligence/chapter/bots/chapters_creation_bot.py"
+```
+
+### Map
+
+```py title="example/book/intelligence/map.py"
+--8<-- "example/book/intelligence/map.py"
 ```

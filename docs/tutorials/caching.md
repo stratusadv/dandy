@@ -6,6 +6,13 @@ Caching is a technique used to speed up the execution of a function by storing t
 
 The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the result of a function call.
 
+!!! warning
+
+    The caching system in Dandy is designed for performance and when it comes to cache keys it prioritizes speed.
+    In very complex situations Dandy may fail to generate a proper caching key which will prevent caching.
+    This is an extreme situation that will un likely affect most projects.
+    
+
 ## Adding Caching
 
 Let's make ourselves a map and add `@cache_to_memory` to the `process` method.
@@ -29,16 +36,17 @@ class NumberMap(Map):
     def process(self, *args, **kwargs):
         return super().process(*args, **kwargs)
     
+number_map = NumberMap()
 
 start_time = perf_counter()
 
-print(NumberMap().process('I really like dragon ball z')[0])
+print(number_map.process('I really like dragon ball z')[0])
 
 uncached_finish_time = perf_counter() - start_time
 
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
-print(NumberMap().process('I really like dragon ball z')[0])
+print(number_map.process('I really like dragon ball z')[0])
     
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 

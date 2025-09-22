@@ -1,15 +1,15 @@
-# LLM Bot
+# Bot
 
 ## What is a Bot
 
-In Dandy we want to make sure all the things you do have a distinct name to isolate them from your projects code.
-Bots should represent a distinct and singular thing you want to do within your project.
+In Dandy, we want to make sure all the things you do have a distinct name to isolate them from your project's code.
+Bots should represent a singular action you want to do within your project.
 
-## Create a Basic LLM Bot
+## Create a Basic Bot
 
-To create your own bot we are going to use the `BaseLlmBot` class from the `dandy.llm` module.
+To create your own bot, we are going to use the `Bot` class from the `dandy.llm` module.
 
-```python exec="True" source="above" source="material-block" session="llm_bot"
+```python exec="True" source="above" source="material-block" session="bot"
 from dandy import Bot, Prompt
 
 class AssistantBot(Bot):
@@ -25,13 +25,13 @@ intel = AssistantBot().process('Can you give me an idea for a book?')
 print(intel.content)
 ```
 
-## Advanced LLM Bot
+## Advanced Bot
 
 When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 
 Below is an example of how you can customize bots to make sure they work the way you want.
 
-```python exec="True" source="above" source="material-block" session="llm_bot"
+```python exec="True" source="above" source="material-block" session="bot"
 from dandy import BaseIntel, Bot, Prompt
 
 
@@ -85,4 +85,3 @@ candy_intel = CandyDesignBot().process(
 
 print(candy_intel)
 ```
-

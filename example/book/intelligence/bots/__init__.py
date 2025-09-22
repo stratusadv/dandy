@@ -1,1 +1,1 @@
-from example.book.intelligence.bots.book_start_llm_bot import BookStartLlmBot
+from example.book.intelligence.bots.book_start_bot import BookStartLlmBot

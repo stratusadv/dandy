@@ -10,7 +10,7 @@ pip install dandy
 
 !!! info
 
-    The Dandy package will aslo install the 
+    The Dandy package will also install 
     [`httpx`](https://www.python-httpx.org/), 
     [`pydantic`](https://docs.pydantic.dev/latest/) and
     [`python-dotenv`](https://github.com/theskumar/python-dotenv) packages.

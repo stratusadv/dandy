@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.cache import cache_to_sqlite
-from dandy.llm import BaseLlmBot, Prompt
+from dandy import cache_to_sqlite, Bot, Prompt
 from example.book.intelligence.character.enums import CharacterType
 from example.book.intelligence.character.intel import CharacterIntel
 from example.book.intelligence.character.prompts import characters_intel_prompt
@@ -13,17 +12,16 @@ if TYPE_CHECKING:
     from example.book.intelligence.character.intel import CharactersIntel
 
 
-class CharacterGeneratorLlmBot(BaseLlmBot):
+class CharacterGeneratorBot(Bot):
     config = 'ADVANCED'
     instructions_prompt = (
         Prompt()
         .text('You are a character generating bot, please create a character based on the provided input.')
     )
 
-    @classmethod
     @cache_to_sqlite('example')
     def process(
-            cls,
+            self,
             book_intel: BookIntel,
             character_type: CharacterType,
             characters_intel: CharactersIntel | None = None,
@@ -40,7 +38,7 @@ class CharacterGeneratorLlmBot(BaseLlmBot):
 
             prompt.prompt(characters_intel_prompt(characters_intel))
 
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompt,
             intel_class=CharacterIntel,
             postfix_system_prompt=Prompt().text(label='Set the Character Type to', text=character_type.value)

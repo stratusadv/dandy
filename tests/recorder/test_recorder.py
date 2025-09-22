@@ -22,9 +22,12 @@ RECORDING_OUTPUT_FILE_PATH = Path(
     f'{RECORDING_NAME}{RECORDING_POSTFIX_NAME}',
 )
 
+def get_capital_intel(country: str) -> BaseIntel:
+    capital_city_intel = Bot().process(
+        prompt=f'Please tell me just the name only of the city that is the capital of {country}?')
 
-class DefaultIntel(BaseIntel):
-    text: str
+    return Bot().process(
+        prompt=f'Please describe the following city: {capital_city_intel.content}')
 
 
 class TestRecorder(TestCase):
@@ -38,10 +41,7 @@ class TestRecorder(TestCase):
 
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().llm.prompt_to_intel(
-            prompt='How many countries are in the world?',
-            intel_class=DefaultIntel
-        )
+        _ = get_capital_intel('Canada')
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -49,39 +49,30 @@ class TestRecorder(TestCase):
 
     def test_record_to_html_file_decorator(self):
         @recorder_to_html_file(RECORDING_NAME)
-        def func():
-            _ = Bot().llm.prompt_to_intel(
-                prompt='How many countries are in the world?',
-                intel_class=DefaultIntel
-            )
+        def html_function():
+            _ = get_capital_intel('Canada')
 
-        func()
+        html_function()
 
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.html'), 'r') as f:
             self.assertTrue(f.read() != '')
 
     def test_record_to_json_file_decorator(self):
         @recorder_to_json_file(RECORDING_NAME)
-        def func():
-            _ = Bot().llm.prompt_to_intel(
-                prompt='How many countries are in the world?',
-                intel_class=DefaultIntel
-            )
+        def json_function():
+            _ = get_capital_intel('Canada')
 
-        func()
+        json_function()
 
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.json'), 'r') as f:
             self.assertTrue(f.read() != '')
 
     def test_record_to_md_file_decorator(self):
         @recorder_to_markdown_file(RECORDING_NAME)
-        def func():
-            _ = Bot().llm.prompt_to_intel(
-                prompt='How many countries are in the world?',
-                intel_class=DefaultIntel
-            )
+        def markdown_function():
+            _ = get_capital_intel('Canada')
 
-        func()
+        markdown_function()
 
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.md'), 'r') as f:
             self.assertTrue(f.read() != '')
@@ -95,10 +86,7 @@ class TestRecorder(TestCase):
     def test_recording_to_str(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().llm.prompt_to_intel(
-            prompt='How many countries are in the world?',
-            intel_class=DefaultIntel
-        )
+        _ = get_capital_intel('Canada')
 
         Recorder.stop_recording(RECORDING_NAME)
 
@@ -107,37 +95,11 @@ class TestRecorder(TestCase):
             self.assertTrue(render_method(RECORDING_NAME) != '')
             self.assertTrue(render_method(RECORDING_NAME) is not None)
 
-    def test_recorder_to_file(self):
-        Recorder.start_recording(RECORDING_NAME)
-
-        _ = Bot().llm.prompt_to_intel(
-            prompt='How many countries are in the world?',
-            intel_class=DefaultIntel
-        )
-
-        Recorder.stop_recording(RECORDING_NAME)
-
-        for renderer, extension in RENDERER_AND_EXTENSIONS:
-            render_method = getattr(Recorder, f'to_{renderer}_file')
-
-            render_method(
-                RECORDING_NAME,
-                DEFAULT_RECORDER_OUTPUT_PATH,
-            )
-
-            with open(
-                    RECORDING_OUTPUT_FILE_PATH.with_suffix(extension),
-                    'r',
-                    encoding='utf-8'
-            ) as f:
-                self.assertTrue(f.read() != '')
-
     def test_recorder_to_file_with_emoji(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().llm.prompt_to_intel(
+        _ = Bot().process(
             prompt='How many countries are in the 🌎? please respond with emojis!',
-            intel_class=DefaultIntel
         )
 
         Recorder.stop_recording(RECORDING_NAME)
@@ -164,7 +126,6 @@ class TestRecorder(TestCase):
         Recorder.check_recording_is_valid(RECORDING_NAME)
 
         invalid_recorder_name = f'invalid_{RECORDING_NAME}'
-        exception_message = f'Recording "{invalid_recorder_name}" does not exist. Choices are {list(Recorder.recordings.keys())}'
 
-        with self.assertRaises(RecorderCriticalException) as recorder_exception:
+        with self.assertRaises(RecorderCriticalException):
             Recorder.check_recording_is_valid(invalid_recorder_name)

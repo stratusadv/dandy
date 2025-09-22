@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy import Prompt
 from example.book.intelligence.chapter.intel import ChaptersIntel, ChapterIntel
 
 

@@ -31,7 +31,6 @@ class BaseProcessor(
 
             setattr(cls, '__getattribute__', __getattribute__)
 
-    @abstractmethod
     def process(self, *args, **kwargs) -> Any:
         raise NotImplementedError
 

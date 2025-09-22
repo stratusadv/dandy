@@ -1,3 +1,3 @@
-from example.book.intelligence.chapter.bots.chapters_llm_bot import ChaptersLlmBot
-from example.book.intelligence.chapter.bots.scene_llm_bot import SceneLlmBot
-from example.book.intelligence.chapter.bots.chapter_content_llm_bot import ChapterContentLlmBot
+from example.book.intelligence.chapter.bots.chapters_planning_bot import ChaptersLlmBot
+from example.book.intelligence.chapter.bots.scene_bot import SceneLlmBot
+from example.book.intelligence.chapter.bots.chapter_content_bot import ChapterContentLlmBot

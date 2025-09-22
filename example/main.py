@@ -1,16 +1,10 @@
 import logging
-import os
 
-from book.intelligence.workflow import BookWorkflow
-from dandy.cache import SqliteCache
-from dandy.core.exceptions import DandyException
-from dandy.recorder import Recorder
+from example.book.intelligence.bots.book_bot import BookBot
+from dandy import DandyException, Recorder
 
 if __name__ == '__main__':
     try:
-        # if os.getenv('DEBUG'):
-        #     SqliteCache.clear('example')
-
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
@@ -21,7 +15,7 @@ if __name__ == '__main__':
 
         logging.info('Creating a Book')
 
-        dandy_book = BookWorkflow.process(
+        dandy_book = BookBot().process(
             user_input="""It's 2035 and the dandy intelligence python library has changed the world for ever. In an effort
             to build awareness the people behind the library have created a working version of their lovable mascot the 
             dandy robot. He has now been turned on and given the directive to let the world know about the dandy library

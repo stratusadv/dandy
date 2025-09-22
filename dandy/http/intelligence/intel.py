@@ -1,6 +1,5 @@
 from base64 import b64encode
 from typing import Any, Self
-from weakref import finalize
 
 import httpx
 
@@ -12,21 +11,25 @@ class HttpResponseIntel(BaseIntel):
     status_code: int
     response_phrase: str | None = None
     text: str | None = None
-    json: dict | None = None
+    json_data: dict | None = None
 
     @classmethod
     def from_httpx_response(cls, httpx_response: httpx.Response) -> Self:
         try:
-            json = httpx_response.json()
+            json_data = httpx_response.json()
         except ValueError:
-            json = {}
+            json_data = {}
 
         return HttpResponseIntel(
             status_code=httpx_response.status_code,
             response_phrase=httpx_response.reason_phrase,
             text=httpx_response.text,
-            json=json
+            json_data=json_data
         )
+
+    @property
+    def json_str(self) -> str:
+        return self.text
 
 
 class HttpRequestIntel(BaseIntel):
@@ -40,7 +43,7 @@ class HttpRequestIntel(BaseIntel):
     content: str | None = None
     data: dict | None = None
     files: dict | None = None
-    json: dict | None = None
+    json_data: dict | None = None
     stream: bool | None = None
     bearer_token: str | None = None
 
@@ -52,11 +55,16 @@ class HttpRequestIntel(BaseIntel):
             self.url = self.url.to_str()
 
         return httpx.Request(
-            **self.model_dump(
-                exclude={
-                    'bearer_token'
-                }
-            )
+            method=self.method,
+            url=self.url,
+            params=self.params,
+            headers=self.headers,
+            cookies=self.cookies,
+            content=self.content,
+            data=self.data,
+            files=self.files,
+            json=self.json_data,
+            stream=self.stream,
         )
 
     def generate_headers(self):

@@ -22,7 +22,11 @@ class Book(BaseModel):
     chapters: List[Chapter]
 
     def to_markdown_file(self):
-        with open(Path(settings.BASE_PATH,  f'example_book.md'), 'w') as markdown:
-            markdown.write(
+        with open(
+                Path(settings.BASE_PATH, f'example_book.md'),
+                'w',
+                encoding='utf-8'
+        ) as markdown_file:
+            markdown_file.write(
                 python_obj_to_markdown(self.model_dump())
             )
