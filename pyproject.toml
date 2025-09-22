@@ -1,6 +1,6 @@
 [project]
 name = "dandy"
-description = "Intelligence Framework"
+description = "Python Artificial Intelligence Framework"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.md", content-type = "text/markdown" }
 authors = [
@@ -47,5 +47,5 @@ dandy = [
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "dandy.constants.__VERSION__" }
+version = { attr = "dandy.consts.__VERSION__" }
 dependencies = { file = "requirements.txt" }
