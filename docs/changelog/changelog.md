@@ -9,6 +9,7 @@
 ### Breaking
 
 - Almost all the Dandy API has been refactored in v1 and is not compatible with the v0 API.
+- Support for Python 3.10 has been dropped and now requires 3.11 or greater.
 - `Workflow` has been removed as we felt it was redundant and there are better more pythonic options.
 - `Bot`, `Map` and `Agent` are now designed to operate instance based instead of class based. 
 
