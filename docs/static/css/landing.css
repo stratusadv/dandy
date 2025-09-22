@@ -549,7 +549,7 @@ footer {
     font-weight: 700;
     font-family: 'Poppins', sans-serif;
     padding: 10px 60px;
-    transform: translate(-50%, -90%) rotate(-45deg);
+    transform: translate(-45%, -90%) rotate(-45deg);
     transform-origin: top right;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     letter-spacing: 0.5px;
