@@ -4,6 +4,7 @@ from typing import Any
 from pydantic import create_model
 from typing import Callable, Type, Dict, Tuple
 
+from dandy.core.typing.tools import get_typed_kwargs_from_callable_signature, get_typed_kwargs_from_simple_json_schema
 from dandy.core.typing.typed_kwargs import TypedKwargs
 from dandy.core.typing.typing import TypedKwargsDict
 from dandy.intel.exceptions import IntelCriticalException
@@ -16,20 +17,29 @@ class IntelClassGenerator:
             cls,
             callable_: Callable
     ) -> Type[BaseIntel]:
-        signature = inspect.signature(callable_)
 
-        typed_kwarg_dict = {}
-
-        for name, param in signature.parameters.items():
-            if param.annotation is inspect._empty:
-                message = f'Parameter {name} of {callable_} has no annotation'
-                raise IntelCriticalException(message)
-
-            typed_kwarg_dict[name] = (param.annotation, ...)
+        typed_kwargs = get_typed_kwargs_from_callable_signature(
+            callable_
+        )
 
         return cls.from_typed_kwargs(
             f'{callable_.__name__}Intel',
-            TypedKwargs(typed_kwarg_dict)
+            typed_kwargs,
+        )
+
+    @classmethod
+    def from_simple_json_schema(
+            cls,
+            simple_json_schema: dict | str,
+            class_name: str = 'SimpleJsonSchemaIntel',
+    ) -> Type[BaseIntel]:
+        typed_kwargs = get_typed_kwargs_from_simple_json_schema(
+            simple_json_schema,
+        )
+
+        return cls.from_typed_kwargs(
+            class_name,
+            typed_kwargs,
         )
 
     @staticmethod
@@ -42,4 +52,3 @@ class IntelClassGenerator:
             __base__=BaseIntel,
             **typed_kwargs
         )
-

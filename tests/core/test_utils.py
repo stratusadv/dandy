@@ -1,12 +1,11 @@
 import base64
 import os
-from pathlib import Path
 from unittest import TestCase
 
+from dandy.conf import settings
 from dandy.core.exceptions import DandyCriticalException
 from dandy.core.utils import json_default, encode_file_to_base64, python_obj_to_markdown
 from dandy.intel.intel import BaseIntel
-from dandy.conf import settings
 
 
 class TestCoreUtils(TestCase):

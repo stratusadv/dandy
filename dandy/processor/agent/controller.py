@@ -4,7 +4,7 @@ from typing import Union, Type
 from dandy.processor.agent.exceptions import AgentCriticalException
 from dandy.processor.bot.bot import Bot
 from dandy.processor.controller import BaseProcessorController
-from dandy.core.typing.tools import get_typed_kwargs_from_callable
+from dandy.core.typing.tools import get_typed_kwargs_from_callable_signature
 from dandy.intel.generator import IntelClassGenerator
 from dandy.llm.prompt.prompt import Prompt
 
@@ -48,12 +48,12 @@ class ProcessorController(BaseProcessorController):
             'exclude_fields': exclude_fields,
         }
 
-        required_processor_typed_kwargs = get_typed_kwargs_from_callable(
+        required_processor_typed_kwargs = get_typed_kwargs_from_callable_signature(
             callable_=self.processor().process,
             return_defaulted=False,
         )
 
-        if required_processor_typed_kwargs in get_typed_kwargs_from_callable(self.use):
+        if required_processor_typed_kwargs in get_typed_kwargs_from_callable_signature(self.use):
             processor_intel = self.processor().process(
                 **{
                     key: available_kwargs_and_values[key] for key in required_processor_typed_kwargs.keys() if
@@ -67,7 +67,7 @@ class ProcessorController(BaseProcessorController):
         else:
             processor_kwargs_intel_class = IntelClassGenerator.from_typed_kwargs(
                 intel_class_name=f'{self.processor.__qualname__}Intel',
-                typed_kwargs=get_typed_kwargs_from_callable(
+                typed_kwargs=get_typed_kwargs_from_callable_signature(
                     callable_=self.processor().process,
                 ),
             )

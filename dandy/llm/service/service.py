@@ -177,7 +177,7 @@ class LlmService(BaseService['LlmServiceMixin']):
         )
 
         try:
-            intel_object = IntelFactory.json_to_intel_object(
+            intel_object = IntelFactory.json_str_to_intel_object(
                 json_str=self._response_str,
                 intel=self._intel
             )

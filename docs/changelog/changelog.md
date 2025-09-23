@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0a2
+
+### Features
+
+- New `IntelService` available in the `Bot` for generating and controlling `BaseIntel` classes and objects. 
+
 ## v1.0.0a1
 
 ### Major Release
