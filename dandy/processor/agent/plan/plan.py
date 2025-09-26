@@ -16,7 +16,7 @@ class AgentPlanIntel(BaseIntel, Generic[AgentTaskIntelType]):
     def __len__(self) -> int:
         return len(self.tasks)
 
-    def model_post_init(self, context: Any):
+    def model_post_init(self, __context: Any):
         self.set_task_numbers()
 
     @property

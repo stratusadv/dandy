@@ -10,8 +10,8 @@ FROM_EMAIL_ADDRESS = 'a.person@some_place.com'
 
 class TestAgent(TestCase):
     def setUp(self) -> None:
-        MuseumEmailAgent.plan_time_limit_seconds = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
-        MuseumEmailAgent.plan_task_count_limit = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
+        MuseumEmailAgent.plan_time_limit_seconds = settings.AGENT_DEFAULT_PLAN_TIME_LIMIT_SECONDS
+        MuseumEmailAgent.plan_task_count_limit = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     def test_agent_import(self):
         from dandy.processor.agent.agent import Agent

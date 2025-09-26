@@ -5,12 +5,19 @@ from dandy.llm.service.intelligence.prompts import service_system_prompt, servic
 
 
 def get_estimated_token_count_for_prompt(
+        role: PromptOrStr,
         prompt: PromptOrStr,
+        task: PromptOrStrOrNone = None,
+        guidelines: PromptOrStrOrNone = None,
         postfix_system_prompt: PromptOrStrOrNone = None
 ) -> int:
 
     return service_system_prompt(
-        system_override_prompt=postfix_system_prompt
+        role=role,
+        task=task,
+        guidelines=guidelines,
+        system_override_prompt=None,
+        postfix_system_prompt=postfix_system_prompt
     ).estimated_token_count + service_user_prompt(prompt).estimated_token_count
 
 

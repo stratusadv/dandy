@@ -47,7 +47,7 @@ class HttpRequestIntel(BaseIntel):
     stream: bool | None = None
     bearer_token: str | None = None
 
-    def model_post_init(self, context: Any):
+    def model_post_init(self, __context: Any):
         self.generate_headers()
 
     def as_httpx_request(self) -> httpx.Request:

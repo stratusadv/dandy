@@ -7,6 +7,10 @@ from dandy.llm.utils import get_estimated_token_count_for_prompt, get_image_mime
 class TestLlmUtils(TestCase):
     def test_get_estimated_token_count_for_prompt(self):
         token_count = get_estimated_token_count_for_prompt(
+            role=(
+                Prompt()
+                .text('You are a useful assistant')
+            ),
             prompt=(
                 Prompt()
                 .text('Hello World')

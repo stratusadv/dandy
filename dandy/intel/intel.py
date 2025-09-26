@@ -168,7 +168,7 @@ class BaseIntel(BaseModel, ABC):
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     _list_name: str = PrivateAttr(default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, __context: Any):
         list_fields = [
             name for name, field in self.__class__.model_fields.items()
             if get_origin(field.annotation) is list
