@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Example" type="PythonConfigurationType" factoryName="Python">
     <module name="dandy" />
-    <option name="ENV_FILES" value="$PROJECT_DIR$/development.env" />
+    <option name="ENV_FILES" value="$USERPROFILE$/PycharmProjects/dandy/development.env" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
@@ -9,12 +9,12 @@
       <env name="DANDY_SETTINGS_MODULE" value="example.dandy_settings" />
     </envs>
     <option name="SDK_HOME" value="" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="WORKING_DIRECTORY" value="$USERPROFILE$/PycharmProjects/dandy" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/main.py" />
+    <option name="SCRIPT_NAME" value="$USERPROFILE$/PycharmProjects/dandy/example/main.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />

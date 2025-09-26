@@ -50,7 +50,7 @@ class HttpRequestIntel(BaseIntel):
     def model_post_init(self, context: Any):
         self.generate_headers()
 
-    def as_httpx(self) -> httpx.Request:
+    def as_httpx_request(self) -> httpx.Request:
         if isinstance(self.url, Url):
             self.url = self.url.to_str()
 

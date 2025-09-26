@@ -8,7 +8,7 @@ from dandy.conf import settings
 
 
 def cache_to_sqlite(
-        cache_name: str = dandy.consts.DEFAULT_CACHE_NAME,
+        cache_name: str = dandy.consts.CACHE_DEFAULT_NAME,
         limit: int = settings.CACHE_SQLITE_LIMIT
 ) -> Callable:
     def decorator(func):

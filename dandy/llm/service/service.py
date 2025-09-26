@@ -30,7 +30,6 @@ if TYPE_CHECKING:
 
 class LlmService(BaseService['LlmServiceMixin']):
     obj: LlmServiceMixin
-    Prompt: Prompt = Prompt
 
     def __post_init__(self):
         self._event_id = generate_new_recorder_event_id()
@@ -54,37 +53,6 @@ class LlmService(BaseService['LlmServiceMixin']):
         self._response_str = None
         self._retry_max_attempts = 0
         self._retry_attempt = 0
-
-    def _generate_system_prompt_str(
-            self,
-            postfix_system_prompt: PromptOrStrOrNone
-    ) -> str:
-        if self.obj.llm_system_override_prompt:
-            system_override_prompt = self.Prompt()
-            system_override_prompt.prompt(self.obj.llm_system_override_prompt)
-
-            system_override_prompt.line_break()
-            system_override_prompt.prompt(self.obj.llm_instructions_prompt)
-
-            if postfix_system_prompt:
-                system_override_prompt.line_break()
-                system_override_prompt.prompt(postfix_system_prompt)
-
-            system_prompt_str = system_override_prompt.to_str()
-
-        else:
-            system_prompt = Prompt()
-            system_prompt.prompt(self.obj.llm_instructions_prompt)
-
-            if postfix_system_prompt:
-                system_prompt.line_break()
-                system_prompt.prompt(postfix_system_prompt)
-
-            system_prompt_str = service_system_prompt(
-                system_prompt=system_prompt
-            ).to_str()
-
-        return system_prompt_str
 
     @property
     def has_retry_attempts_available(self) -> bool:
@@ -134,7 +102,13 @@ class LlmService(BaseService['LlmServiceMixin']):
 
         self._request_body.add_message(
             role='system',
-            content=self._generate_system_prompt_str(postfix_system_prompt)
+            content=service_system_prompt(
+                role=self.obj.llm_role,
+                task=self.obj.llm_task,
+                guidelines=self.obj.llm_guidelines,
+                system_override_prompt=self.obj.llm_system_override_prompt,
+                postfix_system_prompt=postfix_system_prompt,
+            ).to_str()
         )
 
         if message_history:

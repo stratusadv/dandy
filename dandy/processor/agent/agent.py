@@ -35,8 +35,8 @@ class Agent(
     IntelServiceMixin,
     VisionProcessorMixin,
 ):
-    plan_time_limit_seconds: int = settings.DEFAULT_AGENT_PLAN_TIME_LIMIT_SECONDS
-    plan_task_count_limit: int = settings.DEFAULT_AGENT_PLAN_TASK_COUNT_LIMIT
+    plan_time_limit_seconds: int = settings.AGENT_DEFAULT_PLAN_TIME_LIMIT_SECONDS
+    plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     processors: Sequence[Type[BaseProcessor]] = (
         Bot,
@@ -161,7 +161,7 @@ class Agent(
         plan = self.llm.prompt_to_intel(
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
-                instructions_prompt=self.llm_instructions_prompt,
+                instructions_prompt=self.llm_role,
                 processors_strategy=self._processors_strategy,
             ),
             intel_class=LlmAgentPlanIntel,

@@ -157,7 +157,7 @@ class Map(
             intel_class = MapKeyIntel[self.as_enum()]
 
         system_prompt = Prompt()
-        system_prompt.prompt(self.llm_instructions_prompt)
+        system_prompt.prompt(self.llm_role)
         system_prompt.text(f'You\'re an "{self.mapping_keys_description}" assistant')
 
         system_prompt.line_break()

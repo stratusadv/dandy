@@ -32,7 +32,7 @@ When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 Below is an example of how you can customize bots to make sure they work the way you want.
 
 ```python exec="True" source="above" source="material-block" session="bot"
-from dandy import BaseIntel, Bot, Prompt
+from dandy import BaseIntel, Bot, Prompt, LlmConfigOptions
 
 
 class CandyIntel(BaseIntel):
@@ -43,18 +43,23 @@ class CandyIntel(BaseIntel):
 
 class CandyDesignBot(Bot):
     llm_config = 'LLAMA_3_2_3B'
-    # llm_config_options = LlmConfigOptions(
-    #     temperature=0.1,
-    #     max_input_tokens=2000,
-    #     max_output_tokens=2000,
-    #     prompt_retry_count=3,
-    #     randomize_seed=True
-    # )
-    instructions_prompt = (
+    llm_config_options = LlmConfigOptions(
+        temperature=0.1,
+        max_input_tokens=2000,
+        max_output_tokens=2000,
+        prompt_retry_count=3,
+        randomize_seed=True
+    )
+    llm_role = (
         Prompt()
-        .text('You are a candy design bot and will be given a request to make a new type of candy.')
+        .text('You are a candy design bot.')
         .line_break()
-        .heading('Rules')
+    )
+    llm_task = (
+        Prompt('Use the request to make a new type of candy')
+    )
+    llm_guidelines = (
+        Prompt()
         .list([
             'Make sure you response is sugar based not chocolate based.',
             'Do not include any chocolate based words or phrases in the response.',

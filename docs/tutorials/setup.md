@@ -67,3 +67,13 @@ export DANDY_SETTINGS_MODULE=dandy_settings
 !!! note
 
     If the `DANDY_SETTINGS_MODULE` environment variable is not set, the system will default to look for a `dandy_settings.py` file in the current working directory or sys.path.
+
+## More Settings
+
+There are more settings you can configure in your project see below for more information.
+
+```py title="dandy/default_settings.py"
+--8<-- "dandy/default_settings.py"
+```
+
+

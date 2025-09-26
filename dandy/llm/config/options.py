@@ -26,27 +26,27 @@ class LlmConfigOptions:
         if self._randomize_seed:
             return generate_random_seed()
 
-        return self._seed if self._seed is not None else settings.DEFAULT_LLM_SEED
+        return self._seed if self._seed is not None else settings.LLM_DEFAULT_SEED
 
     @property
     def randomize_seed(self) -> bool:
-        return self._randomize_seed if self._randomize_seed is not None else settings.DEFAULT_LLM_RANDOMIZE_SEED
+        return self._randomize_seed if self._randomize_seed is not None else settings.LLM_DEFAULT_RANDOMIZE_SEED
 
     @property
     def max_input_tokens(self) -> int:
-        return self._max_input_tokens if self._max_input_tokens is not None else settings.DEFAULT_LLM_MAX_INPUT_TOKENS
+        return self._max_input_tokens if self._max_input_tokens is not None else settings.LLM_DEFAULT_MAX_INPUT_TOKENS
 
     @property
     def max_output_tokens(self) -> int:
-        return self._max_output_tokens if self._max_output_tokens is not None else settings.DEFAULT_LLM_MAX_OUTPUT_TOKENS
+        return self._max_output_tokens if self._max_output_tokens is not None else settings.LLM_DEFAULT_MAX_OUTPUT_TOKENS
 
     @property
     def temperature(self) -> float:
-        return self._temperature if self._temperature is not None else settings.DEFAULT_LLM_TEMPERATURE
+        return self._temperature if self._temperature is not None else settings.LLM_DEFAULT_TEMPERATURE
 
     @property
     def prompt_retry_count(self) -> int:
-        return self._prompt_retry_count if self._prompt_retry_count is not None else settings.DEFAULT_LLM_PROMPT_RETRY_COUNT
+        return self._prompt_retry_count if self._prompt_retry_count is not None else settings.LLM_DEFAULT_PROMPT_RETRY_COUNT
 
     def merge_to_copy(self, secondary_options: Self) -> Self:
         """

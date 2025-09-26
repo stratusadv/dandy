@@ -8,7 +8,7 @@ from dandy.conf import settings
 
 
 def cache_to_memory(
-        cache_name: str = dandy.consts.DEFAULT_CACHE_NAME,
+        cache_name: str = dandy.consts.CACHE_DEFAULT_NAME,
         limit: int = settings.CACHE_MEMORY_LIMIT
 ) -> Callable:
     def decorator(func):

@@ -10,7 +10,7 @@ def get_estimated_token_count_for_prompt(
 ) -> int:
 
     return service_system_prompt(
-        system_prompt=postfix_system_prompt
+        system_override_prompt=postfix_system_prompt
     ).estimated_token_count + service_user_prompt(prompt).estimated_token_count
 
 

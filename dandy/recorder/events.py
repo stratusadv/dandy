@@ -1,8 +1,11 @@
+import logging
 from enum import Enum
 from time import perf_counter
 
 from pydantic import BaseModel, Field
 from typing import Self, Any, List
+
+from dandy.conf import settings
 
 
 class EventType(str, Enum):
@@ -34,6 +37,10 @@ class Event(BaseModel):
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
     run_time_seconds: float = 0.0
+
+    if settings.DEBUG:
+        def model_post_init(self, **kwargs):
+            logging.debug(str(self))
 
     def calculate_run_time(self, pre_event: Self):
         self.run_time_seconds = self.start_time - pre_event.start_time

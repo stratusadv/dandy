@@ -4,7 +4,7 @@ __VERSION__ = '1.0.0a1'
 
 SQLITE_CACHE_TABLE_NAME = 'cache'
 SQLITE_CACHE_DB_NAME = 'dandy_cache.db'
-DEFAULT_CACHE_NAME: str = 'dandy'
+CACHE_DEFAULT_NAME: str = 'dandy'
 CACHE_KEY_HASH_LAYER_LIMIT = 3 # This should be set to 3 as anything higher will pull in unwanted attributes for caching.
 
 # LLM

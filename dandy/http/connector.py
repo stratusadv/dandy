@@ -28,7 +28,7 @@ class HttpConnector(BaseConnector):
             for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
                 response_intel = HttpResponseIntel.from_httpx_response(
                     client.send(
-                        request_intel.as_httpx()
+                        request_intel.as_httpx_request()
                     )
                 )
 

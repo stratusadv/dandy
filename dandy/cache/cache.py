@@ -28,7 +28,7 @@ class BaseCache(ABC, BaseModel):
 
     @classmethod
     @abstractmethod
-    def clear(cls, cache_name: str = dandy.consts.DEFAULT_CACHE_NAME):
+    def clear(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
         pass
 
     @classmethod

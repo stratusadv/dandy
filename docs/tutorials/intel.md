@@ -57,12 +57,14 @@ We can use the `BaseListIntel` class to do that.
 
 from dandy import BaseListIntel
 
-class ClownListIntel(BaseListIntel):
-    items: list[ClownIntel]
 
-clowns_intel = ClownListIntel(items=[
+class ClownsIntel(BaseListIntel):
+    clowns: list[ClownIntel]
+
+
+clowns_intel = ClownsIntel(items=[
     ClownIntel(clown_name='Bozo', can_juggle=True),
-    ClownIntel(clown_name='Bimbo', can_juggle=False),    
+    ClownIntel(clown_name='Bimbo', can_juggle=False),
     ClownIntel(clown_name='Bongo', can_juggle=True),
 ])
 

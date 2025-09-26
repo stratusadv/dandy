@@ -2,22 +2,44 @@ from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStrOrNone
+from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
 
 
 def service_system_prompt(
-        system_prompt: PromptOrStrOrNone = None
+        role: PromptOrStr,
+        task: PromptOrStrOrNone = None,
+        guidelines: PromptOrStrOrNone = None,
+        system_override_prompt: PromptOrStrOrNone = None,
+        postfix_system_prompt: PromptOrStrOrNone = None,
 ) -> Prompt:
     prompt = Prompt()
 
-    if isinstance(system_prompt, Prompt):
-        prompt.prompt(system_prompt)
+    prompt.sub_heading('Role')
+    prompt.prompt(role)
+
+    if task:
+        prompt.line_break()
+        prompt.sub_heading('Task')
+        prompt.prompt(task)
+
+    if guidelines:
+        prompt.line_break()
+        prompt.sub_heading('Guidelines')
+        prompt.prompt(guidelines)
 
     prompt.line_break()
-    prompt.sub_heading('Rules:')
-    prompt.list([
-        'Do not use any markdown styling in your response.',
-    ])
+    prompt.sub_heading('Rules')
+    if system_override_prompt:
+        prompt.prompt(system_override_prompt)
+    else:
+        prompt.line_break()
+        prompt.list([
+            'Do not use any markdown styling in your response.',
+        ])
+
+    if postfix_system_prompt:
+        prompt.line_break()
+        prompt.prompt(postfix_system_prompt)
 
     return prompt
 

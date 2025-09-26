@@ -108,7 +108,7 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     @classmethod
-    def clear(cls, cache_name: str = dandy.consts.DEFAULT_CACHE_NAME):
+    def clear(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
         if cls._table_exists():
             with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
                 cursor = connection.cursor()
@@ -127,5 +127,5 @@ class SqliteCache(BaseCache):
                 connection.commit()
 
     @classmethod
-    def destroy_all(cls, cache_name: str = dandy.consts.DEFAULT_CACHE_NAME):
+    def destroy_all(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
         SqliteConnection(SQLITE_CACHE_DB_NAME).delete_db_file()

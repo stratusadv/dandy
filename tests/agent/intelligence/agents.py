@@ -8,7 +8,7 @@ from tests.agent.intelligence.maps import MuseumSubjectMap
 
 
 class MuseumEmailAgent(Agent):
-    llm_instructions_prompt = (
+    llm_role = (
         Prompt()
         .text('Write an email to a museum based on the users request, the users provided email address will always be the from address for the final email.')
         .text('Figure out what subject the user would be most interested and make sure to note that in the email.')
