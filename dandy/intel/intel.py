@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Type
+from typing import Type, Any
 
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.main import IncEx, create_model
@@ -96,7 +96,10 @@ class BaseIntel(BaseModel, ABC):
                         raise IntelCriticalException(message)
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
-            field_factory = field_info.default_factory or field_info.default
+
+            # Todo: this is creating the warning when running test on the Agent (Debug)
+            # field_factory = field_info.default_factory or field_info.default
+            field_factory = field_info.default_factory
 
             if isinstance(include_value, Dict) or isinstance(exclude_value, Dict):
 
@@ -109,14 +112,17 @@ class BaseIntel(BaseModel, ABC):
                     )
 
                     processed_fields[field_name] = (
-                        new_sub_model if field_annotation.origin is None else field_annotation.origin[new_sub_model],
+                        new_sub_model if field_annotation.origin is None else field_annotation.origin[
+                            new_sub_model
+                        ],
                         field_factory,
                     )
 
                 else:
                     processed_fields[field_name] = (
                         field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[
-                            field_annotation.first_inner],
+                            field_annotation.first_inner
+                        ],
                         field_factory,
                     )
 

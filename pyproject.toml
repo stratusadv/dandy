@@ -37,10 +37,6 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-
-[tool.pyright]
-pythonVersion = "3.11"
-
 [tool.setuptools.package-data]
 dandy = [
     "**/*.html",
@@ -49,3 +45,6 @@ dandy = [
 [tool.setuptools.dynamic]
 version = { attr = "dandy.consts.__VERSION__" }
 dependencies = { file = "requirements.txt" }
+
+[tool.ruff]
+extend = "ruff.toml"

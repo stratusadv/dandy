@@ -15,6 +15,16 @@ def recorder_add_process_map_value_event(
         event_id: str,
         mapping_name: str | None = None,
 ):
+
+    processed_mapping = {}
+    for key, value in map.mapping.items():
+        if isinstance(value, (str, int, float)):
+            processed_mapping[key] = value
+        if isinstance(value, type):
+            processed_mapping[key] = value.__name__
+        else:
+            processed_mapping[key] = value.__class__.__name__
+
     Recorder.add_event(
         Event(
             id=event_id,
@@ -28,7 +38,7 @@ def recorder_add_process_map_value_event(
                 ),
                 EventAttribute(
                     key='Mapping',
-                    value=map.mapping,
+                    value=processed_mapping,
                 ),
             ]
         )
@@ -39,9 +49,13 @@ def recorder_add_chosen_mappings_event(
         chosen_mappings: dict[Any, str],
         event_id: str,
 ):
-    chosen_mappings = {
-        str(key): value for key, value in chosen_mappings.items()
-    }
+
+    processed_chosen_mappings = {}
+    for key, value in chosen_mappings.items():
+        if isinstance(key, type):
+            processed_chosen_mappings[key.__name__] = value
+        else:
+            processed_chosen_mappings[str(key)] = value
 
     Recorder.add_event(
         Event(
@@ -52,7 +66,7 @@ def recorder_add_chosen_mappings_event(
             attributes=[
                 EventAttribute(
                     key='Chosen Mapping Keys',
-                    value=json.dumps(chosen_mappings, indent=4),
+                    value=json.dumps(processed_chosen_mappings, indent=4),
                 ),
             ]
         )

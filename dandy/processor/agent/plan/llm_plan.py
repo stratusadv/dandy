@@ -1,5 +1,4 @@
 from pydantic import Field
-from typing import List
 
 from dandy.processor.agent.plan.plan import AgentPlanIntel
 from dandy.processor.agent.plan.task.llm_task import LlmAgentTaskIntel
@@ -7,7 +6,7 @@ from dandy.llm.prompt.prompt import Prompt
 
 
 class LlmAgentPlanIntel(AgentPlanIntel[LlmAgentTaskIntel]):
-    tasks: List[LlmAgentTaskIntel] = Field(default_factory=list)
+    tasks: list[LlmAgentTaskIntel] = Field(default_factory=list)
 
     def to_prompt(self) -> Prompt:
         prompt = Prompt()
