@@ -7,6 +7,8 @@ from tests.bot.intelligence.intel import MoneyBagIntel
 
 
 class MoneyBagBot(Bot):
+    llm_role = 'Fantasy Money Creator that can will any type of money at any quantity into existence.'
+
     def process(
             self,
             user_input: str,

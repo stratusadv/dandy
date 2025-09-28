@@ -11,11 +11,12 @@
 - Almost all the Dandy API has been refactored in v1 and is not compatible with the v0 API.
 - Support for Python 3.10 has been dropped and now requires 3.11 or greater.
 - `Workflow` has been removed as we felt it was redundant and there are better more pythonic options.
-- `Bot`, `Map` and `Agent` are now designed to operate instance based instead of class based. 
+- `Map` has been refactored to `Decoder` to increase the separation of concerns and describe its function more accurately.
+- `Bot`, `Decoder` and `Agent` are now designed to operate instance-based instead of class-based. 
 
 ### Features
 
-- `Map` is now a stand-alone processor that is much easier to operate and chain.
+- `Decoder` previously `Map` is now a stand-alone processor that is much easier to operate and chain.
 - New setting `HTTP_CONNECTION_TIMEOUT_SECONDS` takes an `int` and is defaulted to `120`
 - New `IntelService` available in the `Bot` for generating and controlling `BaseIntel` classes and objects. 
 

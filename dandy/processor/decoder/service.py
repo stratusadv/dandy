@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from dandy.core.service.service import BaseService
 
 if TYPE_CHECKING:
-    from dandy.processor.map.map import Map
+    from dandy.processor.decoder.decoder import Decoder
 
-class MapService(BaseService['Map']):
-    obj: Map
+class DecoderService(BaseService['Decoder']):
+    obj: Decoder

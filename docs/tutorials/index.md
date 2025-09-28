@@ -16,15 +16,17 @@ Follow them in order or jump to a specific topic using the links below.
     - Build reusable Bots that encapsulate LLM calls and application logic.
 5. [Recorder](recorder.md) 
     - Record inputs/outputs and generate HTML artifacts for debugging and audits.
-6. [Maps](maps.md)
-    - Compose multistep decision logic as maps with branching and reusable steps.
+6. [Decoders](decoders.md)
+    - Compose multistep decision logic as decoders with branching and reusable steps.
 7. [Futures](futures.md) 
     - Run tasks concurrently and orchestrate async-style pipelines.
 8. [Caching](caching.md) 
     - Cache LLM calls and intermediate results for speed and cost control.
 9. [Agents](agents.md)
     - Create Agents that plan, act, and use tools to achieve goals.
-10. [Project Structure](project_structure.md)
+10. [Handling Errors](handling_errors.md)
+    - Use the critical and recoverable exception design for more robust applications.
+11. [Project Structure](project_structure.md)
     - Organize a robust Dandy project for teams and long-term maintenance.
-11. [Example Project](example_project.md)
+12. [Example Project](example_project.md)
     - A complete example tying all concepts together.

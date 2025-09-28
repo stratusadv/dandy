@@ -7,17 +7,17 @@ from dandy.recorder.events import EventAttribute, Event, EventType
 from dandy.recorder.recorder import Recorder
 
 if TYPE_CHECKING:
-    from dandy.processor.map.map import Map
+    from dandy.processor.decoder.decoder import Decoder
 
 
-def recorder_add_process_map_value_event(
-        map: Map,
+def recorder_add_process_decoder_value_event(
+        decoder: Decoder,
         event_id: str,
         mapping_name: str | None = None,
-):
+) -> None:
 
     processed_mapping = {}
-    for key, value in map.mapping.items():
+    for key, value in decoder.mapping.items():
         if isinstance(value, (str, int, float)):
             processed_mapping[key] = value
         if isinstance(value, type):
@@ -28,13 +28,13 @@ def recorder_add_process_map_value_event(
     Recorder.add_event(
         Event(
             id=event_id,
-            object_name=map.__class__.__name__,
+            object_name=decoder.__class__.__name__,
             callable_name=f'Processing "{mapping_name}" Mapping' if mapping_name else 'Processing Mapping',
             type=EventType.OTHER,
             attributes=[
                 EventAttribute(
                     key='Mapping Key Description',
-                    value=map.mapping_keys_description,
+                    value=decoder.mapping_keys_description,
                 ),
                 EventAttribute(
                     key='Mapping',
@@ -45,10 +45,10 @@ def recorder_add_process_map_value_event(
     )
 
 def recorder_add_chosen_mappings_event(
-        map: Map,
+        decoder: Decoder,
         chosen_mappings: dict[Any, str],
         event_id: str,
-):
+) -> None:
 
     processed_chosen_mappings = {}
     for key, value in chosen_mappings.items():
@@ -60,8 +60,8 @@ def recorder_add_chosen_mappings_event(
     Recorder.add_event(
         Event(
             id=event_id,
-            object_name=map.__class__.__name__,
-            callable_name=f'Finished Selecting Value(s) from Mapping',
+            object_name=decoder.__class__.__name__,
+            callable_name='Finished Selecting Value(s) from Mapping',
             type=EventType.OTHER,
             attributes=[
                 EventAttribute(

@@ -1,38 +1,45 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Any, ClassVar
+from typing import Any, ClassVar
 
 from dandy.core.future import AsyncFuture
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.service.recorder import recorder_add_llm_failure_event
-from dandy.processor.map.exceptions import MapCriticalException, MapRecoverableException, MapNoKeysRecoverableException, \
-    MapToManyKeysRecoverableException
-from dandy.processor.map.intel import MapKeysIntel, MapKeyIntel, MapValuesIntel
-from dandy.processor.map.intelligence.prompts import map_no_key_error_prompt, map_max_key_count_error_prompt
-from dandy.processor.map.recorder import recorder_add_process_map_value_event, recorder_add_chosen_mappings_event
-from dandy.processor.map.service import MapService
+from dandy.processor.decoder.exceptions import (
+    DecoderCriticalException,
+    DecoderRecoverableException,
+    DecoderNoKeysRecoverableException,
+    DecoderToManyKeysRecoverableException
+)
+from dandy.processor.decoder.intel import DecoderKeysIntel, DecoderKeyIntel, DecoderValuesIntel
+from dandy.processor.decoder.intelligence.prompts import (
+    decoder_no_key_error_prompt,
+    decoder_max_key_count_error_prompt
+)
+from dandy.processor.decoder.recorder import recorder_add_process_decoder_value_event, recorder_add_chosen_mappings_event
+from dandy.processor.decoder.service import DecoderService
 from dandy.processor.processor import BaseProcessor
 
 
 @dataclass(kw_only=True)
-class Map(
+class Decoder(
     BaseProcessor,
     LlmServiceMixin,
 ):
     mapping_keys_description: str = None
-    mapping: Dict[str, Any] = None
+    mapping: dict[str, Any] = None
 
-    services: ClassVar[MapService] = MapService()
-    _MapService_instance: MapService | None = None
+    services: ClassVar[DecoderService] = DecoderService()
+    _DecoderService_instance: DecoderService | None = None
 
     @property
-    def _keyed_mapping_choices_dict(self) -> Dict[str, str]:
+    def _keyed_mapping_choices_dict(self) -> dict[str, str]:
         return {key: value[0] for key, value in self._keyed_mapping.items()}
 
     @property
-    def _keyed_mapping(self) -> Dict[str, tuple[str, ...]]:
+    def _keyed_mapping(self) -> dict[str, tuple[str, ...]]:
         keyed_mapping = {}
         for i, (choice, value) in enumerate(self.mapping.items(), start=1):
             key = str(i)
@@ -56,11 +63,11 @@ class Map(
 
         if cls.mapping_keys_description is None:
             message = f'{cls.__name__} `mapping_keys_description` is not set.'
-            raise MapCriticalException(message)
+            raise DecoderCriticalException(message)
 
         if cls.mapping is None:
             message = f'{cls.__name__} `mapping` is not set.'
-            raise MapCriticalException(message)
+            raise DecoderCriticalException(message)
 
     def __post_init__(self):
         if self.mapping_keys_description is None:
@@ -69,12 +76,12 @@ class Map(
         if self.mapping is None:
             self.mapping = self.__class__.mapping
 
-        for key in self.mapping.keys():
+        for key in self.mapping:
             if not isinstance(key, str):
-                message = f'Mapping keys must be strings, found {key} ({type(key)}).'
-                raise MapCriticalException(message)
+                message = f'Decoderping keys must be strings, found {key} ({type(key)}).'
+                raise DecoderCriticalException(message)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         return self.mapping[item]
 
     def as_enum(self) -> Enum:
@@ -96,65 +103,65 @@ class Map(
             self,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
-    ) -> MapValuesIntel:
-        return self._process_map_to_intel(
+    ) -> DecoderValuesIntel:
+        return self._process_decoder_to_intel(
             prompt,
             max_return_values
         )
 
-    def _process_map_to_intel(
+    def _process_decoder_to_intel(
             self,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
             mapping_name: str | None = None,
-    ) -> MapValuesIntel:
-        map_values_intel = MapValuesIntel()
+    ) -> DecoderValuesIntel:
+        decoder_values_intel = DecoderValuesIntel()
         chosen_mappings = {}
 
-        recorder_add_process_map_value_event(
-            map=self,
+        recorder_add_process_decoder_value_event(
+            decoder=self,
             mapping_name=mapping_name,
             event_id=self._recorder_event_id,
         )
 
-        for map_enum in self._process_map_prompt_to_intel(prompt, max_return_values):
-            map_value = self._get_selected_value(map_enum.value)
+        for decoder_enum in self._process_decoder_prompt_to_intel(prompt, max_return_values):
+            decoder_value = self._get_selected_value(decoder_enum.value)
 
-            if isinstance(map_value, Map):
-                map_values_intel.extend(
-                    map_value._process_map_to_intel(
+            if isinstance(decoder_value, Decoder):
+                decoder_values_intel.extend(
+                    decoder_value._process_decoder_to_intel(
                         prompt,
                         max_return_values,
-                        mapping_name=map_enum.name,
+                        mapping_name=decoder_enum.name,
                     ).values
                 )
             else:
-                map_values_intel.append(map_value)
-                chosen_mappings[map_value] = (
-                    str(self._get_selected_key(map_enum.value))
+                decoder_values_intel.append(decoder_value)
+                chosen_mappings[decoder_value] = (
+                    str(self._get_selected_key(decoder_enum.value))
                 )
 
         if chosen_mappings:
             recorder_add_chosen_mappings_event(
-                map=self,
+                decoder=self,
                 chosen_mappings=chosen_mappings,
                 event_id=self._recorder_event_id,
             )
 
-        return map_values_intel
+        return decoder_values_intel
 
-    def _process_map_prompt_to_intel(
+    def _process_decoder_prompt_to_intel(
             self,
             prompt: PromptOrStr,
             max_return_values: int | None = None,
-    ) -> MapKeysIntel:
+    ) -> DecoderKeysIntel:
 
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'
-            intel_class = MapKeysIntel[self.as_enum()]
+            intel_class = DecoderKeysIntel[self.as_enum()]
         else:
             key_str = 'key'
-            intel_class = MapKeyIntel[self.as_enum()]
+            intel_class = DecoderKeyIntel[self.as_enum()]
 
         system_prompt = Prompt()
         system_prompt.prompt(self.llm_role)
@@ -196,24 +203,24 @@ class Map(
                 self._validate_return_keys_intel(return_keys_intel, max_return_values)
                 break
 
-            except MapNoKeysRecoverableException as error:
+            except DecoderNoKeysRecoverableException as error:
                 recorder_add_llm_failure_event(error, self.llm._event_id)
 
                 if self.llm.has_retry_attempts_available:
                     return_keys_intel = self.llm.retry_request_to_intel(
-                        retry_event_description=f'Map keys intel object came back empty, retrying with no key(s) prompt.',
-                        retry_user_prompt=map_no_key_error_prompt()
+                        retry_event_description='Decoder keys intel object came back empty, retrying with no key(s) prompt.',
+                        retry_user_prompt=decoder_no_key_error_prompt()
                     )
                 else:
                     raise error
 
-            except MapToManyKeysRecoverableException as error:
+            except DecoderToManyKeysRecoverableException as error:
                 recorder_add_llm_failure_event(error, self.llm._event_id)
 
                 if self.llm.has_retry_attempts_available:
                     return_keys_intel = self.llm.retry_request_to_intel(
-                        retry_event_description=f'Map keys intel object came back with to many keys, retrying with to many key(s) prompt.',
-                        retry_user_prompt=map_max_key_count_error_prompt(
+                        retry_event_description='Decoder keys intel object came back with to many keys, retrying with to many key(s) prompt.',
+                        retry_user_prompt=decoder_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),
                             max_count=max_return_values if max_return_values is not None else 0,
                         )
@@ -225,7 +232,7 @@ class Map(
         try:
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
-        except MapRecoverableException as error:
+        except DecoderRecoverableException as error:
             recorder_add_llm_failure_event(error, self.llm._event_id)
             raise error
 
@@ -233,10 +240,10 @@ class Map(
 
     def _process_return_keys_intel(
             self,
-            return_keys_intel: MapKeysIntel | MapKeyIntel
-    ) -> MapKeysIntel:
-        if isinstance(return_keys_intel, MapKeyIntel):
-            return_keys_intel = MapKeysIntel[self.as_enum()](
+            return_keys_intel: DecoderKeysIntel | DecoderKeyIntel
+    ) -> DecoderKeysIntel:
+        if isinstance(return_keys_intel, DecoderKeyIntel):
+            return_keys_intel = DecoderKeysIntel[self.as_enum()](
                 keys=[return_keys_intel.key.value]
             )
 
@@ -244,16 +251,16 @@ class Map(
 
     def _validate_return_keys_intel(
             self,
-            return_keys_intel: MapKeysIntel | MapKeyIntel,
+            return_keys_intel: DecoderKeysIntel | DecoderKeyIntel,
             max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
             message = f'No {self.mapping_keys_description} found.'
-            raise MapNoKeysRecoverableException(message)
+            raise DecoderNoKeysRecoverableException(message)
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
             message = f'Too many {self.mapping_keys_description} found.'
-            raise MapToManyKeysRecoverableException(message)
+            raise DecoderToManyKeysRecoverableException(message)
 
-    def process_to_future(self, *args, **kwargs) -> AsyncFuture[MapValuesIntel]:
-        return AsyncFuture[MapValuesIntel](self.process, *args, **kwargs)
+    def process_to_future(self, *args, **kwargs) -> AsyncFuture[DecoderValuesIntel]:
+        return AsyncFuture[DecoderValuesIntel](self.process, *args, **kwargs)

@@ -41,15 +41,14 @@ nav:
       - 03. Prompts: tutorials/prompts.md
       - 04. Bots: tutorials/bots.md
       - 05. Recorder: tutorials/recorder.md
-      - 06. Maps: tutorials/maps.md
+      - 06. Decoders: tutorials/decoders.md
       - 07. Futures: tutorials/futures.md
       - 08. Caching: tutorials/caching.md
       - 09. Agents: tutorials/agents.md
-      - 10. Project Structure: tutorials/project_structure.md
-      - 11. Example Project: tutorials/example_project.md
+      - 10. Handling Errors: tutorials/handling_errors.md
+      - 11. Project Structure: tutorials/project_structure.md
+      - 12. Example Project: tutorials/example_project.md
   - API Reference: reference/
-  - Exceptions:
-      - Handling Errors: exceptions/handling_errors.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md

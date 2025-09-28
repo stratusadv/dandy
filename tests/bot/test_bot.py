@@ -31,7 +31,7 @@ class TestLlmBot(TestCase):
         MoneyBagBot().llm_config = llm_config
 
         money_bag = MoneyBagBot().process(
-            user_input='Please put some gems and coins in my money bag!',
+            user_input='Please give me 22 coins and 17 gems.',
             intel_class=MoneyBagIntel,
             exclude={
                 'bills': True, 'gems': {
@@ -56,7 +56,7 @@ class TestLlmBot(TestCase):
 
         coins = 10
         bills = 50
-        
+
         old_money_bag = MoneyBagIntel(
             coins=coins,
             bills=bills

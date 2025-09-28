@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 
-from typing import TYPE_CHECKING
 
 
 from dandy import Bot
@@ -10,13 +9,11 @@ from example.book.intelligence.bots import BookStartLlmBot
 from example.book.intelligence.chapter.bots.chapters_creation_bot import ChaptersCreationBot
 from example.book.intelligence.character.bots.characters_creation_bot import CharactersCreationBot
 from example.book.intelligence.intel import BookIntel
-from example.book.intelligence.maps import BookThemeMap
+from example.book.intelligence.decoders import BookThemeDecoder
 from example.book.intelligence.plot.bots.plot_creation_bot import PlotCreationBot
 from example.book.intelligence.world.bots import WorldCreationBot
 from example.book.models import Book, Chapter
 
-if TYPE_CHECKING:
-    pass
 
 
 class BookBot(Bot):
@@ -26,7 +23,7 @@ class BookBot(Bot):
     ) -> Book:
         book_intel = BookIntel(
             user_input=user_input,
-            theme=BookThemeMap().process(user_input)[0]
+            theme=BookThemeDecoder().process(user_input)[0]
         )
 
         logging.info('Working on book title and overview')
