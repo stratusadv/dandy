@@ -7,6 +7,10 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+if DEBUG:
+    from dandy.core.debug import *
+
+
 OPEN_AI_CONFIG = {
     'TYPE': 'openai',
     'HOST': os.getenv("OPENAI_HOST"),

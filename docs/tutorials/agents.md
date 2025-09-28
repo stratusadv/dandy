@@ -7,7 +7,7 @@ That is where Agents come in to give you an easy way to combine everything toget
 
 ## Create a Basic Agent
 
-To create an agent using the `Agent` class from the `dandy` module similar to how we created the other Dandy processors (bot, map and workflow).
+To create an agent using the `Agent` class from the `dandy` module similar to how we created the other Dandy processors (bot, decoder and workflow).
 
 ```python exec="True" source="above" source="material-block" session="agent"
 from dandy import Agent, Bot
@@ -46,10 +46,10 @@ Create a mock bot to help us find the museum's email address and one that recurs
 --8<-- "tests/agent/intelligence/bots.py"
 ```
 
-Use a map to pull out the intent from the user request to discover a subject to talk about.
+Use a decoder to pull out the intent from the user request to discover a subject to talk about.
 
-```py title="intelligence/maps.py"
---8<-- "tests/agent/intelligence/maps.py"
+```py title="intelligence/decoders.py"
+--8<-- "tests/agent/intelligence/decoders.py"
 ```
 
 Put it all together in an Agent.

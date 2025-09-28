@@ -23,7 +23,7 @@ Below is a simple example of the recommended structure for a basic project / mod
       ├── 📄 agents.py
       ├── 📄 bots.py
       ├── 📄 intel.py
-      ├── 📄 maps.py
+      ├── 📄 decoders.py
       ├── 📄 prompts.py
       └── 📄 ...
 📄 __init__.py
@@ -48,12 +48,12 @@ Below is a more advanced example with comments of the recommended structure for 
  └── 📁 intelligence/ <-- Dandy related code should be in this directory
       ├── 📁 bots/
       │    ├── 📄 __init__.py
-      │    ├── 📄 book_start_bot.py <-- Should contain one bot alone (can include, intels and prompts specific to this bot)
+      │    ├── 📄 book_start_bot.py <-- This file should contain one bot alone (can include, intels and prompts specific to this bot)
       │    └── 📄 ...
       ├── 📁 chapter/
       │    ├── 📁 bots/
       │    │    ├── 📄 __init__.py
-      │    │    ├── 📄 chapter_content_bot.py <-- Should also contain one bot alone (can include, intels and prompts specific to this bot)
+      │    │    ├── 📄 chapter_content_bot.py <-- This file should also contain one bot alone (can include, intels and prompts specific to this bot)
       │    │    ├── 📄 chapter_structure_bot.py
       │    │    ├── 📄 scene_bot.py
       │    │    └── 📄 ...
@@ -67,7 +67,7 @@ Below is a more advanced example with comments of the recommended structure for 
       │    │    ├── 📄 character_description_bot.py
       │    │    └── 📄 ...
       │    ├── 📄 __init__.py
-      │    ├── 📄 enums.py <-- Containing all code related to the intelligence work improves separation of concerns
+      │    ├── 📄 enums.py <-- Add other related code to the intelligence module to improve separation of concerns
       │    ├── 📄 intel.py
       │    ├── 📄 prompts.py
       │    ├── 📄 workflow.py
@@ -78,18 +78,23 @@ Below is a more advanced example with comments of the recommended structure for 
       │    │    ├── 📄 plot_outline_bot.py
       │    │    ├── 📄 plot_point_description_bot.py
       │    │    └── 📄 ...
+      │    ├── 📁 decoders/
+      │    │    ├── 📄 __init__.py
+      │    │    ├── 📄 plot_guide_decoder.py <- If a file gets to busy, modularize anything to make it easier to follow
+      │    │    └── 📄 ...
       │    ├── 📄 __init__.py
       │    ├── 📄 intel.py
       │    ├── 📄 prompts.py <-- All of the plot prompts in this file can be used across the project
       │    └── 📄 ...
       ├── 📁 world/
       │    ├── 📄 __init__.py
-      │    ├── 📄 agents.py <-- This would be for a Agent that thinks of worlds
+      │    ├── 📄 agents.py <-- This would be for Agents that thinks of worlds
       │    ├── 📄 bots.py
+      │    ├── 📄 decoders.py
       │    ├── 📄 intel.py
       │    └── 📄 ...
       ├── 📄 __init__.py
-      ├── 📄 bots.py <-- Should contain a Bot class that is used to orchestrate a multi step process
+      ├── 📄 bots.py <-- This file should contain a Bot class that is used to orchestrate a multi step process as it's in the base of the intelligence
       ├── 📄 intel.py
       ├── 📄 prompts.py
       └── 📄 ...

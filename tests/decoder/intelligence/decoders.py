@@ -1,8 +1,8 @@
 from dandy.llm.config.options import LlmConfigOptions
-from dandy.processor.map.map import Map
+from dandy.processor.decoder.decoder import Decoder
 
 
-class FunMap(Map):
+class FunDecoder(Decoder):
     mapping_keys_description = 'Descriptions of People'
     mapping = {
         'Would be glad to get a free puppy': 391,
@@ -11,7 +11,7 @@ class FunMap(Map):
         'Looking for something more technical': 927,
     }
 
-class DragonMap(Map):
+class DragonDecoder(Decoder):
     mapping_keys_description = 'Battle Outcomes'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
@@ -20,7 +20,7 @@ class DragonMap(Map):
     }
 
 
-class TreasureMap(Map):
+class TreasureDecoder(Decoder):
     mapping_keys_description: str = 'Treasure Outcomes'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
@@ -29,27 +29,27 @@ class TreasureMap(Map):
     }
 
 
-class AdventureGameMap(Map):
+class AdventureGameDecoder(Decoder):
     mapping_keys_description = 'Adventure Direction Decisions'
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping = {
-        'The player travels down the path to the left': DragonMap(),
-        'The player goes right into the jungle': TreasureMap()
+        'The player travels down the path to the left': DragonDecoder(),
+        'The player goes right into the jungle': TreasureDecoder()
     }
 
 
-class NestedBirdMap(Map):
+class NestedBirdDecoder(Decoder):
     llm_config_options = LlmConfigOptions(temperature=0)
     mapping_keys_description = 'Bird Descriptions'
     mapping = {
-        'the bird is dark colored': Map(
+        'the bird is dark colored': Decoder(
             mapping_keys_description='Bird Sounds',
             mapping={
                 'it is a crow': 'caw crow',
                 'it is a raven': 'caw raven'
             }
         ),
-        'the bird is colorful': Map(
+        'the bird is colorful': Decoder(
             mapping_keys_description='Bird Sounds',
             mapping={
                 'it is a parrot': 'caw parrot',

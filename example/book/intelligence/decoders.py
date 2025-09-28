@@ -1,8 +1,8 @@
-from dandy import Map
+from dandy import Decoder
 from example.book.enums import BookTheme
 
 
-class BookThemeMap(Map):
+class BookThemeDecoder(Decoder):
     mapping_keys_description = 'book themes'
     mapping = {
         'romance, love, kissing, feelings, emotions, sex': BookTheme.ROMANCE,

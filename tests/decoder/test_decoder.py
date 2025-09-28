@@ -3,28 +3,31 @@ from unittest import TestCase, mock
 from faker import Faker
 
 from dandy.http.intelligence.intel import HttpResponseIntel
-from dandy.processor.map.exceptions import MapRecoverableException, MapCriticalException
-from dandy.processor.map.map import Map
+from dandy.processor.decoder.decoder import Decoder
+from dandy.processor.decoder.exceptions import (
+    DecoderCriticalException,
+    DecoderRecoverableException,
+)
 from dandy.processor.processor import BaseProcessor
 from tests.decorators import nines_testing
-from tests.map.intelligence.maps import FunMap, DragonMap, AdventureGameMap, NestedBirdMap
+from tests.decoder.intelligence.decoders import FunDecoder, DragonDecoder, AdventureGameDecoder, NestedBirdDecoder
 
 
-class TestLlmMap(TestCase):
-    def test_map_import(self):
-        self.assertTrue(type(Map) is type(BaseProcessor))
+class TestDecoder(TestCase):
+    def test_decoder_import(self):
+        self.assertTrue(type(Decoder) is type(BaseProcessor))
 
-    def test_invalid_map(self):
-        with self.assertRaises(MapCriticalException):
-            _ = Map(
+    def test_invalid_decoder(self):
+        with self.assertRaises(DecoderCriticalException):
+            _ = Decoder(
                 mapping_keys_description='Numbers to a String',
                 mapping={
-                    123: 'this map is invalid as it needs string keys'
+                    123: 'this decoder mapping value is invalid as it needs string keys'
                 }
             )
 
-    def test_llm_map(self):
-        values = FunMap().process(
+    def test_decoder(self):
+        values = FunDecoder().process(
             'I enjoy seeing my dog every day and think animals are really cool. Give me two choices of things to do!',
             2
         )
@@ -33,26 +36,26 @@ class TestLlmMap(TestCase):
         self.assertIn(391, values)
         self.assertIn(782, values)
 
-    def test_seperated_nested_llm_map(self):
-        values = AdventureGameMap().process(
+    def test_seperated_nested_decoder(self):
+        values = AdventureGameDecoder().process(
             'The player goes left, and is carrying only a bucket on the adventure.',
             1
         )
 
         self.assertEqual(1, len(values))
-        self.assertEqual(DragonMap.mapping['The player is packing other stuff'], values[0])
+        self.assertEqual(DragonDecoder.mapping['The player is packing other stuff'], values[0])
 
-    def test_combined_nested_llm_map(self):
-        values = NestedBirdMap().process(
+    def test_combined_nested_decoder(self):
+        values = NestedBirdDecoder().process(
             'I am a black bird from the famous edgar allen poe poem',
             1
         )
 
         self.assertEqual(1, len(values))
-        self.assertEqual(NestedBirdMap.mapping['the bird is dark colored']['it is a raven'], values[0])
+        self.assertEqual(NestedBirdDecoder.mapping['the bird is dark colored']['it is a raven'], values[0])
 
     @nines_testing()
-    def test_big_user_llm_map(self):
+    def test_big_user_decoder(self):
         fake = Faker()
 
         pk = 976
@@ -63,13 +66,13 @@ class TestLlmMap(TestCase):
             pk += fake.random_int(min=5, max=50)
             user_dictionary[f'{fake.unique.name()}'] = pk
 
-        class UserLlmMap(Map):
+        class UserLlmDecoder(Decoder):
             mapping_keys_description = 'Employee First and Last Names'
             mapping = user_dictionary
 
         name = fake.random_element(user_dictionary.keys())
 
-        values = UserLlmMap().process(
+        values = UserLlmDecoder().process(
             f'I am looking for {name}',
         )
 
@@ -79,7 +82,7 @@ class TestLlmMap(TestCase):
         )
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
-    def test_no_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
+    def test_no_keys_decoder_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
             json_data={
@@ -89,14 +92,14 @@ class TestLlmMap(TestCase):
             }
         )
 
-        with self.assertRaises(MapRecoverableException):
-            value = FunMap().process(
+        with self.assertRaises(DecoderRecoverableException):
+            value = FunDecoder().process(
                 'I really like my pet dog and hope to get another one',
                 2
             )
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
-    def test_to_many_keys_llm_map_retry(self, mock_post_request: mock.MagicMock):
+    def test_to_many_keys_decoder_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
             json_data={
@@ -106,8 +109,8 @@ class TestLlmMap(TestCase):
             }
         )
 
-        with self.assertRaises(MapRecoverableException):
-            value = FunMap().process(
+        with self.assertRaises(DecoderRecoverableException):
+            value = FunDecoder().process(
                 'I really like my pet dog and hope to get another one',
                 2
             )

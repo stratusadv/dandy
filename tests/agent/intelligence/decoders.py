@@ -1,7 +1,7 @@
-from dandy.processor.map.map import Map
+from dandy.processor.decoder.decoder import Decoder
 
 
-class MuseumSubjectMap(Map):
+class MuseumSubjectDecoder(Decoder):
     mapping_keys_description = 'Colors of Museum Subjects'
     description = 'Matches colors to figure out which subject to learn in a museum.'
     mapping = {

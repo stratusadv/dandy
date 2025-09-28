@@ -41,8 +41,8 @@ on GitHub to view and understand the code structure in more detail.
 --8<-- "example/book/intelligence/chapter/bots/chapters_creation_bot.py"
 ```
 
-### Map
+### Decoder
 
-```py title="example/book/intelligence/map.py"
---8<-- "example/book/intelligence/map.py"
+```py title="example/book/intelligence/decoders.py"
+--8<-- "example/book/intelligence/decoders.py"
 ```

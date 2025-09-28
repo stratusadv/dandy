@@ -4,7 +4,7 @@ from dandy.llm.prompt.prompt import Prompt
 from tests.agent.intelligence.intel import EmailIntel
 
 from tests.agent.intelligence.bots import MuseumEmailFinderBot, EmailProofReadingBot
-from tests.agent.intelligence.maps import MuseumSubjectMap
+from tests.agent.intelligence.decoders import MuseumSubjectDecoder
 
 
 class MuseumEmailAgent(Agent):
@@ -19,6 +19,6 @@ class MuseumEmailAgent(Agent):
     processors = (
         Bot,
         MuseumEmailFinderBot,
-        MuseumSubjectMap,
+        MuseumSubjectDecoder,
         EmailProofReadingBot,
     )

@@ -15,15 +15,15 @@ The `@cache_to_memory` or `@cache_to_sqlite` decorator is used to cache the resu
 
 ## Adding Caching
 
-Let's make ourselves a map and add `@cache_to_memory` to the `process` method.
+Let's make ourselves a `Decoder` and add `@cache_to_memory` to the `process` method.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from time import perf_counter
 
-from dandy import Map, cache_to_memory
+from dandy import Decoder, cache_to_memory
 
 
-class NumberMap(Map):
+class NumberDecoder(Decoder):
     mapping_keys_description = 'Verbose Number Descriptions'
     mapping = {
         'small numbers': 1,
@@ -36,17 +36,17 @@ class NumberMap(Map):
     def process(self, *args, **kwargs):
         return super().process(*args, **kwargs)
     
-number_map = NumberMap()
+number_decoder = NumberDecoder()
 
 start_time = perf_counter()
 
-print(number_map.process('I really like dragon ball z')[0])
+print(number_decoder.process('I really like dragon ball z')[0])
 
 uncached_finish_time = perf_counter() - start_time
 
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
-print(number_map.process('I really like dragon ball z')[0])
+print(number_decoder.process('I really like dragon ball z')[0])
     
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 

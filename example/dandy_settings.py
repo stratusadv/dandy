@@ -7,6 +7,9 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+if DEBUG:
+    from dandy.core.debug import *
+
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
