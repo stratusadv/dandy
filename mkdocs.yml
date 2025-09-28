@@ -35,7 +35,7 @@ nav:
       - Read this First: getting_started/read_this_first.md
       - Quick Start: getting_started/quick_start.md
   - Tutorial:
-      - Index: tutorials/index.md
+      - Tutorial Index: tutorials/index.md
       - 01. Setup: tutorials/setup.md
       - 02. Intel: tutorials/intel.md
       - 03. Prompts: tutorials/prompts.md

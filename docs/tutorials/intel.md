@@ -62,7 +62,7 @@ class ClownsIntel(BaseListIntel):
     clowns: list[ClownIntel]
 
 
-clowns_intel = ClownsIntel(items=[
+clowns_intel = ClownsIntel(clowns=[
     ClownIntel(clown_name='Bozo', can_juggle=True),
     ClownIntel(clown_name='Bimbo', can_juggle=False),
     ClownIntel(clown_name='Bongo', can_juggle=True),

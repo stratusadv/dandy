@@ -12,12 +12,13 @@
 - Support for Python 3.10 has been dropped and now requires 3.11 or greater.
 - `Workflow` has been removed as we felt it was redundant and there are better more pythonic options.
 - `Map` has been refactored to `Decoder` to increase the separation of concerns and describe its function more accurately.
-- `Bot`, `Decoder` and `Agent` are now designed to operate instance-based instead of class-based. 
+- `Bot`, `Decoder` and `Agent` are now designed to operate instance-based instead of class-based.
+- Dandy settings files have had some refactoring and will need to be refactored for `v0` upgrades.
 
 ### Features
 
 - `Decoder` previously `Map` is now a stand-alone processor that is much easier to operate and chain.
-- New setting `HTTP_CONNECTION_TIMEOUT_SECONDS` takes an `int` and is defaulted to `120`
+- New setting `HTTP_CONNECTION_TIMEOUT_SECONDS` takes an `int` and is defaulted to `None`
 - New `IntelService` available in the `Bot` for generating and controlling `BaseIntel` classes and objects. 
 
 ### Changes
@@ -27,4 +28,5 @@
 - `llm_instructions` has been broken down into `llm_role`, `llm_task` and `llm_guidelines`
   - All of these accept `Prompt` or `str` and it's recommended to use all 3 but only `llm_role` is required.
 - Settings that were prefixed with `DEFAULT_` have all be renamed see `dandy.default_settings.py` for more details.
+- Many `DandyExceptions` have been elevated to `Recoverable` to help developers make more robust applications.
 

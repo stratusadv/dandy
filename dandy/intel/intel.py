@@ -98,8 +98,7 @@ class BaseIntel(BaseModel, ABC):
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
 
             # Todo: this is creating the warning when running test on the Agent (Debug)
-            # field_factory = field_info.default_factory or field_info.default
-            field_factory = field_info.default_factory
+            field_factory = field_info.default_factory or field_info.default
 
             if isinstance(include_value, Dict) or isinstance(exclude_value, Dict):
 
