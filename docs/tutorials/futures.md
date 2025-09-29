@@ -65,7 +65,7 @@ user_likes_scary_animals = True
 cute_animal_future = Bot().process_to_future('Can you tell me about a random cute animal?')
 
 scary_animal_future = Bot().process_to_future('Can you tell me about a random scary animal?')
-scary_animal_future.set_timeout(seconds=5)
+scary_animal_future.set_timeout(seconds=30)
 
 if user_likes_scary_animals:
     cute_animal_future.cancel()
