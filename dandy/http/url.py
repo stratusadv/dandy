@@ -1,7 +1,5 @@
-from dataclasses import dataclass, field
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
-from typing import List, Dict, Union
 
 from pydantic import BaseModel
 
@@ -9,8 +7,8 @@ from pydantic import BaseModel
 class Url(BaseModel):
     host: str
     port: int = 443
-    path_parameters: Union[List[str], None] = None
-    query_parameters: Union[Dict[str, str], None] = None
+    path_parameters: list[str] | None = None
+    query_parameters: dict[str, str] | None = None
 
     def __str__(self) -> str:
         return self.to_str()
@@ -41,6 +39,7 @@ class Url(BaseModel):
             return '?' + query
 
         return ''
-    
+
     def to_str(self) -> str:
+        # print(f'{self.parsed_url.scheme}://{self.parsed_url.netloc}:{self.port}{self.path}')
         return f'{self.parsed_url.scheme}://{self.parsed_url.netloc}:{self.port}{self.path}'

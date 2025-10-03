@@ -1,4 +1,3 @@
-from typing import Union
 
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.llm.config.config import BaseLlmConfig
@@ -9,6 +8,7 @@ from dandy.llm.request.request import BaseRequestBody
 class OpenaiLlmConfig(BaseLlmConfig):
     def __llm_config_post_init__(self):
         self.http_request_intel.url.path_parameters = [
+            'api',
             'v1',
             'chat',
             'completions',
@@ -16,10 +16,10 @@ class OpenaiLlmConfig(BaseLlmConfig):
 
     def generate_request_body(
             self,
-            max_input_tokens: Union[int, None] = None,
-            max_output_tokens: Union[int, None] = None,
-            seed: Union[int, None] = None,
-            temperature: Union[float, None] = None,
+            max_input_tokens: int | None = None,
+            max_output_tokens: int | None = None,
+            seed: int | None = None,
+            temperature: float | None = None,
     ) -> BaseRequestBody:
 
         return OpenaiRequestBody(
