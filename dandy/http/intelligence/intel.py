@@ -1,4 +1,3 @@
-from base64 import b64encode
 from typing import Any, Self
 
 import httpx
@@ -72,7 +71,5 @@ class HttpRequestIntel(BaseIntel):
             if self.headers is None:
                 self.headers = {}
 
-            encoded_bearer_token = b64encode(f"Bearer:{self.bearer_token}".encode()).decode()
-
-            self.headers['Authorization'] = f'Basic {encoded_bearer_token}'
+            self.headers['Authorization'] = f'Bearer {self.bearer_token}'
 

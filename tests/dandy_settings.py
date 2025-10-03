@@ -20,10 +20,10 @@ OPEN_AI_CONFIG = {
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'openai',
-        'HOST': os.getenv("AI_SERVER_HOST"),
-        'PORT': int(os.getenv("AI_SERVER_PORT", 443)),
-        'API_KEY': os.getenv("AI_SERVER_API_KEY"),
+        'TYPE': 'ollama',
+        'HOST': os.getenv("OLLAMA_HOST"),
+        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
+        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3-coder:30b',
         'TEMPERATURE': 0.3,
         'MAX_INPUT_TOKENS': 16000,

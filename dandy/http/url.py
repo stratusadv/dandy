@@ -27,8 +27,12 @@ class Url(BaseModel):
 
     @property
     def path_parameters_to_str(self) -> str:
+        initial_path = self.parsed_url.path.removesuffix('/')
+
         if self.path_parameters:
-            return '/' + '/'.join([quote(parameter) for parameter in self.path_parameters])
+            return initial_path + '/' + '/'.join(
+                [quote(parameter) for parameter in self.path_parameters]
+            )
 
         return ''
 
@@ -41,5 +45,4 @@ class Url(BaseModel):
         return ''
 
     def to_str(self) -> str:
-        # print(f'{self.parsed_url.scheme}://{self.parsed_url.netloc}:{self.port}{self.path}')
         return f'{self.parsed_url.scheme}://{self.parsed_url.netloc}:{self.port}{self.path}'

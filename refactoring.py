@@ -1,62 +1,27 @@
-from dandy import Map, Bot, BaseIntel, Map
+from dandy import Bot, BaseIntel
 from dandy.recorder import Recorder
 
 Recorder.start_recording('refactoring')
 
-class FrontEndBot(Bot):
-    llm_role = 'A Programming Mentor for Front End Developers'
+class HatIntel(BaseIntel):
+    color: str
+    size: int
+    style: str
 
-class BackEndBot(Bot):
-    llm_role = 'A Programming Mentor for Back End Developers'
+class CharacterIntel(BaseIntel):
+    name: str
+    age: int
+    gender: str
+    height: float
+    weight: float
+    hats: list[HatIntel]
 
-
-class ProgrammingHelpMap(Map):
-    mapping_keys_description = 'Programming Problems'
-    mapping = {
-        'server, python, django, views, models': BackEndBot,
-        'css, html, javascript, templates, design': FrontEndBot,
-        'anything else related to other C like programing languages': Map(
-            mapping_keys_description='Funny Jokes',
-            mapping={
-                'rust programming language': 'I AM RUSTY!!!'
-            }
-        )
-    }
-
-user_question = 'What does the borrow checker do in this language with the red crab symbol?'
-# user_question = 'I am working on a website that and I cannot get the buttons to aling how do I do that?'
-
-programming_help_bots = ProgrammingHelpMap().process(
-    user_question,
-    max_return_values=1
+unicorn_character = Bot().process(
+    prompt='Make me a character that would ride a unicorn! give them a selection of hats',
+    intel_class=CharacterIntel,
 )
 
-print(programming_help_bots)
-
-# print(programming_help_bots[0]().process(user_question))
-
-
-
-
-# class HatIntel(BaseIntel):
-#     color: str
-#     size: int
-#     style: str
-#
-# class CharacterIntel(BaseIntel):
-#     name: str
-#     age: int
-#     gender: str
-#     height: float
-#     weight: float
-#     hats: list[HatIntel]
-#
-# unicorn_character = Bot().process(
-#     prompt='Make me a character that would ride a unicorn! give them a selection of hats',
-#     intel_class=CharacterIntel,
-# )
-#
-# print(unicorn_character)
+print(unicorn_character)
 #
 # for hat in unicorn_character.hats:
 #     print(hat.style)

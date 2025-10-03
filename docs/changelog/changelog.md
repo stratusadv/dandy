@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.1
+
+### Changes
+
+- HTTP Request `Authorization` header only uses the standard `Bearer` token format for handling API keys.
+
+### Fixes
+
+- Updated `LLM_CONFIG` to support putting url paths in the `HOST` key for support of different endpoints.
+
 ## v1.0.0
 
 ### Major Release
