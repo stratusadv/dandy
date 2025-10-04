@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.20.1
+
+### Fixes
+
+- Update the html service to use the standard Bearer token pattern for API keys.
+
 ## v0.20.0
 
 ### Features
