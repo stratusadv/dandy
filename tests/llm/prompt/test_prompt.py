@@ -35,7 +35,8 @@ class TestPrompt(TestCase):
             .array_random_order(items=['item1', 'item2'])
             .directory_list(
                 directory_path=Path(__file__).parent,
-
+                max_depth=1,
+                file_extensions=['.md']
             )
             .file(file_path=Path(__file__).parent / 'test_document.md')
             .file(file_path=Path(Path(__file__).parent.parent.parent.resolve(), 'assets/documents/complex_markdown.md'))

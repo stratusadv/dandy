@@ -58,6 +58,8 @@ class Prompt:
             )
         )
 
+        return self
+
     def divider(self) -> Self:
         self.snippets.append(snippet.DividerSnippet())
 
