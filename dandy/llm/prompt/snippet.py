@@ -7,9 +7,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from random import randint, shuffle
-from typing import List, Type, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Sequence
 
-from dandy.core.path.tools import get_file_path_or_exception
+from dandy.core.path.tools import (
+    get_file_path_or_exception,
+    get_dir_path_or_exception,
+    get_dir_list,
+)
 from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
@@ -31,8 +35,7 @@ class BaseSnippet(ABC):
                 return f'""" {self.triple_quote_label}\n{self._to_str()}"""\n'
 
             return f'"""\n{self._to_str()}"""\n'
-        else:
-            return self._to_str()
+        return self._to_str()
 
     @abstractmethod
     def _to_str(self) -> str:
@@ -41,7 +44,7 @@ class BaseSnippet(ABC):
 
 @dataclass(kw_only=True)
 class ArraySnippet(BaseSnippet):
-    items: List[str]
+    items: list[str]
 
     def _to_str(self) -> str:
         return '[\n'+',\n'.join(f'"{item}"' for item in self.items) + '\n]\n'
@@ -56,10 +59,30 @@ class ArrayRandomOrderSnippet(ArraySnippet):
 
 @dataclass(kw_only=True)
 class DictionarySnippet(BaseSnippet):
-    dictionary: Dict
+    dictionary: dict
 
     def _to_str(self) -> str:
         return json.dumps(self.dictionary, indent=4) + '\n'
+
+
+@dataclass(kw_only=True)
+class DirectoryListSnippet(BaseSnippet):
+    directory_path: str | Path
+    max_depth: int | None = None
+    file_extensions: Sequence[str] | None = None
+
+    def _to_str(self) -> str:
+        dir_path = get_dir_path_or_exception(
+            dir_path=self.directory_path,
+        )
+
+        return UnorderedListSnippet(
+            items = get_dir_list(
+                dir_path=dir_path,
+                max_depth=self.max_depth,
+                file_extensions=self.file_extensions,
+            )
+        ).to_str()
 
 
 @dataclass(kw_only=True)
@@ -107,7 +130,7 @@ class IntelSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class IntelSchemaSnippet(BaseSnippet):
-    intel_class: Type[BaseIntel]
+    intel_class: type[BaseIntel]
 
     def _to_str(self) -> str:
         return str(json.dumps(self.intel_class.model_json_schema(), indent=4)) + '\n'
@@ -144,7 +167,7 @@ class ObjectSourceSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class OrderedListSnippet(BaseSnippet):
-    items: List
+    items: list
 
     def _to_str(self) -> str:
         return f'{list_to_str(items=self.items, ordered=True)}'
@@ -157,12 +180,11 @@ class PromptSnippet(BaseSnippet):
     def _to_str(self) -> str:
         if isinstance(self.prompt, str):
             return self.prompt
-        else:
-            return self.prompt.to_str()
+        return self.prompt.to_str()
 
 @dataclass(kw_only=True)
 class RandomChoiceSnippet(BaseSnippet):
-    choices: List[str]
+    choices: list[str]
 
     def _to_str(self) -> str:
         return f'{self.choices[randint(0, len(self.choices) - 1)]}\n'
@@ -185,8 +207,7 @@ class TextSnippet(BaseSnippet):
     def _to_str(self) -> str:
         if self.label != '':
             return f'**{self.label}**: {self.text}\n'
-        else:
-            return f'{self.text}\n'
+        return f'{self.text}\n'
 
 
 @dataclass(kw_only=True)
@@ -199,7 +220,7 @@ class TitleSnippet(BaseSnippet):
 
 @dataclass(kw_only=True)
 class UnorderedListSnippet(BaseSnippet):
-    items: List
+    items: list
 
     def _to_str(self) -> str:
         return f'{list_to_str(items=self.items, ordered=False)}'

@@ -33,6 +33,10 @@ class TestPrompt(TestCase):
             .divider()
             .array(items=['item1', 'item2'])
             .array_random_order(items=['item1', 'item2'])
+            .directory_list(
+                directory_path=Path(__file__).parent,
+
+            )
             .file(file_path=Path(__file__).parent / 'test_document.md')
             .file(file_path=Path(Path(__file__).parent.parent.parent.resolve(), 'assets/documents/complex_markdown.md'))
             .heading(heading='Heading Followed by a line break')

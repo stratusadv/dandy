@@ -1,6 +1,10 @@
 # Changelog
 
-## v1.0.1
+## v1.1.0
+
+### Features
+
+- `Prompt` has a new method `directory_list` that lets you add the contents of a directory to your prompt.
 
 ### Changes
 

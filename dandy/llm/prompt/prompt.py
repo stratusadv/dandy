@@ -1,22 +1,23 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from typing import List, Type, Self, Dict
+from typing import Self, Sequence
 
 from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt import snippet
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
+import builtins
 
 
 @dataclass
 class Prompt:
-    input: Self | str | None = None,
-    tag: str | None = None,
+    input: Self | str | None = (None,)
+    tag: str | None = (None,)
 
     def __post_init__(
-            self,
+        self,
     ):
-        self.snippets: List[snippet.BaseSnippet] = []
+        self.snippets: list[snippet.BaseSnippet] = []
 
         if isinstance(self.input, Prompt):
             self.text(text=self.input.to_str())
@@ -28,39 +29,46 @@ class Prompt:
         return self.to_str()
 
     def to_str(self) -> str:
-        prompt_string = ''.join([_.to_str() for _ in self.snippets])
+        prompt_string = "".join([_.to_str() for _ in self.snippets])
 
         if isinstance(self.tag, str):
-            return f'<{self.tag}>\n{prompt_string}\n</{self.tag}>\n'
-        else:
-            return prompt_string
+            return f"<{self.tag}>\n{prompt_string}\n</{self.tag}>\n"
+        return prompt_string
 
-    def dict(
-            self,
-            dictionary: Dict,
-            triple_quote: bool = False
-    ) -> Self:
-
+    def dict(self, dictionary: dict, triple_quote: bool = False) -> Self:
         self.snippets.append(
-            snippet.DictionarySnippet(
-                dictionary=dictionary,
-                triple_quote=triple_quote
-            )
+            snippet.DictionarySnippet(dictionary=dictionary, triple_quote=triple_quote)
         )
 
         return self
+
+    def directory_list(
+        self,
+        directory_path: str | Path,
+        max_depth: int | None = None,
+        file_extensions: Sequence[str] | None = None,
+        triple_quote: bool = False,
+    ) -> Self:
+        self.snippets.append(
+            snippet.DirectoryListSnippet(
+                directory_path=directory_path,
+                triple_quote=triple_quote,
+                max_depth=max_depth,
+                file_extensions=file_extensions,
+            )
+        )
 
     def divider(self) -> Self:
         self.snippets.append(snippet.DividerSnippet())
 
         return self
 
-    def array(self, items: List[str]) -> Self:
+    def array(self, items: list[str]) -> Self:
         self.snippets.append(snippet.ArraySnippet(items=items))
 
         return self
 
-    def array_random_order(self, items: List[str]) -> Self:
+    def array_random_order(self, items: list[str]) -> Self:
         self.snippets.append(snippet.ArrayRandomOrderSnippet(items=items))
 
         return self
@@ -69,29 +77,21 @@ class Prompt:
     def estimated_token_count(self) -> int:
         return get_estimated_token_count_for_string(self.to_str())
 
-
     def file(
-            self,
-            file_path: str | Path,
-            encoding: str = 'utf-8',
-            triple_quote: bool = False
+        self, file_path: str | Path, encoding: str = "utf-8", triple_quote: bool = False
     ) -> Self:
-
         self.snippets.append(
             snippet.FileSnippet(
-                file_path=file_path,
-                encoding=encoding,
-                triple_quote=triple_quote
+                file_path=file_path, encoding=encoding, triple_quote=triple_quote
             )
         )
 
         return self
 
     def heading(
-            self,
-            heading: str,
+        self,
+        heading: str,
     ) -> Self:
-
         self.snippets.append(
             snippet.HeadingSnippet(
                 heading=heading,
@@ -105,117 +105,70 @@ class Prompt:
 
         return self
 
-    def list(
-            self,
-            items: List[str],
-            triple_quote: bool = False
-    ) -> Self:
-
-        self.unordered_list(
-            items=items,
-            triple_quote=triple_quote
-        )
+    def list(self, items: list[str], triple_quote: bool = False) -> Self:
+        self.unordered_list(items=items, triple_quote=triple_quote)
 
         return self
 
-    def intel(
-            self,
-            intel: BaseIntel,
-            triple_quote: bool = False
-    ) -> Self:
-
+    def intel(self, intel: BaseIntel, triple_quote: bool = False) -> Self:
         self.snippets.append(
-            snippet.IntelSnippet(
-                intel=intel,
-                triple_quote=triple_quote
-            )
+            snippet.IntelSnippet(intel=intel, triple_quote=triple_quote)
         )
 
         return self
 
     def intel_schema(
-            self,
-            intel_class: Type[BaseIntel],
-            triple_quote: bool = False
+        self, intel_class: type[BaseIntel], triple_quote: bool = False
     ) -> Self:
-
         self.snippets.append(
             snippet.IntelSchemaSnippet(
-                intel_class=intel_class,
-                triple_quote=triple_quote
+                intel_class=intel_class, triple_quote=triple_quote
             )
         )
 
         return self
 
-    def module_source(
-            self,
-            module_name: str,
-            triple_quote: bool = True
-    ) -> Self:
-
+    def module_source(self, module_name: str, triple_quote: bool = True) -> Self:
         self.snippets.append(
             snippet.ModuleSourceSnippet(
                 module_name=module_name,
                 triple_quote=triple_quote,
-                triple_quote_label=module_name
+                triple_quote_label=module_name,
             )
         )
 
         return self
 
-    def object_source(
-            self,
-            object_module_name: str,
-            triple_quote: bool = True
-    ) -> Self:
-
+    def object_source(self, object_module_name: str, triple_quote: bool = True) -> Self:
         self.snippets.append(
             snippet.ObjectSourceSnippet(
                 object_module_name=object_module_name,
                 triple_quote=triple_quote,
-                triple_quote_label=object_module_name
+                triple_quote_label=object_module_name,
             )
         )
 
         return self
 
     def ordered_list(
-            self,
-            items: List[str],
-            triple_quote: bool = False
+        self, items: builtins.list[str], triple_quote: bool = False
     ) -> Self:
-
         self.snippets.append(
-            snippet.OrderedListSnippet(
-                items=items,
-                triple_quote=triple_quote
-            )
+            snippet.OrderedListSnippet(items=items, triple_quote=triple_quote)
         )
 
         return self
 
-    def prompt(
-            self,
-            prompt: Self | str,
-            triple_quote: bool = False
-    ) -> Self:
-
+    def prompt(self, prompt: Self | str, triple_quote: bool = False) -> Self:
         self.snippets.append(
-            snippet.PromptSnippet(
-                prompt=prompt,
-                triple_quote=triple_quote
-            )
+            snippet.PromptSnippet(prompt=prompt, triple_quote=triple_quote)
         )
 
         return self
 
     def random_choice(
-            self,
-            choices: List[str],
-            triple_quote: bool = False
+        self, choices: builtins.list[str], triple_quote: bool = False
     ) -> Self:
-
         self.snippets.append(
             snippet.RandomChoiceSnippet(
                 choices=choices,
@@ -226,10 +179,9 @@ class Prompt:
         return self
 
     def sub_heading(
-            self,
-            sub_heading: str,
+        self,
+        sub_heading: str,
     ) -> Self:
-
         self.snippets.append(
             snippet.SubHeadingSnippet(
                 sub_heading=sub_heading,
@@ -239,13 +191,12 @@ class Prompt:
         return self
 
     def text(
-            self,
-            text: str = '',
-            label: str = '',
-            triple_quote: bool = False,
-            triple_quote_label: str | None = None,
+        self,
+        text: str = "",
+        label: str = "",
+        triple_quote: bool = False,
+        triple_quote_label: str | None = None,
     ) -> Self:
-
         self.snippets.append(
             snippet.TextSnippet(
                 text=text,
@@ -258,10 +209,9 @@ class Prompt:
         return self
 
     def title(
-            self,
-            title: str,
+        self,
+        title: str,
     ) -> Self:
-
         self.snippets.append(
             snippet.TitleSnippet(
                 title=title,
@@ -271,24 +221,16 @@ class Prompt:
         return self
 
     def unordered_list(
-            self,
-            items: List[str],
-            triple_quote: bool = False
+        self, items: builtins.list[str], triple_quote: bool = False
     ) -> Self:
-
         self.snippets.append(
-            snippet.UnorderedListSnippet(
-                items=items,
-                triple_quote=triple_quote
-            )
+            snippet.UnorderedListSnippet(items=items, triple_quote=triple_quote)
         )
 
         return self
 
     def unordered_random_list(
-            self,
-            items: List[str],
-            triple_quote: bool = False
+        self, items: builtins.list[str], triple_quote: bool = False
     ) -> Self:
 
         self.snippets.append(
