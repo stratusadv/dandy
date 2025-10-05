@@ -1,17 +1,19 @@
-from abc import abstractmethod, ABC
-from dataclasses import dataclass
+from abc import ABC
 from typing import Any
 
 from dandy.core.future import AsyncFuture
 from dandy.processor.recorder import record_process_wrapper
 
 
-@dataclass(kw_only=True)
 class BaseProcessor(
     ABC,
 ):
     _recorder_event_id: str = ''
     description: str | None = None
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def __init_subclass__(cls):
         super().__init_subclass__()
@@ -29,7 +31,7 @@ class BaseProcessor(
 
                 return attr
 
-            setattr(cls, '__getattribute__', __getattribute__)
+            cls.__getattribute__ = __getattribute__
 
     def process(self, *args, **kwargs) -> Any:
         raise NotImplementedError

@@ -24,7 +24,7 @@ class UnicornBot(Bot):
     llm_task: str = "Make amazing characters!"
     llm_guidelines: str = "Use fun names"
 
-unicorn_bot = UnicornBot()
+unicorn_bot = UnicornBot(llm_role="Evil Character Makers")
 
 unicorn_character = unicorn_bot.process(
     prompt="Make me a character that would ride a unicorn! give them a selection of hats",
@@ -32,7 +32,7 @@ unicorn_character = unicorn_bot.process(
 )
 
 print(unicorn_character)
-#
+
 # for hat in unicorn_character.hats:
 #     print(hat.style)
 

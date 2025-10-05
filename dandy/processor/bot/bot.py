@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import ClassVar
 
 from dandy.http.mixin import HttpServiceMixin
@@ -11,7 +10,6 @@ from dandy.processor.processor import BaseProcessor
 from dandy.vision.mixin import VisionProcessorMixin
 
 
-@dataclass(kw_only=True)
 class Bot(
     BaseProcessor,
     LlmServiceMixin,
@@ -22,7 +20,7 @@ class Bot(
     services: ClassVar[BotService] = BotService()
     _BotService_instance: BotService | None = None
 
-    description = 'Base Dandy Bot Class That Can Do Anything'
+    description: str | None = 'Base Dandy Bot Class That Can Do Anything'
 
     def process(
             self,
