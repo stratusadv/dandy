@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.1
+
+### Fixes
+
+- Fixed a problem with all `Mixin` classes conflicting with their processor class.
+
 ## v1.1.0
 
 ### Features

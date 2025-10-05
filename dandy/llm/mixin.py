@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import ClassVar
 
 from dandy import BaseIntel
@@ -12,7 +11,6 @@ from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service.service import LlmService
 
 
-@dataclass(kw_only=True)
 class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
     llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options

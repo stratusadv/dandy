@@ -1,12 +1,14 @@
 from dandy import Bot, BaseIntel
 from dandy.recorder import Recorder
 
-Recorder.start_recording('refactoring')
+Recorder.start_recording("refactoring")
+
 
 class HatIntel(BaseIntel):
     color: str
     size: int
     style: str
+
 
 class CharacterIntel(BaseIntel):
     name: str
@@ -16,8 +18,16 @@ class CharacterIntel(BaseIntel):
     weight: float
     hats: list[HatIntel]
 
-unicorn_character = Bot().process(
-    prompt='Make me a character that would ride a unicorn! give them a selection of hats',
+
+class UnicornBot(Bot):
+    llm_role: str = "Character Makers"
+    llm_task: str = "Make amazing characters!"
+    llm_guidelines: str = "Use fun names"
+
+unicorn_bot = UnicornBot()
+
+unicorn_character = unicorn_bot.process(
+    prompt="Make me a character that would ride a unicorn! give them a selection of hats",
     intel_class=CharacterIntel,
 )
 
@@ -60,6 +70,6 @@ print(unicorn_character)
 #
 # print(answers)
 
-Recorder.stop_recording('refactoring')
+Recorder.stop_recording("refactoring")
 
 Recorder.to_html_file('refactoring')
