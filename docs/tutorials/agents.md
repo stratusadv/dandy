@@ -10,13 +10,21 @@ That is where Agents come in to give you an easy way to combine everything toget
 To create an agent using the `Agent` class from the `dandy` module similar to how we created the other Dandy processors (bot, decoder and workflow).
 
 ```python exec="True" source="above" source="material-block" session="agent"
-from dandy import Agent, Bot
+from dandy import Agent, Bot, BaseIntel
+
+class IdeaBot(Bot):
+    llm_role = 'Creative Idea Maker'
+    
+    def process(self, user_input: str) -> BaseIntel:
+        return self.llm.prompt_to_intel(
+            prompt=user_input        
+        )
 
 
 class AssistantAgent(Agent):
     # This attribute is required and determines which other processors you want this agent to have access to using.
     processors = (
-        Bot,
+        IdeaBot,
     )
 
 
