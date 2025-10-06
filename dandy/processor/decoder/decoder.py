@@ -29,6 +29,8 @@ class Decoder(
     mapping_keys_description: str = None
     mapping: dict[str, Any] = None
 
+    llm_role: str = 'Data Relationship Identifier'
+
     services: ClassVar[DecoderService] = DecoderService()
     _DecoderService_instance: DecoderService | None = None
 
@@ -76,7 +78,7 @@ class Decoder(
 
         for key in self.mapping:
             if not isinstance(key, str):
-                message = f'Decoderping keys must be strings, found {key} ({type(key)}).'
+                message = f'Decoder keys must be strings, found {key} ({type(key)}).'
                 raise DecoderCriticalException(message)
 
     def __getitem__(self, item: str) -> Any:
@@ -155,44 +157,18 @@ class Decoder(
     ) -> DecoderKeysIntel:
 
         if max_return_values is not None and max_return_values > 1:
-            key_str = 'keys'
             intel_class = DecoderKeysIntel[self.as_enum()]
         else:
-            key_str = 'key'
             intel_class = DecoderKeyIntel[self.as_enum()]
 
-        system_prompt = Prompt()
-        system_prompt.prompt(self.llm_role)
-        system_prompt.text(f'You\'re an "{self.mapping_keys_description}" assistant')
+        self.llm_task: str = f'Identify the "{self.mapping_keys_description}"  that best matches the provided information.'
 
-        system_prompt.line_break()
-
-        system_prompt.text(
-            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
-
-        system_prompt.line_break()
-
-        if max_return_values is not None and max_return_values > 0:
-            if max_return_values == 1:
-                system_prompt.text(f'You must return exactly one numbered {key_str}.')
-            else:
-                system_prompt.text(
-                    f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.')
-        else:
-            system_prompt.text(
-                f'Return the numbered {key_str} you find that are relevant to the user\'s response and return at least one.')
-
-        system_prompt.line_break()
-        system_prompt.heading(f'"{self.mapping_keys_description}"')
-        system_prompt.line_break()
-
-        system_prompt.dict(self._keyed_mapping_choices_dict)
+        self._set_llm_guidelines(max_return_values=max_return_values)
 
         return_keys_intel = self._process_return_keys_intel(
             self.llm.prompt_to_intel(
                 prompt=prompt if isinstance(prompt, Prompt) else Prompt(prompt),
                 intel_class=intel_class,
-                postfix_system_prompt=system_prompt
             )
         )
 
@@ -246,6 +222,37 @@ class Decoder(
             )
 
         return return_keys_intel
+
+    def _set_llm_guidelines(self, max_return_values: int | None):
+        if max_return_values is not None and max_return_values > 1:
+            key_str = 'keys'
+        else:
+            key_str = 'key'
+
+        guidelines_prompt = Prompt()
+
+        guidelines_prompt.text(
+            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
+
+        guidelines_prompt.line_break()
+
+        if max_return_values is not None and max_return_values > 0:
+            if max_return_values == 1:
+                guidelines_prompt.text(f'You must return exactly one numbered {key_str}.')
+            else:
+                guidelines_prompt.text(
+                    f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.')
+        else:
+            guidelines_prompt.text(
+                f'Return the numbered {key_str} you find that are relevant to the user\'s response and return at least one.')
+
+        guidelines_prompt.line_break()
+        guidelines_prompt.heading(f'"{self.mapping_keys_description}"')
+        guidelines_prompt.line_break()
+
+        guidelines_prompt.dict(self._keyed_mapping_choices_dict)
+
+        self.llm_guidelines = guidelines_prompt
 
     def _validate_return_keys_intel(
             self,

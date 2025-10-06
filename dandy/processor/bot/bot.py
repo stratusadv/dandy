@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
-from typing import ClassVar
+from typing import ClassVar, Any
 
+from dandy import BaseIntel
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
 from dandy.intel.typing import IntelType
@@ -17,7 +18,6 @@ class Bot(
     HttpServiceMixin,
     IntelServiceMixin,
     VisionProcessorMixin,
-    ABC,
 ):
     services: ClassVar[BotService] = BotService()
     _BotService_instance: BotService | None = None
@@ -26,10 +26,21 @@ class Bot(
 
     def process(
             self,
-            prompt: PromptOrStr,
-            intel_class: type[IntelType] | None = None,
-    ) -> IntelType:
-        return self.llm.prompt_to_intel(
-            prompt=prompt,
-            intel_class=intel_class,
-        )
+            *args,
+            **kwargs,
+    ) -> Any:
+        if len(args) >= 1:
+            if isinstance(args[0], PromptOrStr):
+                kwargs['prompt'] = args[0]
+
+        if len(args) == 2:
+            if issubclass(args[1], BaseIntel):
+                kwargs['intel_class'] = args[1]
+
+        if 'prompt' in kwargs:
+            return self.llm.prompt_to_intel(
+                **kwargs
+            )
+        else:
+            message = '`Bot.process` requires key word argument `prompt`.'
+            raise ValueError(message)

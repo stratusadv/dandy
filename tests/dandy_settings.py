@@ -41,6 +41,12 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
+    'GEMMA_3_12B': {
+        'MODEL': 'gemma3:12b',
+        'TEMPERATURE': 0.3,
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 16000,
+    },
     'FAST': {
         'MODEL': 'gemma3:4b',
         'TEMPERATURE': 0.1,

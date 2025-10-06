@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.2
+
+### Fixes
+
+- Fixed a typing signature problem in `Bot` with the `process` method.
+
 ## v1.1.1
 
 ### Fixes
