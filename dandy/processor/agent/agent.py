@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Type, Sequence, List, ClassVar
+from typing import Sequence, ClassVar
 
 from pydantic.main import IncEx
 
@@ -27,7 +26,6 @@ from dandy.processor.processor import BaseProcessor
 from dandy.vision.mixin import VisionProcessorMixin
 
 
-@dataclass(kw_only=True)
 class Agent(
     BaseProcessor,
     LlmServiceMixin,
@@ -38,7 +36,7 @@ class Agent(
     plan_time_limit_seconds: int = settings.AGENT_DEFAULT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
-    processors: Sequence[Type[BaseProcessor]] = (
+    processors: Sequence[type[BaseProcessor]] = (
         Bot,
     )
     _processors_strategy_class: type[ProcessorsStrategy] = ProcessorsStrategy
@@ -65,10 +63,10 @@ class Agent(
     def process(
             self,
             prompt: PromptOrStr,
-            intel_class: Type[IntelType] | None = None,
+            intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
-            images: List[str] | None = None,
-            image_files: List[str | Path] | None = None,
+            images: list[str] | None = None,
+            image_files: list[str | Path] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             postfix_system_prompt: PromptOrStrOrNone = None,
@@ -138,7 +136,7 @@ class Agent(
         if postfix_system_prompt is None:
             postfix_system_prompt = Prompt()
 
-        postfix_system_prompt.text(f'Use the results of the below simulated plan to accomplish the user request:')
+        postfix_system_prompt.text('Use the results of the below simulated plan to accomplish the user request:')
         postfix_system_prompt.line_break()
         postfix_system_prompt.prompt(plan.to_prompt())
 

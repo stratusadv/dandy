@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
@@ -64,7 +64,7 @@ class LlmService(BaseService['LlmServiceMixin']):
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
             images: list[str] | None = None,
-            image_files: List[str | Path] | None = None,
+            image_files: list[str | Path] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             postfix_system_prompt: PromptOrStrOrNone = None,
@@ -165,8 +165,8 @@ class LlmService(BaseService['LlmServiceMixin']):
 
                 return intel_object
 
-            else:
-                raise LlmRecoverableException(message)
+            message = 'Failed to validate response from prompt into intel object.'
+            raise LlmRecoverableException(message)
 
         except ValidationError as error:
             recorder_add_llm_failure_event(error, self._event_id)
@@ -203,6 +203,5 @@ class LlmService(BaseService['LlmServiceMixin']):
             return self._request_to_intel(
             )
 
-        else:
-            message = f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.'
-            raise LlmRecoverableException(message)
+        message = f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.'
+        raise LlmRecoverableException(message)

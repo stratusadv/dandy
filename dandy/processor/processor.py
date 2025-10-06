@@ -1,19 +1,24 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any
 
 from dandy.core.future import AsyncFuture
 from dandy.processor.recorder import record_process_wrapper
 
 
-class BaseProcessor(
-    ABC,
-):
-    _recorder_event_id: str = ''
+class BaseProcessor(ABC):
+    _recorder_event_id: str = ""
     description: str | None = None
 
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+        self.__post_init__()
+
+    @abstractmethod
+    def __post_init__(self):
+        pass
 
     def __init_subclass__(cls):
         super().__init_subclass__()
@@ -24,7 +29,11 @@ class BaseProcessor(
             def __getattribute__(self, name):
                 attr = super().__getattribute__(name)
 
-                if name == 'process' and callable(attr) and not hasattr(attr, '_wrapped'):
+                if (
+                    name == "process"
+                    and callable(attr)
+                    and not hasattr(attr, "_wrapped")
+                ):
                     wrapped = record_process_wrapper(self, attr)
                     wrapped._wrapped = True
                     return wrapped

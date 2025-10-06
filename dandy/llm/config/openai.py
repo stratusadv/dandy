@@ -8,7 +8,6 @@ from dandy.llm.request.request import BaseRequestBody
 class OpenaiLlmConfig(BaseLlmConfig):
     def __llm_config_post_init__(self):
         self.http_request_intel.url.path_parameters = [
-            'api',
             'v1',
             'chat',
             'completions',

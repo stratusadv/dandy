@@ -19,7 +19,7 @@ class TestService(TestCase):
         class ConfigBot(Bot):
             llm_config = new_llm_config
 
-        response = ConfigBot.llm.prompt_to_intel(
+        response = ConfigBot().llm.prompt_to_intel(
             prompt='Hello, World!',
             intel_class=LlmDefaultIntel,
         )

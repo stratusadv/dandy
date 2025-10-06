@@ -29,3 +29,7 @@ class LlmServiceMixin(BaseServiceMixin):
         'llm_config_options',
         'llm_role',
     )
+
+    def __init__(self, **kwargs):
+        self._LlmService_instance: LlmService | None = None
+        super().__init__(**kwargs)

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 from typing import Any, ClassVar
 
@@ -23,7 +22,6 @@ from dandy.processor.decoder.service import DecoderService
 from dandy.processor.processor import BaseProcessor
 
 
-@dataclass(kw_only=True)
 class Decoder(
     BaseProcessor,
     LlmServiceMixin,

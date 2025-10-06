@@ -35,19 +35,18 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
         if isinstance(obj, type):
             if issubclass(obj, BaseModel):
                 return str(obj.model_json_schema())
-            else:
-                return str(obj.__qualname__)
-        elif isinstance(obj, BaseModel):
+            return str(obj.__qualname__)
+        if isinstance(obj, BaseModel):
             return str(obj.model_dump())
-        elif isinstance(obj, dict):
+        if isinstance(obj, dict):
             return str({
                 key: convert_to_hashable_str(value, hash_layer + 1) for key, value in obj.items()
             })
-        elif isinstance(obj, (list, tuple, set, frozenset)):
+        if isinstance(obj, (list, tuple, set, frozenset)):
             return str([
                 convert_to_hashable_str(x, hash_layer + 1) for x in obj
             ])
-        elif hasattr(obj, '__dict__'):
+        if hasattr(obj, '__dict__'):
             return convert_to_hashable_str(obj.__dict__, hash_layer + 1)
 
         try:

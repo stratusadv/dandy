@@ -37,7 +37,7 @@ class TestSnippet(TestCase):
             object_module_name='dandy.processor.bot.bot.Bot'
         )
 
-        self.assertEqual(object_source.to_str()[:10], '\n@dataclas')
+        self.assertEqual(object_source.to_str()[:10], '\nclass Bot')
 
     def test_text_snippet(self):
         new_snippet = snippet.TextSnippet(text='Hello World')
