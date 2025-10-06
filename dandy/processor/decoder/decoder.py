@@ -29,8 +29,6 @@ class Decoder(
     mapping_keys_description: str = None
     mapping: dict[str, Any] = None
 
-    llm_role: str = 'Data Relationship Identifier'
-
     services: ClassVar[DecoderService] = DecoderService()
     _DecoderService_instance: DecoderService | None = None
 
@@ -161,9 +159,7 @@ class Decoder(
         else:
             intel_class = DecoderKeyIntel[self.as_enum()]
 
-        self.llm_task: str = f'Identify the "{self.mapping_keys_description}"  that best matches the provided information.'
-
-        self._set_llm_guidelines(max_return_values=max_return_values)
+        self._set_llm_role_task_guidelines(max_return_values=max_return_values)
 
         return_keys_intel = self._process_return_keys_intel(
             self.llm.prompt_to_intel(
@@ -223,7 +219,10 @@ class Decoder(
 
         return return_keys_intel
 
-    def _set_llm_guidelines(self, max_return_values: int | None):
+    def _set_llm_role_task_guidelines(self, max_return_values: int | None):
+        self.llm_role: str = 'Data Relationship Identifier'
+        self.llm_task: str = f'Identify the "{self.mapping_keys_description}"  that best matches the provided information.'
+
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'
         else:

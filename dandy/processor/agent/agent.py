@@ -3,6 +3,7 @@ from typing import Sequence, ClassVar
 
 from pydantic.main import IncEx
 
+from dandy import Bot
 from dandy.conf import settings
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
@@ -13,6 +14,7 @@ from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
+from dandy.processor.agent.intelligence.typed_bot import TypedBot
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.intelligence.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
@@ -21,7 +23,6 @@ from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_ev
     recorder_add_llm_agent_done_executing_plan_event, recorder_add_llm_agent_processing_final_result_event
 from dandy.processor.agent.service import AgentService
 from dandy.processor.agent.strategy import ProcessorsStrategy
-from dandy.processor.bot.bot import Bot
 from dandy.processor.processor import BaseProcessor
 from dandy.vision.mixin import VisionProcessorMixin
 
@@ -37,7 +38,7 @@ class Agent(
     plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     processors: Sequence[type[BaseProcessor]] = (
-        Bot,
+        TypedBot,
     )
     _processors_strategy_class: type[ProcessorsStrategy] = ProcessorsStrategy
     _processors_strategy: ProcessorsStrategy | None = None
@@ -49,6 +50,11 @@ class Agent(
         if cls.processors is None or len(cls.processors) == 0:
             message = f'{cls.__name__} must have a sequence of "BaseProcessor" sub classes defined on the "processors" class attribute.'
             raise AgentCriticalException(message)
+
+        for processor in cls.processors:
+            if processor is Bot:
+                message = f'{cls.__name__} cannot have a base "Bot" class defined on the "processors" class attribute.'
+                raise AgentCriticalException(message)
 
         if cls._processors_strategy_class is None:
             message = f'{cls.__name__} must have a "BaseProcessorsStrategy" sub class defined on the "_processors_strategy_class" class attribute.'

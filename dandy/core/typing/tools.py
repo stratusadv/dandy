@@ -61,7 +61,7 @@ def get_typed_kwargs_from_simple_json_schema(
 
 
     except KeyError:
-        message = f'Type {simple_json_schema_str} is not recognized'
+        message = f'Type {simple_json_schema} is not recognized'
         raise TypingRecoverableException(message)
 
     return TypedKwargs(typed_kwargs_dict)
