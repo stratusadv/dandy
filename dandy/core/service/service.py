@@ -100,7 +100,7 @@ class BaseService(ABC, Generic[TypeAny]):
         return self.get_obj_service_instance(obj) is not None
 
     @classmethod
-    def set_obj_service_instance(cls, obj: Any, service_instance: BaseService):
+    def set_obj_service_instance(cls, obj: Any, service_instance: BaseService | None):
         setattr(
             obj,
             cls.generate_service_instance_name(cls),

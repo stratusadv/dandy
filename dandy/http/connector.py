@@ -35,7 +35,7 @@ class HttpConnector(BaseConnector):
                 if response_intel.status_code == 200 or response_intel.status_code == 201:
                     return response_intel
 
-                sleep(0.1)
+                sleep(0.2)
 
             else:
                 if response_intel.status_code == 0:

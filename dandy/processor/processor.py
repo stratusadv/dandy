@@ -10,13 +10,12 @@ class BaseProcessor(ABC):
     description: str | None = None
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
         self.__post_init__()
 
-    @abstractmethod
     def __post_init__(self):
         pass
 

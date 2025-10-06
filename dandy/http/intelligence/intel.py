@@ -73,3 +73,4 @@ class HttpRequestIntel(BaseIntel):
 
             self.headers['Authorization'] = f'Bearer {self.bearer_token}'
 
+
