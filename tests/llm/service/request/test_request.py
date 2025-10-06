@@ -22,9 +22,9 @@ class TestRequest(TestCase):
         self.assertEqual(request_body.messages[0].content, 'You are a helpful assistant.')
 
     def test_openai_config_request_body(self):
-        request_body = llm_configs.GPT_4o_MINI.generate_request_body(
-            temperature=llm_configs.GPT_4o_MINI.options.temperature,
-            seed=llm_configs.GPT_4o_MINI.options.seed,
+        request_body = llm_configs.OPEN_AI_API_MODEL.generate_request_body(
+            temperature=llm_configs.OPEN_AI_API_MODEL.options.temperature,
+            seed=llm_configs.OPEN_AI_API_MODEL.options.seed,
         )
 
         with open(get_file_path_or_exception(Path('assets', 'images', 'vision_test_image.jpg')), "rb") as img:

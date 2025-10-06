@@ -53,20 +53,24 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'GPT_3_5_TURBO': {
+    'OPEN_AI_API_MODEL': {
         **OPEN_AI_CONFIG,
-        'MODEL': 'gpt-3.5-turbo',
+        'MODEL': 'gemma3:12b',
     },
-    'GPT_4o_MINI': {
-        **OPEN_AI_CONFIG,
-        'MODEL': 'gpt-4o-mini',
-    },
-    'GPT_4o': {
-        **OPEN_AI_CONFIG,
-        'MODEL': 'gpt-4o',
-    },
-    'GPT_o3_MINI': {
-        **OPEN_AI_CONFIG,
-        'MODEL': 'o3-mini',
-    },
+    # 'GPT_3_5_TURBO': {
+    #     **OPEN_AI_CONFIG,
+    #     'MODEL': 'gpt-3.5-turbo',
+    # },
+    # 'GPT_4o_MINI': {
+    #     **OPEN_AI_CONFIG,
+    #     'MODEL': 'gpt-4o-mini',
+    # },
+    # 'GPT_4o': {
+    #     **OPEN_AI_CONFIG,
+    #     'MODEL': 'gpt-4o',
+    # },
+    # 'GPT_o3_MINI': {
+    #     **OPEN_AI_CONFIG,
+    #     'MODEL': 'o3-mini',
+    # },
 }

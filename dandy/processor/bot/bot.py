@@ -1,3 +1,4 @@
+from abc import abstractmethod, ABC
 from typing import ClassVar
 
 from dandy.http.mixin import HttpServiceMixin
@@ -16,6 +17,7 @@ class Bot(
     HttpServiceMixin,
     IntelServiceMixin,
     VisionProcessorMixin,
+    ABC,
 ):
     services: ClassVar[BotService] = BotService()
     _BotService_instance: BotService | None = None

@@ -29,9 +29,9 @@ class BaseProcessor(ABC):
                 attr = super().__getattribute__(name)
 
                 if (
-                    name == "process"
-                    and callable(attr)
-                    and not hasattr(attr, "_wrapped")
+                        name == "process"
+                        and callable(attr)
+                        and not hasattr(attr, "_wrapped")
                 ):
                     wrapped = record_process_wrapper(self, attr)
                     wrapped._wrapped = True
@@ -41,6 +41,7 @@ class BaseProcessor(ABC):
 
             cls.__getattribute__ = __getattribute__
 
+    @abstractmethod
     def process(self, *args, **kwargs) -> Any:
         raise NotImplementedError
 

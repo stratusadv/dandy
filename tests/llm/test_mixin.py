@@ -4,7 +4,7 @@ from dandy import Bot, Prompt
 
 
 class TestLlmMixin(TestCase):
-    def test_class_variables(self):
+    def test_processor_with_mixin(self):
         class TestingBot(Bot):
             llm_role = 'Master of Testing'
             llm_task = 'Do the best testing you can'
