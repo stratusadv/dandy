@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.3
+
+### Fixes
+
+- Fixed a memory race condition when using `process_to_future` method that was caused by `httpx.Client`.
+
 ## v1.1.2
 
 ### Fixes
