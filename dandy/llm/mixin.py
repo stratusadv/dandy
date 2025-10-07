@@ -31,6 +31,7 @@ class LlmServiceMixin(BaseServiceMixin):
     )
 
     def __init__(self, **kwargs):
+        self.llm_intel_class = self.__class__.llm_intel_class
         self.llm.set_obj_service_instance(
             self,
             None,

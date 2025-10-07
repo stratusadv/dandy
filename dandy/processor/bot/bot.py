@@ -1,10 +1,8 @@
-from abc import abstractmethod, ABC
 from typing import ClassVar, Any
 
 from dandy import BaseIntel
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
-from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.processor.bot.service import BotService
@@ -38,9 +36,9 @@ class Bot(
                 kwargs['intel_class'] = args[1]
 
         if 'prompt' in kwargs:
+            print(id(self.llm))
             return self.llm.prompt_to_intel(
                 **kwargs
             )
-        else:
-            message = '`Bot.process` requires key word argument `prompt`.'
-            raise ValueError(message)
+        message = '`Bot.process` requires key word argument `prompt`.'
+        raise ValueError(message)

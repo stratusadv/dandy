@@ -3,8 +3,9 @@ from unittest import TestCase
 
 from dandy.processor.bot.bot import Bot
 from dandy.core.future import AsyncFuture
-from dandy.core.future.exceptions import FutureCriticalException, FutureRecoverableException
+from dandy.core.future.exceptions import FutureRecoverableException
 from dandy.intel.intel import BaseIntel
+from tests.bot.intelligence.bots import TestingBot, OtherBot
 
 
 class StoryIntel(BaseIntel):
@@ -50,12 +51,63 @@ class TestFuture(TestCase):
             squared_future.set_timeout(1)
             _ = squared_future.result
 
-    def test_llmbot_future(self):
+    def test_bot_future(self):
         response_future = PirateStoryBot().process_to_future(
             'Write a quick poem about pirates enjoying a day at the beach.',
         )
 
         self.assertTrue(len(response_future.result.text) > 0)
+
+    def test_bot_race_condition_future(self):
+        testing_bot = TestingBot()
+        other_bot = OtherBot()
+        testy_bot = TestingBot()
+        othering_bot = OtherBot()
+
+        happy_intel_future = testing_bot.process_to_future(
+            'fedora hats and canes'
+        )
+
+        sad_intel_future = other_bot.process_to_future(
+            'I wear a bowler hat and enjoy fighting'
+        )
+
+        more_happy_intel_future = testy_bot.process_to_future(
+            'Ball gowns and Chandelers'
+        )
+
+        more_sad_intel_future = othering_bot.process_to_future(
+            'I wear a soldier helmet and I came back from WW2'
+        )
+
+        _ = testing_bot.process_to_future(
+            'With a clown wig and balloons'
+        )
+
+        _ = testing_bot.process_to_future(
+            'Steam top Hat and a Monocle'
+        )
+
+        _ = testing_bot.process_to_future(
+            'Wet boot on my head and I am missing teeth'
+        )
+
+        _ = testing_bot.process_to_future(
+            'Spiked hair and some army boots'
+        )
+
+        happy_intel = happy_intel_future.result
+        sad_intel = sad_intel_future.result
+        more_happy_intel = more_happy_intel_future.result
+        more_sad_intel = more_sad_intel_future.result
+
+        # print(f'{happy_intel=}')
+        # print(f'{sad_intel=}')
+        # print(f'{more_happy_intel=}')
+        # print(f'{more_sad_intel=}')
+
+        self.assertNotEqual(happy_intel.description, sad_intel.description)
+        self.assertNotEqual(more_happy_intel.description, more_sad_intel.description)
 
     def test_future_cancel(self):
         squared_future = AsyncFuture(square_number, 5)

@@ -1,6 +1,6 @@
 from pydantic.main import IncEx
-from typing import Union, Type
 
+from dandy import BaseIntel, Bot, Prompt
 from dandy.processor.bot.bot import Bot
 from dandy.llm.prompt.prompt import Prompt
 from tests.bot.intelligence.intel import MoneyBagIntel
@@ -12,10 +12,10 @@ class MoneyBagBot(Bot):
     def process(
             self,
             user_input: str,
-            intel_class: Union[Type[MoneyBagIntel], None] = None,
-            intel_object: Union[MoneyBagIntel, None] = None,
-            include: Union[IncEx, None] = None,
-            exclude: Union[IncEx, None] = None,
+            intel_class: type[MoneyBagIntel] | None = None,
+            intel_object: MoneyBagIntel | None = None,
+            include: IncEx | None = None,
+            exclude: IncEx | None = None,
     ) -> MoneyBagIntel:
         return self.llm.prompt_to_intel(
             prompt=Prompt(user_input),
@@ -24,3 +24,26 @@ class MoneyBagBot(Bot):
             include_fields=include,
             exclude_fields=exclude,
         )
+
+
+class HappyIntel(BaseIntel):
+    description: str
+    happy_level: int
+
+
+class TestingBot(Bot):
+    llm_role = "Master of Art Descriptions"
+    llm_task = "Do your best to describe a peice of ard you can."
+    llm_guidelines = Prompt().list(["Make sure to be creative"])
+    llm_intel_class = HappyIntel
+
+
+class SadIntel(BaseIntel):
+    description: str
+    sad_level: int
+
+
+class OtherBot(Bot):
+    llm_role = "Potato Dish Designer"
+    llm_task = "Design a potato dishes that are fun and describe something that matches the user request."
+    llm_intel_class = SadIntel

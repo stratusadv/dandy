@@ -25,7 +25,7 @@ LLM_CONFIGS = {
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3-coder:30b',
-        'TEMPERATURE': 0.3,
+        'TEMPERATURE': 0.5,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
