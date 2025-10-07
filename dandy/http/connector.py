@@ -26,6 +26,7 @@ class HttpConnector(BaseConnector):
                 url=httpx_request.url,
                 headers=httpx_request.headers,
                 content=httpx_request.content,
+                timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
             )
 
             response_intel = HttpResponseIntel.from_httpx_response(

@@ -7,7 +7,7 @@ class TestLlmMixin(TestCase):
     def test_processor_with_mixin(self):
         testing_bot = TestingBot()
 
-        self.assertEqual(testing_bot.llm_role, "Master of Testing")
+        self.assertEqual(testing_bot.llm_role, "Master of Art Descriptions")
 
         testing_bot.llm_role = "Not Testing Master"
 
@@ -27,7 +27,7 @@ class TestLlmMixin(TestCase):
         testing_bot = TestingBot()
         other_bot = OtherBot()
 
-        self.assertEqual(testing_bot.llm_role, "Master of Testing")
+        self.assertEqual(testing_bot.llm_role, "Master of Art Descriptions")
         self.assertEqual(other_bot.llm_role, "Potato Dish Designer")
 
         happy_intel = testing_bot.process(
