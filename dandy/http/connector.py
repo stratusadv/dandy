@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import httpx
+
+import requests
 
 from dandy.conf import settings
 from dandy.core.connector.connector import BaseConnector
@@ -21,11 +22,12 @@ class HttpConnector(BaseConnector):
         for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
             httpx_request = request_intel.as_httpx_request()
 
-            response = httpx.request(
+            response = requests.request(
                 method=httpx_request.method,
                 url=httpx_request.url,
                 headers=httpx_request.headers,
-                content=httpx_request.content,
+                # data=request_intel.json_data,
+                json=request_intel.json_data,
                 timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
             )
 

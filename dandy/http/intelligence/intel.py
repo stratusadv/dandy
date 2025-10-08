@@ -1,3 +1,4 @@
+import json
 from typing import Any, Self
 
 import httpx
@@ -15,13 +16,15 @@ class HttpResponseIntel(BaseIntel):
     @classmethod
     def from_httpx_response(cls, httpx_response: httpx.Response) -> Self:
         try:
-            json_data = httpx_response.json()
+            # json_data = httpx_response.json()
+            json_data = json.loads(httpx_response.text)
         except ValueError:
             json_data = {}
 
         return HttpResponseIntel(
             status_code=httpx_response.status_code,
-            response_phrase=httpx_response.reason_phrase,
+            # response_phrase=httpx_response.reason_phrase,
+            response_phrase='NOTHING TO SEE HERE',
             text=httpx_response.text,
             json_data=json_data
         )
