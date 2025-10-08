@@ -1,7 +1,6 @@
-import json
 from typing import Any, Self
 
-import httpx
+import requests
 
 from dandy.http.url import Url
 from dandy.intel.intel import BaseIntel
@@ -14,18 +13,16 @@ class HttpResponseIntel(BaseIntel):
     json_data: dict | None = None
 
     @classmethod
-    def from_httpx_response(cls, httpx_response: httpx.Response) -> Self:
+    def from_requests_response(cls, requests_response: requests.Response) -> Self:
         try:
-            # json_data = httpx_response.json()
-            json_data = json.loads(httpx_response.text)
+            json_data = requests_response.json()
         except ValueError:
             json_data = {}
 
         return HttpResponseIntel(
-            status_code=httpx_response.status_code,
-            # response_phrase=httpx_response.reason_phrase,
-            response_phrase='NOTHING TO SEE HERE',
-            text=httpx_response.text,
+            status_code=requests_response.status_code,
+            response_phrase=requests_response.reason,
+            text=requests_response.text,
             json_data=json_data
         )
 
@@ -52,22 +49,23 @@ class HttpRequestIntel(BaseIntel):
     def model_post_init(self, __context: Any):
         self.generate_headers()
 
-    def as_httpx_request(self) -> httpx.Request:
+    def as_request_kwargs(self) -> dict:
         if isinstance(self.url, Url):
-            self.url = self.url.to_str()
+            url = self.url.to_str()
+        else:
+            url = self.url
 
-        return httpx.Request(
-            method=self.method,
-            url=self.url,
-            params=self.params,
-            headers=self.headers,
-            cookies=self.cookies,
-            content=self.content,
-            data=self.data,
-            files=self.files,
-            json=self.json_data,
-            stream=self.stream,
-        )
+        return {
+            'method': self.method,
+            'url': url,
+            'params': self.params,
+            'headers': self.headers,
+            'cookies': self.cookies,
+            'data': self.content if self.content else self.data,
+            'files': self.files,
+            'json': self.json_data,
+            'stream': self.stream,
+        }
 
     def generate_headers(self):
         if self.bearer_token is not None:
@@ -75,5 +73,3 @@ class HttpRequestIntel(BaseIntel):
                 self.headers = {}
 
             self.headers['Authorization'] = f'Bearer {self.bearer_token}'
-
-
