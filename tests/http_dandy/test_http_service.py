@@ -16,7 +16,7 @@ class TestHttpService(TestCase):
             text='ok',
             json_data={'ok': True},
         )
-        
+
         def assert_request_and_return(request_intel: HttpRequestIntel):
             # Verify the HttpRequestIntel passed into connector
             self.assertIsInstance(request_intel, HttpRequestIntel)
@@ -52,7 +52,7 @@ class TestHttpService(TestCase):
 
         expected_response = HttpResponseIntel(
             status_code=201,
-            response_phrase='Created',
+            reason='Created',
             text='created',
             json_data={'id': 1},
         )

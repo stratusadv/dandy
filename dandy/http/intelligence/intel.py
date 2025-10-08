@@ -2,13 +2,14 @@ from typing import Any, Self
 
 import requests
 
+from dandy.conf import settings
 from dandy.http.url import Url
 from dandy.intel.intel import BaseIntel
 
 
 class HttpResponseIntel(BaseIntel):
     status_code: int
-    response_phrase: str | None = None
+    reason: str | None = None
     text: str | None = None
     json_data: dict | None = None
 
@@ -21,7 +22,7 @@ class HttpResponseIntel(BaseIntel):
 
         return HttpResponseIntel(
             status_code=requests_response.status_code,
-            response_phrase=requests_response.reason,
+            reason=requests_response.reason,
             text=requests_response.text,
             json_data=json_data
         )
@@ -49,23 +50,25 @@ class HttpRequestIntel(BaseIntel):
     def model_post_init(self, __context: Any):
         self.generate_headers()
 
-    def as_request_kwargs(self) -> dict:
+    def to_http_response_intel(self) -> HttpResponseIntel:
         if isinstance(self.url, Url):
             url = self.url.to_str()
         else:
             url = self.url
 
-        return {
-            'method': self.method,
-            'url': url,
-            'params': self.params,
-            'headers': self.headers,
-            'cookies': self.cookies,
-            'data': self.content if self.content else self.data,
-            'files': self.files,
-            'json': self.json_data,
-            'stream': self.stream,
-        }
+        response = requests.request(
+            method=self.method,
+            url=url,
+            headers=self.headers,
+            # data=request_intel.json_data,
+            json=self.json_data,
+            timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
+        )
+
+        return HttpResponseIntel.from_requests_response(
+            response
+        )
+
 
     def generate_headers(self):
         if self.bearer_token is not None:

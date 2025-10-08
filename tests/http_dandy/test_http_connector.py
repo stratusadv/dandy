@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from httpx import Response
+import requests
 
 from dandy.http.exceptions import HttpConnectorCriticalException
 from dandy.http.connector import HttpConnector
@@ -8,40 +8,28 @@ from dandy.http.url import Url
 
 
 class TestHttpConnector(TestCase):
-    @mock.patch('httpx.Client.send')
-    def test_post_request(self, mock_httpx_client_send: mock.MagicMock):
+    @mock.patch("requests.request")
+    def test_post_request(self, mock_requests: mock.MagicMock):
         http_connector = HttpConnector()
 
-        mock_httpx_client_send.return_value = Response(
-            status_code=200
-        )
+        mock_response = mock.Mock(spec=requests.Response)
+        mock_response.status_code = 200
+        mock_requests.return_value = mock_response
 
         _ = http_connector.request_to_response(
-            HttpRequestIntel(
-                method='GET',
-                url=Url(
-                    host='https://www.google.com/'
-                )
-            )
+            HttpRequestIntel(method="GET", url=Url(host="https://www.google.com/"))
         )
 
-        mock_httpx_client_send.return_value = Response(
-            status_code=500
-        )
+        mock_response.status_code = 500
+        mock_requests.return_value = mock_response
 
         with self.assertRaises(HttpConnectorCriticalException):
             _ = http_connector.request_to_response(
-                HttpRequestIntel(
-                    method='GET',
-                    url=Url(
-                        host='https://www.google.com/'
-                    )
-                )
+                HttpRequestIntel(method="GET", url=Url(host="https://www.google.com/"))
             )
 
-        mock_httpx_client_send.return_value = Response(
-            status_code=0
-        )
+        mock_response.status_code = 0
+        mock_requests.return_value = mock_response
 
         with self.assertRaises(HttpConnectorCriticalException):
             _ = http_connector.request_to_response(

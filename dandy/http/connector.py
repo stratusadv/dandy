@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 
-import requests
 
 from dandy.conf import settings
 from dandy.core.connector.connector import BaseConnector
@@ -14,35 +13,22 @@ class HttpConnector(BaseConnector):
     def request_to_response(request_intel: HttpRequestIntel) -> HttpResponseIntel:
         response_intel: HttpResponseIntel = HttpResponseIntel(
             status_code=0,
-            response_phrase="",
+            reason="Unknown Reasons",
             text="",
             json_data={},
         )
 
         for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
-            httpx_request = request_intel.as_httpx_request()
-
-            response = requests.request(
-                method=httpx_request.method,
-                url=httpx_request.url,
-                headers=httpx_request.headers,
-                # data=request_intel.json_data,
-                json=request_intel.json_data,
-                timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
-            )
-
-            response_intel = HttpResponseIntel.from_httpx_response(
-                response
-            )
+            response_intel = request_intel.to_http_response_intel()
 
             if response_intel.status_code in (200, 201):
                 return response_intel
 
         if response_intel.status_code != 0:
-            message = f'HttpConnector request failed with status code {response_intel.status_code} and the following message "{response_intel.response_phrase}" after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
+            message = f'HttpConnector request failed with status code {response_intel.status_code} and the following message "{response_intel.reason}" after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
             raise HttpConnectorCriticalException(message)
 
-        message = f"HttpConnector request failed after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts for unknown reasons"
+        message = f"HttpConnector request failed after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts for {response_intel.reason}"
         raise HttpConnectorCriticalException(message)
 
 
