@@ -80,19 +80,19 @@ class TestFuture(TestCase):
             'I wear a soldier helmet and I came back from WW2'
         )
 
-        _ = testing_bot.process_to_future(
+        _1 = testing_bot.process_to_future(
             'With a clown wig and balloons'
         )
 
-        _ = testing_bot.process_to_future(
+        _2 = testing_bot.process_to_future(
             'Steam top Hat and a Monocle'
         )
 
-        _ = testing_bot.process_to_future(
+        _3 = testing_bot.process_to_future(
             'Wet boot on my head and I am missing teeth'
         )
 
-        _ = testing_bot.process_to_future(
+        _4 = testing_bot.process_to_future(
             'Spiked hair and some army boots'
         )
 
@@ -101,12 +101,20 @@ class TestFuture(TestCase):
         more_happy_intel = more_happy_intel_future.result
         more_sad_intel = more_sad_intel_future.result
 
+        _ = _1.result
+        _ = _2.result
+        _ = _3.result
+        _ = _4.result
+
         # print(f'{happy_intel=}')
         # print(f'{sad_intel=}')
         # print(f'{more_happy_intel=}')
         # print(f'{more_sad_intel=}')
 
         self.assertNotEqual(happy_intel.description, sad_intel.description)
+        self.assertNotEqual(happy_intel.description, more_sad_intel.description)
+        self.assertNotEqual(happy_intel.description, more_happy_intel.description)
+        self.assertNotEqual(more_happy_intel.description, sad_intel.description)
         self.assertNotEqual(more_happy_intel.description, more_sad_intel.description)
 
     def test_future_cancel(self):
