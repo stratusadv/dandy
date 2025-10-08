@@ -9,14 +9,13 @@ class TestHttpService(TestCase):
     def test_get_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
         service = HttpService()
 
-        # Arrange a fake response from connector
         expected_response = HttpResponseIntel(
             status_code=200,
             response_phrase='OK',
             text='ok',
             json_data={'ok': True},
         )
-        
+
         def assert_request_and_return(request_intel: HttpRequestIntel):
             # Verify the HttpRequestIntel passed into connector
             self.assertIsInstance(request_intel, HttpRequestIntel)
@@ -34,7 +33,6 @@ class TestHttpService(TestCase):
 
         mock_request_to_response.side_effect = assert_request_and_return
 
-        # Act
         response = service.get(
             url='https://api.example.com/resource',
             params={'q': 'search'},
@@ -42,7 +40,6 @@ class TestHttpService(TestCase):
             cookies={'session': 'abc'},
         )
 
-        # Assert the return value is the one from connector
         self.assertIs(response, expected_response)
         mock_request_to_response.assert_called_once()
 
@@ -52,7 +49,7 @@ class TestHttpService(TestCase):
 
         expected_response = HttpResponseIntel(
             status_code=201,
-            response_phrase='Created',
+            reason='Created',
             text='created',
             json_data={'id': 1},
         )

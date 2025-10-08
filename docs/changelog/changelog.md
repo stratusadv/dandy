@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.4
+
+### Fixes
+
+- Removed requirement `httpx` and switched to `requests` due to `AsyncFuture` issues causing lock ups.
+
 ## v1.1.3
 
 ### Fixes
