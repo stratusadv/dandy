@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.#
+
+### Changes
+
+- Change the settings `HTTP_CONNECTION_TIMEOUT_SECONDS` to default to `120`.
+
 ## v1.1.4
 
 ### Fixes

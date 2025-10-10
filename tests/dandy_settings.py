@@ -21,39 +21,16 @@ OPEN_AI_CONFIG = {
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
+        'HOST': os.getenv("OLLAMA_2_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
-        'MODEL': 'qwen3-coder:30b',
+        'MODEL': 'qwen3:235b-instruct',
         'TEMPERATURE': 0.5,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'SMART': {
-        'MODEL': 'gemma3:27b',
-        'TEMPERATURE': 0.3,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
-    'SMART_FAST': {
-        'MODEL': 'gemma3:12b',
-        'TEMPERATURE': 0.3,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
-    'GEMMA_3_12B': {
-        'MODEL': 'gemma3:12b',
-        'TEMPERATURE': 0.3,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
-    'FAST': {
-        'MODEL': 'gemma3:4b',
-        'TEMPERATURE': 0.1,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
     'THINKING': {
+        'HOST': os.getenv("OLLAMA_2_HOST"),
         'MODEL': 'qwen3:235b',
         'TEMPERATURE': 0.3,
         'MAX_INPUT_TOKENS': 16000,
@@ -61,22 +38,6 @@ LLM_CONFIGS = {
     },
     'OPEN_AI_API_MODEL': {
         **OPEN_AI_CONFIG,
-        'MODEL': 'gemma3:12b',
+        'MODEL': 'qwen3:30b-instruct',
     },
-    # 'GPT_3_5_TURBO': {
-    #     **OPEN_AI_CONFIG,
-    #     'MODEL': 'gpt-3.5-turbo',
-    # },
-    # 'GPT_4o_MINI': {
-    #     **OPEN_AI_CONFIG,
-    #     'MODEL': 'gpt-4o-mini',
-    # },
-    # 'GPT_4o': {
-    #     **OPEN_AI_CONFIG,
-    #     'MODEL': 'gpt-4o',
-    # },
-    # 'GPT_o3_MINI': {
-    #     **OPEN_AI_CONFIG,
-    #     'MODEL': 'o3-mini',
-    # },
 }
