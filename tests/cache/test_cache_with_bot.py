@@ -41,7 +41,7 @@ class TestCacheBot(TestCase):
         cached_start = time.perf_counter()
 
         money_bag = cached_money_bag_bot.process(
-            user_input='I have 10 coins',
+            user_input='Put 10 coins in my money bag.',
             intel_class=MoneyBagIntel,
             include={'coins'}
         )

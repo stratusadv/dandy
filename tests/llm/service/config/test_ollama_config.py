@@ -23,10 +23,10 @@ class TestConfig(TestCase):
     def test_ollama_max_completion_tokens(self):
         new_bot = Bot(
             llm_config = OllamaLlmConfig(
-                host=os.getenv("OLLAMA_HOST"),
+                host=os.getenv("OLLAMA_1_HOST"),
                 port=int(os.getenv("OLLAMA_PORT", 11434)),
                 api_key=os.getenv("OLLAMA_API_KEY"),
-                model='gemma3:12b',
+                model='qwen3:30b-instruct',
                 max_output_tokens=10,
                 temperature=1.0,
                 prompt_retry_count=3,
