@@ -40,7 +40,7 @@ LLM_CONFIGS = {
         'HOST': os.getenv("OLLAMA_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
         'API_KEY': os.getenv("OLLAMA_API_KEY"), 
-        'MODEL': 'gemma3:12b',
+        'MODEL': 'qwen3:30b-instruct',
     },}
 ```
 

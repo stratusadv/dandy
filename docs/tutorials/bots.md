@@ -42,7 +42,7 @@ class CandyIntel(BaseIntel):
 
 
 class CandyDesignBot(Bot):
-    llm_config = 'GEMMA_3_12B'
+    llm_config = 'SMART'
     llm_config_options = LlmConfigOptions(
         temperature=0.1,
         max_input_tokens=2000,
