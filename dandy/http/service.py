@@ -10,21 +10,21 @@ if TYPE_CHECKING:
     from dandy.http.mixin import HttpServiceMixin
 
 
-class HttpService(BaseService['HttpServiceMixin']):
+class HttpService(BaseService["HttpServiceMixin"]):
     _http_connector = HttpConnector()
 
     obj: HttpServiceMixin
 
     def get(
-            self,
-            url: str,
-            params: dict | None = None,
-            headers: dict | None = None,
-            cookies: dict | None = None,
+        self,
+        url: str,
+        params: dict | None = None,
+        headers: dict | None = None,
+        cookies: dict | None = None,
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method='GET',
+                method="GET",
                 url=url,
                 params=params,
                 headers=headers,
@@ -33,19 +33,19 @@ class HttpService(BaseService['HttpServiceMixin']):
         )
 
     def post(
-            self,
-            url: str,
-            params: dict | None = None,
-            headers: dict | None = None,
-            cookies: dict | None = None,
-            content: str | None = None,
-            data: dict | None = None,
-            files: dict | None = None,
-            json: dict | None = None,
+        self,
+        url: str,
+        params: dict | None = None,
+        headers: dict | None = None,
+        cookies: dict | None = None,
+        content: str | None = None,
+        data: dict | None = None,
+        files: dict | None = None,
+        json: dict | None = None,
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method='POST',
+                method="POST",
                 url=url,
                 params=params,
                 headers=headers,

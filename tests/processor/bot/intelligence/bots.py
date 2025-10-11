@@ -1,9 +1,8 @@
 from pydantic.main import IncEx
 
-from dandy import BaseIntel, Bot, Prompt
 from dandy.processor.bot.bot import Bot
 from dandy.llm.prompt.prompt import Prompt
-from tests.bot.intelligence.intel import MoneyBagIntel
+from tests.processor.bot.intelligence.intel import MoneyBagIntel, HappyIntel, SadIntel
 
 
 class MoneyBagBot(Bot):
@@ -26,21 +25,11 @@ class MoneyBagBot(Bot):
         )
 
 
-class HappyIntel(BaseIntel):
-    description: str
-    happy_level: int
-
-
 class TestingBot(Bot):
     llm_role = "Master of Art Descriptions"
     llm_task = "Do your best to describe a peice of ard you can."
     llm_guidelines = Prompt().list(["Make sure to be creative"])
     llm_intel_class = HappyIntel
-
-
-class SadIntel(BaseIntel):
-    description: str
-    sad_level: int
 
 
 class OtherBot(Bot):

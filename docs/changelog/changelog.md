@@ -6,11 +6,16 @@
 
 - Change the settings `HTTP_CONNECTION_TIMEOUT_SECONDS` to default to `120`.
 
+### Fixes
+
+- Fixed `AsyncFuture` to work with `process` methods to not hang indefinitely when returning `None`.
+- Removed requirement `request` and switched to `httpx`.
+
 ## v1.1.4
 
 ### Fixes
 
-- Removed requirement `httpx` and switched to `requests` due to `AsyncFuture` issues causing lock ups.
+- Removed requirement `httpx` and switched to `requests` due to `AsyncFuture` issues causing lockups.
 
 ## v1.1.3
 

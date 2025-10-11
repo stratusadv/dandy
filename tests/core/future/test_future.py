@@ -5,7 +5,7 @@ from dandy.processor.bot.bot import Bot
 from dandy.core.future import AsyncFuture
 from dandy.core.future.exceptions import FutureRecoverableException
 from dandy.intel.intel import BaseIntel
-from tests.bot.intelligence.bots import TestingBot, OtherBot
+from tests.processor.bot.intelligence.bots import TestingBot, OtherBot
 
 
 class StoryIntel(BaseIntel):

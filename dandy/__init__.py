@@ -1,7 +1,7 @@
 from dandy.intel.intel import BaseIntel, BaseListIntel
 from dandy.processor.bot.bot import Bot
 from dandy.processor.agent.agent import Agent
-from dandy.cache.utils import generate_cache_key
+from dandy.cache.tools import generate_cache_key
 from dandy.core.exceptions import DandyException, DandyRecoverableException, DandyCriticalException
 from dandy.processor.decoder.decoder import Decoder
 from dandy.cache.memory.decorators import cache_to_memory

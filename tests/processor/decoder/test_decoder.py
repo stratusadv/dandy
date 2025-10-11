@@ -10,7 +10,7 @@ from dandy.processor.decoder.exceptions import (
 )
 from dandy.processor.processor import BaseProcessor
 from tests.decorators import nines_testing
-from tests.decoder.intelligence.decoders import FunDecoder, DragonDecoder, AdventureGameDecoder, NestedBirdDecoder
+from tests.processor.decoder.intelligence.decoders import FunDecoder, DragonDecoder, AdventureGameDecoder, NestedBirdDecoder
 
 
 class TestDecoder(TestCase):

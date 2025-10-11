@@ -1,54 +1,61 @@
 from __future__ import annotations
 
 import concurrent.futures
-from time import perf_counter
 
-from typing import Callable, TypeVar, Generic, TYPE_CHECKING
+from typing import Callable, TypeVar, Generic, TYPE_CHECKING, Any
 
-from dandy.core.future.exceptions import FutureRecoverableException
+from dandy.core.future.exceptions import (
+    FutureRecoverableException,
+    FutureCriticalException,
+)
 
 if TYPE_CHECKING:
     from concurrent.futures import Future
 
 async_executor = concurrent.futures.ThreadPoolExecutor()
 
-FutureResultType = TypeVar('FutureResultType')
+FutureResultType = TypeVar("FutureResultType")
 
 
 class AsyncFuture(Generic[FutureResultType]):
     def __init__(self, callable_: Callable[..., FutureResultType], *args, **kwargs):
         self._future: Future = async_executor.submit(callable_, *args, **kwargs)
-        self._future_start_time = perf_counter()
 
-        self._result = None
-        self._result_timeout = None
-        self._using_result_timeout = False
+        self._result: Any = None
+        self._result_fetched: bool = False
+        self._result_timeout: float | None = None
+        self._using_result_timeout: bool = False
 
     def cancel(self) -> bool:
         return self._future.cancel()
 
+    def cancelled(self) -> bool:
+        return self._future.cancelled()
+
+    def done(self) -> bool:
+        return self._future.done()
+
     @property
     def result(self) -> FutureResultType:
-        if self._result:
+        if self._result_fetched:
             return self._result
 
         try:
-            done, not_done = concurrent.futures.wait(
-                [self._future],
+            self._result: FutureResultType = self._future.result(
                 timeout=self._result_timeout
             )
+            self._result_fetched = True
 
-            if self._future in done:
-                self._result: FutureResultType = self._future.result()
+        except concurrent.futures.TimeoutError as error:
+            self.cancel()
+            message = f"Future timed out after {self._result_timeout} seconds"
+            raise FutureRecoverableException(message) from error
 
-                return self._result
-            raise concurrent.futures.TimeoutError
-        except concurrent.futures.TimeoutError:
-            message = f'Future timed out after {self._result_timeout} seconds'
-            raise FutureRecoverableException(message)
-        finally:
-            del self._future
+        return self._result
 
-    def set_timeout(self, seconds: int):
-        self._using_result_timeout = True
+    def set_timeout(self, seconds: float):
+        if seconds <= 0:
+            message = f"Future timeout must be greater than 0.0, not {seconds}"
+            raise FutureCriticalException(message)
+
         self._result_timeout = seconds

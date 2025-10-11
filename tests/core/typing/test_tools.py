@@ -1,4 +1,3 @@
-import json
 from unittest import TestCase
 
 from dandy.core.typing.tools import get_typed_kwargs_from_simple_json_schema
@@ -11,4 +10,6 @@ class TestTypingTools(TestCase):
             simple_json_schema=SIMPLE_JSON_SCHEMA
         )
 
-        print(typed_kwargs)
+        self.assertEqual(typed_kwargs['first_name'], str)
+        self.assertEqual(typed_kwargs['weight'], int)
+        self.assertEqual(typed_kwargs['height'], float)

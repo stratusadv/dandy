@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Type, Any
+from types import UnionType
+from typing import Any, Union
 
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing import Generator, List, Generic, TypeVar, Self, Dict, get_origin
+from typing import Generic, TypeVar, Self, get_origin, Iterator
 
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation
@@ -18,8 +19,8 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def check_inc_ex(
             cls,
-            include_dict: Dict,
-            exclude_dict: Dict,
+            include_dict: dict,
+            exclude_dict: dict,
     ):
 
         field_names = set(cls.model_fields.keys())
@@ -44,10 +45,10 @@ class BaseIntel(BaseModel, ABC):
     @classmethod
     def model_inc_ex_class_copy(
             cls,
-            include: IncEx | Dict | None = None,
-            exclude: IncEx | Dict | None = None,
+            include: IncEx | dict | None = None,
+            exclude: IncEx | dict | None = None,
             intel_object: Self | None = None
-    ) -> Type[BaseIntel]:
+    ) -> type[BaseIntel]:
         if include is None and exclude is None:
             return create_model(
                 cls.__name__,
@@ -58,11 +59,10 @@ class BaseIntel(BaseModel, ABC):
             message = 'include and exclude cannot be used together'
             raise IntelCriticalException(message)
 
-        def inc_ex_dict(inc_ex: IncEx | None) -> Dict:
+        def inc_ex_dict(inc_ex: IncEx | None) -> dict:
             if inc_ex is not None:
-                return inc_ex if isinstance(inc_ex, dict) else {key: True for key in inc_ex}
-            else:
-                return {}
+                return inc_ex if isinstance(inc_ex, dict) else dict.fromkeys(inc_ex, True)
+            return {}
 
         include_dict = inc_ex_dict(include)
         exclude_dict = inc_ex_dict(exclude)
@@ -76,13 +76,13 @@ class BaseIntel(BaseModel, ABC):
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
-            if not isinstance(include_value, Dict) and not isinstance(exclude_value, Dict):
+            if not isinstance(include_value, dict) and not isinstance(exclude_value, dict):
                 if include is None and exclude_value and field_info.is_required():
                     if intel_object is None:
                         message = f'{field_name} is required and cannot be excluded'
                         raise IntelCriticalException(message)
 
-                    elif getattr(intel_object, field_name) is None:
+                    if getattr(intel_object, field_name) is None:
                         message = f'{field_name} is required and has no value therefore cannot be excluded'
                         raise IntelCriticalException(message)
 
@@ -91,19 +91,23 @@ class BaseIntel(BaseModel, ABC):
                         message = f'{field_name} is required and must be included'
                         raise IntelCriticalException(message)
 
-                    elif getattr(intel_object, field_name) is None:
+                    if getattr(intel_object, field_name) is None:
                         message = f"{field_name} is required and has no value therefore it must be included"
                         raise IntelCriticalException(message)
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
 
-            # Todo: this is creating the warning when running test on the Agent (Debug)
+            # TODO: this is creating the warning when running test on the Agent (Debug)
             field_factory = field_info.default_factory or field_info.default
 
-            if isinstance(include_value, Dict) or isinstance(exclude_value, Dict):
+            if isinstance(include_value, dict) or isinstance(exclude_value, dict):
+                field_annotation_origin = field_annotation.origin
+
+                if field_annotation_origin is UnionType:
+                    field_annotation_origin = Union
 
                 if issubclass(field_annotation.first_inner, BaseIntel):
-                    sub_model: Type[BaseIntel] = field_annotation.first_inner
+                    sub_model: type[BaseIntel] = field_annotation.first_inner
 
                     new_sub_model = sub_model.model_inc_ex_class_copy(
                         include=include_value,
@@ -111,7 +115,7 @@ class BaseIntel(BaseModel, ABC):
                     )
 
                     processed_fields[field_name] = (
-                        new_sub_model if field_annotation.origin is None else field_annotation.origin[
+                        new_sub_model if field_annotation_origin is None else field_annotation_origin[
                             new_sub_model
                         ],
                         field_factory,
@@ -119,7 +123,7 @@ class BaseIntel(BaseModel, ABC):
 
                 else:
                     processed_fields[field_name] = (
-                        field_annotation.first_inner if field_annotation.origin is None else field_annotation.origin[
+                        field_annotation.first_inner if field_annotation_origin is None else field_annotation_origin[
                             field_annotation.first_inner
                         ],
                         field_factory,
@@ -142,7 +146,7 @@ class BaseIntel(BaseModel, ABC):
             cls,
             include: IncEx | None = None,
             exclude: IncEx | None = None,
-    ) -> Dict:
+    ) -> dict:
         return cls.model_inc_ex_class_copy(
             include=include,
             exclude=exclude,
@@ -152,7 +156,7 @@ class BaseIntel(BaseModel, ABC):
             self,
             include: IncEx | None = None,
             exclude: IncEx | None = None
-    ) -> Dict:
+    ) -> dict:
         return self.model_inc_ex_class_copy(
             include=include,
             exclude=exclude,
@@ -180,15 +184,15 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         ]
 
         if len(list_fields) != 1:
-            message = f'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing'
+            message = 'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing'
             raise ValueError(message)
 
         self._list_name = list_fields[0]
 
-    def __getitem__(self, index) -> List[T] | T:
+    def __getitem__(self, index) -> list[T] | T:
         return getattr(self, self._list_name)[index]
 
-    def __iter__(self) -> Generator[T, None, None]:
+    def __iter__(self) -> Iterator[T]:
         yield from getattr(self, self._list_name)
 
     def __len__(self) -> int:
@@ -200,7 +204,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     def append(self, item: T):
         getattr(self, self._list_name).append(item)
 
-    def extend(self, items: List[T]):
+    def extend(self, items: list[T]):
         getattr(self, self._list_name).extend(items)
 
 

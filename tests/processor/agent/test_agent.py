@@ -4,7 +4,7 @@ from dandy.processor.agent.exceptions import AgentOverThoughtRecoverableExceptio
 from dandy.conf import settings
 from dandy.processor.processor import BaseProcessor
 from dandy.recorder import recorder_to_html_file
-from tests.agent.intelligence.agents import MuseumEmailAgent
+from tests.processor.agent.intelligence.agents import MuseumEmailAgent
 
 FROM_EMAIL_ADDRESS = 'a.person@some_place.com'
 

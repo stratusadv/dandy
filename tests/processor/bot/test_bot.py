@@ -1,19 +1,19 @@
 from unittest import TestCase
 
 from dandy.processor.processor import BaseProcessor
-from tests.bot.intelligence.intel import MoneyBagIntel
-from tests.bot.intelligence.bots import MoneyBagBot
+from tests.processor.bot.intelligence.intel import MoneyBagIntel
+from tests.processor.bot.intelligence.bots import MoneyBagBot
 from tests.llm.decorators import run_llm_configs
 
 
-class TestLlmBot(TestCase):
-    def test_llm_bot_import(self):
+class TestBot(TestCase):
+    def test_bot_import(self):
         from dandy.processor.bot.bot import Bot
 
         self.assertTrue(type(Bot) is type(BaseProcessor))
 
     @run_llm_configs()
-    def test_llm_bot_intel_class_include(self, llm_config: str):
+    def test_bot_intel_class_include(self, llm_config: str):
         MoneyBagBot().llm_config = llm_config
 
         money_bag = MoneyBagBot().process(
@@ -27,7 +27,7 @@ class TestLlmBot(TestCase):
         self.assertEqual(money_bag.gems, None)
 
     @run_llm_configs()
-    def test_llm_bot_intel_class_exclude(self, llm_config: str):
+    def test_bot_intel_class_exclude(self, llm_config: str):
         MoneyBagBot().llm_config = llm_config
 
         money_bag = MoneyBagBot().process(
@@ -51,7 +51,7 @@ class TestLlmBot(TestCase):
         self.assertGreater(gems_value, 0)
 
     @run_llm_configs()
-    def test_llm_bot_intel_object_include(self, llm_config: str):
+    def test_bot_intel_object_include(self, llm_config: str):
         MoneyBagBot().llm_config = llm_config
 
         coins = 10

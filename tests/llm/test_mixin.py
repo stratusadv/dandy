@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from tests.bot.intelligence.bots import HappyIntel, TestingBot, SadIntel, OtherBot
+from tests.processor.bot.intelligence.bots import TestingBot, OtherBot
+from tests.processor.bot.intelligence.intel import HappyIntel, SadIntel
 
 
 class TestLlmMixin(TestCase):

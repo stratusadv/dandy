@@ -1,7 +1,5 @@
-from dandy import Bot
 from dandy.processor.bot.bot import Bot
-from dandy.intel.intel import BaseIntel
-from tests.agent.intelligence.intel import EmailAddressIntel, EmailBodyIntel
+from tests.processor.agent.intelligence.intel import EmailAddressIntel, EmailBodyIntel
 
 
 class MuseumEmailFinderBot(Bot):
@@ -14,10 +12,9 @@ class MuseumEmailFinderBot(Bot):
             return EmailAddressIntel(
                 email_address='info@theroyaltyrrellmuseum.com'
             )
-        else:
-            return EmailAddressIntel(
-                email_address=f'info@{"_".join(museum_name.lower().split(" "))}.com'
-            )
+        return EmailAddressIntel(
+            email_address=f'info@{"_".join(museum_name.lower().split(" "))}.com'
+        )
 
 
 class EmailProofReadingBot(Bot):

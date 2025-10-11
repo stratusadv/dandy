@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from pydantic import BaseModel
 
-from dandy.cache.utils import convert_to_hashable_str, generate_cache_key
+from dandy.cache.tools import convert_to_hashable_str, generate_cache_key
 
 from tests.intel.intelligence.intel import PersonIntel, BagIntel, ThingIntel
 

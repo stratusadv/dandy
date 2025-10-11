@@ -1,5 +1,5 @@
-from typing import List
 
+from dandy import BaseIntel
 from dandy.intel.intel import BaseIntel
 
 
@@ -12,4 +12,14 @@ class GemIntel(BaseIntel):
 class MoneyBagIntel(BaseIntel):
     coins: int
     bills: int | None = None
-    gems: List[GemIntel] | None = None
+    gems: list[GemIntel] | None = None
+
+
+class HappyIntel(BaseIntel):
+    description: str
+    happy_level: int
+
+
+class SadIntel(BaseIntel):
+    description: str
+    sad_level: int
