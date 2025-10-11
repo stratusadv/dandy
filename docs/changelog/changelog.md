@@ -10,6 +10,7 @@
 
 - Fixed `AsyncFuture` to work with `process` methods to not hang indefinitely when returning `None`.
 - Removed requirement `request` and switched to `httpx`.
+- Correct the `UnionType` type to convert to `Union` when using the `BaseIntel.model_inc_ex_class_copy`.
 
 ## v1.1.4
 

@@ -1,14 +1,14 @@
 from time import time
 
 from pydantic import Field, PrivateAttr
-from typing import List, Any, Generic
+from typing import Any, Generic
 
 from dandy.processor.agent.plan.type_vars import AgentTaskIntelType
 from dandy.intel.intel import BaseIntel
 
 
 class AgentPlanIntel(BaseIntel, Generic[AgentTaskIntelType]):
-    tasks: List[AgentTaskIntelType] = Field(default_factory=list)
+    tasks: list[AgentTaskIntelType] = Field(default_factory=list)
     _plan_time_limit_seconds: int = 0
     _active_task_index: int = 0
     _plan_start_time: float = PrivateAttr(default_factory=time)

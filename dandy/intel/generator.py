@@ -1,13 +1,9 @@
-import inspect
-from typing import Any
+from typing import Callable, Type
 
 from pydantic import create_model
-from typing import Callable, Type, Dict, Tuple
 
 from dandy.core.typing.tools import get_typed_kwargs_from_callable_signature, get_typed_kwargs_from_simple_json_schema
 from dandy.core.typing.typed_kwargs import TypedKwargs
-from dandy.core.typing.typing import TypedKwargsDict
-from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.intel import BaseIntel
 
 
