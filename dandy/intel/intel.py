@@ -68,9 +68,6 @@ class BaseIntel(BaseModel, ABC):
             # The is a pydantic quirk for dealing with default factory of list
             field_factory = field_info.default_factory or field_info.default
 
-            if issubclass(field_factory, list):
-                print(field_factory)
-
             field_annotation_type = False
 
             if isinstance(include_value, dict) or isinstance(exclude_value, dict):
