@@ -8,12 +8,11 @@ from dandy.consts import TOOLBOX_DEFAULT_ENV_FILE_NAMES
 from dandy.core.utils import get_settings_module_name
 
 
-def check_or_create_settings(cwd_path: Path) -> None:
+def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool = True) -> None:
     settings_module_name = get_settings_module_name()
 
     try:
         importlib.import_module(settings_module_name)
-        return
     except ImportError:
         print(f'Could not find "{settings_module_name}" in your project.')
 
@@ -33,8 +32,9 @@ def check_or_create_settings(cwd_path: Path) -> None:
 
         print(f'You need to add "DANDY_SETTINGS_MODULE={settings_module_name}" to your environment variables.')
         print(f'Setup of "BASE_PATH" and "LLM_CONFIGS" are required in your new settings before proceeding.')
-        
-        sys.exit(0)
+
+        if system_exit_on_import_error:
+            sys.exit(0)
 
 def load_environment_variables(cwd_path: Path) -> None:
     for env_file_name in TOOLBOX_DEFAULT_ENV_FILE_NAMES:

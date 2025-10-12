@@ -61,7 +61,7 @@ jobs:
           PYTHONPATH=. mkdocs build --strict
 
   optional-testing:
-    needs: critical-testing
+    needs: documentation-testing
     runs-on: ubuntu-latest
     continue-on-error: true
 
