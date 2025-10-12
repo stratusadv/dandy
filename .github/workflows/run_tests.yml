@@ -39,7 +39,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -e .      
+          pip install -e .[development,documentation]
 
       - name: Package Tests
         run: |
