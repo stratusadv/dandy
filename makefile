@@ -1,18 +1,18 @@
-.PHONY: docs help py test win-a linux-a
+.PHONY: coverage docs help py test win-a linux-a
 
 include development.env
 export
 
 help:
-	@echo Available commands:
-	@echo - test: Run unit tests
-	@echo - win-a: Activate virtual environment on Windows
-	@echo - linux-a: Activate virtual environment on Linux
-	@echo - py: Run Python with arguments
-	@echo - help: Display this help message
+	@echo Dandy Makefile:
+
+coverage:
+	pip install coverage
+	coverage run --data-file=.coverage/data/.coverage -m unittest discover -v ./tests
+	coverage html --data-file=.coverage/data/.coverage -d .coverage/report
 
 docs:
-	@mkdocs serve
+	mkdocs serve
 
 py:
 	python $(ARGS)

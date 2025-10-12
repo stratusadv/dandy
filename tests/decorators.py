@@ -1,13 +1,14 @@
 import os
 from functools import wraps
+from typing import Callable
 
 from dandy.core.exceptions import DandyException
 
 
-def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
-    def decorator(func):
+def nines_testing(nines: int = int(os.getenv("TESTING_NINES", '0'))):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> None:
             if nines == 0:
                 func(
                     *args,
@@ -15,9 +16,12 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
                 )
 
             else:
-                print(f'Running {func.__qualname__} {nines} nines testing ...')
-
                 loop_count = 10 ** nines
+
+                nines_string = str(float('0.' + '9' * nines) * 100)
+
+                print(f'\nRunning "{func.__qualname__}" with Nines Testing at {nines_string}% Pass Rate Requirement ...')
+
                 has_raised_one_exception = False
 
                 for _ in range(loop_count):
@@ -27,12 +31,11 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", 0))):
                             **kwargs
                         )
 
-                    except Exception as e:
-                        if isinstance(e, DandyException) and not has_raised_one_exception:
+                    except Exception as error:
+                        if isinstance(error, DandyException) and not has_raised_one_exception:
                             has_raised_one_exception = True
-
                         else:
-                            raise e
+                            raise
 
         return wrapper
 

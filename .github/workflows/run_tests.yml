@@ -12,30 +12,25 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  OLLAMA_1_HOST: ${{ secrets.OLLAMA_1_HOST }}
+  OLLAMA_2_HOST: ${{ secrets.OLLAMA_2_HOST }}
+  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+  OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+
 jobs:
-  build:
+  critical-testing:
     runs-on: ubuntu-latest
-
-    strategy:
-      max-parallel: 1
-      matrix:
-        python-version: ['3.11', '3.12', '3.13', '3.14']
-
-    env:
-      OLLAMA_1_HOST: ${{ secrets.OLLAMA_1_HOST }}
-      OLLAMA_2_HOST: ${{ secrets.OLLAMA_2_HOST }}
-      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-      OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.11
 
       - name: Install Dependencies
         run: |
@@ -45,6 +40,46 @@ jobs:
         run: |
           python -m unittest discover -v ./tests
 
+  documentation-testing:
+    needs: critical-testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .[development,documentation]
+
       - name: Documentation Tests
         run: |
           PYTHONPATH=. mkdocs build --strict
+
+  optional-testing:
+    needs: critical-testing
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    env:
+      TEST_NINES: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .[development,documentation]
+
+      - name: Nines Testing
+        run: |
+          python -m unittest discover -v ./tests

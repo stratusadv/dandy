@@ -17,8 +17,8 @@ DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTOR
 
 
 class Recorder(Singleton):
-    recordings: Dict[str, Recording] = dict()
-    renderers: Dict[str, Type[BaseRecordingRenderer]] = {
+    recordings: dict[str, Recording] = {}
+    renderers: dict[str, Type[BaseRecordingRenderer]] = {
         'html': HtmlRecordingRenderer,
         'json': JsonRecordingRenderer,
         'markdown': MarkdownRecordingRenderer,
@@ -96,6 +96,8 @@ class Recorder(Singleton):
             return cls.renderers[renderer](
                 recording=cls.recordings[recording_name]
             ).to_str()
+
+        return None
 
     @classmethod
     def to_file(

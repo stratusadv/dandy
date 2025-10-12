@@ -11,20 +11,19 @@ class TypedKwargs(UserDict):
     def __init__(
             self,
             data: TypedKwargsDict | dict[Any, Any],
-            metadata = None
     ):
         super().__init__(data)
-        self.metadata = metadata
 
     def __contains__(self, item: Self) -> bool:
         if not isinstance(item, TypedKwargs):
             message = f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
             raise DandyCriticalException(message)
 
+        # This checks to make sure the item being compare is a subset
         if not self.data.keys() >= item.data.keys():
             return False
 
-        for key, value in item.items():
+        for key in item:
             first_type = self[key][0]
             second_type = item[key][0]
 
@@ -38,7 +37,7 @@ class TypedKwargs(UserDict):
                     type_str=second_type
                 )
 
-            if not first_type is second_type:
+            if first_type is not second_type:
                 return False
 
         return True

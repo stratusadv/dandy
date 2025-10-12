@@ -1,5 +1,5 @@
 from typing import Any
 
-from typing import Dict, Tuple, NewType
+from typing import NewType
 
-TypedKwargsDict = NewType('TypedKwargsDict', Dict[str, Tuple[type, Any]])
+TypedKwargsDict = NewType('TypedKwargsDict', dict[str, tuple[type, Any]])
