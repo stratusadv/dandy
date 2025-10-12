@@ -1,16 +1,20 @@
 # Changelog
 
-## v1.1.#
+## v1.1.5
 
 ### Changes
 
 - Change the settings `HTTP_CONNECTION_TIMEOUT_SECONDS` to default to `120`.
+- Refactor project structure and configuration files.
+- Adjust the testing module structure to match the current dandy structure.
 
 ### Fixes
 
 - Fixed `AsyncFuture` to work with `process` methods to not hang indefinitely when returning `None`.
 - Removed requirement `request` and switched to `httpx`.
 - Correct the `UnionType` type to convert to `Union` when using the `BaseIntel.model_inc_ex_class_copy`.
+- Fixed a bug with `BaseIntel.model_inv_ex_class_copy` not parsing default values correctly.
+- Update documentation to work properly with dandy v1.
 
 ## v1.1.4
 

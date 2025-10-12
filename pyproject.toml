@@ -20,6 +20,35 @@ classifiers = [
 requires-python = ">=3.11"
 dynamic = ["version", "dependencies"]
 
+dependencies = [
+    "bottle==0.13.4",
+    "httpx==0.28.1",
+    "pydantic==2.12.0",
+    "python-dotenv==1.1.1"
+]
+
+[project.optional-dependencies]
+development = [
+    "build",
+    "Faker",
+    "setuptools",
+    "twine",
+    "wheel"
+]
+
+documentation = [
+    "mkdocs",
+    "markdown-exec[ansi]",
+    "mkdocstrings-python",
+    "mkdocs-gen-files",
+    "mkdocs-include-markdown-plugin",
+    "mkdocs-literate-nav",
+    "mkdocs-material",
+    "mkdocs-section-index",
+    "mkdocs-table-reader-plugin",
+    "openpyxl"
+]
+
 [project.scripts]
 dandy = "dandy.toolbox.main:main"
 

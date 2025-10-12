@@ -64,9 +64,7 @@ class BaseIntel(BaseModel, ABC):
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
 
-            # TODO: this is creating the warning when running test on the Agent (Debug)
-            # The is a pydantic quirk for dealing with default factory of list
-            field_factory = field_info.default_factory or field_info.default
+            field_default_value = cls._get_field_default_value_from_field_info(field_info)
 
             field_annotation_type = False
 
@@ -105,7 +103,7 @@ class BaseIntel(BaseModel, ABC):
             if field_annotation_type:
                 processed_fields[field_name] = (
                     field_annotation_type,
-                    field_factory,
+                    field_default_value,
                 )
 
         return create_model(cls.__name__, **processed_fields, __base__=BaseIntel)
@@ -135,6 +133,18 @@ class BaseIntel(BaseModel, ABC):
 
     def model_validate_json_and_copy(self, json_data: str) -> Self:
         return self.model_validate_and_copy(update=from_json(json_data))
+
+    @classmethod
+    def _get_field_default_value_from_field_info(
+        cls,
+        field_info: Any,
+    ) -> Any:
+        field_default_value = field_info.default_factory or field_info.default
+
+        if isinstance(field_default_value, type):
+            field_default_value = field_default_value()
+
+        return field_default_value
 
     @classmethod
     def _validate_inc_ex_dict_or_error(

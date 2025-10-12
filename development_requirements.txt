@@ -1,8 +1,0 @@
-build
-Faker
-setuptools
-twine
-wheel
-
--r mkdocs_requirements.txt
--r requirements.txt

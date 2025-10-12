@@ -31,7 +31,7 @@ LLM_CONFIGS = {
     },
     'SMART': {
         'HOST': os.getenv("OLLAMA_2_HOST"),
-        'MODEL': 'qwen3:235b',
+        'MODEL': 'qwen3:235b-instruct',
         'TEMPERATURE': 0.4,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
