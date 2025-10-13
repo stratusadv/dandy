@@ -2,14 +2,13 @@
 name = "dandy"
 description = "Python Artificial Intelligence Framework"
 readme = { file = "README.md", content-type = "text/markdown" }
-license = { file = "LICENSE.md", content-type = "text/markdown" }
+license = "MIT"
 authors = [
     { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
 ]
 keywords = ["dandy", "ai", "llm", "agent", "prompt", "gpt", "bot", "workflow", "automation", "artificial intelligence"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -81,24 +80,6 @@ omit = [
 [tool.setuptools.package-data]
 dandy = [
     "**/*.html",
-]
-
-[tool.setuptools.sdist]
-include = [
-    "README.md",
-    "LICENSE.md",
-    "CHANGELOG.md",
-    "CONTRIBUTORS.md",
-]
-exclude = [
-    "*.db",
-    ".github/**",
-    ".venv/**",
-    ".run/**",
-    ".dev/**",
-    "docs/**",
-    "example/**",
-    "tests/**",
 ]
 
 [tool.setuptools.dynamic]
