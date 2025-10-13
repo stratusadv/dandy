@@ -83,6 +83,24 @@ dandy = [
     "**/*.html",
 ]
 
+[tool.setuptools.sdist]
+include = [
+    "README.md",
+    "LICENSE.md",
+    "CHANGELOG.md",
+    "CONTRIBUTORS.md",
+]
+exclude = [
+    "*.db",
+    ".github/**",
+    ".venv/**",
+    ".run/**",
+    ".dev/**",
+    "docs/**",
+    "example/**",
+    "tests/**",
+]
+
 [tool.setuptools.dynamic]
 version = { attr = "dandy.consts.__VERSION__" }
 
