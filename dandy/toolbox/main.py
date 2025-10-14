@@ -1,5 +1,3 @@
-import logging
-
 from bottle import route, run, static_file, TEMPLATE_PATH, template
 import sys
 from pathlib import Path
@@ -7,6 +5,7 @@ from pathlib import Path
 CWD_PATH = Path.cwd()
 
 sys.path.append(str(CWD_PATH))
+
 
 def main():
     from dandy.toolbox.utils import check_or_create_settings, load_environment_variables
@@ -24,7 +23,7 @@ def main():
         return template('index.html')
 
     @route('/static/<filepath:path>')
-    def server_static(filepath):
+    def server_static(filepath: Path | str):
         return static_file(filepath, root=f'{CWD_PATH}/static/files')
 
     run(
@@ -34,6 +33,8 @@ def main():
         reloader=settings.DEBUG,
     )
 
+
 if __name__ == '__main__':
     print('Starting Dandy Toolbox...')
-    exit(main())
+
+    sys.exit(main())

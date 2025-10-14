@@ -68,16 +68,15 @@ class LlmConfigs:
 
         self.choices = list(settings.LLM_CONFIGS.keys())
 
-    def __getattr__(self, item) -> BaseLlmConfig:
+    def __getattr__(self, item: str) -> BaseLlmConfig:
         llm_config = f'_{item}'
-        if llm_config in self.__dict__:
-            if isinstance(getattr(self, llm_config), BaseLlmConfig):
+        if llm_config in self.__dict__ and isinstance(getattr(self, llm_config), BaseLlmConfig):
                 return getattr(self, llm_config)
 
         message = f'No llm config named "{item}" found in your settings, choices are {self.choices}.'
         raise DandyException(message)
 
-    def __getitem__(self, item) -> BaseLlmConfig:
+    def __getitem__(self, item: str) -> BaseLlmConfig:
         return getattr(self, item)
 
 

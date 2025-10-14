@@ -1,4 +1,4 @@
-from dandy.processor.agent.plan.task.task import AgentTaskIntel
+from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
 from dandy.processor.strategy import BaseProcessorsStrategy
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
@@ -13,8 +13,8 @@ def agent_create_plan_prompt(
         Prompt()
         .prompt(instructions_prompt)
         .line_break()
-        .text('Please create a good plan with a set of tasks to accomplish the given request by the user.')
-        .text('Make sure to assign the mos relevant processor to each task created.')
+        .text('Please create a thorough plan with a set of tasks to accomplish the provided request.')
+        .text('Make sure to assign the most relevant processor to each task created.')
         .line_break()
         .sub_heading('Processors')
         .dict(processors_strategy.as_dict())
@@ -23,7 +23,7 @@ def agent_create_plan_prompt(
     )
 
 def agent_do_task_prompt(
-        task: AgentTaskIntel
+        task: TaskIntel
 ) -> Prompt:
     return (
         Prompt()

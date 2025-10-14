@@ -11,7 +11,8 @@
 ### Changes
 
 - Refactored `async_executor` to `thread_pool_executor`.
-- changed the setting `HTTP_CONNECTION_RETRY_COUNT` to default to `4`.
+- Changed the setting `HTTP_CONNECTION_RETRY_COUNT` to default to `4`.
+- The `Agent` now uses `TypedBot` instead of `Bot` as a default for `processors` 
 
 ### Fixes
 
@@ -22,6 +23,7 @@
 - Strategically moved coverage up to 94% improving previous tests and covering more edge cases.
 - Improved typing and type handling in `dandy.core.typing` to be more compatible and flexible.
 - Added proper handling of `httpx.TimeoutException` to provide better debugging.
+- Reworded a lot of the prompts built into Dandy to improve responses and error correction.
 
 ## v1.1.5
 

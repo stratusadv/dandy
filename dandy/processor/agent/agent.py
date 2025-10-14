@@ -14,8 +14,8 @@ from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
+from dandy.processor.agent.intelligence.intel.plan_intel import PlanIntel
 from dandy.processor.agent.intelligence.typed_bot import TypedBot
-from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.intelligence.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
@@ -87,24 +87,24 @@ class Agent(
             recorder_event_id
         )
 
-        plan = self._create_plan(prompt)
+        plan_intel = self._create_plan(prompt)
 
         recorder_add_llm_agent_finished_creating_plan_event(
-            plan,
+            plan_intel,
             recorder_event_id
         )
 
         recorder_add_llm_agent_running_plan_event(
-            plan,
+            plan_intel,
             recorder_event_id
         )
 
-        while plan.is_incomplete:
-            if plan.has_exceeded_time_limit:
+        while plan_intel.is_incomplete:
+            if plan_intel.has_exceeded_time_limit:
                 message = f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
                 raise AgentOverThoughtRecoverableException(message)
 
-            task = plan.active_task
+            task = plan_intel.active_task
 
             recorder_add_llm_agent_start_task_event(
                 task,
@@ -121,7 +121,7 @@ class Agent(
             )
 
             task.actual_result = updated_task.actual_result
-            plan.set_active_task_complete()
+            plan_intel.set_active_task_complete()
 
             recorder_add_llm_agent_completed_task_event(
                 task,
@@ -130,12 +130,12 @@ class Agent(
             )
 
         recorder_add_llm_agent_done_executing_plan_event(
-            plan,
+            plan_intel,
             recorder_event_id
         )
 
         recorder_add_llm_agent_processing_final_result_event(
-            plan,
+            plan_intel,
             recorder_event_id
         )
 
@@ -144,7 +144,7 @@ class Agent(
 
         postfix_system_prompt.text('Use the results of the below simulated plan to accomplish the user request:')
         postfix_system_prompt.line_break()
-        postfix_system_prompt.prompt(plan.to_prompt())
+        postfix_system_prompt.prompt(plan_intel.to_prompt())
 
         return self.llm.prompt_to_intel(
             prompt=prompt,
@@ -161,30 +161,30 @@ class Agent(
     def _create_plan(
             self,
             prompt: PromptOrStr,
-    ) -> LlmAgentPlanIntel:
-        plan = self.llm.prompt_to_intel(
+    ) -> PlanIntel:
+        plan_intel = self.llm.prompt_to_intel(
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
                 instructions_prompt=self.llm_role,
                 processors_strategy=self._processors_strategy,
             ),
-            intel_class=LlmAgentPlanIntel,
+            intel_class=PlanIntel,
             include_fields={
                 'tasks': {'description', 'desired_result'}
             }
         )
 
-        plan.set_plan_time_limit(self.plan_time_limit_seconds)
+        plan_intel.set_plan_time_limit(self.plan_time_limit_seconds)
 
-        self._validate_plan_or_error(plan)
+        self._validate_plan_or_error(plan_intel)
 
-        return plan
+        return plan_intel
 
-    def _validate_plan_or_error(self, plan: LlmAgentPlanIntel):
-        if plan.tasks is None or len(plan.tasks) == 0:
+    def _validate_plan_or_error(self, plan_intel: PlanIntel):
+        if plan_intel.tasks is None or len(plan_intel.tasks) == 0:
             message = f'{self.__class__.__name__} created plan that has no tasks.'
             raise AgentRecoverableException(message)
 
-        if len(plan.tasks) > self.plan_task_count_limit:
-            message = f'{self.__class__.__name__} created plan had {len(plan.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
+        if len(plan_intel.tasks) > self.plan_task_count_limit:
+            message = f'{self.__class__.__name__} created plan had {len(plan_intel.tasks)} tasks which is more than the limit of {self.plan_task_count_limit}.'
             raise AgentOverThoughtRecoverableException(message)

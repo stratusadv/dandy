@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from typing import Dict, Type
+from typing import Type
 
 from dandy.conf import settings
 from dandy.consts import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
@@ -57,7 +57,9 @@ class Recorder(Singleton):
 
     @classmethod
     def is_recording(cls):
-        return any([recording.is_running for recording in cls.recordings.values()])
+        return any(
+            recording.is_running for recording in cls.recordings.values()
+        )
 
     @classmethod
     def start_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):

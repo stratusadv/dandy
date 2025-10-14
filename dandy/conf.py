@@ -14,16 +14,16 @@ class DandySettings:
         if self._settings_module_name is not None:
             try:
                 self._user_settings = importlib.import_module(self._settings_module_name)
-            except ImportError:
+            except ImportError as error:
                 message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.'
-                raise DandyCriticalException(message)
+                raise DandyCriticalException(message) from error
         else:
             try:
                 from tests import dandy_settings as user_settings
                 self._user_settings = user_settings
-            except ImportError:
+            except ImportError as error:
                 message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project root directory or python path directory.'
-                raise DandyCriticalException(message)
+                raise DandyCriticalException(message) from error
 
         if self._default_settings.BASE_PATH is None and self._user_settings.BASE_PATH is None:
             message = f'You need a BASE_PATH in your "{self._settings_module_name}".'
@@ -33,7 +33,7 @@ class DandySettings:
             message = f'You need a "default" to the "LLM_CONFIG" in your "{self._settings_module_name}".'
             raise DandyCriticalException(message)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if hasattr(self._user_settings, name):
             return getattr(self._user_settings, name)
 

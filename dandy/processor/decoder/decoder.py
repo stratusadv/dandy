@@ -10,14 +10,21 @@ from dandy.processor.decoder.exceptions import (
     DecoderCriticalException,
     DecoderRecoverableException,
     DecoderNoKeysRecoverableException,
-    DecoderToManyKeysRecoverableException
+    DecoderToManyKeysRecoverableException,
 )
-from dandy.processor.decoder.intel import DecoderKeysIntel, DecoderKeyIntel, DecoderValuesIntel
+from dandy.processor.decoder.intel import (
+    DecoderKeysIntel,
+    DecoderKeyIntel,
+    DecoderValuesIntel,
+)
 from dandy.processor.decoder.intelligence.prompts import (
     decoder_no_key_error_prompt,
-    decoder_max_key_count_error_prompt
+    decoder_max_key_count_error_prompt,
 )
-from dandy.processor.decoder.recorder import recorder_add_process_decoder_value_event, recorder_add_chosen_mappings_event
+from dandy.processor.decoder.recorder import (
+    recorder_add_process_decoder_value_event,
+    recorder_add_chosen_mappings_event,
+)
 from dandy.processor.decoder.service import DecoderService
 from dandy.processor.processor import BaseProcessor
 
@@ -46,14 +53,11 @@ class Decoder(
                     choice,
                     self.__class__(
                         mapping_keys_description=self.mapping_keys_description,
-                        mapping=value
-                    )
+                        mapping=value,
+                    ),
                 )
             else:
-                keyed_mapping[key] = (
-                    choice,
-                    value
-                )
+                keyed_mapping[key] = (choice, value)
         return keyed_mapping
 
     def __init_subclass__(cls):
@@ -85,10 +89,7 @@ class Decoder(
     def as_enum(self) -> Enum:
         return Enum(
             f'{self.__class__.__name__}Enum',
-            {
-                value[0]: key
-                for key, value in self._keyed_mapping.items()
-            }
+            {value[0]: key for key, value in self._keyed_mapping.items()},
         )
 
     def _get_selected_key(self, choice_key: str) -> Any:
@@ -98,20 +99,17 @@ class Decoder(
         return self._keyed_mapping[choice_key][1]
 
     def process(
-            self,
-            prompt: PromptOrStr,
-            max_return_values: int | None = None,
+        self,
+        prompt: PromptOrStr,
+        max_return_values: int | None = None,
     ) -> DecoderValuesIntel:
-        return self._process_decoder_to_intel(
-            prompt,
-            max_return_values
-        )
+        return self._process_decoder_to_intel(prompt, max_return_values)
 
     def _process_decoder_to_intel(
-            self,
-            prompt: PromptOrStr,
-            max_return_values: int | None = None,
-            mapping_name: str | None = None,
+        self,
+        prompt: PromptOrStr,
+        max_return_values: int | None = None,
+        mapping_name: str | None = None,
     ) -> DecoderValuesIntel:
         decoder_values_intel = DecoderValuesIntel()
         chosen_mappings = {}
@@ -122,7 +120,9 @@ class Decoder(
             event_id=self._recorder_event_id,
         )
 
-        for decoder_enum in self._process_decoder_prompt_to_intel(prompt, max_return_values):
+        for decoder_enum in self._process_decoder_prompt_to_intel(
+            prompt, max_return_values
+        ):
             decoder_value = self._get_selected_value(decoder_enum.value)
 
             if isinstance(decoder_value, Decoder):
@@ -135,8 +135,8 @@ class Decoder(
                 )
             else:
                 decoder_values_intel.append(decoder_value)
-                chosen_mappings[decoder_value] = (
-                    str(self._get_selected_key(decoder_enum.value))
+                chosen_mappings[decoder_value] = str(
+                    self._get_selected_key(decoder_enum.value)
                 )
 
         if chosen_mappings:
@@ -149,11 +149,10 @@ class Decoder(
         return decoder_values_intel
 
     def _process_decoder_prompt_to_intel(
-            self,
-            prompt: PromptOrStr,
-            max_return_values: int | None = None,
+        self,
+        prompt: PromptOrStr,
+        max_return_values: int | None = None,
     ) -> DecoderKeysIntel:
-
         if max_return_values is not None and max_return_values > 1:
             intel_class = DecoderKeysIntel[self.as_enum()]
         else:
@@ -179,10 +178,10 @@ class Decoder(
                 if self.llm.has_retry_attempts_available:
                     return_keys_intel = self.llm.retry_request_to_intel(
                         retry_event_description='Decoder keys intel object came back empty, retrying with no key(s) prompt.',
-                        retry_user_prompt=decoder_no_key_error_prompt()
+                        retry_user_prompt=decoder_no_key_error_prompt(),
                     )
                 else:
-                    raise error
+                    raise
 
             except DecoderToManyKeysRecoverableException as error:
                 recorder_add_llm_failure_event(error, self.llm._event_id)
@@ -192,25 +191,26 @@ class Decoder(
                         retry_event_description='Decoder keys intel object came back with to many keys, retrying with to many key(s) prompt.',
                         retry_user_prompt=decoder_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),
-                            max_count=max_return_values if max_return_values is not None else 0,
-                        )
+                            max_count=max_return_values
+                            if max_return_values is not None
+                            else 0,
+                        ),
                     )
 
                 else:
-                    raise error
+                    raise
 
         try:
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
         except DecoderRecoverableException as error:
             recorder_add_llm_failure_event(error, self.llm._event_id)
-            raise error
+            raise
 
         return return_keys_intel
 
     def _process_return_keys_intel(
-            self,
-            return_keys_intel: DecoderKeysIntel | DecoderKeyIntel
+        self, return_keys_intel: DecoderKeysIntel | DecoderKeyIntel
     ) -> DecoderKeysIntel:
         if isinstance(return_keys_intel, DecoderKeyIntel):
             return_keys_intel = DecoderKeysIntel[self.as_enum()](
@@ -231,19 +231,24 @@ class Decoder(
         guidelines_prompt = Prompt()
 
         guidelines_prompt.text(
-            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.')
+            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.'
+        )
 
         guidelines_prompt.line_break()
 
         if max_return_values is not None and max_return_values > 0:
             if max_return_values == 1:
-                guidelines_prompt.text(f'You must return exactly one numbered {key_str}.')
+                guidelines_prompt.text(
+                    f'You must return exactly one numbered {key_str}.'
+                )
             else:
                 guidelines_prompt.text(
-                    f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.')
+                    f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.'
+                )
         else:
             guidelines_prompt.text(
-                f'Return the numbered {key_str} you find that are relevant to the user\'s response and return at least one.')
+                f"Return the numbered {key_str} you find that are relevant to the user's response and return at least one."
+            )
 
         guidelines_prompt.line_break()
         guidelines_prompt.heading(f'"{self.mapping_keys_description}"')
@@ -254,9 +259,9 @@ class Decoder(
         self.llm_guidelines = guidelines_prompt
 
     def _validate_return_keys_intel(
-            self,
-            return_keys_intel: DecoderKeysIntel | DecoderKeyIntel,
-            max_return_values: int | None = None,
+        self,
+        return_keys_intel: DecoderKeysIntel | DecoderKeyIntel,
+        max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
             message = f'No {self.mapping_keys_description} found.'

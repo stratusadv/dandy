@@ -21,11 +21,10 @@ class IntelFactory:
         if isinstance(intel, BaseIntel):
             return object_func(**kwargs)
 
-        elif issubclass(intel, BaseIntel):
+        if issubclass(intel, BaseIntel):
             return class_func(**kwargs)
 
-        else:
-            raise IntelFactory._raise_invalid_intel_type(intel)
+        raise IntelFactory._raise_invalid_intel_type(intel)
 
     @classmethod
     def intel_to_json_inc_ex_schema(
@@ -54,5 +53,5 @@ class IntelFactory:
             intel=intel,
             class_func=intel.model_validate_json,
             object_func=intel.model_validate_json_and_copy,
-            json_data=json_str
+            json_str=json_str
         )

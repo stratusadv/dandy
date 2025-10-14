@@ -27,13 +27,11 @@ class Bot(
             *args,
             **kwargs,
     ) -> Any:
-        if len(args) >= 1:
-            if isinstance(args[0], PromptOrStr):
-                kwargs['prompt'] = args[0]
+        if len(args) >= 1 and isinstance(args[0], PromptOrStr):
+            kwargs['prompt'] = args[0]
 
-        if len(args) == 2:
-            if issubclass(args[1], BaseIntel):
-                kwargs['intel_class'] = args[1]
+        if len(args) == 2 and issubclass(args[1], BaseIntel):
+            kwargs['intel_class'] = args[1]
 
         if 'prompt' in kwargs:
             return self.llm.prompt_to_intel(
