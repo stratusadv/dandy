@@ -37,11 +37,8 @@ def get_dir_list(
     file_extensions: Sequence[str] | None = None,
     _current_depth: int = 0,
 ) -> list[str]:
-    if file_extensions is not None:
-        file_extensions = [
-            ext if ext[0:1] == '.' else f'.{ext}'
-            for ext in file_extensions
-        ]
+    if _current_depth == 0:
+        file_extensions = _clean_file_extensions(file_extensions)
 
     items = []
 
@@ -64,3 +61,9 @@ def get_dir_list(
         pass
 
     return items
+
+def _clean_file_extensions(file_extensions: Sequence[str]) -> Sequence[str]:
+    return [
+        ext if ext[0:1] == '.' else f'.{ext}'
+        for ext in file_extensions
+    ]

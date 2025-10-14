@@ -1,5 +1,6 @@
 from time import perf_counter, sleep
 from unittest import TestCase
+from itertools import combinations
 
 from dandy.processor.bot.bot import Bot
 from dandy.core.future import AsyncFuture
@@ -24,9 +25,8 @@ TEST_FUTURE_SLEEP_TIME = 5.0
 TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + (TEST_FUTURE_SLEEP_TIME * 0.1)
 
 
-def square_number(x) -> int:
-    import time
-    time.sleep(TEST_FUTURE_SLEEP_TIME)
+def square_number(x: int) -> int:
+    sleep(TEST_FUTURE_SLEEP_TIME)
     return x * x
 
 
@@ -48,7 +48,7 @@ class TestFuture(TestCase):
     def test_future_timeout(self):
         with self.assertRaises(FutureRecoverableException):
             squared_future = AsyncFuture(square_number, 5)
-            squared_future.set_timeout(1)
+            squared_future.set_timeout(0.1)
             _ = squared_future.result
 
     def test_bot_future(self):
@@ -64,58 +64,31 @@ class TestFuture(TestCase):
         testy_bot = TestingBot()
         othering_bot = OtherBot()
 
-        happy_intel_future = testing_bot.process_to_future(
-            'fedora hats and canes'
-        )
+        bot_prompts = [
+            (testing_bot, 'fedora hats and canes'),
+            (other_bot, 'I wear a bowler hat and enjoy fighting'),
+            (testy_bot, 'Ball gowns and Chandeliers'),
+            (othering_bot, 'I wear a soldier helmet and I came back from WW2'),
+            (testing_bot, 'With a clown wig and balloons'),
+            (other_bot, 'Steam top Hat and a Monocle'),
+            (testy_bot, 'Wet boot on my head and I am missing teeth'),
+            (othering_bot, 'Spiked hair and some army boots'),
+            (testing_bot, 'I caught fire and now Fireworks are my Hat'),
+            (other_bot, 'Graduation cap because I am graduating today'),
+            (testy_bot, 'Using my shirt as a hat and my belt as shoes'),
+            (othering_bot, 'I am the hat now ... the univers wears me'),
+        ]
 
-        sad_intel_future = other_bot.process_to_future(
-            'I wear a bowler hat and enjoy fighting'
-        )
+        futures = [bot.process_to_future(prompt) for bot, prompt in bot_prompts]
 
-        more_happy_intel_future = testy_bot.process_to_future(
-            'Ball gowns and Chandelers'
-        )
+        results = [future.result for future in futures]
 
-        more_sad_intel_future = othering_bot.process_to_future(
-            'I wear a soldier helmet and I came back from WW2'
-        )
-
-        _1 = testing_bot.process_to_future(
-            'With a clown wig and balloons'
-        )
-
-        _2 = testing_bot.process_to_future(
-            'Steam top Hat and a Monocle'
-        )
-
-        _3 = testing_bot.process_to_future(
-            'Wet boot on my head and I am missing teeth'
-        )
-
-        _4 = testing_bot.process_to_future(
-            'Spiked hair and some army boots'
-        )
-
-        happy_intel = happy_intel_future.result
-        sad_intel = sad_intel_future.result
-        more_happy_intel = more_happy_intel_future.result
-        more_sad_intel = more_sad_intel_future.result
-
-        _ = _1.result
-        _ = _2.result
-        _ = _3.result
-        _ = _4.result
-
-        # print(f'{happy_intel=}')
-        # print(f'{sad_intel=}')
-        # print(f'{more_happy_intel=}')
-        # print(f'{more_sad_intel=}')
-
-        self.assertNotEqual(happy_intel.description, sad_intel.description)
-        self.assertNotEqual(happy_intel.description, more_sad_intel.description)
-        self.assertNotEqual(happy_intel.description, more_happy_intel.description)
-        self.assertNotEqual(more_happy_intel.description, sad_intel.description)
-        self.assertNotEqual(more_happy_intel.description, more_sad_intel.description)
+        for result1, result2 in combinations(results, 2):
+            self.assertNotEqual(
+                result1.sentence,
+                result2.sentence,
+                f"Descriptions should not match: {result1.sentence} == {result2.sentence}"
+            )
 
     def test_future_cancel(self):
         squared_future = AsyncFuture(square_number, 5)

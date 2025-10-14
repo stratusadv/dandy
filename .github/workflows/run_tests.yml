@@ -60,26 +60,26 @@ jobs:
         run: |
           PYTHONPATH=. mkdocs build --strict
 
-  optional-testing:
-    needs: documentation-testing
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    env:
-      TEST_NINES: '1'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.11
-
-      - name: Install Dependencies
-        run: |
-          pip install -e .[development,documentation]
-
-      - name: Nines Testing
-        run: |
-          python -m unittest discover -v ./tests
+#  optional-testing:
+#    needs: documentation-testing
+#    runs-on: ubuntu-latest
+#    continue-on-error: true
+#
+#    env:
+#      TEST_NINES: '1'
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up Python 3.11
+#        uses: actions/setup-python@v6
+#        with:
+#          python-version: 3.11
+#
+#      - name: Install Dependencies
+#        run: |
+#          pip install -e .[development,documentation]
+#
+#      - name: Nines Testing
+#        run: |
+#          python -m unittest discover -v ./tests

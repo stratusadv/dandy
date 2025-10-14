@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import List
 
 from dandy.core.config.config import BaseConfig
@@ -8,7 +8,7 @@ from dandy.llm.config.options import LlmConfigOptions
 from dandy.llm.request.request import BaseRequestBody
 
 
-class BaseLlmConfig(BaseConfig):
+class BaseLlmConfig(BaseConfig, ABC):
     def __init__(
             self,
             host: str,

@@ -54,7 +54,7 @@ def model_size_and_token_count_for_inference_to_vram_gb(
         token_count,
         key_value_cache_per_token_size_bytes
     )
-    
+
     model_size_with_tokens = model_size_bytes + model_inference_activation_size_bytes + key_value_cache_size_bytes
-    
+
     return (model_size_with_tokens * software_buffer_multiplier) / (1024 ** 3)

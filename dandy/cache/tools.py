@@ -31,28 +31,37 @@ def generate_cache_key(func: object, *args, **kwargs) -> str:
 
 
 def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
-    if hash_layer <= CACHE_KEY_HASH_LAYER_LIMIT:
-        if isinstance(obj, type):
-            if issubclass(obj, BaseModel):
-                return str(obj.model_json_schema())
-            return str(obj.__qualname__)
-        if isinstance(obj, BaseModel):
-            return str(obj.model_dump())
-        if isinstance(obj, dict):
-            return str({
-                key: convert_to_hashable_str(value, hash_layer + 1) for key, value in obj.items()
-            })
-        if isinstance(obj, (list, tuple, set, frozenset)):
-            return str([
-                convert_to_hashable_str(x, hash_layer + 1) for x in obj
-            ])
-        if hasattr(obj, '__dict__'):
-            return convert_to_hashable_str(obj.__dict__, hash_layer + 1)
+    hashable_string = str(None)
 
+    if hash_layer <= CACHE_KEY_HASH_LAYER_LIMIT:
         try:
-            return str(obj)
-        except TypeError:
+            if isinstance(obj, type):
+                if issubclass(obj, BaseModel):
+                    hashable_string= str(obj.model_json_schema())
+                else:
+                    hashable_string= str(obj.__qualname__)
+
+            elif isinstance(obj, BaseModel):
+                hashable_string= str(obj.model_dump())
+
+            elif isinstance(obj, dict):
+                hashable_string= str({
+                    key: convert_to_hashable_str(value, hash_layer + 1) for key, value in obj.items()
+                })
+
+            elif isinstance(obj, (list, tuple, set, frozenset)):
+                hashable_string= str([
+                    convert_to_hashable_str(x, hash_layer + 1) for x in obj
+                ])
+
+            elif hasattr(obj, '__dict__'):
+                hashable_string= convert_to_hashable_str(obj.__dict__, hash_layer + 1)
+
+            else:
+                hashable_string= str(obj)
+
+        except TypeError as error:
             message = f'Object "{obj}" is not hashable'
-            raise CacheCriticalException(message)
-    else:
-        return str(None)
+            raise CacheCriticalException(message) from error
+
+    return hashable_string

@@ -26,13 +26,12 @@ class MoneyBagBot(Bot):
 
 
 class TestingBot(Bot):
-    llm_role = "Master of Art Descriptions"
-    llm_task = "Do your best to describe a peice of ard you can."
-    llm_guidelines = Prompt().list(["Make sure to be creative"])
+    llm_role = "Art Planner"
+    llm_task = "Describe a painting idea in one sentence based on the request."
     llm_intel_class = HappyIntel
 
 
 class OtherBot(Bot):
-    llm_role = "Potato Dish Designer"
-    llm_task = "Design a potato dishes that are fun and describe something that matches the user request."
+    llm_role = "Fantasy Writer"
+    llm_task = "Provide a short and to the point sentence about the request in one sentence."
     llm_intel_class = SadIntel

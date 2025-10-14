@@ -1,9 +1,8 @@
-from abc import ABC
-from typing import Any
+from typing import Any, ClassVar
 
 
-class BaseConfig(ABC):
-    _config_values: set = set()
+class BaseConfig:
+    _config_values: ClassVar[set] = set()
 
     def register_setting(
             self,
@@ -25,5 +24,4 @@ class BaseConfig(ABC):
     ) -> Any:
         if value is None:
             return default_value
-        else:
-            return value
+        return value

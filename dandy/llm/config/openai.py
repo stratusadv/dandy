@@ -1,4 +1,3 @@
-
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.llm.config.config import BaseLlmConfig
 from dandy.llm.request.openai import OpenaiRequestBody
@@ -14,18 +13,21 @@ class OpenaiLlmConfig(BaseLlmConfig):
         ]
 
     def generate_request_body(
-            self,
-            max_input_tokens: int | None = None,
-            max_output_tokens: int | None = None,
-            seed: int | None = None,
-            temperature: float | None = None,
+        self,
+        max_input_tokens: int | None = None,
+        max_output_tokens: int | None = None,
+        seed: int | None = None,
+        temperature: float | None = None,
     ) -> BaseRequestBody:
-
         return OpenaiRequestBody(
             model=self.model,
-            max_completion_tokens=self.options.max_output_tokens if max_output_tokens is None else max_output_tokens,
+            max_completion_tokens=self.options.max_output_tokens
+            if max_output_tokens is None
+            else max_output_tokens,
             seed=self.options.seed if seed is None else seed,
-            temperature=self.options.temperature if temperature is None else temperature,
+            temperature=self.options.temperature
+            if temperature is None
+            else temperature,
         )
 
     @staticmethod

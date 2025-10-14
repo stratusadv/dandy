@@ -5,7 +5,6 @@ import inspect
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
 from random import randint, shuffle
 from typing import TYPE_CHECKING, Sequence
 
@@ -14,10 +13,11 @@ from dandy.core.path.tools import (
     get_dir_path_or_exception,
     get_dir_list,
 )
-from dandy.intel.intel import BaseIntel
 from dandy.llm.prompt.utils import list_to_str
 
 if TYPE_CHECKING:
+    from pathlib import Path
+    from dandy.intel.intel import BaseIntel
     from dandy.llm.prompt.prompt import Prompt
 
 

@@ -35,8 +35,8 @@ def _recorder_to_file_decorator_function(
         Recorder.delete_recording(recording_name)
 
 
-def recorder_to_html_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
-    def decorator(func):
+def recorder_to_html_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+    def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'html', path)
@@ -46,8 +46,8 @@ def recorder_to_html_file(recording_name: str = None, path: Path | str = DEFAULT
     return decorator
 
 
-def recorder_to_json_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
-    def decorator(func):
+def recorder_to_json_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+    def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'json', path)
@@ -57,8 +57,8 @@ def recorder_to_json_file(recording_name: str = None, path: Path | str = DEFAULT
     return decorator
 
 
-def recorder_to_markdown_file(recording_name: str = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
-    def decorator(func):
+def recorder_to_markdown_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+    def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'markdown', path)

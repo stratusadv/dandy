@@ -3,7 +3,7 @@ from enum import Enum
 from time import perf_counter
 
 from pydantic import BaseModel, Field
-from typing import Self, Any, List
+from typing import Self, Any
 
 from dandy.conf import settings
 
@@ -33,13 +33,13 @@ class Event(BaseModel):
     object_name: str
     callable_name: str
     type: EventType
-    attributes: List[EventAttribute] | None = Field(default_factory=list)
+    attributes: list[EventAttribute] | None = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
     run_time_seconds: float = 0.0
 
     if settings.DEBUG:
-        def model_post_init(self, __context: Any):
+        def model_post_init(self, __context: Any, /):
             logging.debug(str(self))
 
     def calculate_run_time(self, pre_event: Self):
@@ -52,7 +52,7 @@ class Event(BaseModel):
 
 
 class EventStore(BaseModel):
-    events: List[Event] = Field(default_factory=list)
+    events: list[Event] = Field(default_factory=list)
 
     def add_event(self, event: Event) -> Event:
         self.events.append(event)

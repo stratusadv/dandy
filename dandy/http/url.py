@@ -1,3 +1,4 @@
+from typing import Any
 from urllib.parse import urlencode, urlparse, ParseResult, quote
 
 
@@ -9,13 +10,13 @@ class Url(BaseModel):
     port: int = 443
     path_parameters: list[str] | None = None
     query_parameters: dict[str, str] | None = None
+    parsed_url: ParseResult = None
+
+    def model_post_init(self, __context: Any, /):
+        self.parsed_url = urlparse(self.host)
 
     def __str__(self) -> str:
         return self.to_str()
-
-    @property
-    def parsed_url(self) -> ParseResult:
-        return urlparse(self.host)
 
     @property
     def path(self) -> str:

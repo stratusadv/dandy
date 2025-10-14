@@ -1,33 +1,22 @@
 import base64
-import os
+from pathlib import Path
 from unittest import TestCase
 
 from dandy.conf import settings
 from dandy.core.exceptions import DandyCriticalException
-from dandy.core.utils import json_default, encode_file_to_base64, python_obj_to_markdown
-from dandy.intel.intel import BaseIntel
+from dandy.core.utils import encode_file_to_base64, python_obj_to_markdown
 
 
 class TestCoreUtils(TestCase):
-    def test_json_default_serializer(self):
-        serialized_object = json_default(
-            CampFireIntel(
-                logs=9,
-                temperature=1078.9
-            )
-        )
-
-        self.assertEqual(serialized_object['temperature'], 1078.9)
-
     def test_encode_file_to_base64(self):
         with self.assertRaises(DandyCriticalException):
             encode_file_to_base64('this/path/doesnt/exist')
 
-        fname = os.path.join(settings.BASE_PATH , 'assets', 'images', 'vision_test_image.jpg')
+        file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_image.jpg')
 
-        with open(fname, 'rb') as f:
+        with open(file_path, 'rb') as f:
             self.assertEqual(
-                encode_file_to_base64(fname),
+                encode_file_to_base64(file_path),
                 base64.b64encode(f.read()).decode('utf-8'))
 
     def test_python_obj_to_markdown_level_gt_6(self):
@@ -51,7 +40,3 @@ class TestCoreUtils(TestCase):
         md = python_obj_to_markdown(python_list)
 
         self.assertEqual(md, '\n\n'.join(python_list) + '\n\n')
-
-class CampFireIntel(BaseIntel):
-    logs: int
-    temperature: float

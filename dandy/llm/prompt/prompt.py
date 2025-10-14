@@ -29,10 +29,11 @@ class Prompt:
         return self.to_str()
 
     def to_str(self) -> str:
-        prompt_string = "".join([_.to_str() for _ in self.snippets])
+        prompt_string = ''.join([snippet_.to_str() for snippet_ in self.snippets])
 
         if isinstance(self.tag, str):
-            return f"<{self.tag}>\n{prompt_string}\n</{self.tag}>\n"
+            return f'<{self.tag}>\n{prompt_string}\n</{self.tag}>\n'
+
         return prompt_string
 
     def dict(self, dictionary: dict, triple_quote: bool = False) -> Self:
@@ -80,7 +81,7 @@ class Prompt:
         return get_estimated_token_count_for_string(self.to_str())
 
     def file(
-        self, file_path: str | Path, encoding: str = "utf-8", triple_quote: bool = False
+        self, file_path: str | Path, encoding: str = 'utf-8', triple_quote: bool = False
     ) -> Self:
         self.snippets.append(
             snippet.FileSnippet(
@@ -194,8 +195,8 @@ class Prompt:
 
     def text(
         self,
-        text: str = "",
-        label: str = "",
+        text: str = '',
+        label: str = '',
         triple_quote: bool = False,
         triple_quote_label: str | None = None,
     ) -> Self:

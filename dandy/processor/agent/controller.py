@@ -1,5 +1,5 @@
 from pydantic.main import IncEx
-from typing import Union, Type
+from typing import Type
 
 from dandy.processor.agent.exceptions import AgentCriticalException
 from dandy.processor.bot.bot import Bot
@@ -16,10 +16,10 @@ class UseProcessorBot(Bot):
     llm_role = 'You are a bot that is given a task and a processor, provide a response that best uses the processor to complete the task.'
 
     def process(
-            self,
-            prompt: PromptOrStr,
-            processor_kwargs_intel_class: Type[BaseIntel],
-            processor_description: str
+        self,
+        prompt: PromptOrStr,
+        processor_kwargs_intel_class: Type[BaseIntel],
+        processor_description: str,
     ) -> BaseIntel:
         return self.llm.prompt_to_intel(
             prompt=(
@@ -35,11 +35,11 @@ class UseProcessorBot(Bot):
 
 class ProcessorController(BaseProcessorController):
     def use(
-            self,
-            prompt: PromptOrStr,
-            intel_object: BaseIntel,
-            include_fields: Union[IncEx, None] = None,
-            exclude_fields: Union[IncEx, None] = None,
+        self,
+        prompt: PromptOrStr,
+        intel_object: BaseIntel,
+        include_fields: IncEx | None = None,
+        exclude_fields: IncEx | None = None,
     ) -> BaseIntel | None:
         available_kwargs_and_values = {
             'prompt': prompt,
@@ -53,11 +53,14 @@ class ProcessorController(BaseProcessorController):
             return_defaulted=False,
         )
 
-        if required_processor_typed_kwargs in get_typed_kwargs_from_callable_signature(self.use):
+        if required_processor_typed_kwargs in get_typed_kwargs_from_callable_signature(
+            self.use
+        ):
             processor_intel = self.processor().process(
                 **{
-                    key: available_kwargs_and_values[key] for key in required_processor_typed_kwargs.keys() if
-                    key in available_kwargs_and_values
+                    key: available_kwargs_and_values[key]
+                    for key in required_processor_typed_kwargs
+                    if key in available_kwargs_and_values
                 }
             )
 
@@ -75,7 +78,7 @@ class ProcessorController(BaseProcessorController):
             processor_kwargs_intel = UseProcessorBot().process(
                 prompt=prompt,
                 processor_kwargs_intel_class=processor_kwargs_intel_class,
-                processor_description=self.processor.description
+                processor_description=self.processor.description,
             )
 
             processor_intel = self.processor().process(

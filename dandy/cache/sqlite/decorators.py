@@ -11,9 +11,9 @@ def cache_to_sqlite(
         cache_name: str = dandy.consts.CACHE_DEFAULT_NAME,
         limit: int = settings.CACHE_SQLITE_LIMIT
 ) -> Callable:
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Callable:
             return cache_decorator_function(
                 SqliteCache(
                     cache_name=cache_name,

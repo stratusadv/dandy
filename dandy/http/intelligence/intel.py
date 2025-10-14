@@ -9,21 +9,21 @@ from dandy.intel.intel import BaseIntel
 
 class HttpResponseIntel(BaseIntel):
     status_code: int
-    reason: str | None = None
+    response_phrase: str | None = None
     text: str | None = None
     json_data: dict | None = None
 
     @classmethod
-    def from_requests_response(cls, requests_response: httpx.Response) -> Self:
+    def from_httpx_response(cls, httpx_response: httpx.Response) -> Self:
         try:
-            json_data = requests_response.json()
+            json_data = httpx_response.json()
         except ValueError:
             json_data = {}
 
         return HttpResponseIntel(
-            status_code=requests_response.status_code,
-            reason=requests_response.reason_phrase,
-            text=requests_response.text,
+            status_code=httpx_response.status_code,
+            response_phrase=httpx_response.reason_phrase,
+            text=httpx_response.text,
             json_data=json_data,
         )
 
@@ -36,7 +36,7 @@ class HttpRequestIntel(BaseIntel):
     method: str
     url: str | Url
     params: dict | None = None
-    headers: dict | None = {"Content-Type": "text/html"}
+    headers: dict | None = None
     cookies: dict | None = None
     content: str | None = None
     data: dict | None = None
@@ -45,8 +45,25 @@ class HttpRequestIntel(BaseIntel):
     stream: bool | None = None
     bearer_token: str | None = None
 
-    def model_post_init(self, __context: Any):
+    def model_post_init(self, __context: Any, /):
         self.generate_headers()
+
+    def as_httpx_request(self) -> httpx.Request:
+        if isinstance(self.url, Url):
+            self.url = self.url.to_str()
+
+        return httpx.Request(
+            method=self.method,
+            url=self.url,
+            params=self.params,
+            headers=self.headers,
+            cookies=self.cookies,
+            content=self.content,
+            data=self.data,
+            files=self.files,
+            json=self.json_data,
+            stream=self.stream,
+        )
 
     def to_http_response_intel(self) -> HttpResponseIntel:
         url = self.url.to_str() if isinstance(self.url, Url) else self.url
@@ -55,12 +72,11 @@ class HttpRequestIntel(BaseIntel):
             method=self.method,
             url=url,
             headers=self.headers,
-            # data=request_intel.json_data,
             json=self.json_data,
             timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
         )
 
-        return HttpResponseIntel.from_requests_response(response)
+        return HttpResponseIntel.from_httpx_response(response)
 
     def generate_headers(self):
         if self.bearer_token is not None:

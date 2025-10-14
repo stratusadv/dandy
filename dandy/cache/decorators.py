@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 
 from dandy.cache.cache import BaseCache
 from dandy.cache.tools import generate_cache_key
@@ -10,7 +10,7 @@ from dandy.recorder.utils import generate_new_recorder_event_id
 
 def cache_decorator_function(
         cache: BaseCache,
-        func,
+        func: Callable,
         *args,
         **kwargs,
 ) -> Any:

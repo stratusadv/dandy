@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-import dandy.consts
+from dandy.consts import CACHE_DEFAULT_NAME
 
 
 class BaseCache(ABC, BaseModel):
@@ -28,7 +28,7 @@ class BaseCache(ABC, BaseModel):
 
     @classmethod
     @abstractmethod
-    def clear(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
+    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME):
         pass
 
     @classmethod

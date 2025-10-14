@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from dandy import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import DefaultIntel
 from dandy.llm.conf import llm_configs

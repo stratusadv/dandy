@@ -12,8 +12,6 @@ from typing import Generic, TypeVar, Self, get_origin, Iterator
 from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.field.annotation import FieldAnnotation
 
-T = TypeVar("T")
-
 
 class BaseIntel(BaseModel, ABC):
     @classmethod
@@ -207,10 +205,13 @@ class BaseIntel(BaseModel, ABC):
                         raise IntelCriticalException(message)
 
 
+T = TypeVar("T")
+
+
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     _list_name: str = PrivateAttr(default=None)
 
-    def model_post_init(self, __context: Any):
+    def model_post_init(self, __context: Any, /):
         list_fields = [
             name
             for name, field in self.__class__.model_fields.items()
@@ -223,7 +224,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
         self._list_name = list_fields[0]
 
-    def __getitem__(self, index) -> list[T] | T:
+    def __getitem__(self, index: int) -> list[T] | T:
         return getattr(self, self._list_name)[index]
 
     def __iter__(self) -> Iterator[T]:
@@ -232,7 +233,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     def __len__(self) -> int:
         return len(getattr(self, self._list_name))
 
-    def __setitem__(self, index, value: T):
+    def __setitem__(self, index: int, value: T):
         getattr(self, self._list_name)[index] = value
 
     def append(self, item: T):

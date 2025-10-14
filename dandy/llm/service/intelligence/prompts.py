@@ -6,11 +6,11 @@ from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
 
 
 def service_system_prompt(
-        role: PromptOrStr,
-        task: PromptOrStrOrNone = None,
-        guidelines: PromptOrStrOrNone = None,
-        system_override_prompt: PromptOrStrOrNone = None,
-        postfix_system_prompt: PromptOrStrOrNone = None,
+    role: PromptOrStr,
+    task: PromptOrStrOrNone = None,
+    guidelines: PromptOrStrOrNone = None,
+    system_override_prompt: PromptOrStrOrNone = None,
+    postfix_system_prompt: PromptOrStrOrNone = None,
 ) -> Prompt:
     prompt = Prompt()
 
@@ -28,14 +28,22 @@ def service_system_prompt(
         prompt.prompt(guidelines)
 
     prompt.line_break()
-    prompt.sub_heading('Rules')
+    prompt.sub_heading('Constraints')
+    prompt.list(
+        [
+            'Make sure your response is valid JSON reflecting the provided JSON schema.',
+         ]
+    )
+
     if system_override_prompt:
         prompt.prompt(system_override_prompt)
     else:
         prompt.line_break()
-        prompt.list([
-            'Do not use any markdown styling in your response.',
-        ])
+        prompt.list(
+            [
+                'Do not use any markdown styling in your response.',
+            ]
+        )
 
     if postfix_system_prompt:
         prompt.line_break()
@@ -47,15 +55,14 @@ def service_system_prompt(
 def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
     return (
         Prompt()
-        .text('The JSON response you provided was not valid.')
-        .text('Here is the validation error provided by Pydantic when it tried to parse the JSON object:')
+        .text('The JSON in the response you provided was not valid based on the JSON schema that was provided.')
+        .text(
+            'Here is the validation error provided by Pydantic when it tried to parse the JSON:'
+        )
         .text(f'{pydantic_validation_error_to_str(error)}', triple_quote=True)
-        .text('Please provide a valid JSON object based on my earlier request.')
+        .text('Please review your response provide a valid JSON in your next response, based on the previous request.')
     )
 
 
-def service_user_prompt(user_prompt: Prompt) -> Prompt:
-    return (
-        Prompt()
-        .prompt(user_prompt)
-    )
+def service_user_prompt(user_prompt: PromptOrStr) -> Prompt:
+    return Prompt().prompt(user_prompt)

@@ -12,7 +12,7 @@ class SqliteCache(BaseCache):
     cache_name: str
     limit: int
 
-    def model_post_init(self, __context: Any):
+    def model_post_init(self, __context: Any, /):
         self._create_table()
 
     def __len__(self) -> int:
@@ -43,14 +43,14 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
-            cursor.execute(f'''
+            cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {SQLITE_CACHE_TABLE_NAME} (
                     key TEXT PRIMARY KEY,
                     value TEXT,
                     cache_name TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            ''')
+            """)
 
             connection.commit()
 
@@ -127,5 +127,5 @@ class SqliteCache(BaseCache):
                 connection.commit()
 
     @classmethod
-    def destroy_all(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
+    def destroy_all(cls):
         SqliteConnection(SQLITE_CACHE_DB_NAME).delete_db_file()

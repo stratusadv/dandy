@@ -1,4 +1,3 @@
-import os
 import sqlite3
 from pathlib import Path
 
@@ -6,7 +5,7 @@ from dandy.conf import settings
 
 
 class SqliteConnection:
-    def __init__(self, db_name):
+    def __init__(self, db_name: str):
         self.db_path = Path(settings.CACHE_SQLITE_DATABASE_PATH, db_name)
 
     def __enter__(self) -> sqlite3.Connection:
@@ -18,4 +17,4 @@ class SqliteConnection:
             self.connection.close()
 
     def delete_db_file(self):
-        os.remove(self.db_path)
+        Path.unlink(self.db_path)

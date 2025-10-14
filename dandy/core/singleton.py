@@ -6,5 +6,5 @@ class Singleton:
 
     def __new__(cls, *args, **kwargs) -> Any:
         if cls._instance is None:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance

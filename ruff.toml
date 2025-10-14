@@ -2,6 +2,9 @@ target-version = "py311"
 line-length = 88
 indent-width = 4
 
+[format]
+quote-style = "single"
+
 [lint]
 select = ["ALL"]
 ignore = [
@@ -10,7 +13,9 @@ ignore = [
     "ANN003",
     "ANN101",
     "ANN201",
+    "ANN202",
     "ANN204",
+    "ANN205",
     "ANN206",
     "ANN401",
     "BLE001",
@@ -49,6 +54,8 @@ ignore = [
     "PT019",
     "PT027",
     "PTH123",
+    "RET504",
+    "RUF015",
     "Q000",
     "Q000",
     "S301",
@@ -56,6 +63,7 @@ ignore = [
     "S603",
     "SLF001",
     "T201",
+    "UP006",
     "UP015",
     "UP035"
 ]

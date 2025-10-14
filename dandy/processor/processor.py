@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Self
 
 from dandy.core.future import AsyncFuture
+from dandy.core.future.tools import process_to_future
 from dandy.processor.recorder import record_process_wrapper
-
 
 class BaseProcessor(ABC):
     _recorder_event_id: str = ""
@@ -25,7 +25,7 @@ class BaseProcessor(ABC):
         if ABC not in cls.__bases__:
             # Typing Does not work properly for processors if you override __getattribute__ in the BaseProcessor class.
             # This is a workaround and should be fixed in future versions of the python lsp.
-            def __getattribute__(self, name):
+            def __getattribute__(self: Self, name: str) -> Any:
                 attr = super().__getattribute__(name)
 
                 if (
@@ -46,4 +46,4 @@ class BaseProcessor(ABC):
         raise NotImplementedError
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
-        return AsyncFuture(self.process, *args, **kwargs)
+        return process_to_future(self.process, *args, **kwargs)
