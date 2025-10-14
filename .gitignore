@@ -12,8 +12,6 @@ dist/
 dandy.egg-info/
 inspectionProfiles/
 
-.python-version
-
 ~*.*
 *.env
 *.bat
