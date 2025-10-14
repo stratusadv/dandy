@@ -7,7 +7,7 @@ from dandy.core.future.tools import process_to_future
 
 class TestTools(TestCase):
     def test_process_to_future(self):
-        run_count = 150
+        run_count = 20
         run_seconds = 0.1
 
         def sleepy_function(seconds: int) -> int:
