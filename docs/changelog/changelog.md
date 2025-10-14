@@ -7,6 +7,7 @@
 - `AsyncFuture` has been improved to better handle race conditions and more non-synchronous operations.
 - New `process_to_future` function added to allow easy creation of your own futures in your project.
 - Service `http` now available on `Agent` and `Bot` for easy interactions with HTTP.
+- New setting `FUTURES_MAX_WORKERS` with a default value of `10` for controlling system performance.
 
 ### Changes
 

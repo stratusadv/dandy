@@ -6,6 +6,7 @@ import threading
 
 from typing import Callable, TypeVar, Generic, TYPE_CHECKING
 
+from dandy.conf import settings
 from dandy.core.future.exceptions import (
     FutureRecoverableException,
     FutureCriticalException,
@@ -14,7 +15,9 @@ from dandy.core.future.exceptions import (
 if TYPE_CHECKING:
     from concurrent.futures import Future
 
-thread_pool_executor = concurrent.futures.ThreadPoolExecutor()
+thread_pool_executor = concurrent.futures.ThreadPoolExecutor(
+    max_workers=settings.FUTURES_MAX_WORKERS,
+)
 
 atexit.register(thread_pool_executor.shutdown, wait=True)
 
