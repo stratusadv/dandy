@@ -1,10 +1,9 @@
-from abc import ABC
 from typing import ClassVar
 
 from dandy.core.service.exceptions import ServiceCriticalException
 
 
-class BaseServiceMixin(ABC):
+class BaseServiceMixin:
     _required_attrs: ClassVar[tuple[str, ...]] = ()
 
     def __init_subclass__(cls):

@@ -1,10 +1,33 @@
 # Changelog
 
+## v1.2.0
+
+### Features
+
+- `AsyncFuture` has been improved to better handle race conditions and more non-synchronous operations.
+- New `process_to_future` function added to allow easy creation of your own futures in your project.
+- Service `http` now available on `Agent` and `Bot` for easy interactions with HTTP.
+
+### Changes
+
+- Refactored `async_executor` to `thread_pool_executor`.
+- changed the setting `HTTP_CONNECTION_RETRY_COUNT` to default to `4`.
+
+### Fixes
+
+- Removed unused argument in `SqliteCache.destroyall` method.
+- Updated `HttpConnector` to go back to recommended operation method with `Httpx.Client`. 
+- Better management of the thread pool executor used for handling futures.
+- Optimized `Prompt.directory_list` to be more efficient.
+- Strategically moved coverage up to 94% improving previous tests and covering more edge cases.
+- Improved typing and type handling in `dandy.core.typing` to be more compatible and flexible.
+- Added proper handling of `httpx.TimeoutException` to provide better debugging.
+
 ## v1.1.5
 
 ### Changes
 
-- Change the settings `HTTP_CONNECTION_TIMEOUT_SECONDS` to default to `120`.
+- Change the setting `HTTP_CONNECTION_TIMEOUT_SECONDS` to default to `120`.
 - Refactor project structure and configuration files.
 - Adjust the testing module structure to match the current dandy structure.
 

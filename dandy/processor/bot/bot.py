@@ -39,6 +39,6 @@ class Bot(
             return self.llm.prompt_to_intel(
                 **kwargs
             )
-        
+
         message = '`Bot.process` requires key word argument `prompt`.'
         raise ValueError(message)

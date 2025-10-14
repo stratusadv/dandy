@@ -1,5 +1,7 @@
 from unittest import TestCase, mock
 
+from bottle import http_date
+
 from dandy.http.service import HttpService
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 
@@ -7,7 +9,7 @@ from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 class TestHttpService(TestCase):
     @mock.patch('dandy.http.service.HttpService._http_connector.request_to_response')
     def test_get_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
-        service = HttpService()
+        http_service = HttpService()
 
         expected_response = HttpResponseIntel(
             status_code=200,
@@ -33,7 +35,7 @@ class TestHttpService(TestCase):
 
         mock_request_to_response.side_effect = assert_request_and_return
 
-        response = service.get(
+        response = http_service.get(
             url='https://api.example.com/resource',
             params={'q': 'search'},
             headers={'X-Test': 'yes'},
@@ -45,7 +47,7 @@ class TestHttpService(TestCase):
 
     @mock.patch('dandy.http.service.HttpService._http_connector.request_to_response')
     def test_post_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
-        service = HttpService()
+        http_service = HttpService()
 
         expected_response = HttpResponseIntel(
             status_code=201,
@@ -69,7 +71,7 @@ class TestHttpService(TestCase):
 
         mock_request_to_response.side_effect = assert_request_and_return
 
-        response = service.post(
+        response = http_service.post(
             url='https://api.example.com/items',
             params={'verbose': '1'},
             headers={'Content-Type': 'application/json'},

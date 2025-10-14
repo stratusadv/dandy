@@ -1,7 +1,8 @@
 import json
 
 from dandy.processor.agent.strategy import ProcessorsStrategy
-from dandy.core.utils import json_default, pascal_to_title_case
+from dandy.core.utils import pascal_to_title_case
+from dandy.recorder.utils import json_default
 from dandy.processor.agent.plan.llm_plan import LlmAgentPlanIntel
 from dandy.processor.agent.plan.task.llm_task import LlmAgentTaskIntel
 from dandy.llm.prompt.typing import PromptOrStr
@@ -98,13 +99,13 @@ def recorder_add_llm_agent_start_task_event(
         event_id=event_id,
         attributes=[
             EventAttribute(
-                key=f'Resource Processor',
+                key='Resource Processor',
                 value=processors_strategy.get_processor_module_and_qualname_from_key(
                     task.processors_key
                 )
             ),
             EventAttribute(
-                key=f'Starting State',
+                key='Starting State',
                 value=task.to_prompt().to_str(),
                 is_card=True,
             )
@@ -122,13 +123,13 @@ def recorder_add_llm_agent_completed_task_event(
         event_id=event_id,
         attributes=[
             EventAttribute(
-                key=f'Resource Processor',
+                key='Resource Processor',
                 value=processors_strategy.get_processor_module_and_qualname_from_key(
                     task.processors_key
                 )
             ),
             EventAttribute(
-                key=f'Completed State',
+                key='Completed State',
                 value=task.to_prompt().to_str(),
                 is_card=True,
             )

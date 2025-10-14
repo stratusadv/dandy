@@ -8,10 +8,10 @@ from dandy.intel.exceptions import IntelCriticalException
 class FieldAnnotation:
     def __init__(self, annotation: Type | None, field_name: str):
         self.annotation = annotation
-        
+
         if self.first_inner_origin_is_iterable:
             self.annotation = self.first_inner
-        
+
         self.field_name = field_name
 
     @property
@@ -28,11 +28,13 @@ class FieldAnnotation:
 
         if len(inner) == 1:
             return inner[0]
-        elif len(inner) > 1:
-            raise IntelCriticalException(
+
+        if len(inner) > 1:
+            message = (
                 f'Failed to get annotation on field "{self.field_name}" because a "{self.origin}" had more than one '
-                f'non-None type or this fields annotation was beyond the complexity of 2 annotation origins.'
+                f'non-None type or this field\'s annotation was beyond the complexity of 2 annotation origins.'
             )
+            raise IntelCriticalException(message)
 
         return self.annotation
 

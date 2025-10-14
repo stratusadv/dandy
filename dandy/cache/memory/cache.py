@@ -3,7 +3,7 @@ from typing import OrderedDict, Any
 import dandy.consts
 from dandy.cache.cache import BaseCache
 
-_memory_cache = dict()
+_memory_cache = {}
 
 
 class MemoryCache(BaseCache):
@@ -11,7 +11,7 @@ class MemoryCache(BaseCache):
     limit: int
 
     @property
-    def _cache(self):
+    def _cache(self) -> OrderedDict:
         if self.cache_name not in _memory_cache:
             _memory_cache[self.cache_name] = OrderedDict()
 

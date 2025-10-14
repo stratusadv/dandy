@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from dandy.core.future import AsyncFuture
+from dandy.core.future.tools import process_to_future
 from dandy.processor.recorder import record_process_wrapper
-
 
 class BaseProcessor(ABC):
     _recorder_event_id: str = ""
@@ -46,4 +46,4 @@ class BaseProcessor(ABC):
         raise NotImplementedError
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
-        return AsyncFuture(self.process, *args, **kwargs)
+        return process_to_future(self.process, *args, **kwargs)

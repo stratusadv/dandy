@@ -1,15 +1,13 @@
 import base64
 import os
 import re
-from enum import Enum
 from pathlib import Path
-from typing import Type, List, Any, Iterable
+from typing import Any, Iterable
 
 from pydantic import ValidationError
 
 from dandy.consts import DEFAULT_SETTINGS_MODULE
 from dandy.core.exceptions import DandyCriticalException
-from dandy.intel.intel import BaseIntel
 
 
 def encode_file_to_base64(file_path: str | Path) -> str:
@@ -21,23 +19,9 @@ def encode_file_to_base64(file_path: str | Path) -> str:
         return base64.b64encode(f.read()).decode('utf-8')
 
 
-def enum_to_list(enum_type: Type[Enum]) -> List:
-    return [member.value for member in enum_type]
-
-
 def get_settings_module_name() -> str:
     return os.getenv('DANDY_SETTINGS_MODULE') if os.getenv(
         'DANDY_SETTINGS_MODULE') is not None else DEFAULT_SETTINGS_MODULE
-
-
-def json_default(obj):
-    if isinstance(obj, BaseIntel):
-        return obj.model_dump()
-    else:
-        try:
-            return str(obj)
-        except TypeError:
-            return '<unserializable value>'
 
 
 def pascal_to_title_case(pascal_case_string: str) -> str:

@@ -2,15 +2,15 @@ import functools
 import json
 from typing import Callable
 
-from dandy.core.utils import json_default, pascal_to_title_case
+from dandy.core.utils import pascal_to_title_case
 from dandy.recorder.events import Event, EventType, EventAttribute
 from dandy.recorder.recorder import Recorder
-from dandy.recorder.utils import generate_new_recorder_event_id
+from dandy.recorder.utils import generate_new_recorder_event_id, json_default
 
 
 def record_process_wrapper(self, method: Callable) -> Callable:
     @functools.wraps(method)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Callable:
         if getattr(self, "_recorder_called", None) is None:
             self._recorder_event_id = generate_new_recorder_event_id()
 
