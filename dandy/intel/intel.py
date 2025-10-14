@@ -129,8 +129,8 @@ class BaseIntel(BaseModel, ABC):
             obj=self.model_copy(update=update).model_dump(warnings=False),
         )
 
-    def model_validate_json_and_copy(self, json_str: str) -> Self:
-        return self.model_validate_and_copy(update=from_json(json_str))
+    def model_validate_json_and_copy(self, json_data: str) -> Self:
+        return self.model_validate_and_copy(update=from_json(json_data))
 
     @classmethod
     def _get_field_default_value_from_field_info(

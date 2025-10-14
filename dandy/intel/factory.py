@@ -53,5 +53,5 @@ class IntelFactory:
             intel=intel,
             class_func=intel.model_validate_json,
             object_func=intel.model_validate_json_and_copy,
-            json_str=json_str
+            json_data=json_str
         )

@@ -3,7 +3,7 @@ from typing import Sequence, ClassVar
 
 from pydantic.main import IncEx
 
-from dandy import Bot
+from dandy.processor.bot.bot import Bot
 from dandy.conf import settings
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin

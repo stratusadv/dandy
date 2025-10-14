@@ -3,7 +3,7 @@ from time import time
 from pydantic import Field, PrivateAttr
 from typing import Any
 
-from dandy import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.intel.intel import BaseIntel
 from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
 

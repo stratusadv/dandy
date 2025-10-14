@@ -1,6 +1,6 @@
 from pydantic import PrivateAttr
 
-from dandy import Prompt
+from dandy.llm.prompt.prompt import Prompt
 from dandy.intel.intel import BaseIntel
 
 

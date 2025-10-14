@@ -17,7 +17,6 @@
 ### Fixes
 
 - Removed unused argument in `SqliteCache.destroyall` method.
-- Updated `HttpConnector` to go back to recommended operation method with `Httpx.Client`. 
 - Better management of the thread pool executor used for handling futures.
 - Optimized `Prompt.directory_list` to be more efficient.
 - Strategically moved coverage up to 94% improving previous tests and covering more edge cases.

@@ -3,9 +3,7 @@ from __future__ import annotations
 import httpx
 
 from dandy.conf import settings
-from dandy.http.exceptions import (
-    HttpConnectorRecoverableException,
-)
+from dandy.http.exceptions import HttpConnectorRecoverableException
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 
 

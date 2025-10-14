@@ -7,7 +7,7 @@ from dandy.intel.factory import IntelFactory
 from dandy.intel.generator import IntelClassGenerator
 
 if TYPE_CHECKING:
-    from dandy import BaseIntel
+    from dandy.intel.intel import BaseIntel
     from dandy.intel.mixin import IntelServiceMixin
 
 

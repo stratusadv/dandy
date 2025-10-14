@@ -59,7 +59,7 @@ class AsyncFuture(Generic[R]):
 
     @property
     def result(self) -> R:
-        return self.get_result()
+        return self.get_result(self._result_timeout)
 
     def set_timeout(self, seconds: float | None = None):
         if seconds is not None and seconds <= 0:

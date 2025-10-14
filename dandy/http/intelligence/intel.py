@@ -66,10 +66,15 @@ class HttpRequestIntel(BaseIntel):
         )
 
     def to_http_response_intel(self) -> HttpResponseIntel:
-        with httpx.Client(
+        url = self.url.to_str() if isinstance(self.url, Url) else self.url
+
+        response = httpx.request(
+            method=self.method,
+            url=url,
+            headers=self.headers,
+            json=self.json_data,
             timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
-        ) as client:
-            response = client.send(self.as_httpx_request())
+        )
 
         return HttpResponseIntel.from_httpx_response(response)
 

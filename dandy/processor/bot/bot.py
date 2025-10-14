@@ -1,6 +1,6 @@
 from typing import ClassVar, Any
 
-from dandy import BaseIntel
+from dandy.intel.intel import BaseIntel
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
 from dandy.llm.mixin import LlmServiceMixin

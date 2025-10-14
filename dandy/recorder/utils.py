@@ -2,7 +2,7 @@ import random
 import string
 from typing import Any
 
-from dandy import BaseIntel
+from dandy.intel.intel import BaseIntel
 
 
 def generate_new_recorder_event_id() -> str:

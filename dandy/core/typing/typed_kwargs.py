@@ -42,4 +42,4 @@ class TypedKwargs(UserDict):
         return True
 
     def _is_valid_sub_typed_kwargs(self, sub_typed_kwargs: Self) -> bool:
-        return self.keys() >= sub_typed_kwargs.keys()
+        return self.data.keys() >= sub_typed_kwargs.data.keys()

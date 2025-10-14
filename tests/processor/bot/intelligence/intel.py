@@ -16,10 +16,10 @@ class MoneyBagIntel(BaseIntel):
 
 
 class HappyIntel(BaseIntel):
-    description: str
+    sentence: str
     happy_level: int
 
 
 class SadIntel(BaseIntel):
-    description: str
+    sentence: str
     sad_level: int

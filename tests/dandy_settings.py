@@ -14,7 +14,7 @@ if DEBUG:
 OPEN_AI_CONFIG = {
     'TYPE': 'openai',
     'HOST': os.getenv("OPENAI_HOST"),
-    'PORT': int(os.getenv("OPENAI_PORT", 443)),
+    'PORT': int(os.getenv("OPENAI_PORT", '443')),
     'API_KEY': os.getenv("OPENAI_API_KEY"),
 }
 
@@ -22,7 +22,7 @@ LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
         'HOST': os.getenv("OLLAMA_1_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
+        'PORT': int(os.getenv("OLLAMA_PORT", '11434')),
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3:30b-instruct',
         'TEMPERATURE': 0.4,
