@@ -1,4 +1,4 @@
-.PHONY: coverage docs help py test win-a linux-a
+.PHONY: coverage docs help idle test win-a linux-a
 
 include development.env
 export
@@ -14,8 +14,8 @@ coverage:
 docs:
 	mkdocs serve
 
-py:
-	python $(ARGS)
+idle:
+	python -m idlelib
 
 test:
 	python -m unittest discover -v ./tests
