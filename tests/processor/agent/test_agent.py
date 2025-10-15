@@ -5,6 +5,7 @@ from dandy.conf import settings
 from dandy.processor.processor import BaseProcessor
 from dandy.recorder import recorder_to_html_file
 from tests.processor.agent.intelligence.agents import MuseumEmailAgent
+from dandy.processor.agent.agent import Agent
 
 FROM_EMAIL_ADDRESS = 'a.person@some_place.com'
 
@@ -14,12 +15,16 @@ class TestAgent(TestCase):
         MuseumEmailAgent.plan_task_count_limit = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     def test_agent_import(self):
-        from dandy.processor.agent.agent import Agent
-
         self.assertTrue(type(Agent) is type(BaseProcessor))
 
-    @recorder_to_html_file('test_agent')
-    def test_agent_process(self):
+    @recorder_to_html_file('test_basic_agent')
+    def test_agent_advanced_process(self):
+        default_intel = Agent().process('Give me a recipe for the best ham sandwich ever.')
+
+        self.assertGreater(len(default_intel.text), 16)
+
+    @recorder_to_html_file('test_advanced_agent')
+    def test_agent_advanced_process(self):
         email = MuseumEmailAgent().process(
             prompt=f'The Royal Tyrell Palaeontology Museum, green colors are awesome and the email I am sending from is {FROM_EMAIL_ADDRESS}'
         )

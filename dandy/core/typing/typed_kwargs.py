@@ -19,7 +19,7 @@ class TypedKwargs(UserDict):
             message = f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
             raise DandyCriticalException(message)
 
-        if not self._is_valid_sub_typed_kwargs(item):
+        if not self._is_valid_sub_set_typed_kwargs(item):
             return False
 
         for key in item:
@@ -41,5 +41,5 @@ class TypedKwargs(UserDict):
 
         return True
 
-    def _is_valid_sub_typed_kwargs(self, sub_typed_kwargs: Self) -> bool:
+    def _is_valid_sub_set_typed_kwargs(self, sub_typed_kwargs: Self) -> bool:
         return self.data.keys() >= sub_typed_kwargs.data.keys()
