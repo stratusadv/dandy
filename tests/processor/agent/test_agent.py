@@ -18,7 +18,7 @@ class TestAgent(TestCase):
         self.assertTrue(type(Agent) is type(BaseProcessor))
 
     @recorder_to_html_file('test_basic_agent')
-    def test_agent_advanced_process(self):
+    def test_agent_basic_process(self):
         default_intel = Agent().process('Give me a recipe for the best ham sandwich ever.')
 
         self.assertGreater(len(default_intel.text), 16)
