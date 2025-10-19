@@ -98,6 +98,13 @@ class Decoder(
     def _get_selected_value(self, choice_key: str) -> Any:
         return self._keyed_mapping[choice_key][1]
 
+    @classmethod
+    def get_description(cls) -> str | None:
+        if cls.description is not None:
+            return cls.description
+
+        return cls.get_llm_description()
+
     def process(
         self,
         prompt: PromptOrStr,
@@ -220,8 +227,8 @@ class Decoder(
         return return_keys_intel
 
     def _set_llm_role_task_guidelines(self, max_return_values: int | None):
-        self.llm_role: str = 'Data Relationship Identifier'
-        self.llm_task: str = f'Identify the "{self.mapping_keys_description}"  that best matches the provided information.'
+        self.llm_role: str = f'{self.mapping_keys_description} Relationship Identifier'
+        self.llm_task: str = f'Identify the "{self.mapping_keys_description}" that best matches the provided information.'
 
         if max_return_values is not None and max_return_values > 1:
             key_str = 'keys'

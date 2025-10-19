@@ -20,7 +20,14 @@ class Bot(
     services: ClassVar[BotService] = BotService()
     _BotService_instance: BotService | None = None
 
-    description: str | None = 'Base Dandy Bot Class That Can Do Anything'
+    description: str | None = 'Generic Bot for performing generic tasks'
+
+    @classmethod
+    def get_description(cls) -> str | None:
+        if cls.description is not None:
+            return cls.description
+
+        return cls.get_llm_description()
 
     def process(
             self,

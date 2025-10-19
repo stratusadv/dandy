@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.1
+
+### Fixes
+
+- Fixed the way `Agent` handles processors in the `ProcessorStrategy` and `ProcessorController`.
+
 ## v1.2.0
 
 ### Features

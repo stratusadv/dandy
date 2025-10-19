@@ -37,3 +37,13 @@ class LlmServiceMixin(BaseServiceMixin):
             None,
         )
         super().__init__(**kwargs)
+
+    @classmethod
+    def get_llm_description(cls) -> str | None:
+        if cls.llm_role:
+            if cls.llm_task:
+                return f'{cls.llm_role}: {cls.llm_task}'
+
+            return f'{cls.llm_role}'
+
+        return None
