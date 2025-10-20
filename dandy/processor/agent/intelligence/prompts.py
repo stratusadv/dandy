@@ -1,5 +1,5 @@
 from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
-from dandy.processor.strategy import BaseProcessorsStrategy
+from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 
@@ -7,7 +7,7 @@ from dandy.llm.prompt.typing import PromptOrStr
 def agent_create_plan_prompt(
         user_prompt: PromptOrStr,
         instructions_prompt: Prompt,
-        processors_strategy: BaseProcessorsStrategy
+        processors_strategy: ProcessorsStrategy
 ) -> Prompt:
     return (
         Prompt()

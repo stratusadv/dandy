@@ -10,6 +10,6 @@ class AssistantAgent(Agent):
 
 intel = AssistantAgent().process('Can you give me an idea for a drawing?')
 
-print(intel.content)
+print(intel.text)
 
 # Output: Here's a creative drawing idea for you: A steampunk robot cat ...

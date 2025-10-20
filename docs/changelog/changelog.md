@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.1
+
+### Fixes
+
+- Fixed the way `Agent` handles processors in the `ProcessorStrategy` and `ProcessorController`.
+- Corrected a bug where invalid JSON schemas would get sent by `Agent` when using `Bot.process` with an invalid signature.
+- Updated the `IntelFactory` to properly validate JSON schemas.
+
 ## v1.2.0
 
 ### Features

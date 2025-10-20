@@ -244,4 +244,4 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
 
 class DefaultIntel(BaseIntel):
-    content: str
+    text: str

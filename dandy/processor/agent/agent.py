@@ -3,6 +3,7 @@ from typing import Sequence, ClassVar
 
 from pydantic.main import IncEx
 
+from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
 from dandy.processor.bot.bot import Bot
 from dandy.conf import settings
 from dandy.http.mixin import HttpServiceMixin
@@ -15,7 +16,7 @@ from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
 from dandy.processor.agent.intelligence.intel.plan_intel import PlanIntel
-from dandy.processor.agent.intelligence.typed_bot import TypedBot
+from dandy.processor.agent.intelligence.bots.generic_task_bot import GenericTaskBot
 from dandy.processor.agent.intelligence.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
@@ -38,10 +39,8 @@ class Agent(
     plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     processors: Sequence[type[BaseProcessor]] = (
-        TypedBot,
+        GenericTaskBot,
     )
-    _processors_strategy_class: type[ProcessorsStrategy] = ProcessorsStrategy
-    _processors_strategy: ProcessorsStrategy | None = None
 
     services: ClassVar[AgentService] = AgentService()
     _AgentService_instance: AgentService | None = None
@@ -53,18 +52,20 @@ class Agent(
 
         for processor in cls.processors:
             if processor is Bot:
-                message = f'{cls.__name__} cannot have a base "Bot" class defined on the "processors" class attribute.'
+                message = f'{cls.__name__} cannot have a "Bot" class defined on the "processors" class attribute.'
                 raise AgentCriticalException(message)
 
-        if cls._processors_strategy_class is None:
-            message = f'{cls.__name__} must have a "BaseProcessorsStrategy" sub class defined on the "_processors_strategy_class" class attribute.'
-            raise AgentCriticalException(message)
-
     def __post_init__(self):
-        if self._processors_strategy is None:
-            self._processors_strategy = self._processors_strategy_class(
-                self.processors
-            )
+        self._processors_strategy = ProcessorsStrategy(
+            self.processors
+        )
+
+    @classmethod
+    def get_description(cls) -> str | None:
+        if cls.description is not None:
+            return cls.description
+
+        return cls.get_llm_description()
 
     def process(
             self,
@@ -79,64 +80,13 @@ class Agent(
             message_history: MessageHistory | None = None,
     ) -> IntelType:
 
-        recorder_event_id = self._recorder_event_id
-
-        recorder_add_llm_agent_create_plan_event(
-            prompt,
-            self._processors_strategy,
-            recorder_event_id
-        )
-
         plan_intel = self._create_plan(prompt)
 
-        recorder_add_llm_agent_finished_creating_plan_event(
-            plan_intel,
-            recorder_event_id
-        )
-
-        recorder_add_llm_agent_running_plan_event(
-            plan_intel,
-            recorder_event_id
-        )
-
-        while plan_intel.is_incomplete:
-            if plan_intel.has_exceeded_time_limit:
-                message = f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
-                raise AgentOverThoughtRecoverableException(message)
-
-            task = plan_intel.active_task
-
-            recorder_add_llm_agent_start_task_event(
-                task,
-                self._processors_strategy,
-                recorder_event_id
-            )
-
-            resource = self._processors_strategy.get_processor_from_key(task.processors_key)
-
-            updated_task = resource.use(
-                prompt=agent_do_task_prompt(task),
-                intel_object=task,
-                include_fields={'actual_result'}
-            )
-
-            task.actual_result = updated_task.actual_result
-            plan_intel.set_active_task_complete()
-
-            recorder_add_llm_agent_completed_task_event(
-                task,
-                self._processors_strategy,
-                recorder_event_id
-            )
-
-        recorder_add_llm_agent_done_executing_plan_event(
-            plan_intel,
-            recorder_event_id
-        )
+        completed_plan_intel = self._run_plan(plan_intel)
 
         recorder_add_llm_agent_processing_final_result_event(
-            plan_intel,
-            recorder_event_id
+            completed_plan_intel,
+            self._recorder_event_id
         )
 
         if postfix_system_prompt is None:
@@ -162,6 +112,13 @@ class Agent(
             self,
             prompt: PromptOrStr,
     ) -> PlanIntel:
+
+        recorder_add_llm_agent_create_plan_event(
+            prompt,
+            self._processors_strategy,
+            self._recorder_event_id
+        )
+
         plan_intel = self.llm.prompt_to_intel(
             prompt=agent_create_plan_prompt(
                 user_prompt=prompt,
@@ -178,7 +135,58 @@ class Agent(
 
         self._validate_plan_or_error(plan_intel)
 
+        recorder_add_llm_agent_finished_creating_plan_event(
+            plan_intel, self._recorder_event_id
+        )
+
         return plan_intel
+
+    def _execute_task(self, task_intel: TaskIntel) -> TaskIntel:
+        recorder_add_llm_agent_start_task_event(
+            task_intel, self._processors_strategy, self._recorder_event_id
+        )
+
+        processor_controller = self._processors_strategy.get_processor_controller_from_key(task_intel.processors_key)
+
+        updated_task = processor_controller.use(
+            prompt=agent_do_task_prompt(task_intel),
+            intel_object=task_intel,
+            include_fields={'actual_result'},
+        )
+
+        task_intel.actual_result = updated_task.actual_result
+
+        recorder_add_llm_agent_completed_task_event(
+            task_intel,
+            self._processors_strategy,
+            self._recorder_event_id
+        )
+
+        return task_intel
+
+
+    def _run_plan(self, plan_intel: PlanIntel) -> PlanIntel:
+        recorder_add_llm_agent_running_plan_event(
+            plan_intel,
+            self._recorder_event_id
+        )
+
+        while plan_intel.is_incomplete:
+            if plan_intel.has_exceeded_time_limit:
+                message = f'{self.__class__.__name__} exceeded the time limit of {self.plan_time_limit_seconds} seconds running a plan.'
+                raise AgentOverThoughtRecoverableException(message)
+
+            self._execute_task(plan_intel.active_task)
+
+            plan_intel.set_active_task_complete()
+
+        recorder_add_llm_agent_done_executing_plan_event(
+            plan_intel,
+            self._recorder_event_id
+        )
+
+        return plan_intel
+
 
     def _validate_plan_or_error(self, plan_intel: PlanIntel):
         if plan_intel.tasks is None or len(plan_intel.tasks) == 0:

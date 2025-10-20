@@ -23,6 +23,6 @@ from dandy import Bot
 
 response = Bot().process('What is the capital of Canada?')
 
-print(response.content)
+print(response.text)
 
 # Output: The capital of Canada is Ottawa
