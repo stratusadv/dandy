@@ -5,7 +5,7 @@ from dandy.processor.agent.exceptions import AgentCriticalException
 from dandy.processor.agent.intelligence.bots.answer_transfer_bot import (
     AnswerTransferBot,
 )
-from dandy.processor.agent.intelligence.bots.use_processor_bot import UseProcessorBot
+from dandy.processor.agent.intelligence.bots.use_processor_bot import ProcessorKwargsBot
 from dandy.core.typing.tools import get_typed_kwargs_from_callable_signature
 from dandy.intel.generator import IntelClassGenerator
 
@@ -63,10 +63,10 @@ class ProcessorController:
                 ),
             )
 
-            processor_kwargs_intel = UseProcessorBot().process(
+            processor_kwargs_intel = ProcessorKwargsBot().process(
                 prompt=prompt,
                 processor_kwargs_intel_class=processor_kwargs_intel_class,
-                processor_description=self.processor_class.description,
+                processor_description=self.processor_class.get_description(),
             )
 
             processor_intel = self.processor_class().process(

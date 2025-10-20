@@ -27,7 +27,7 @@ def get_capital_intel(country: str) -> BaseIntel:
         prompt=f'Please tell me just the name only of the city that is the capital of {country}?')
 
     return Bot().process(
-        prompt=f'Please describe the following city: {capital_city_intel.content}')
+        prompt=f'Please describe the following city: {capital_city_intel.text}')
 
 
 class TestRecorder(TestCase):

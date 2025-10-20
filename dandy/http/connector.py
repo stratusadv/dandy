@@ -30,6 +30,7 @@ class HttpConnector:
         message = (
             f'HttpConnector request failed with status code {response_intel.status_code} '
             f'and the following message "{response_intel.response_phrase}" '
+            f'and body text "{response_intel.text}" '
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )
         raise HttpConnectorRecoverableException(message)

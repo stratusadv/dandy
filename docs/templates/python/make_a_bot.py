@@ -10,6 +10,6 @@ class AssistantBot(Bot):
 
 intel = AssistantBot().process('Can you give me an idea for a book?')
 
-print(intel.content)
+print(intel.text)
 
 # Output: Here's an idea for a book: 'The Memory Thief's Daughter' - A mystery thriller ...

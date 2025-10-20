@@ -16,7 +16,7 @@ from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
 from dandy.processor.agent.intelligence.intel.plan_intel import PlanIntel
-from dandy.processor.agent.intelligence.bots.typed_bot import TypedBot
+from dandy.processor.agent.intelligence.bots.generic_task_bot import GenericTaskBot
 from dandy.processor.agent.intelligence.prompts import agent_do_task_prompt, agent_create_plan_prompt
 from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_event, \
     recorder_add_llm_agent_finished_creating_plan_event, recorder_add_llm_agent_running_plan_event, \
@@ -39,7 +39,7 @@ class Agent(
     plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
 
     processors: Sequence[type[BaseProcessor]] = (
-        TypedBot,
+        GenericTaskBot,
     )
 
     services: ClassVar[AgentService] = AgentService()

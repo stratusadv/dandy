@@ -1,15 +1,12 @@
 from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.llm.prompt.typing import PromptOrStr
 
 
-class TypedBot(Bot):
+class GenericTaskBot(Bot):
     def process(
             self,
-            prompt: PromptOrStr,
-            intel_class: type[BaseIntel],
+            prompt: str,
     ) -> BaseIntel:
         return self.llm.prompt_to_intel(
             prompt=prompt,
-            intel_class=intel_class,
         )

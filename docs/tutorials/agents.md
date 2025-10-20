@@ -12,12 +12,13 @@ To create an agent using the `Agent` class from the `dandy` module similar to ho
 ```python exec="True" source="above" source="material-block" session="agent"
 from dandy import Agent, Bot, BaseIntel
 
+
 class IdeaBot(Bot):
     llm_role = 'Creative Idea Maker'
-    
+
     def process(self, user_input: str) -> BaseIntel:
         return self.llm.prompt_to_intel(
-            prompt=user_input        
+            prompt=user_input
         )
 
 
@@ -30,7 +31,7 @@ class AssistantAgent(Agent):
 
 intel = AssistantAgent().process('Can you give me an idea for a drawing?')
 
-print(intel.content)
+print(intel.text)
 ```
 
 !!! note

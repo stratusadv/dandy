@@ -20,9 +20,9 @@ pants_intel = Bot().process('What type of pants should I wear in the rain?')
 shirt_intel = Bot().process('What type of shirt should I wear in the sun?')
 shoes_intel = Bot().process('What type of shoes should I wear in the mud?')
 
-print('Pants: ' + pants_intel.content)
-print('Shirt: ' + shirt_intel.content)
-print('Shoes: ' + shoes_intel.content)
+print('Pants: ' + pants_intel.text)
+print('Shirt: ' + shirt_intel.text)
+print('Shoes: ' + shoes_intel.text)
 
 print(f'Finished in {perf_counter() - start_time:.3f} seconds')
 ```
@@ -45,9 +45,9 @@ pants_intel_future = Bot().process_to_future('What type of pants should I wear i
 shirt_intel_future = Bot().process_to_future('What type of shirt should I wear in the sun?')
 shoes_intel_future = Bot().process_to_future('What type of shoes should I wear in the mud?')
 
-print('Pants: ' + pants_intel_future.result.content)
-print('Shirt: ' + shirt_intel_future.result.content)
-print('Shoes: ' + shoes_intel_future.result.content)
+print('Pants: ' + pants_intel_future.result.text)
+print('Shirt: ' + shirt_intel_future.result.text)
+print('Shoes: ' + shoes_intel_future.result.text)
 
 print(f'Finished in {perf_counter() - start_time:.3f} seconds')
 ```
@@ -70,5 +70,5 @@ scary_animal_future.set_timeout(seconds=30)
 if user_likes_scary_animals:
     cute_animal_future.cancel()
 
-print(scary_animal_future.result.content)
+print(scary_animal_future.result.text)
 ```

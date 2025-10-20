@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fixed the way `Agent` handles processors in the `ProcessorStrategy` and `ProcessorController`.
+- Corrected a bug where invalid JSON schemas would get sent by `Agent` when using `Bot.process` with an invalid signature. 
 
 ## v1.2.0
 

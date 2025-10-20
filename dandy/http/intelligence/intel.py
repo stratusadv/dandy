@@ -1,3 +1,4 @@
+import json
 from typing import Any, Self
 
 import httpx
@@ -44,6 +45,10 @@ class HttpRequestIntel(BaseIntel):
     json_data: dict | None = None
     stream: bool | None = None
     bearer_token: str | None = None
+
+    @property
+    def json_str(self) -> str:
+        return json.dumps(self.json_data)
 
     def model_post_init(self, __context: Any, /):
         self.generate_headers()
