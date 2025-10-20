@@ -146,9 +146,9 @@ class Agent(
             task_intel, self._processors_strategy, self._recorder_event_id
         )
 
-        resource = self._processors_strategy.get_processor_controller_from_key(task_intel.processors_key)
+        processor_controller = self._processors_strategy.get_processor_controller_from_key(task_intel.processors_key)
 
-        updated_task = resource.use(
+        updated_task = processor_controller.use(
             prompt=agent_do_task_prompt(task_intel),
             intel_object=task_intel,
             include_fields={'actual_result'},

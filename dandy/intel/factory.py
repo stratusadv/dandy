@@ -42,13 +42,7 @@ class IntelFactory:
             **inc_ex_kwargs,
         )
 
-        for property_ in json_schema['properties']:
-            for required_value in (
-                'type',
-            ):
-                if required_value not in json_schema['properties'][property_]:
-                    message = f'JSON Schema property {property_} is missing required value {required_value}'
-                    raise IntelCriticalException(message) from None
+        cls._validate_json_schema_or_error(json_schema)
 
         return json_schema
 
@@ -62,3 +56,10 @@ class IntelFactory:
             object_func=intel.model_validate_json_and_copy,
             json_data=json_str,
         )
+
+    @classmethod
+    def _validate_json_schema_or_error(cls, json_schema: Dict):
+        for property_ in json_schema['properties']:
+            if 'type' not in json_schema['properties'][property_] and '$ref' not in json_schema['properties'][property_]:
+                message = f'JSON Schema property "{property_}" must have a "type" or "$ref" attribute.'
+                raise IntelCriticalException(message) from None
