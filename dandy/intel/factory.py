@@ -59,7 +59,12 @@ class IntelFactory:
 
     @classmethod
     def _validate_json_schema_or_error(cls, json_schema: Dict):
+        required_attributes = ('allOf', 'anyOf', 'not', 'oneOf', 'type', '$ref')
         for property_ in json_schema['properties']:
-            if 'type' not in json_schema['properties'][property_] and '$ref' not in json_schema['properties'][property_]:
-                message = f'JSON Schema property "{property_}" must have a "type" or "$ref" attribute.'
+            for required_attribute in required_attributes:
+                if required_attribute in json_schema['properties'][property_]:
+                    break
+
+            else:
+                message = f'JSON Schema property "{property_}" did not have one of f{required_attributes}.'
                 raise IntelCriticalException(message) from None

@@ -21,7 +21,7 @@ env:
   DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
 
 jobs:
-  testing:
+  dandy-testing:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
           python -m unittest discover -v ./tests
 
   documentation-testing:
-    needs: testing
+    needs: dandy-testing
     runs-on: ubuntu-latest
     continue-on-error: true
 

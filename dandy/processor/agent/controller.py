@@ -5,7 +5,7 @@ from dandy.processor.agent.exceptions import AgentCriticalException
 from dandy.processor.agent.intelligence.bots.answer_transfer_bot import (
     AnswerTransferBot,
 )
-from dandy.processor.agent.intelligence.bots.use_processor_bot import ProcessorKwargsBot
+from dandy.processor.agent.intelligence.bots.processor_kwargs_bot import ProcessorKwargsBot
 from dandy.core.typing.tools import get_typed_kwargs_from_callable_signature
 from dandy.intel.generator import IntelClassGenerator
 
