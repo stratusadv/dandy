@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.2
+
+### Changes
+
+- After much evaluation of different HTTP libraries and testing we found `requests` was the best option.
+
 ## v1.2.1
 
 ### Fixes

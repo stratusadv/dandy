@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import httpx
+import requests
 
 from dandy.conf import settings
 from dandy.http.exceptions import HttpConnectorRecoverableException
@@ -12,7 +12,7 @@ class HttpConnector:
     def request_to_response(request_intel: HttpRequestIntel) -> HttpResponseIntel:
         response_intel: HttpResponseIntel = HttpResponseIntel(
             status_code=0,
-            response_phrase='Unknown Reasons or Connection Timeouts',
+            reason='Unknown Reasons or Connection Timeouts',
             text='',
             json_data={},
         )
@@ -24,12 +24,12 @@ class HttpConnector:
                 if response_intel.status_code in (200, 201):
                     return response_intel
 
-            except httpx.TimeoutException:
+            except requests.exceptions.Timeout:
                 continue
 
         message = (
             f'HttpConnector request failed with status code {response_intel.status_code} '
-            f'and the following message "{response_intel.response_phrase}" '
+            f'and the following message "{response_intel.reason}" '
             f'and body text "{response_intel.text}" '
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )

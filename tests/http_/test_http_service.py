@@ -1,6 +1,5 @@
 from unittest import TestCase, mock
 
-from bottle import http_date
 
 from dandy.http.service import HttpService
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
@@ -13,7 +12,7 @@ class TestHttpService(TestCase):
 
         expected_response = HttpResponseIntel(
             status_code=200,
-            response_phrase='OK',
+            reason='OK',
             text='ok',
             json_data={'ok': True},
         )
@@ -27,7 +26,6 @@ class TestHttpService(TestCase):
             self.assertEqual(request_intel.headers, {'X-Test': 'yes'})
             self.assertEqual(request_intel.cookies, {'session': 'abc'})
             # Body-related fields should be None for GET
-            self.assertIsNone(request_intel.content)
             self.assertIsNone(request_intel.data)
             self.assertIsNone(request_intel.files)
             self.assertIsNone(request_intel.json_data)
@@ -63,7 +61,6 @@ class TestHttpService(TestCase):
             self.assertEqual(request_intel.params, {'verbose': '1'})
             self.assertEqual(request_intel.headers, {'Content-Type': 'application/json'})
             self.assertEqual(request_intel.cookies, {'auth': 'token'})
-            self.assertEqual(request_intel.content, 'raw-bytes')
             self.assertEqual(request_intel.data, {'k': 'v'})
             self.assertEqual(request_intel.files, {'file': b'data'})
             self.assertEqual(request_intel.json_data, {'name': 'Item'})
