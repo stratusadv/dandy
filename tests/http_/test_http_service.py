@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-
+from dandy import Bot
 from dandy.http.service import HttpService
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 
@@ -81,3 +81,7 @@ class TestHttpService(TestCase):
 
         self.assertIs(response, expected_response)
         mock_request_to_response.assert_called_once()
+
+    def test_reset_callable(self):
+        bot = Bot()
+        bot.http.reset_service()

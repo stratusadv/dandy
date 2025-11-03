@@ -68,6 +68,11 @@ class LlmConfigOptions:
             else settings.LLM_DEFAULT_PROMPT_RETRY_COUNT
         )
 
+    def update_values(self, **kwargs):
+        for key, value in kwargs.items():
+            if hasattr(self, key) and value is not None:
+                setattr(self, key, value)
+
     def merge_to_copy(self, secondary_options: Self) -> Self:
         """
         Merges the current instance with another secondary instance

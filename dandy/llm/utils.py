@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from dandy.llm.service.intelligence.prompts import (
+from dandy.llm.intelligence.prompts import (
     service_system_prompt,
     service_user_prompt,
 )

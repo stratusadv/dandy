@@ -1,5 +1,4 @@
 from abc import abstractmethod, ABC
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -8,11 +7,11 @@ from dandy.llm.request.message import RequestMessage, RoleLiteralStr
 
 class BaseRequestBody(BaseModel, ABC):
     model: str
-    messages: List[RequestMessage] = Field(default_factory=list)
+    messages: list[RequestMessage] = Field(default_factory=list)
 
     @abstractmethod
     def add_message(
-        self, role: RoleLiteralStr, content: str, images: List[str] | None = None
+        self, role: RoleLiteralStr, content: str, images: list[str] | None = None
     ): ...
 
     @abstractmethod
@@ -26,6 +25,9 @@ class BaseRequestBody(BaseModel, ABC):
 
     @abstractmethod
     def get_temperature(self) -> float: ...
+
+    def reset_messages(self):
+        self.messages = []
 
     @property
     @abstractmethod

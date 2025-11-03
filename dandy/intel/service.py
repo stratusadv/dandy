@@ -32,3 +32,6 @@ class IntelService(BaseService['IntelServiceMixin']):
         intel: BaseIntel | type[BaseIntel],
     ) -> BaseIntel:
         return IntelFactory.json_str_to_intel_object(json_str=json_str, intel=intel)
+
+    def reset_service(self):
+        pass

@@ -1,10 +1,29 @@
 # Changelog
 
+## v1.3.0
+
+### Breaking
+
+- Service method `llm.prompt_to_intel` no longer takes `postfix_system_prompt` as an argument as its redundant.
+
+### Features
+
+- All `Processor` classes `Bot`, `Agent` and `Decoder` now have a `reset_services` method.
+  - This provides an easy and lightweight way to reset any persistent data in all the processor services.
+- All `Service` classes `Llm`, `Http`, `Intel` now have a `reset_service` method.
+  - This is for having more fine control over persistent data.
+  - there are other more fine control reset methods, and we recommend you check out the API reference.
+
+### Fixes
+
+- Fixed the signatures for `__init__` method on `Agent`, `Bot` and `Decoder`.
+- Correct the order of operation for when message history adds responses in the llm service.
+
 ## v1.2.2
 
 ### Changes
 
-- After much evaluation of different HTTP libraries and testing we found `requests` was the best option.
+- After much evaluation of different HTTP libraries and testing we found `requests` was the best option for Dandy.
 
 ## v1.2.1
 

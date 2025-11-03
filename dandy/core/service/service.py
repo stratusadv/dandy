@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar, Self
 
 from dandy.core.service.exceptions import ServiceCriticalException
@@ -97,6 +97,10 @@ class BaseService(ABC, Generic[T_co]):
 
     def has_obj_service_instance(self, obj: Any) -> bool:
         return self.get_obj_service_instance(obj) is not None
+
+    @abstractmethod
+    def reset_service(self):
+        raise NotImplementedError
 
     @classmethod
     def set_obj_service_instance(cls, obj: Any, service_instance: BaseService | None):

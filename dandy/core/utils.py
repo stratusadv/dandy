@@ -28,6 +28,14 @@ def pascal_to_title_case(pascal_case_string: str) -> str:
     return ' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', pascal_case_string))
 
 
+def generate_forwardable_kwargs_if_not_none(**kwargs) -> dict:
+    return {
+        key: value
+        for key, value in kwargs.items()
+        if value is not None
+    }
+
+
 def pydantic_validation_error_to_str(error: ValidationError) -> str:
     return error.__str__()
 
