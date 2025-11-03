@@ -3,7 +3,9 @@ from typing import Sequence, ClassVar
 
 from pydantic.main import IncEx
 
+from dandy.core.utils import generate_forwardable_kwargs_if_not_none
 from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
+from dandy.processor.agent.mixin import AgentServiceMixin
 from dandy.processor.bot.bot import Bot
 from dandy.conf import settings
 from dandy.http.mixin import HttpServiceMixin
@@ -25,15 +27,16 @@ from dandy.processor.agent.recorder import recorder_add_llm_agent_create_plan_ev
 from dandy.processor.agent.service import AgentService
 from dandy.processor.agent.strategy import ProcessorsStrategy
 from dandy.processor.processor import BaseProcessor
-from dandy.vision.mixin import VisionProcessorMixin
+from dandy.vision.mixin import VisionServiceMixin
 
 
 class Agent(
     BaseProcessor,
+    AgentServiceMixin,
     LlmServiceMixin,
     HttpServiceMixin,
     IntelServiceMixin,
-    VisionProcessorMixin,
+    VisionServiceMixin,
 ):
     plan_time_limit_seconds: int = settings.AGENT_DEFAULT_PLAN_TIME_LIMIT_SECONDS
     plan_task_count_limit: int = settings.AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT
@@ -44,6 +47,27 @@ class Agent(
 
     services: ClassVar[AgentService] = AgentService()
     _AgentService_instance: AgentService | None = None
+
+    def __init__(
+            self,
+            llm_randomize_seed: bool | None = None,
+            llm_seed: int | None = None,
+            llm_temperature: float | None = None,
+            processors: Sequence[type[BaseProcessor]] | None = None,
+            **kwargs
+    ):
+        super().__init__(
+            **generate_forwardable_kwargs_if_not_none(
+                processors=processors
+            ),
+            **kwargs
+        )
+
+        self.llm_config_options.update_values(
+            randomize_seed=llm_randomize_seed,
+            seed=llm_seed,
+            temperature=llm_temperature,
+        )
 
     def __init_subclass__(cls, **kwargs):
         if cls.processors is None or len(cls.processors) == 0:

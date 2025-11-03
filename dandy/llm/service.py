@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from pydantic import ValidationError
 
@@ -11,12 +11,12 @@ from dandy.intel.factory import IntelFactory
 from dandy.llm.conf import llm_configs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.service.intelligence.prompts import (
+from dandy.llm.intelligence.prompts import (
     service_system_validation_error_prompt,
     service_user_prompt,
     service_system_prompt,
 )
-from dandy.llm.service.recorder import (
+from dandy.llm.recorder import (
     recorder_add_llm_request_event,
     recorder_add_llm_response_event,
     recorder_add_llm_success_event,
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from dandy.llm.prompt.typing import PromptOrStr
     from dandy.intel.typing import IntelType
     from dandy.llm.mixin import LlmServiceMixin
-    from dandy.llm.request.message import MessageHistory
+    from dandy.llm.request.message import MessageHistory, RoleLiteralStr, RequestMessage
 
 
 class LlmService(BaseService['LlmServiceMixin']):
@@ -57,6 +57,9 @@ class LlmService(BaseService['LlmServiceMixin']):
             seed=self._llm_options.seed,
             temperature=self._llm_options.temperature,
         )
+
+        self._add_system_message()
+
         self._response_str = None
         self._retry_max_attempts = 0
         self._retry_attempt = 0
@@ -65,16 +68,42 @@ class LlmService(BaseService['LlmServiceMixin']):
     def has_retry_attempts_available(self) -> bool:
         return self._retry_attempt < self._llm_config.options.prompt_retry_count
 
+    @property
+    def messages(self) -> list[RequestMessage]:
+        return self._request_body.messages
+
+    def add_message(
+        self, role: RoleLiteralStr, content: str, images: list[str] | None = None
+    ):
+        self._request_body.add_message(role, content, images)
+
+    def add_messages(
+        self, messages: Sequence[tuple[RoleLiteralStr, str, list[str] | None]]
+    ):
+        for role, content, images in messages:
+            self.add_message(role, content, images)
+
+    def _add_system_message(self):
+        self._request_body.add_message(
+            role='system',
+            content=service_system_prompt(
+                role=self.obj.llm_role,
+                task=self.obj.llm_task,
+                guidelines=self.obj.llm_guidelines,
+                system_override_prompt=self.obj.llm_system_override_prompt,
+            ).to_str(),
+        )
+
+
     def prompt_to_intel(
         self,
-        prompt: PromptOrStr,
+        prompt: PromptOrStrOrNone = None,
         intel_class: type[IntelType] | None = None,
         intel_object: IntelType | None = None,
         images: list[str] | None = None,
         image_files: list[str | Path] | None = None,
         include_fields: IncEx | None = None,
         exclude_fields: IncEx | None = None,
-        postfix_system_prompt: PromptOrStrOrNone = None,
         message_history: MessageHistory | None = None,
     ) -> IntelType:
         if intel_class and intel_object:
@@ -102,30 +131,24 @@ class LlmService(BaseService['LlmServiceMixin']):
 
         self._request_body.set_format_to_json_schema(self._intel_json_schema)
 
-        self._request_body.add_message(
-            role='system',
-            content=service_system_prompt(
-                role=self.obj.llm_role,
-                task=self.obj.llm_task,
-                guidelines=self.obj.llm_guidelines,
-                system_override_prompt=self.obj.llm_system_override_prompt,
-                postfix_system_prompt=postfix_system_prompt,
-            ).to_str(),
-        )
-
         if message_history:
             for message in message_history.messages:
                 self._request_body.add_message(
                     role=message.role, content=message.content, images=message.images
                 )
 
-        self._request_body.add_message(
-            role='user',
-            content=service_user_prompt(
-                prompt if isinstance(prompt, Prompt) else Prompt(prompt)
-            ).to_str(),
-            images=images,
-        )
+        if prompt is not None:
+            self._request_body.add_message(
+                role='user',
+                content=service_user_prompt(
+                    prompt if isinstance(prompt, Prompt) else Prompt(prompt)
+                ).to_str(),
+                images=images,
+            )
+
+        if len(self._request_body.messages) <= 1:
+            message = f'"{self.__class__.__name__}.llm.process_to_intel" method requires you to have a prompt or more than the system message.'
+            raise LlmCriticalException(message)
 
         return self._request_to_intel()
 
@@ -161,6 +184,8 @@ class LlmService(BaseService['LlmServiceMixin']):
                     intel=intel_object,
                 )
 
+                self._request_body.add_message(role='assistant', content=self._response_str)
+
                 return intel_object
 
             message = 'Failed to validate response from prompt into intel object.'
@@ -173,6 +198,13 @@ class LlmService(BaseService['LlmServiceMixin']):
                 retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
                 retry_user_prompt=service_system_validation_error_prompt(error),
             )
+
+    def reset_service(self):
+        self.reset_messages()
+        self._add_system_message()
+
+    def reset_messages(self):
+        self._request_body.reset_messages()
 
     def retry_request_to_intel(
         self,
@@ -188,8 +220,6 @@ class LlmService(BaseService['LlmServiceMixin']):
                 remaining_attempts=self._llm_config.options.prompt_retry_count
                 - self._retry_attempt,
             )
-
-            self._request_body.add_message(role='assistant', content=self._response_str)
 
             self._request_body.add_message(
                 role='user', content=Prompt(retry_user_prompt).to_str()

@@ -9,3 +9,6 @@ if TYPE_CHECKING:
 
 class BotService(BaseService['Bot']):
     obj: Bot
+
+    def reset_service(self):
+        pass

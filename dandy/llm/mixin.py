@@ -8,15 +8,17 @@ from dandy.llm.config.config import LlmConfigOptions
 from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.llm.config.openai import OpenaiLlmConfig
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
-from dandy.llm.service.service import LlmService
+from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
     llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options
     llm_intel_class: type[BaseIntel] = DefaultIntel
-    llm_role: PromptOrStr = 'You are a helpful assistant.'
-    llm_task: PromptOrStrOrNone = None
+    llm_role: PromptOrStr = 'Helpful Assistant'
+    llm_task: PromptOrStrOrNone = (
+        'Read the users request and provide the correct response based on context.'
+    )
     llm_guidelines: PromptOrStrOrNone = None
     llm_system_override_prompt: PromptOrStrOrNone = None
 
@@ -47,3 +49,7 @@ class LlmServiceMixin(BaseServiceMixin):
             return f'{cls.llm_role}'
 
         return None
+
+    def reset_services(self):
+        super().reset_services()
+        self.llm.reset_service()

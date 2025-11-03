@@ -2,10 +2,11 @@ from enum import Enum
 from typing import Any, ClassVar
 
 from dandy.core.future import AsyncFuture
+from dandy.core.utils import generate_forwardable_kwargs_if_not_none
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
-from dandy.llm.service.recorder import recorder_add_llm_failure_event
+from dandy.llm.recorder import recorder_add_llm_failure_event
 from dandy.processor.decoder.exceptions import (
     DecoderCriticalException,
     DecoderRecoverableException,
@@ -21,6 +22,7 @@ from dandy.processor.decoder.intelligence.prompts import (
     decoder_no_key_error_prompt,
     decoder_max_key_count_error_prompt,
 )
+from dandy.processor.decoder.mixin import DecoderServiceMixin
 from dandy.processor.decoder.recorder import (
     recorder_add_process_decoder_value_event,
     recorder_add_chosen_mappings_event,
@@ -31,34 +33,37 @@ from dandy.processor.processor import BaseProcessor
 
 class Decoder(
     BaseProcessor,
+    DecoderServiceMixin,
     LlmServiceMixin,
 ):
-    mapping_keys_description: str = None
     mapping: dict[str, Any] = None
+    mapping_keys_description: str = None
 
     services: ClassVar[DecoderService] = DecoderService()
     _DecoderService_instance: DecoderService | None = None
 
-    @property
-    def _keyed_mapping_choices_dict(self) -> dict[str, str]:
-        return {key: value[0] for key, value in self._keyed_mapping.items()}
+    def __init__(
+            self,
+            llm_randomize_seed: bool | None = None,
+            llm_seed: int | None = None,
+            llm_temperature: float | None = None,
+            mapping: dict[str, Any] | None = None,
+            mapping_keys_description: str | None = None,
+            **kwargs
+    ):
+        super().__init__(
+            **generate_forwardable_kwargs_if_not_none(
+                mapping=mapping,
+                mapping_keys_description=mapping_keys_description,
+            ),
+            **kwargs
+        )
 
-    @property
-    def _keyed_mapping(self) -> dict[str, tuple[str, ...]]:
-        keyed_mapping = {}
-        for i, (choice, value) in enumerate(self.mapping.items(), start=1):
-            key = str(i)
-            if isinstance(value, dict):
-                keyed_mapping[key] = (
-                    choice,
-                    self.__class__(
-                        mapping_keys_description=self.mapping_keys_description,
-                        mapping=value,
-                    ),
-                )
-            else:
-                keyed_mapping[key] = (choice, value)
-        return keyed_mapping
+        self.llm_config_options.update_values(
+            randomize_seed=llm_randomize_seed,
+            seed=llm_seed,
+            temperature=llm_temperature,
+        )
 
     def __init_subclass__(cls):
         super().__init_subclass__()
@@ -85,6 +90,27 @@ class Decoder(
 
     def __getitem__(self, item: str) -> Any:
         return self.mapping[item]
+
+    @property
+    def _keyed_mapping_choices_dict(self) -> dict[str, str]:
+        return {key: value[0] for key, value in self._keyed_mapping.items()}
+
+    @property
+    def _keyed_mapping(self) -> dict[str, tuple[str, ...]]:
+        keyed_mapping = {}
+        for i, (choice, value) in enumerate(self.mapping.items(), start=1):
+            key = str(i)
+            if isinstance(value, dict):
+                keyed_mapping[key] = (
+                    choice,
+                    self.__class__(
+                        mapping_keys_description=self.mapping_keys_description,
+                        mapping=value,
+                    ),
+                )
+            else:
+                keyed_mapping[key] = (choice, value)
+        return keyed_mapping
 
     def as_enum(self) -> Enum:
         return Enum(

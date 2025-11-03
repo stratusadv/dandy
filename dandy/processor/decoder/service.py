@@ -9,3 +9,6 @@ if TYPE_CHECKING:
 
 class DecoderService(BaseService['Decoder']):
     obj: Decoder
+
+    def reset_service(self):
+        pass
