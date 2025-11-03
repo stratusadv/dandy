@@ -3,6 +3,9 @@ from tests.processor.agent.intelligence.intel import EmailAddressIntel, EmailBod
 
 
 class MuseumEmailFinderBot(Bot):
+    llm_role = 'Museum Email Address Finder'
+    llm_task = 'Find the email address for a museum.'
+
     description = 'Finds the email address for a museum.'
 
     def process(self, museum_name: str) -> EmailAddressIntel:

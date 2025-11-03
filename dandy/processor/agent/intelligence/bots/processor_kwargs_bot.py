@@ -7,7 +7,8 @@ from dandy.llm.prompt.typing import PromptOrStr
 
 
 class ProcessorKwargsBot(Bot):
-    llm_role = 'You are a bot that is given a task and a processor, provide a response that best uses the processor to complete the task.'
+    llm_role = 'Useful Response Generator'
+    llm_task = 'Take the given a task and a resource, provide a response that could be best used the resource to complete the task.'
 
     def process(
         self,

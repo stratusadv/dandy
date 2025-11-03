@@ -94,7 +94,6 @@ class LlmService(BaseService['LlmServiceMixin']):
             ).to_str(),
         )
 
-
     def prompt_to_intel(
         self,
         prompt: PromptOrStrOrNone = None,

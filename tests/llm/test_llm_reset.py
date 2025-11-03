@@ -4,13 +4,13 @@ from dandy.processor.bot.bot import Bot
 
 
 class TestLlmReset(TestCase):
-    def test_llm_service_reset_clears_messages(self):
+    def test_llm_service_reset(self):
         bot = Bot()
 
         self.assertEqual(len(bot.llm.messages), 1)
 
         bot.llm.add_message('user', 'Hello!')
-        self.assertGreater(len(bot.llm.messages), 1)
+        self.assertEqual(len(bot.llm.messages), 2)
 
         bot.llm.reset_service()
         self.assertEqual(len(bot.llm.messages), 1)
@@ -19,8 +19,8 @@ class TestLlmReset(TestCase):
         bot = Bot()
 
         bot.llm.add_message('user', 'A')
-        self.assertGreater(len(bot.llm.messages), 1)
+        self.assertEqual(len(bot.llm.messages), 2)
 
         bot.llm.reset_messages()
-        self.assertEqual(len(bot.llm.messages), 1)
+        self.assertEqual(len(bot.llm.messages), 0)
 

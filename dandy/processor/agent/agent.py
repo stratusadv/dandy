@@ -13,7 +13,7 @@ from dandy.intel.mixin import IntelServiceMixin
 from dandy.intel.typing import IntelType
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
+from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.request.message import MessageHistory
 from dandy.processor.agent.exceptions import AgentCriticalException, AgentOverThoughtRecoverableException, \
     AgentRecoverableException
@@ -100,7 +100,6 @@ class Agent(
             image_files: list[str | Path] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
-            postfix_system_prompt: PromptOrStrOrNone = None,
             message_history: MessageHistory | None = None,
     ) -> IntelType:
 
@@ -113,22 +112,48 @@ class Agent(
             self._recorder_event_id
         )
 
-        if postfix_system_prompt is None:
-            postfix_system_prompt = Prompt()
+        self.llm.add_message(
+            role='user',
+            content=(
+                Prompt()
+                .text('I have the following task: ')
+                .line_break()
+                .text(prompt if isinstance(prompt, str) else prompt.to_str())
+                .line_break()
+                .text('Please create and execute a plan to accomplish this task.')
+                .to_str()
+            )
+        )
 
-        postfix_system_prompt.text('Use the results of the below simulated plan to accomplish the user request:')
-        postfix_system_prompt.line_break()
-        postfix_system_prompt.prompt(plan_intel.to_prompt())
+        self.llm.add_message(
+            role='assistant',
+            content=(
+                Prompt()
+                .sub_heading('Plan Execution Results:')
+                .line_break()
+                .prompt(completed_plan_intel.to_prompt())
+                .to_str()
+            )
+        )
+
+        self.llm.add_message(
+            role='user',
+            content=(
+                Prompt()
+                .text('Use the results of the executed plan to complete: ')
+                .line_break()
+                .text(prompt if isinstance(prompt, str) else prompt.to_str())
+                .to_str()
+            )
+        )
 
         return self.llm.prompt_to_intel(
-            prompt=prompt,
             intel_class=intel_class,
             intel_object=intel_object,
             images=images,
             image_files=image_files,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
-            postfix_system_prompt=postfix_system_prompt,
             message_history=message_history,
         )
 
@@ -162,6 +187,8 @@ class Agent(
         recorder_add_llm_agent_finished_creating_plan_event(
             plan_intel, self._recorder_event_id
         )
+
+        self.llm.reset_service()
 
         return plan_intel
 
