@@ -20,25 +20,32 @@ class OllamaRequestBody(BaseRequestBody):
     format: dict | None = {}
 
     def add_message(
-            self,
-            role: RoleLiteralStr,
-            content: str,
-            images: List[str] | None = None
+        self,
+        role: RoleLiteralStr,
+        content: str,
+        images: List[str] | None = None,
+        prepend: bool = False,
     ) -> None:
-        self.messages.append(
-            RequestMessage(
-                role=role,
-                content=content,
-                images=images
-            )
-        )
+        request_message = RequestMessage(role=role, content=content, images=images)
+
+        if prepend:
+            self.messages.insert(0, request_message)
+        else:
+            self.messages.append(request_message)
 
     def get_context_length(self) -> int:
         return self.options.num_ctx
 
     @property
     def token_usage(self) -> int:
-        token_usage = int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+        token_usage = int(
+            sum(
+                [
+                    get_estimated_token_count_for_string(message.content)
+                    for message in self.messages
+                ]
+            )
+        )
         token_usage += get_estimated_token_count_for_string(str(self.format))
 
         return token_usage

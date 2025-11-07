@@ -11,49 +11,60 @@ class OpenaiRequestBody(BaseRequestBody):
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
     response_format: dict = {
         'type': 'json_schema',
-        'json_schema': {
-            'name': 'response',
-            'strict': False,
-            'schema': ...
-        }
+        'json_schema': {'name': 'response', 'strict': False, 'schema': ...},
     }
     max_completion_tokens: int | None = None
-    seed: int |None = None
+    seed: int | None = None
     temperature: float | None = None
 
     def add_message(
-            self,
-            role: RoleLiteralStr,
-            content: str,
-            images: List[str] | None = None
+        self,
+        role: RoleLiteralStr,
+        content: str,
+        images: List[str] | None = None,
+        prepend: bool = False,
     ) -> None:
-        message_content: List[dict] = [{
-            'type': 'text',
-            'text': content,
-        }]
+        message_content: List[dict] = [
+            {
+                'type': 'text',
+                'text': content,
+            }
+        ]
 
         if images is not None:
             for image in images:
-                message_content.append({
-                    'type': 'image_url',
-                    'image_url': {
-                        'url': f'data:{get_image_mime_type_from_base64_string(image)};base64,{image}'
+                message_content.append(
+                    {
+                        'type': 'image_url',
+                        'image_url': {
+                            'url': f'data:{get_image_mime_type_from_base64_string(image)};base64,{image}'
+                        },
                     }
-                })
+                )
 
-        self.messages.append(
-            RequestMessage(
-                role=role,
-                content=message_content,
-            )
+        request_message = RequestMessage(
+            role=role,
+            content=message_content,
         )
+
+        if prepend:
+            self.messages.insert(0, request_message)
+        else:
+            self.messages.append(request_message)
 
     def get_context_length(self) -> int:
         return 0
 
     @property
     def token_usage(self) -> int:
-        token_usage = int(sum([get_estimated_token_count_for_string(message.content) for message in self.messages]))
+        token_usage = int(
+            sum(
+                [
+                    get_estimated_token_count_for_string(message.content)
+                    for message in self.messages
+                ]
+            )
+        )
         token_usage += get_estimated_token_count_for_string(str(self.response_format))
 
         return token_usage
@@ -82,15 +93,19 @@ class OpenaiRequestBody(BaseRequestBody):
         for message in model_dict['messages']:
             for content in message['content']:
                 if content['type'] == 'text':
-                    formated_messages.append({
-                        'role': message['role'],
-                        'content': content['text'],
-                    })
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['text'],
+                        }
+                    )
                 elif content['type'] == 'image_url':
-                    formated_messages.append({
-                        'role': message['role'],
-                        'content': content['image_url']['url'].split(';base64,')[1],
-                    })
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['image_url']['url'].split(';base64,')[1],
+                        }
+                    )
 
         model_dict['messages'] = formated_messages
 

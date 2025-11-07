@@ -58,8 +58,6 @@ class LlmService(BaseService['LlmServiceMixin']):
             temperature=self._llm_options.temperature,
         )
 
-        self._add_system_message()
-
         self._response_str = None
         self._retry_max_attempts = 0
         self._retry_attempt = 0
@@ -83,7 +81,7 @@ class LlmService(BaseService['LlmServiceMixin']):
         for role, content, images in messages:
             self.add_message(role, content, images)
 
-    def _add_system_message(self):
+    def _prepend_system_message(self):
         self._request_body.add_message(
             role='system',
             content=service_system_prompt(
@@ -92,6 +90,7 @@ class LlmService(BaseService['LlmServiceMixin']):
                 guidelines=self.obj.llm_guidelines,
                 system_override_prompt=self.obj.llm_system_override_prompt,
             ).to_str(),
+            prepend=True,
         )
 
     def prompt_to_intel(
@@ -127,6 +126,9 @@ class LlmService(BaseService['LlmServiceMixin']):
         self._intel_json_schema = IntelFactory.intel_to_json_inc_ex_schema(
             intel=self._intel, include=include_fields, exclude=exclude_fields
         )
+
+        if len(self._request_body.messages) == 0:
+            self._prepend_system_message()
 
         self._request_body.set_format_to_json_schema(self._intel_json_schema)
 
@@ -200,7 +202,7 @@ class LlmService(BaseService['LlmServiceMixin']):
 
     def reset_service(self):
         self.reset_messages()
-        self._add_system_message()
+        self._prepend_system_message()
 
     def reset_messages(self):
         self._request_body.reset_messages()

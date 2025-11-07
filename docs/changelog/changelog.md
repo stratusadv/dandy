@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.1
+
+### Fixes
+
+- Fixed and order of operations mistake with generating the llm service system prompt.
+
 ## v1.3.0
 
 ### Breaking

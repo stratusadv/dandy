@@ -11,7 +11,7 @@ class BaseRequestBody(BaseModel, ABC):
 
     @abstractmethod
     def add_message(
-        self, role: RoleLiteralStr, content: str, images: list[str] | None = None
+        self, role: RoleLiteralStr, content: str, images: list[str] | None = None, prepend: bool = False
     ): ...
 
     @abstractmethod
