@@ -127,7 +127,7 @@ class LlmService(BaseService['LlmServiceMixin']):
             intel=self._intel, include=include_fields, exclude=exclude_fields
         )
 
-        if len(self._request_body.messages) == 0:
+        if not self._request_body.has_system_message:
             self._prepend_system_message()
 
         self._request_body.set_format_to_json_schema(self._intel_json_schema)

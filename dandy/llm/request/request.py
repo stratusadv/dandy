@@ -9,6 +9,10 @@ class BaseRequestBody(BaseModel, ABC):
     model: str
     messages: list[RequestMessage] = Field(default_factory=list)
 
+    @property
+    def has_system_message(self) -> bool:
+        return len(self.messages) > 0 and self.messages[0].role == 'system'
+
     @abstractmethod
     def add_message(
         self, role: RoleLiteralStr, content: str, images: list[str] | None = None, prepend: bool = False

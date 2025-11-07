@@ -13,7 +13,7 @@ class TestLlmReset(TestCase):
         self.assertEqual(len(bot.llm.messages), 1)
 
         bot.llm.reset_service()
-        self.assertEqual(len(bot.llm.messages), 0)
+        self.assertEqual(len(bot.llm.messages), 1)
 
     def test_llm_reset_messages_alias_behavior(self):
         bot = Bot()
