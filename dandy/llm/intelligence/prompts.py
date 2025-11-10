@@ -10,44 +10,36 @@ def service_system_prompt(
     task: PromptOrStrOrNone = None,
     guidelines: PromptOrStrOrNone = None,
     system_override_prompt: PromptOrStrOrNone = None,
-    postfix_system_prompt: PromptOrStrOrNone = None,
 ) -> Prompt:
+    if system_override_prompt:
+        return system_override_prompt
+
     prompt = Prompt()
 
-    prompt.sub_heading('Role')
+    prompt.heading('Role')
+    prompt.line_break()
     prompt.prompt(role)
 
     if task:
         prompt.line_break()
-        prompt.sub_heading('Task')
+        prompt.heading('Task')
+        prompt.line_break()
         prompt.prompt(task)
 
     if guidelines:
         prompt.line_break()
-        prompt.sub_heading('Guidelines')
+        prompt.heading('Guidelines')
+        prompt.line_break()
         prompt.prompt(guidelines)
 
     prompt.line_break()
-    prompt.sub_heading('Constraints')
+    prompt.heading('Constraints')
     prompt.list(
         [
             'Make sure your response is valid JSON reflecting the provided JSON schema.',
-         ]
+            'Do not use any markdown styling in your response.',
+        ]
     )
-
-    if system_override_prompt:
-        prompt.prompt(system_override_prompt)
-    else:
-        prompt.line_break()
-        prompt.list(
-            [
-                'Do not use any markdown styling in your response.',
-            ]
-        )
-
-    if postfix_system_prompt:
-        prompt.line_break()
-        prompt.prompt(postfix_system_prompt)
 
     return prompt
 
@@ -55,12 +47,16 @@ def service_system_prompt(
 def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
     return (
         Prompt()
-        .text('The JSON in the response you provided was not valid based on the JSON schema that was provided.')
+        .text(
+            'The JSON in the response you provided was not valid based on the JSON schema that was provided.'
+        )
         .text(
             'Here is the validation error provided by Pydantic when it tried to parse the JSON:'
         )
         .text(f'{pydantic_validation_error_to_str(error)}', triple_quote=True)
-        .text('Please review your response provide a valid JSON in your next response, based on the previous request.')
+        .text(
+            'Please review your response provide a valid JSON in your next response, based on the previous request.'
+        )
     )
 
 

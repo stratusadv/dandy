@@ -256,10 +256,7 @@ class Decoder(
         self.llm_role: str = f'{self.mapping_keys_description} Relationship Identifier'
         self.llm_task: str = f'Identify the "{self.mapping_keys_description}" that best matches the provided information.'
 
-        if max_return_values is not None and max_return_values > 1:
-            key_str = 'keys'
-        else:
-            key_str = 'key'
+        key_str = 'key' if max_return_values == 1 else 'keys'
 
         guidelines_prompt = Prompt()
 

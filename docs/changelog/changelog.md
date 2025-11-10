@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.2
+
+### Fixes
+
+- Fixed the `system_prompt_override` to properly override the system prompt.
+- Fixed the Decoder prompt to properly show plural when there is no key limit.
+
 ## v1.3.1
 
 ### Fixes
