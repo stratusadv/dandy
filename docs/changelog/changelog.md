@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.3
+
+### Fixes
+
+- Fixed bug causing `system_override_prompt` to not be handled properly in the llm service.
+
 ## v1.3.2
 
 ### Fixes

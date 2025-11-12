@@ -15,7 +15,6 @@ def get_estimated_token_count_for_prompt(
     prompt: PromptOrStr,
     task: PromptOrStrOrNone = None,
     guidelines: PromptOrStrOrNone = None,
-    postfix_system_prompt: PromptOrStrOrNone = None,
 ) -> int:
     return (
         service_system_prompt(
@@ -23,7 +22,6 @@ def get_estimated_token_count_for_prompt(
             task=task,
             guidelines=guidelines,
             system_override_prompt=None,
-            postfix_system_prompt=postfix_system_prompt,
         ).estimated_token_count
         + service_user_prompt(prompt).estimated_token_count
     )

@@ -11,10 +11,12 @@ def service_system_prompt(
     guidelines: PromptOrStrOrNone = None,
     system_override_prompt: PromptOrStrOrNone = None,
 ) -> Prompt:
-    if system_override_prompt:
-        return system_override_prompt
-
     prompt = Prompt()
+
+    if system_override_prompt:
+        prompt.prompt(system_override_prompt)
+
+        return prompt
 
     prompt.heading('Role')
     prompt.line_break()

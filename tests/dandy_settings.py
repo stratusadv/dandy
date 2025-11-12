@@ -11,15 +11,20 @@ if DEBUG:
     from dandy.core.debug import *
 
 
-OPEN_AI_CONFIG = {
+AI_API_CONFIG = {
     'TYPE': 'openai',
-    'HOST': os.getenv("OPENAI_HOST"),
-    'PORT': int(os.getenv("OPENAI_PORT", '443')),
-    'API_KEY': os.getenv("OPENAI_API_KEY"),
+    'HOST': os.getenv("AI_API_HOST"),
+    'PORT': int(os.getenv("AI_API_PORT", '443')),
+    'API_KEY': os.getenv("AI_API_KEY"),
 }
 
 LLM_CONFIGS = {
     'DEFAULT': {
+        **AI_API_CONFIG,
+        'MODEL': 'stratus.smart',
+        'TEMPERATURE': 0.2,
+    },
+    'QUICK': {
         'TYPE': 'ollama',
         'HOST': os.getenv("OLLAMA_1_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", '11434')),
@@ -31,13 +36,15 @@ LLM_CONFIGS = {
     },
     'SMART': {
         'HOST': os.getenv("OLLAMA_2_HOST"),
+        'PORT': int(os.getenv("OLLAMA_PORT", '11434')),
+        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3:235b-instruct',
         'TEMPERATURE': 0.2,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'OPEN_AI_API_MODEL': {
-        **OPEN_AI_CONFIG,
-        'MODEL': 'qwen3:30b-instruct',
+        **AI_API_CONFIG,
+        'MODEL': 'stratus.smart',
     },
 }
