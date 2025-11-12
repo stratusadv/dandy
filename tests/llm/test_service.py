@@ -1,5 +1,6 @@
 from unittest import TestCase, mock
 
+from dandy.conf import settings
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
@@ -28,14 +29,28 @@ class TestService(TestCase):
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_pydantic_validation_error_retry_process_prompt_to_intel(self, mock_post_request: mock.MagicMock):
-        mock_post_request.return_value = HttpResponseIntel(
-            status_code=200,
-            json_data={
-                'message': {
-                    'content': '{"invalid_key": "Hello, World!"}',
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'ollama':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'message': {
+                        'content': '{"invalid_key": "Hello, World!"}',
+                    }
                 }
-            }
-        )
+            )
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'openai':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'choices': [
+                        {
+                            'message': {
+                                'content': '{"invalid_key": "Hello, World!"}',
+                            }
+                        }
+                    ]
+                },
+            )
 
         with self.assertRaises(LlmRecoverableException):
             response = Bot().llm.prompt_to_intel(

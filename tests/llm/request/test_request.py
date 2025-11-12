@@ -19,7 +19,10 @@ class TestRequest(TestCase):
             'You are a helpful assistant.'
         )
 
-        self.assertEqual(request_body.messages[0].content, 'You are a helpful assistant.')
+        self.assertEqual(
+            'You are a helpful assistant.',
+                         request_body.messages[0].content
+                         )
 
     def test_openai_config_request_body(self):
         request_body = llm_configs.OPEN_AI_API_MODEL.generate_request_body(

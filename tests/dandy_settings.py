@@ -35,6 +35,7 @@ LLM_CONFIGS = {
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'SMART': {
+        'TYPE': 'ollama',
         'HOST': os.getenv("OLLAMA_2_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", '11434')),
         'API_KEY': os.getenv("OLLAMA_API_KEY"),

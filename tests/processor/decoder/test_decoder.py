@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 
 from faker import Faker
 
+from dandy.conf import settings
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.processor.decoder.decoder import Decoder
 from dandy.processor.decoder.exceptions import (
@@ -83,14 +84,28 @@ class TestDecoder(TestCase):
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_no_keys_decoder_retry(self, mock_post_request: mock.MagicMock):
-        mock_post_request.return_value = HttpResponseIntel(
-            status_code=200,
-            json_data={
-                'message': {
-                    'content': '{"keys": []}',
-                }
-            }
-        )
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'ollama':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'message': {
+                        'content': '{"keys": []}',
+                    }
+                },
+            )
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'openai':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'choices': [
+                        {
+                            'message': {
+                                'content': '{"keys": []}',
+                            }
+                        }
+                    ]
+                },
+            )
 
         with self.assertRaises(DecoderRecoverableException):
             value = FunDecoder().process(
@@ -100,14 +115,28 @@ class TestDecoder(TestCase):
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_to_many_keys_decoder_retry(self, mock_post_request: mock.MagicMock):
-        mock_post_request.return_value = HttpResponseIntel(
-            status_code=200,
-            json_data={
-                'message': {
-                    'content': '{"keys": ["1", "2", "3", "4"]}',
-                }
-            }
-        )
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'ollama':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'message': {
+                        'content': '{"keys": ["1", "2", "3", "4"]}',
+                    }
+                },
+            )
+        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'openai':
+            mock_post_request.return_value = HttpResponseIntel(
+                status_code=200,
+                json_data={
+                    'choices': [
+                        {
+                            'message': {
+                                'content': '{"keys": ["1", "2", "3", "4"]}',
+                            }
+                        }
+                    ]
+                },
+            )
 
         with self.assertRaises(DecoderRecoverableException):
             value = FunDecoder().process(
