@@ -36,10 +36,12 @@ def service_system_prompt(
 
     prompt.line_break()
     prompt.heading('Constraints')
+    prompt.line_break()
     prompt.list(
         [
-            'Make sure your response is valid JSON reflecting the provided JSON schema.',
-            'Do not use any markdown styling in your response.',
+            'Do not add any styling or formatting to your response unless specified by the Role, Task, Guidelines, or User.',
+            'Please make sure your response is valid JSON reflecting the provided JSON schema.',
+            'Only return explanations, reasoning, or extra text if requested or defined in Role, Task, Guidelines, or User Request'
         ]
     )
 

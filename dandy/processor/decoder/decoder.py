@@ -254,31 +254,32 @@ class Decoder(
 
     def _set_llm_role_task_guidelines(self, max_return_values: int | None):
         self.llm_role: str = f'{self.mapping_keys_description} Relationship Identifier'
-        self.llm_task: str = f'Identify the "{self.mapping_keys_description}" that best matches the provided information.'
+        self.llm_task: str = f'Identify the "{self.mapping_keys_description}" that best matches the user provided information or request.'
 
         key_str = 'key' if max_return_values == 1 else 'keys'
 
         guidelines_prompt = Prompt()
 
-        guidelines_prompt.text(
-            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.'
-        )
-
-        guidelines_prompt.line_break()
+        guidelines = [
+            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} (as integers) that match information relevant to the user\'s input.',
+            'Include matches even if the input is misspelled or abbreviated, but only if context strongly suggests it.'
+        ]
 
         if max_return_values is not None and max_return_values > 0:
             if max_return_values == 1:
-                guidelines_prompt.text(
+                guidelines.append(
                     f'You must return exactly one numbered {key_str}.'
                 )
             else:
-                guidelines_prompt.text(
+                guidelines.append(
                     f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.'
                 )
         else:
-            guidelines_prompt.text(
-                f"Return the numbered {key_str} you find that are relevant to the user's response and return at least one."
+            guidelines.append(
+                f"Return any numbered {key_str} you find that are relevant to the user's response and make sure to return at least one."
             )
+
+        guidelines_prompt.list(guidelines)
 
         guidelines_prompt.line_break()
         guidelines_prompt.heading(f'"{self.mapping_keys_description}"')
