@@ -99,7 +99,9 @@ class TestRecorder(TestCase):
         Recorder.start_recording(RECORDING_NAME)
 
         _ = Bot().process(
-            prompt='How many countries are in the 🌎? please respond with emojis!',
+            # This another prompt that seems to freeze the LLM indefinitely !!!
+            # prompt='How many countries are in the 🌎? please respond with emojis!',
+            prompt='How many countries are in the 🌎? please respond with numbers and emojis!',
         )
 
         Recorder.stop_recording(RECORDING_NAME)
