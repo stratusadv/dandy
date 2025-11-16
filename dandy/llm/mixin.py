@@ -15,7 +15,7 @@ class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
     llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options
     llm_intel_class: type[BaseIntel] = DefaultIntel
-    llm_role: PromptOrStr = 'Helpful Assistant'
+    llm_role: PromptOrStr = 'Assistant'
     llm_task: PromptOrStrOrNone = 'Provide a response based users request, context or instructions.'
     llm_guidelines: PromptOrStrOrNone = None
     llm_system_override_prompt: PromptOrStrOrNone = None

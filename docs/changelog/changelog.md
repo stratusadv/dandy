@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Cleaned up the default `llm_role` and `llm_task` instructions to be more generic and less intrusive.
 - Cleaned up the `Decoder` system prompt to be more accurate.
 - Cleaned the main llm service system prompt to improve results across `Dandy`. 
 - Added the missing line break when adding a `Prompt` to a `Prompt` for better formatting.
