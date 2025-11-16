@@ -6,6 +6,17 @@ from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 
+class OpenaiRequestMessage(RequestMessage):
+    def content_as_str(self) -> str:
+        if self.content[0]['type'] == 'text':
+            return self.content[0]['text']
+
+        if self.content[0]['type'] == 'image_url':
+            return self.content[0]['image_url']['url'].split(';base64,')[1]
+
+        return self.content
+
+
 class OpenaiRequestBody(BaseRequestBody):
     stream: bool = False
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
@@ -42,15 +53,15 @@ class OpenaiRequestBody(BaseRequestBody):
                     }
                 )
 
-        request_message = RequestMessage(
+        openai_request_message = OpenaiRequestMessage(
             role=role,
             content=message_content,
         )
 
         if prepend:
-            self.messages.insert(0, request_message)
+            self.messages.insert(0, openai_request_message)
         else:
-            self.messages.append(request_message)
+            self.messages.append(openai_request_message)
 
     def get_context_length(self) -> int:
         return 0

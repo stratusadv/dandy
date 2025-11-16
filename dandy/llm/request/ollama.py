@@ -7,6 +7,11 @@ from dandy.llm.request.request import BaseRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
+class OllamaRequestMessage(RequestMessage):
+    def content_as_str(self) -> str:
+        return self.content
+
+
 class OllamaRequestOptions(BaseModel):
     num_ctx: int | None = None
     num_predict: int | None = None
@@ -26,12 +31,12 @@ class OllamaRequestBody(BaseRequestBody):
         images: List[str] | None = None,
         prepend: bool = False,
     ) -> None:
-        request_message = RequestMessage(role=role, content=content, images=images)
+        ollama_request_message = OllamaRequestMessage(role=role, content=content, images=images)
 
         if prepend:
-            self.messages.insert(0, request_message)
+            self.messages.insert(0, ollama_request_message)
         else:
-            self.messages.append(request_message)
+            self.messages.append(ollama_request_message)
 
     def get_context_length(self) -> int:
         return self.options.num_ctx

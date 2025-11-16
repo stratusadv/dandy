@@ -10,6 +10,9 @@ class RequestMessage(BaseModel):
     content: str | List[Any]
     images: List[str] |None = None
 
+    def content_as_str(self) -> str:
+        return self.content
+
 
 class MessageHistory(BaseModel):
     messages: List[RequestMessage] = Field(default_factory=list)

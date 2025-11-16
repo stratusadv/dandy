@@ -70,8 +70,10 @@ class LlmConfigOptions:
 
     def update_values(self, **kwargs):
         for key, value in kwargs.items():
-            if hasattr(self, key) and value is not None:
-                setattr(self, key, value)
+            private_key = f'_{key}'
+
+            if hasattr(self, private_key) and value is not None:
+                setattr(self, private_key, value)
 
     def merge_to_copy(self, secondary_options: Self) -> Self:
         """

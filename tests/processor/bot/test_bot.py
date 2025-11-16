@@ -74,3 +74,7 @@ class TestBot(TestCase):
         self.assertEqual(new_money_bag.bills, bills)
         self.assertEqual(new_money_bag.gems, None)
 
+    @run_llm_configs()
+    def test_bot_options_init(self, llm_config: str):
+        money_bag_bot = MoneyBagBot(llm_temperature=0.5)
+

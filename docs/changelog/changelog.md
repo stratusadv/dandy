@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.4
+
+### Fixes
+
+- Fixed bug with decoder not rendering recorder events properly.
+- Corrected recorder failing to render Openai message structure.
+- Fixed the problem with setting custom attributes on instantiating processors.
+
 ## v1.3.3
 
 ### Fixes
