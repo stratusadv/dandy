@@ -261,8 +261,7 @@ class Decoder(
         guidelines_prompt = Prompt()
 
         guidelines = [
-            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} (as integers) that match information relevant to the user\'s input.',
-            'Include matches even if the input is misspelled or abbreviated, but only if context strongly suggests it.'
+            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.',
         ]
 
         if max_return_values is not None and max_return_values > 0:
