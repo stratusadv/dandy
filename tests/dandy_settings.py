@@ -23,6 +23,8 @@ LLM_CONFIGS = {
         **AI_API_CONFIG,
         'MODEL': 'stratus.smart',
         'TEMPERATURE': 0.2,
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 16000,
     },
     'QUICK': {
         'TYPE': 'ollama',

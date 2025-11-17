@@ -179,8 +179,9 @@ class PromptSnippet(BaseSnippet):
 
     def _to_str(self) -> str:
         if isinstance(self.prompt, str):
-            return self.prompt
-        return self.prompt.to_str()
+            return f'{self.prompt}\n'
+
+        return f'{self.prompt.to_str()}\n'
 
 @dataclass(kw_only=True)
 class RandomChoiceSnippet(BaseSnippet):

@@ -59,27 +59,25 @@ class TestFuture(TestCase):
         self.assertTrue(len(response_future.result.text) > 0)
 
     def test_bot_race_condition_future(self):
-        testing_bot = TestingBot()
-        other_bot = OtherBot()
-        testy_bot = TestingBot()
-        othering_bot = OtherBot()
-
         bot_prompts = [
-            (testing_bot, 'fedora hats and canes'),
-            (other_bot, 'I wear a bowler hat and enjoy fighting'),
-            (testy_bot, 'Ball gowns and Chandeliers'),
-            (othering_bot, 'I wear a soldier helmet and I came back from WW2'),
-            (testing_bot, 'With a clown wig and balloons'),
-            (other_bot, 'Steam top Hat and a Monocle'),
-            (testy_bot, 'Wet boot on my head and I am missing teeth'),
-            (othering_bot, 'Spiked hair and some army boots'),
-            (testing_bot, 'I caught fire and now Fireworks are my Hat'),
-            (other_bot, 'Graduation cap because I am graduating today'),
-            (testy_bot, 'Using my shirt as a hat and my belt as shoes'),
-            (othering_bot, 'I am the hat now ... the univers wears me'),
+            (TestingBot(), 'fedora hats and canes'),
+            (OtherBot(), 'I wear a bowler hat and enjoy fighting'),
+            (TestingBot(), 'Ball gowns and Chandeliers'),
+            (OtherBot(), 'I wear a soldier helmet and I came back from WW2'),
+            (TestingBot(), 'With a clown wig and balloons ha ha'),
+            (OtherBot(), 'Steam top Hat and a Monocle at the end of the world'),
+            (TestingBot(), 'Wet boot on my head and I am missing teeth'),
+            (OtherBot(), 'Spiked hair and some army boots'),
+            (TestingBot(), 'I caught fire and now Fireworks are my Hat'),
+            (OtherBot(), 'Graduation cap because I am graduating today'),
+            (TestingBot(), 'Using my shirt as a hat and my belt as shoes'),
+            (OtherBot(), 'I am the hat now ... the universe wears me'),
         ]
 
-        futures = [bot.process_to_future(prompt) for bot, prompt in bot_prompts]
+        futures = []
+
+        for bot, prompt in bot_prompts:
+            futures.append(bot.process_to_future(prompt))
 
         results = [future.result for future in futures]
 
@@ -87,7 +85,7 @@ class TestFuture(TestCase):
             self.assertNotEqual(
                 result1.sentence,
                 result2.sentence,
-                f"Descriptions should not match: {result1.sentence} == {result2.sentence}"
+                f"Sentences should not match: {result1.sentence} == {result2.sentence}"
             )
 
     def test_future_cancel(self):

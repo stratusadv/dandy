@@ -20,7 +20,7 @@ def recorder_add_process_decoder_value_event(
     for key, value in decoder.mapping.items():
         if isinstance(value, (str, int, float)):
             processed_mapping[key] = value
-        if isinstance(value, type):
+        elif isinstance(value, type):
             processed_mapping[key] = value.__name__
         else:
             processed_mapping[key] = value.__class__.__name__
@@ -38,7 +38,7 @@ def recorder_add_process_decoder_value_event(
                 ),
                 EventAttribute(
                     key='Mapping',
-                    value=processed_mapping,
+                    value=json.dumps(processed_mapping, indent=4),
                 ),
             ]
         )

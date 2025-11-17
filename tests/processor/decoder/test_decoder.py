@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 
 from faker import Faker
 
+from dandy import recorder, Recorder
 from dandy.conf import settings
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.processor.decoder.decoder import Decoder
@@ -73,9 +74,14 @@ class TestDecoder(TestCase):
 
         name = fake.random_element(user_dictionary.keys())
 
+        Recorder.start_recording('test_big_user_decoder')
+
         values = UserLlmDecoder().process(
             f'I am looking for {name}',
         )
+
+        Recorder.stop_recording('test_big_user_decoder')
+        Recorder.to_html_file('test_big_user_decoder')
 
         self.assertEqual(
             name,

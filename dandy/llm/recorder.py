@@ -88,7 +88,7 @@ def recorder_add_llm_request_event(
     for message in request_body.messages:
         llm_request_event.add_attribute(EventAttribute(
             key=message.role,
-            value=message.content,
+            value=message.content_as_str(),
             is_card=True,
         ))
 

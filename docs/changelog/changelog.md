@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.3.5
+
+### Fixes
+
+- Fixed the `Decoder` prompt and intel classes to properly match each other.
+
+## v1.3.4
+
+### Fixes
+
+- Cleaned up the default `llm_role` and `llm_task` instructions to be more generic and less intrusive.
+- Cleaned up the `Decoder` system prompt to be more accurate.
+- Cleaned the main llm service system prompt to improve results across `Dandy`. 
+- Added the missing line break when adding a `Prompt` to a `Prompt` for better formatting.
+- Changed the formatting on the `Decoder` prompt to produce better results when there is no `max_return_values`
+- Fixed a bug with decoder not rendering recorder events properly.
+- Corrected recorder failing to render `OpenaiRequestMessage` structure.
+- Fixed the problem with setting custom attributes on instantiating processors.
+
 ## v1.3.3
 
 ### Fixes

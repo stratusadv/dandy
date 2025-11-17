@@ -14,9 +14,10 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_class_include(self, llm_config: str):
-        MoneyBagBot().llm_config = llm_config
+        money_bag_bot = MoneyBagBot()
+        money_bag_bot.llm_config = llm_config
 
-        money_bag = MoneyBagBot().process(
+        money_bag = money_bag_bot.process(
             user_input='I have 14 coins',
             intel_class=MoneyBagIntel,
             include={'coins'},
@@ -28,10 +29,13 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_class_exclude(self, llm_config: str):
-        MoneyBagBot().llm_config = llm_config
+        money_bag_bot = MoneyBagBot()
+        money_bag_bot.llm_config = llm_config
 
-        money_bag = MoneyBagBot().process(
-            user_input='Please give me 22 coins and 17 gems.',
+        money_bag = money_bag_bot.process(
+            # This commented prompt freezes or locks the llm in indefinite inference !!!
+            # user_input='Please give me 22 coins and 17 gems.',
+            user_input='I would love to have more gems and coins in for my personal value.',
             intel_class=MoneyBagIntel,
             exclude={
                 'bills': True, 'gems': {
@@ -52,7 +56,8 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_object_include(self, llm_config: str):
-        MoneyBagBot().llm_config = llm_config
+        money_bag_bot = MoneyBagBot()
+        money_bag_bot.llm_config = llm_config
 
         coins = 10
         bills = 50
@@ -64,7 +69,7 @@ class TestBot(TestCase):
 
         additional_coins = 15
 
-        new_money_bag = MoneyBagBot().process(
+        new_money_bag = money_bag_bot.process(
             user_input=f'I have {coins} coins can you please add {additional_coins} more?',
             intel_object=old_money_bag,
             include={'coins'},
@@ -73,4 +78,7 @@ class TestBot(TestCase):
         self.assertEqual(new_money_bag.coins, coins + additional_coins)
         self.assertEqual(new_money_bag.bills, bills)
         self.assertEqual(new_money_bag.gems, None)
+
+    def test_bot_options_init(self):
+        money_bag_bot = MoneyBagBot(llm_temperature=0.5)
 
