@@ -186,7 +186,7 @@ class Decoder(
         prompt: PromptOrStr,
         max_return_values: int | None = None,
     ) -> DecoderKeysIntel:
-        if max_return_values is not None and max_return_values > 1:
+        if max_return_values is None or max_return_values > 1:
             intel_class = DecoderKeysIntel[self.as_enum()]
         else:
             intel_class = DecoderKeyIntel[self.as_enum()]
@@ -261,7 +261,7 @@ class Decoder(
         guidelines_prompt = Prompt()
 
         guidelines = [
-            f'Read through all of the "{self.mapping_keys_description}" and return the numbered {key_str} that match information relevant to the user\'s input.',
+            f'Read through all of the "{self.mapping_keys_description}" dict values and return the numbered {key_str} that matches the values with information relevant to the user\'s request.',
         ]
 
         if max_return_values is not None and max_return_values > 0:
@@ -271,17 +271,21 @@ class Decoder(
                 )
             else:
                 guidelines.append(
-                    f'Return up to a maximum of {max_return_values} numbered {key_str} and return at least one at a minimum.'
+                    f'Return up to a maximum of {max_return_values} numbered {key_str}.'
                 )
         else:
             guidelines.append(
-                f"Return any numbered {key_str} you find that are relevant to the user's response and make sure to return at least one."
+                f"Return as many numbered {key_str} as you find that are relevant to the user's response."
             )
+
+        guidelines.append(
+            'Always return at least one numbered key closest to the user\'s request.'
+        )
 
         guidelines_prompt.list(guidelines)
 
         guidelines_prompt.line_break()
-        guidelines_prompt.heading(f'"{self.mapping_keys_description}"')
+        guidelines_prompt.heading(f'{self.mapping_keys_description} Dict')
         guidelines_prompt.line_break()
 
         guidelines_prompt.dict(self._keyed_mapping_choices_dict)

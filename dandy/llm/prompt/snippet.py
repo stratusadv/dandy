@@ -179,7 +179,8 @@ class PromptSnippet(BaseSnippet):
 
     def _to_str(self) -> str:
         if isinstance(self.prompt, str):
-            return self.prompt
+            return f'{self.prompt}\n'
+
         return f'{self.prompt.to_str()}\n'
 
 @dataclass(kw_only=True)

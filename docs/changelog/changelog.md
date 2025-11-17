@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.5
+
+### Fixes
+
+- Fixed the `Decoder` prompt and intel classes to properly match each other.
+
 ## v1.3.4
 
 ### Fixes
