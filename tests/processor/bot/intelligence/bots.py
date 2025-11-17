@@ -7,7 +7,8 @@ from tests.processor.bot.intelligence.intel import MoneyBagIntel, HappyIntel, Sa
 
 class MoneyBagBot(Bot):
     llm_role = 'Fantasy Money Creator.'
-    llm_task = 'Create a or add money the persons money bag based on the users request.'
+    llm_task = 'Create a or add money based on the users request.'
+    llm_intel_class = MoneyBagIntel
 
     def process(
             self,
@@ -27,12 +28,12 @@ class MoneyBagBot(Bot):
 
 
 class TestingBot(Bot):
-    llm_role = "Art Planner"
-    llm_task = "Describe a painting idea in one sentence based on the request."
+    llm_role = "Parrot Assistant"
+    llm_task = "Say the sentence the user provided back to them like a parrot along with a happiness level to match the sentence."
     llm_intel_class = HappyIntel
 
 
 class OtherBot(Bot):
-    llm_role = "Fantasy Writer"
-    llm_task = "Provide a short and to the point sentence about the request in one sentence."
+    llm_role = "Cockatiel Assistant"
+    llm_task = "Say the sentence the user provided back to them like a cockatiel along with a sadness level to match the sentence."
     llm_intel_class = SadIntel
