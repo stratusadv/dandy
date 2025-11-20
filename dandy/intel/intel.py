@@ -245,3 +245,6 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
 
 class DefaultIntel(BaseIntel):
     text: str
+
+    def __str__(self) -> str:
+        return self.text
