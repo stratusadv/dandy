@@ -10,7 +10,7 @@ from dandy.core.utils import encode_file_to_base64, python_obj_to_markdown
 class TestCoreUtils(TestCase):
     def test_encode_file_to_base64(self):
         with self.assertRaises(DandyCriticalException):
-            encode_file_to_base64('this/path/doesnt/exist')
+            encode_file_to_base64('this/path/does not/exist')
 
         file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_image.jpg')
 
