@@ -54,7 +54,7 @@ The `DEFAULT` in the `LLM_CONFIGS` will be used when no other config is specifie
 
 !!! tip
 
-    Once the `DEFAULT` config is specified, the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will flow to the other configs if they are not specificed.
+    Once the `DEFAULT` config is specified, the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will flow to the other configs if they are not specified.
 
 ## Environment Variables
 

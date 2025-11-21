@@ -82,7 +82,7 @@ print(email_intel)
 
 The Agent will build a plan, user the appropriate processors and return the result as a `EmailIntel` object.
 
-``` title="Ouput"
+``` title="Output"
 {
     "to_email_address": "info@theroyaltyrrellmuseum.com",
     "from_email_address": "me.person@thisplace.com",
