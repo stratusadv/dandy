@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.6
+
+### Feature
+
+- Added `lb` method to `Prompt` to clean up verbosity in prompting.
+
 ## v1.3.5
 
 ### Fixes

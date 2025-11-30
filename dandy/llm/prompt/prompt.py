@@ -103,6 +103,9 @@ class Prompt:
 
         return self
 
+    def lb(self) -> Self:
+        return self.line_break()
+
     def line_break(self) -> Self:
         self.snippets.append(snippet.LineBreakSnippet())
 

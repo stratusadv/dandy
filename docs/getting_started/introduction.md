@@ -33,6 +33,10 @@ Optimized for performance, in most cases adding less than 0.3 of a millisecond t
 #### Safety Ready
 Detailed interaction recording for building robust safety and governance.
 
+!!! tip
+
+    Check out [How Dandy Helps](../getting_started/how_dandy_helps.md) to get a more in depth understanding of how Dandy can help you across your project.
+
 ## Ready to Go?
 
 Now that you know more about Dandy let's get started!

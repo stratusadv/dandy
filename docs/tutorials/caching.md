@@ -40,13 +40,13 @@ number_decoder = NumberDecoder()
 
 start_time = perf_counter()
 
-print(number_decoder.process('I really like dragon ball z')[0])
+print(number_decoder.process('I really like large numbers')[0])
 
 uncached_finish_time = perf_counter() - start_time
 
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
-print(number_decoder.process('I really like dragon ball z')[0])
+print(number_decoder.process('I really like large numbers')[0])
     
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 
