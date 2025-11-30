@@ -2,11 +2,26 @@
 
 Dandy brings the framework approach to using AI (specifically LLM's) that allows for people to write efficiently and structure AI interactions easily and consistently.
 
-All of the parts of Dandy provide clear opportunities to "get it right the first time" stripping away a lot of difficulty of working with AI and in turn writing poorly optimized LLM interactions.
+All the parts of Dandy provide clear opportunities to "get it right the first time" stripping away a lot of difficulty of working with AI and in turn writing poorly optimized LLM interactions.
 On the execution side we are able to apply pre- & post-processing to everything that happens allowing for optimization the developers are not responsible for.
 
-Beyond token usage, Dandy has a lot of custom error handling and self-recovery that drastically increases the reliability of AI interactions producing the desired results with less variability.
+Beyond token usage, Dandy has a lot of custom error handling and self-recovery that drastically increases the reliability of AI interactions, producing the desired results with less variability.
 This in itself is crucial to building value-driven AI interactions which in turn require less iteration on both development and processing, which substantially contributes to token use reduction.
+
+## Creating More Options
+
+Dandy's framework approach enables developers to effectively use a wider range of model sizes and quantization that require less computational resources while maintaining high-quality outputs. 
+
+This optimization allows teams to work with more efficient AI models per task easily, creating a potential of energy and cost savings up to a factor of three times (based on parameter count and quantization).
+
+This is especially valuable for:
+- Small-to-medium-sized companies with limited AI infrastructure
+- Individual developers working on personal hardware
+- Teams in regions with restricted access to cloud computing resources or energy
+- Educational institutions teaching AI development
+- Startups operating with constrained computing budgets
+
+The framework's efficient token usage and optimization features mean you can achieve professional results even when using smaller, more accessible models and quantization levels.
 
 ## Reducing Token Usage is Critical
 
@@ -148,6 +163,7 @@ print(values[0].employee_name) # Prints the first employee name in from the empl
 - The model returns a tiny, validated key instead of paragraphs or long strings of information.
 - Great for routing, classification, feature flags, and policy decisions only sending the exact prompt data required.
 - Dramatically smaller outputs and fewer follow-up clarifications.
+- Strict pre- and post-processing allows for decoders to work very well with small heavily quantized models.
 
 ## Caching Made Easy
 
@@ -270,5 +286,5 @@ All results are the average range of reduction in usage per interaction for prom
         - Computational
     - Method:
         - Across our client projects and development implementation we were able to measure the effected interactions using caching. 
-        - We looked at multiple implementations of caching and took the median based on real world application.
+        - We looked at multiple implementations of caching and took the median based on real-world application.
 
