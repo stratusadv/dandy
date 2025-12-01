@@ -12,9 +12,10 @@ This in itself is crucial to building value-driven AI interactions which in turn
 
 Dandy's framework approach enables developers to effectively use a wider range of model sizes and quantization that require less computational resources while maintaining high-quality outputs. 
 
-This optimization allows teams to work with more efficient AI models per task easily, creating a potential of energy and cost savings up to a factor of three times (based on parameter count and quantization).
+These optimizations allow teams to work with more efficient AI models per task easily, creating a potential of energy and cost savings up to a factor of three times (based on parameter count and quantization).
 
 This is especially valuable for:
+
 - Small-to-medium-sized companies with limited AI infrastructure
 - Individual developers working on personal hardware
 - Teams in regions with restricted access to cloud computing resources or energy
