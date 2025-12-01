@@ -106,7 +106,7 @@ class EmployeeEvaluationIntel(BaseIntel):
 - Intel schemas constrain the shape and size of the response, allowing you to always interact in python.
 - Eliminates back-and-forth “please format properly” or "make sure to add..." retries.
 - Smaller, purely structured outputs save tokens compared to narrative text.
-- The intel structure alone can act as a guideline or instruction with our increasing the input prompt token count.
+- The intel structure alone can act as a guideline or instruction with out increasing the input prompt token count.
 
 
 ## Bots Simplify Interactions
@@ -173,7 +173,7 @@ print(values[0].employee_name) # Prints the first employee name in from the empl
 
 ## Caching Made Easy
 
-With a single decorator, Caching turns expensive, repeated LLM calls into instant, zero-token responses — making scalability and cost-efficiency not just possible, but effortless.
+With a single decorator, caching turns expensive repeated LLM calls into instant, zero-token responses — making scalability and cost-efficiency not just possible, but effortless.
 
 ### Example
 
@@ -250,7 +250,7 @@ All results are the average range of reduction in usage per interaction for prom
     - Type:
         - Computational
     - Method:
-        - We ran multiple prompts cutting away the prompt tokens and allowing the intel object to guide the llm. 
+        - We ran multiple prompts cutting away the prompt tokens and allowing the intel object to guide the LLM. 
         - In these scenarios the direct reduction of prompt tokens did not affect the outcome of the completion tokens.
 
 #### Bot
