@@ -2,7 +2,7 @@
 
 Dandy brings the framework approach to using AI (specifically LLM's) that allows for people to write efficiently and structure AI interactions easily and consistently.
 
-All the parts of Dandy provide clear opportunities to "get it right the first time" stripping away a lot of difficulty of working with AI and in turn writing poorly optimized LLM interactions.
+All the parts of Dandy provide clear opportunities to **"Get it right the first time"** stripping away a lot of difficulty of working with AI and in turn creating more impactful LLM interactions.
 On the execution side we are able to apply pre- & post-processing to everything that happens allowing for optimization the developers are not responsible for.
 
 Beyond token usage, Dandy has a lot of custom error handling and self-recovery that drastically increases the reliability of AI interactions, producing the desired results with less variability.
@@ -12,7 +12,7 @@ This in itself is crucial to building value-driven AI interactions which in turn
 
 Dandy's framework approach enables developers to effectively use a wider range of model sizes and quantization that require less computational resources while maintaining high-quality outputs. 
 
-These optimizations allow teams to work with more efficient AI models per task easily, creating a potential of energy and cost savings up to a factor of three times (based on parameter count and quantization).
+> These optimizations allow teams to work with more efficient AI models per task easily, creating a potential of energy and cost savings up to a factor of three times (based on parameter count and quantization).
 
 This is especially valuable for:
 
@@ -30,18 +30,18 @@ Token usage in AI inference is directly correlated with energy consumption becau
 
 Every token triggers matrix multiplications, attention calculations, memory accesses, and cache lookups, all of which consume electrical power on GPUs, TPUs, or other accelerators. 
 
-Since energy use scales approximately linearly with compute time and activation volume in modern AI systems, minimizing token usage is one of the most effective levers for reducing energy consumption, making token efficiency a critical part of sustainable AI.
+> Since energy use scales approximately linearly with compute time and activation volume in modern AI systems, minimizing token usage is one of the most effective levers for reducing energy consumption, making token efficiency a critical part of sustainable AI.
 
 Beyond environmental benefits, reducing token usage offers significant value-generating advantages.
 
 - Reduced latency providing faster response times to requests
 - More capacity for output validation, governance, safety, and quality checks
-- Improved throughput allowing for drastically more complex value generation and processing. 
-- Overall enhanced system performance while reducing operational costs.
+- Improved throughput allowing for drastically more complex value generation and processing 
+- Overall enhanced system performance while reducing operational costs
 
 ## Prompting with Structure
 
-Structured prompting eliminates ambiguity at the input layer - turning unguided text into predictable, optimized, and human-readable prompts that reduce bloat and guide LLMs toward precise outputs.
+Structured prompting removes ambiguity at the input layer - turning unguided text into predictable, optimized, and human-readable prompts that reduce bloat and guide LLMs toward precise outputs.
 
 ### Example
 
@@ -76,6 +76,7 @@ if employee.certificates:
 ```
 
 ### Why it helps:
+
 - There is over 20 snippets that can be used with the `Prompt` class that are formatted to provide the most affect.
 - Labeled items like `title`, `heading`, `text`, and `ordered_list` reduce ambiguity, minimizing rambling outputs.
 - New developers are pushed towards programmatic development, which makes dynamic prompt generation easier reducing prompt bloat.
@@ -100,6 +101,7 @@ class EmployeeEvaluationIntel(BaseIntel):
 ```
 
 ### Why it helps:
+
 - Intel schemas constrain the shape and size of the response, allowing you to always interact in python.
 - Eliminates back-and-forth “please format properly” or "make sure to add..." retries.
 - Smaller, purely structured outputs save tokens compared to narrative text.
@@ -132,6 +134,7 @@ print(employee_evaluation_intel.primary_skills[0])  # Prints the first primary s
 ```
 
 ### Why it helps:
+
 - Composable sections prevent accidental duplication of long system text across calls.
 - As system prompting techniques change, there is no requirement to update the bot structure to get the benefits.
 - Programmatic interactions encourage experimentation and rapid change leading to more optimization.
@@ -161,6 +164,7 @@ print(values[0].employee_name) # Prints the first employee name in from the empl
 ```
 
 ### Why it helps:
+
 - The model returns a tiny, validated key instead of paragraphs or long strings of information.
 - Great for routing, classification, feature flags, and policy decisions only sending the exact prompt data required.
 - Dramatically smaller outputs and fewer follow-up clarifications.
@@ -196,6 +200,7 @@ employee_evaluation_intel_2 = EmployeeEvaluationBot.process(employee_information
 ```
 
 ### Why it helps:
+
 - Simplifying the process to add caching will encourage developers to be more efficient in design.
 - On high-throughput processes caching can substantially reduce token usage with minimal effort.
 - Cache life cycles can also be used to have a balance of freshness and efficiency in compute.
@@ -206,14 +211,14 @@ employee_evaluation_intel_2 = EmployeeEvaluationBot.process(employee_information
 Throughout the development of Dandy we have seen a drastic increase in the quality of completion tokens and a sharp reduction in the use of prompt tokens.
 We have both tracked the behavioral and computational effects both from an observational and measured perspective.
 
-Our findings have been a guiding and driving force behind all the updates we make to the Dandy, along with how we plan out the future for this framework know how critical token usage is to the future of AI.
+These results have been a guiding force behind all the updates we make to the Dandy, along with how we plan out the future of this framework.
 
 ### Our Finding
 
-Across all the areas we observed and measured, we found implementing Dandy into your projects and following best practices provide an average 25% reduction in token usage.
-After developers got familiar and learned the more complex topics, we saw integrations that reached above the 60% mark in certain circumstances.
+Across all the areas we observed and measured, we found implementing Dandy into your projects and following best practices provides an **average 25% reduction in token usage**.
+After developers gained familiarity with advanced patterns, some integrations achieved **over 60% reduction in token usage**.
 
-The two main factors in this were teaching developers the best way to develop artificial intelligence integrations and improving Dandy so that all interactions are improved in parallel with Dandy's development.
+> The two main drivers in this were teaching developers the best way to develop artificial intelligence integrations and improving Dandy through feedback so that all interactions are improved in parallel.
 
 ### Token Reduction Per Module Results
 
