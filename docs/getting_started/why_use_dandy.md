@@ -1,12 +1,13 @@
-# How Dandy Helps
+# Why Use Dandy?
 
 Dandy brings the framework approach to using AI (specifically LLM's) that allows for people to write efficiently and structure AI interactions easily and consistently.
 
-All the parts of Dandy provide clear opportunities to **"Get it right the first time"** stripping away a lot of difficulty of working with AI and in turn creating more impactful LLM interactions.
-On the execution side we are able to apply pre- & post-processing to everything that happens allowing for optimization the developers are not responsible for.
+All the parts of Dandy provide clear opportunities to **"Get it right the first time"** stripping away a lot of the difficulty of working with AI and in turn creating more impactful LLM interactions.
+
+>On the execution side we are able to apply pre- & post-processing to everything that happens allowing for optimization the developers are not responsible for.
 
 Beyond token usage, Dandy has a lot of custom error handling and self-recovery that drastically increases the reliability of AI interactions, producing the desired results with less variability.
-This in itself is crucial to building value-driven AI interactions which in turn require less iteration on both development and processing, which substantially contributes to token use reduction.
+This in itself is crucial to building value-driven AI interactions which require less iteration on both development and processing, which substantially contributes to token use reduction.
 
 ## Creating More Options
 
@@ -28,7 +29,7 @@ The framework's efficient token usage and optimization features mean you can ach
 
 Token usage in AI inference is directly correlated with energy consumption because each token processed (prompt or completion) requires computational operations across multiple layers of the neural network.
 
-Every token triggers matrix multiplications, attention calculations, memory accesses, and cache lookups, all of which consume electrical power on GPUs, TPUs, or other accelerators. 
+Every token triggers matrix multiplications, attention calculations, memory accesses, and cache lookups, all of which consume electrical power on CPUs, GPUs, TPUs, or other accelerators. 
 
 > Since energy use scales approximately linearly with compute time and activation volume in modern AI systems, minimizing token usage is one of the most effective levers for reducing energy consumption, making token efficiency a critical part of sustainable AI.
 
@@ -53,7 +54,7 @@ employee = ... # Data retrieved on the employee
 employee_information_prompt = (
     Prompt()
     .title(employee.name)
-    .lb()
+    .lb() # Shorthand for .line_break()
     .heading('Work History')
     .lb()
     .text(employee.work_history_overview)
@@ -211,7 +212,7 @@ employee_evaluation_intel_2 = EmployeeEvaluationBot.process(employee_information
 Throughout the development of Dandy we have seen a drastic increase in the quality of completion tokens and a sharp reduction in the use of prompt tokens.
 We have both tracked the behavioral and computational effects both from an observational and measured perspective.
 
-These results have been a guiding force behind all the updates we make to the Dandy, along with how we plan out the future of this framework.
+These results have been a guiding force behind all the updates we make to Dandy, along with how we plan out the future of this framework.
 
 ### Our Finding
 
@@ -235,7 +236,7 @@ All results are the average range of reduction in usage per interaction for prom
     - Type:
         - Observational
     - Method:
-        - Working with a wide skill range of developers, and had them integrated Dandy into their projects.
+        - Working with a wide skill range of developers and having them integrate Dandy into their projects.
         - As they implemented or replaced features with Dandy we check the token usage before and after to confirm a reduction in token usage.
 
 #### Intel
