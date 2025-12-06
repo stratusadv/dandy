@@ -1,9 +1,11 @@
 import sys
 from pathlib import Path
-from blessed import Terminal
+
+from dandy.cli.commands.map import CALLS_COMMANDS
+from dandy.cli.tui.tui import Tui
+from dandy.llm.conf import llm_configs
 
 CWD_PATH = Path.cwd()
-term = Terminal()
 
 sys.path.append(str(CWD_PATH))
 
@@ -14,35 +16,28 @@ def main():
     load_environment_variables(CWD_PATH)
     check_or_create_settings(CWD_PATH)
 
-    with term.fullscreen(), term.hidden_cursor(), term.cbreak():
-        selected = 0
-        options = ['Settings', 'Environment', 'Exit']
+
+    with Tui.term.fullscreen():
+        command = None
+        print(Tui.term.bold_blue('Welcome to Dandy CLI!'))
+        print(Tui.term.bold_red('Using Model: ') + llm_configs.DEFAULT.model)
 
         while True:
-            print(term.home + term.clear)
-            print(term.bold_white('Dandy CLI'))
-            print()
+            if command in CALLS_COMMANDS:
+                print(CALLS_COMMANDS[command]().run())
+            elif command is not None:
+                print(f'You entered an invalid command: {command}')
 
-            for i, option in enumerate(options):
-                if i == selected:
-                    print(term.black_on_white(f'> {option}'))
-                else:
-                    print(f'  {option}')
+            command = Tui.input()
 
-            key = term.inkey()
-            if key.is_sequence:
-                if key.name == 'KEY_UP':
-                    selected = (selected - 1) % len(options)
-                elif key.name == 'KEY_DOWN':
-                    selected = (selected + 1) % len(options)
-            elif key == '\n':
-                if selected == len(options) - 1:
-                    return 0
+            if command.lower() in ['/quit', '/q']:
+                return 0
+
 
 
 
 if __name__ == '__main__':
-    print(term.clear)
-    with term.location(0, 0):
-        print(term.bold_white('Starting Dandy CLI...'))
+    Tui.clear()
+    with Tui.term.location(0, 0):
+        print(Tui.term.bold_white('Starting Dandy CLI...'))
     sys.exit(main())
