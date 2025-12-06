@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+
+### Features
+
+- `FileService` is now available on `Bot` to make it easy to manipulate and work with files.
+
 ## v1.3.6
 
 ### Feature

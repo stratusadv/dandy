@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Type
 
 from dandy.conf import settings
-from dandy.consts import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
+from dandy.consts import RECORDING_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
 from dandy.core.singleton import Singleton
 from dandy.recorder.events import Event
 from dandy.recorder.exceptions import RecorderCriticalException
@@ -13,7 +13,7 @@ from dandy.recorder.renderer.json import JsonRecordingRenderer
 from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 
-DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTORY)
+DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, RECORDING_OUTPUT_DIRECTORY)
 
 
 class Recorder(Singleton):

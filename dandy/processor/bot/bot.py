@@ -1,5 +1,6 @@
 from typing import Any
 
+from dandy.file.mixin import FileServiceMixin
 from dandy.intel.intel import BaseIntel
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
@@ -13,6 +14,7 @@ from dandy.vision.mixin import VisionServiceMixin
 class Bot(
     BaseProcessor,
     BotServiceMixin,
+    FileServiceMixin,
     LlmServiceMixin,
     HttpServiceMixin,
     IntelServiceMixin,

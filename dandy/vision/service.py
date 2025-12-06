@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from dandy.vision.mixin import VisionServiceMixin
 
 
-class VisionService(BaseService['VisionProcessorMixin']):
+class VisionService(BaseService['VisionServiceMixin']):
     obj: VisionServiceMixin
 
     def image_to_intel(self):

@@ -4,6 +4,7 @@ from typing import Sequence, ClassVar
 from pydantic.main import IncEx
 
 from dandy.core.utils import generate_forwardable_kwargs_if_not_none
+from dandy.file.mixin import FileServiceMixin
 from dandy.processor.agent.intelligence.intel.task_intel import TaskIntel
 from dandy.processor.agent.mixin import AgentServiceMixin
 from dandy.processor.bot.bot import Bot
@@ -33,6 +34,7 @@ from dandy.vision.mixin import VisionServiceMixin
 class Agent(
     BaseProcessor,
     AgentServiceMixin,
+    FileServiceMixin,
     LlmServiceMixin,
     HttpServiceMixin,
     IntelServiceMixin,
