@@ -16,7 +16,6 @@ def main():
     load_environment_variables(CWD_PATH)
     check_or_create_settings(CWD_PATH)
 
-
     with Tui.term.fullscreen():
         command = None
         print(Tui.term.bold_blue('Welcome to Dandy CLI!'))
@@ -32,8 +31,6 @@ def main():
 
             if command.lower() in ['/quit', '/q']:
                 return 0
-
-
 
 
 if __name__ == '__main__':
