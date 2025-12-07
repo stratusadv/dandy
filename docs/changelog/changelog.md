@@ -5,6 +5,10 @@
 ### Features
 
 - `FileService` is now available on `Bot` to make it easy to manipulate and work with files.
+- The command line interface is back and better than ever, check it out by typing `dandy` in your terminal.
+  - Type into the input to learn more about the features.
+  - Use `/` to run a command.
+- The `BaseIntel` has some new convenience methods `save_to_file` and `create_from_file` for easy long-term storage.
 
 ## v1.3.6
 

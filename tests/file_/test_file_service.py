@@ -18,10 +18,10 @@ class TestFileService(TestCase):
     def tearDown(self):
         self.tmpdir_ctx.cleanup()
 
-    def test_write_creates_parent_dir_and_writes_bytes(self):
-        target = self.tmpdir / "nested" / "dir" / "file.bin"
+    def test_write_creates_parent_dir_and_writes_string(self):
+        target = self.tmpdir / "nested" / "dir" / "file.txt"
 
-        content = b"hello world"
+        content = "hello world"
         self.file_service.write(target, content)
 
         self.assertTrue(target.exists(), "Expected file to be created")
@@ -29,26 +29,26 @@ class TestFileService(TestCase):
         self.assertEqual(read_back, content)
 
     def test_append_appends_and_creates_if_missing(self):
-        target = self.tmpdir / "append" / "data.log"
+        target = self.tmpdir / 'append' / 'data.log'
 
-        self.file_service.append(target, b"one")
+        self.file_service.append(target, 'one')
         self.assertTrue(target.exists())
-        self.assertEqual(self.file_service.read(target), b"one")
+        self.assertEqual(self.file_service.read(target), 'one')
 
-        self.file_service.append(target, b"two")
-        self.assertEqual(self.file_service.read(target), b"onetwo")
+        self.file_service.append(target, 'two')
+        self.assertEqual(self.file_service.read(target), 'onetwo')
 
     def test_exists_and_remove_rm(self):
         target = self.tmpdir / "x" / "y" / "z.txt"
         self.assertFalse(self.file_service.exists(target))
 
-        self.file_service.write(target, b"data")
+        self.file_service.write(target, "data")
         self.assertTrue(self.file_service.exists(target))
 
         FileService.remove(target)
         self.assertFalse(self.file_service.exists(target))
 
-        self.file_service.write(target, b"data")
+        self.file_service.write(target, "data")
         self.assertTrue(self.file_service.exists(target))
         self.file_service.rm(target)
         self.assertFalse(self.file_service.exists(target))

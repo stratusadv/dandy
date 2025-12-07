@@ -1,5 +1,8 @@
+from pathlib import Path
 from unittest import TestCase
 
+from dandy.conf import settings
+from dandy.file.utils import remove_file
 from dandy.intel.intel import BaseIntel
 from dandy.intel.exceptions import IntelCriticalException
 from tests.intel.intelligence.intel import ThingIntel, BagIntel, PersonIntel
@@ -152,3 +155,28 @@ class TestBaseIntel(TestCase):
             bag.stylish = None
 
             _ = bag.model_inc_ex_class_copy(include={'color', 'pockets'}, intel_object=bag)
+
+    def test_base_intel_object_file(self):
+        try:
+            bag_file_path = Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, 'test_intel_files', 'test_bag.json')
+            bag = BagIntel(
+                color='maroon',
+                stylish=False,
+                pockets=23,
+                things=[
+                    ThingIntel(name='keys'),
+                    ThingIntel(name='wallet')
+                ]
+            )
+            bag.save_to_file(bag_file_path)
+
+            new_bag = BagIntel.create_from_file(bag_file_path)
+
+            self.assertEqual(new_bag.color, 'maroon')
+            self.assertEqual(new_bag.stylish, False)
+            self.assertEqual(new_bag.things[1].name, bag.things[1].name)
+            self.assertEqual(new_bag.pockets, 23)
+            self.assertEqual(new_bag.model_dump(), bag.model_dump())
+            self.assertEqual(new_bag.model_dump_json(), bag.model_dump_json())
+        finally:
+            remove_file(bag_file_path)

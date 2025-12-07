@@ -1,9 +1,7 @@
-import os
 from pathlib import Path
-from time import sleep
 from unittest import TestCase, mock
 
-from dandy.toolbox.utils import check_or_create_settings
+from dandy.cli.utils import check_or_create_settings
 import contextlib
 
 
@@ -21,7 +19,7 @@ class TestUtils(TestCase):
 
     def test_check_or_create_settings_invalid_settings_module_name(self):
         with mock.patch(
-            'dandy.toolbox.utils.get_settings_module_name',
+            'dandy.cli.utils.get_settings_module_name',
             return_value=INVALID_SETTINGS_MODULE_NAME,
         ), contextlib.suppress(ImportError):
             check_or_create_settings(
@@ -30,7 +28,7 @@ class TestUtils(TestCase):
             )
 
         with mock.patch(
-            'dandy.toolbox.utils.get_settings_module_name',
+            'dandy.cli.utils.get_settings_module_name',
             return_value=INVALID_SETTINGS_MODULE_NAME,
         ):
             try:

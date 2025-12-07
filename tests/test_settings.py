@@ -20,7 +20,7 @@ class TestSettings(TestCase):
         with self.assertRaises(DandyCriticalException):
             DandySettings()
 
-    @mock.patch('dandy.toolbox.utils.get_settings_module_name')
+    @mock.patch('dandy.cli.utils.get_settings_module_name')
     def test_dandy_settings_defaults_to_tests_dandy_settings_if_missing_user_settings(
             self,
             mock_get_settings_module_name: mock.MagicMock
