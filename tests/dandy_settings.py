@@ -23,8 +23,8 @@ LLM_CONFIGS = {
         **AI_API_CONFIG,
         'MODEL': 'stratus.smart',
         'TEMPERATURE': 0.2,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
+        # 'MAX_INPUT_TOKENS': 16000,
+        # 'MAX_OUTPUT_TOKENS': 16000,
     },
     'QUICK': {
         'TYPE': 'ollama',
@@ -33,8 +33,8 @@ LLM_CONFIGS = {
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3:30b-instruct',
         'TEMPERATURE': 0.2,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
+        # 'MAX_INPUT_TOKENS': 16000,
+        # 'MAX_OUTPUT_TOKENS': 16000,
     },
     'SMART': {
         'TYPE': 'ollama',
@@ -43,8 +43,8 @@ LLM_CONFIGS = {
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3:235b-instruct',
         'TEMPERATURE': 0.2,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
+        # 'MAX_INPUT_TOKENS': 16000,
+        # 'MAX_OUTPUT_TOKENS': 16000,
     },
     'OPEN_AI_API_MODEL': {
         **AI_API_CONFIG,

@@ -38,7 +38,10 @@ class BaseRequestBody(BaseModel, ABC):
     def token_usage(self) -> int:
         pass
 
-    def get_total_context_length(self) -> int:
+    def get_total_context_length(self) -> int | None:
+        if self.get_context_length() is None or self.get_max_completion_tokens() is None:
+            return None
+
         return self.get_context_length() + self.get_max_completion_tokens()
 
     @abstractmethod

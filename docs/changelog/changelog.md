@@ -2,6 +2,11 @@
 
 ## v1.4.0
 
+### Changes
+
+- The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been defaulted to `None`
+- The `LLM_DEFAULT_TEMPERATURE` and `LLM_DEFAULT_SEED` have also been defaulted to `None`
+
 ### Features
 
 - `FileService` is now available on `Bot` to make it easy to manipulate and work with files.
@@ -9,6 +14,10 @@
   - Type into the input to learn more about the features.
   - Use `/` to run a command.
 - The `BaseIntel` has some new convenience methods `save_to_file` and `create_from_file` for easy long-term storage.
+
+### Fixes
+
+- Fixed a bug with `directory_list` method on the `Prompt` class when a file has no extension. 
 
 ## v1.3.6
 

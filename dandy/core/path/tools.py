@@ -37,7 +37,7 @@ def get_dir_list(
     file_extensions: Sequence[str] | None = None,
     _current_depth: int = 0,
 ) -> list[str]:
-    if _current_depth == 0:
+    if _current_depth == 0 and file_extensions is not None:
         file_extensions = _clean_file_extensions(file_extensions)
 
     items = []
