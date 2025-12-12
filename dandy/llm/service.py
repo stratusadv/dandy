@@ -8,7 +8,7 @@ from dandy.core.service.service import BaseService
 from dandy.core.utils import encode_file_to_base64
 from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
-from dandy.llm.conf import llm_configs
+from dandy.llm.conf import LlmConfigs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.intelligence.prompts import (
@@ -42,11 +42,14 @@ class LlmService(BaseService['LlmServiceMixin']):
         self._event_id = generate_new_recorder_event_id()
 
         if isinstance(self.obj.llm_config, str):
-            self._llm_config = llm_configs[self.obj.llm_config]
+            self._llm_config = LlmConfigs()[self.obj.llm_config]
         else:
             self._llm_config = self.obj.llm_config
 
-        self._llm_options = self.obj.llm_config_options
+        if isinstance(self.obj.llm_config_options, str):
+           self._llm_options = LlmConfigs()[self.obj.llm_config].options
+        else:
+            self._llm_options = self.obj.llm_config_options
 
         self._intel = None
         self._intel_json_schema = None

@@ -1,12 +1,12 @@
 from dandy import Bot
 from dandy.cli.commands.command import BaseCommand
 from dandy.cli.tui.tui import Tui
-from dandy.llm.conf import llm_configs
+from dandy.llm.conf import LlmConfigs
 
 
 class ChatCommand(BaseCommand):
     name = 'Chat'
-    description = f'Open ended chat to talk to the "{llm_configs.DEFAULT.model}" model for testing.'
+    description = f'Open ended chat to talk to the "{LlmConfigs().DEFAULT.model}" model for testing.'
     calls = ('c', 'chat', 'chizat')
 
     def help(self):

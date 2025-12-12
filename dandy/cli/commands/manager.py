@@ -1,7 +1,7 @@
-from dandy.cli.commands.chat_command import ChatCommand
+from dandy.cli.commands.chat.command import ChatCommand
 from dandy.cli.commands.command import BaseCommand
-from dandy.cli.commands.explain_command import ExplainCommand
-from dandy.cli.commands.quit_command import QuitCommand
+from dandy.cli.commands.explain.command import ExplainCommand
+from dandy.cli.commands.quit.command import QuitCommand
 
 
 class CommandManager:

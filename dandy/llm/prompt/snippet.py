@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, Sequence
 
 from dandy.core.path.tools import (
     get_file_path_or_exception,
-    get_dir_path_or_exception,
-    get_dir_list,
+    get_directory_path_or_exception,
+    get_directory_listing,
 )
 from dandy.llm.prompt.utils import list_to_str
 
@@ -72,12 +72,12 @@ class DirectoryListSnippet(BaseSnippet):
     file_extensions: Sequence[str] | None = None
 
     def _to_str(self) -> str:
-        dir_path = get_dir_path_or_exception(
+        dir_path = get_directory_path_or_exception(
             dir_path=self.directory_path,
         )
 
         return UnorderedListSnippet(
-            items = get_dir_list(
+            items = get_directory_listing(
                 dir_path=dir_path,
                 max_depth=self.max_depth,
                 file_extensions=self.file_extensions,

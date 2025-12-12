@@ -3,7 +3,7 @@ from typing import ClassVar
 from dandy.intel.intel import BaseIntel
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import DefaultIntel
-from dandy.llm.conf import llm_configs
+from dandy.llm.conf import LlmConfigs
 from dandy.llm.config.config import LlmConfigOptions
 from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.llm.config.openai import OpenaiLlmConfig
@@ -13,7 +13,7 @@ from dandy.llm.service import LlmService
 
 class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
-    llm_config_options: LlmConfigOptions = llm_configs['DEFAULT'].options
+    llm_config_options: str | LlmConfigOptions = 'DEFAULT'
     llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_role: PromptOrStr = 'Assistant'
     llm_task: PromptOrStrOrNone = 'Provide a response based users request, context or instructions.'

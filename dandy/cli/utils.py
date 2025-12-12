@@ -4,11 +4,10 @@ from pathlib import Path
 
 import dotenv
 
-from dandy.consts import CLI_DEFAULT_ENV_FILE_NAMES
-from dandy.core.utils import get_settings_module_name
-
 
 def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool = True) -> None:
+    from dandy.core.utils import get_settings_module_name
+
     settings_module_name = get_settings_module_name()
 
     try:
@@ -36,7 +35,10 @@ def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool =
         if system_exit_on_import_error:
             sys.exit(0)
 
+
 def load_environment_variables(cwd_path: Path) -> None:
+    from dandy.consts import CLI_DEFAULT_ENV_FILE_NAMES
+
     for env_file_name in CLI_DEFAULT_ENV_FILE_NAMES:
         env_file_path = Path(cwd_path, env_file_name)
         if env_file_path.exists():

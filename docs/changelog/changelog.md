@@ -17,7 +17,9 @@
 
 ### Fixes
 
-- Fixed a bug with `directory_list` method on the `Prompt` class when a file has no extension. 
+- Fixed a bug with `directory_list` method on the `Prompt` class when a file has no extension.
+- `dandy.conf.settings` now has a method called `reload` that reloads the settings at that current state.
+- `dandy.llm.conf.LlmConfigs` are now checked during usage to allow for better control loading environments.
 
 ## v1.3.6
 

@@ -18,7 +18,7 @@ def get_file_path_or_exception(
     raise DandyCriticalException(message)
 
 
-def get_dir_path_or_exception(
+def get_directory_path_or_exception(
     dir_path: str | Path,
 ) -> Path:
     if Path(dir_path).is_dir():
@@ -31,7 +31,7 @@ def get_dir_path_or_exception(
     raise DandyCriticalException(message)
 
 
-def get_dir_list(
+def get_directory_listing(
     dir_path: str | Path,
     max_depth: int | None = None,
     file_extensions: Sequence[str] | None = None,
@@ -52,7 +52,7 @@ def get_dir_list(
 
             if path.is_dir() and (max_depth is None or _current_depth < max_depth):
                 items.extend(
-                    get_dir_list(
+                    get_directory_listing(
                         path, max_depth, file_extensions, _current_depth + 1
                     )
                 )

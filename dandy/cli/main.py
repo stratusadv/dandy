@@ -1,7 +1,8 @@
+import importlib
+import os
 import sys
 from pathlib import Path
 
-from dandy.cli.cli import DandyCli
 
 CWD_PATH = Path.cwd()
 
@@ -13,6 +14,12 @@ def main():
 
     load_environment_variables(CWD_PATH)
     check_or_create_settings(CWD_PATH)
+
+    from dandy.conf import settings
+
+    settings.reload()
+
+    from dandy.cli.cli import DandyCli
 
     cli = DandyCli()
 
