@@ -17,7 +17,7 @@ def main():
 
     from dandy.conf import settings
 
-    settings.reload()
+    settings.reload_from_os()
 
     from dandy.cli.cli import DandyCli
 
