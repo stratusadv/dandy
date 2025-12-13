@@ -1,19 +1,18 @@
-import importlib
-import os
 import sys
 from pathlib import Path
 
-
-CWD_PATH = Path.cwd()
-
-sys.path.append(str(CWD_PATH))
-
+from dandy.cli.utils import check_or_create_settings, load_environment_variables  # noqa: PLC0415
+from dandy.cli.conf import config
 
 def main():
-    from dandy.cli.utils import check_or_create_settings, load_environment_variables  # noqa: PLC0415
+    CWD_PATH = Path.cwd()
+
+    sys.path.append(str(CWD_PATH))
 
     load_environment_variables(CWD_PATH)
     check_or_create_settings(CWD_PATH)
+
+    config.project_base_path = CWD_PATH
 
     from dandy.conf import settings
 
@@ -21,7 +20,9 @@ def main():
 
     from dandy.cli.cli import DandyCli
 
-    cli = DandyCli()
+    cli = DandyCli(
+        current_working_directory=CWD_PATH
+    )
 
     cli.run()
 

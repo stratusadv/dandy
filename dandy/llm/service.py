@@ -41,24 +41,14 @@ class LlmService(BaseService['LlmServiceMixin']):
     def __post_init__(self):
         self._event_id = generate_new_recorder_event_id()
 
-        if isinstance(self.obj.llm_config, str):
-            self._llm_config = LlmConfigs()[self.obj.llm_config]
-        else:
-            self._llm_config = self.obj.llm_config
-
-        if isinstance(self.obj.llm_config_options, str):
-           self._llm_options = LlmConfigs()[self.obj.llm_config].options
-        else:
-            self._llm_options = self.obj.llm_config_options
-
         self._intel = None
         self._intel_json_schema = None
 
-        self._request_body = self._llm_config.generate_request_body(
-            max_input_tokens=self._llm_options.max_input_tokens,
-            max_output_tokens=self._llm_options.max_output_tokens,
-            seed=self._llm_options.seed,
-            temperature=self._llm_options.temperature,
+        self._request_body = self.obj.llm_config.generate_request_body(
+            max_input_tokens=self.obj.llm_config_options.max_input_tokens,
+            max_output_tokens=self.obj.llm_config_options.max_output_tokens,
+            seed=self.obj.llm_config_options.seed,
+            temperature=self.obj.llm_config_options.temperature,
         )
 
         self._response_str = None
@@ -67,7 +57,7 @@ class LlmService(BaseService['LlmServiceMixin']):
 
     @property
     def has_retry_attempts_available(self) -> bool:
-        return self._retry_attempt < self._llm_config.options.prompt_retry_count
+        return self._retry_attempt < self.obj.llm_config_options.prompt_retry_count
 
     @property
     def messages(self) -> list[RequestMessage]:
@@ -165,10 +155,10 @@ class LlmService(BaseService['LlmServiceMixin']):
 
         http_connector = HttpConnector()
 
-        http_request_intel = self._llm_config.http_request_intel
+        http_request_intel = self.obj.llm_config.http_request_intel
         http_request_intel.json_data = self._request_body.model_dump()
 
-        self._response_str = self._llm_config.get_response_content(
+        self._response_str = self.obj.llm_config.get_response_content(
             http_connector.request_to_response(request_intel=http_request_intel)
         )
 
@@ -221,7 +211,7 @@ class LlmService(BaseService['LlmServiceMixin']):
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self._event_id,
-                remaining_attempts=self._llm_config.options.prompt_retry_count
+                remaining_attempts=self.obj.llm_config.options.prompt_retry_count
                 - self._retry_attempt,
             )
 
@@ -231,5 +221,5 @@ class LlmService(BaseService['LlmServiceMixin']):
 
             return self._request_to_intel()
 
-        message = f'Failed to get the correct response from the LlmService after {self._llm_config.options.prompt_retry_count} attempts.'
+        message = f'Failed to get the correct response from the LlmService after {self.obj.llm_config.options.prompt_retry_count} attempts.'
         raise LlmRecoverableException(message)

@@ -31,11 +31,21 @@ class LlmServiceMixin(BaseServiceMixin):
     )
 
     def __init__(self, **kwargs):
+        if isinstance(self.llm_config, str):
+            self.llm_config = LlmConfigs()[self.llm_config]
+
+        if isinstance(self.llm_config_options, str):
+            if isinstance(self.llm_config, str):
+                self.llm_config_options = LlmConfigs()[self.llm_config].options
+            else:
+                self.llm_config_options = self.llm_config.options
+
         self.llm_intel_class = self.__class__.llm_intel_class
         self.llm.set_obj_service_instance(
             self,
             None,
         )
+
         super().__init__(**kwargs)
 
     @classmethod

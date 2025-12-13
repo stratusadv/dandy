@@ -14,6 +14,10 @@ class ExplainCommand(BaseCommand):
         print('Chat help')
 
     def run(self):
-        user_input = Tui.input('Explain')
+        user_input, stop_timer = Tui.input('Explain')
 
-        explain_project_workflow(user_input)
+        answer = explain_project_workflow(user_input)
+
+        stop_timer()
+
+        Tui.print(answer)

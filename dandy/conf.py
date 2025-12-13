@@ -23,8 +23,6 @@ class DandySettings:
             raise DandyCriticalException(message)
 
     def __getattr__(self, name: str):
-        self._reload_from_os()
-
         if hasattr(self._user_settings, name):
             return getattr(self._user_settings, name)
 
@@ -34,7 +32,7 @@ class DandySettings:
         message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
         raise DandyCriticalException(message)
 
-    def _reload_from_os(self):
+    def reload_from_os(self):
         self._default_settings = importlib.reload(self._default_settings)
         self._user_settings = importlib.reload(self._user_settings)
 
