@@ -21,3 +21,6 @@ class ExplainCommand(BaseCommand):
         stop_timer()
 
         Tui.print(answer)
+
+    def render(self):
+        print('hello')

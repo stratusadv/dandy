@@ -14,3 +14,6 @@ class QuitCommand(BaseCommand):
     def run(self):
         print('Quitting...')
         sys.exit(0)
+
+    def render(self):
+        print('Quitting...')

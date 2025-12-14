@@ -1,4 +1,3 @@
-from dandy.cli.commands.chat.command import ChatCommand
 from dandy.cli.commands.command import BaseCommand
 from dandy.cli.commands.explain.command import ExplainCommand
 from dandy.cli.commands.quit.command import QuitCommand
@@ -6,7 +5,6 @@ from dandy.cli.commands.quit.command import QuitCommand
 
 class CommandManager:
     commands: tuple[BaseCommand, ...] = (
-        ChatCommand,
         ExplainCommand,
         QuitCommand
     )

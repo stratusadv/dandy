@@ -22,5 +22,10 @@ class BaseCommand(ABC):
     def input_calls(cls) -> list[str]:
         return [f'/{call}' for call in cls.calls]
 
+    @abstractmethod
     def run(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def render(self):
         raise NotImplementedError

@@ -20,11 +20,12 @@ class Tui:
 
         while not cls._timer_stop:
             elapsed = time.time() - start_time
-            print(f'\r{cls.term.bold_green("Processing ")} {cls.term.bold_white(f"{elapsed:.1f}s")}', end='',
+            print(f'\r{cls.term.bold_green(" ↳ Processing ")} {cls.term.bold_white(f"{elapsed:.1f}s")}', end='',
                   flush=True)
             time.sleep(0.1)
 
-        print(f' Done')
+        print(cls.term.bold_green(' Done'))
+        print(cls.term.bold_green('-' * cls.term.width))
 
     @classmethod
     def input(cls, sub_app: str | None = None, run_process_timer: bool = True):
@@ -33,7 +34,7 @@ class Tui:
         if sub_app is not None:
             input_str += cls.term.bold_blue(sub_app) + ' > '
 
-        print(cls.term.bold_white('─' * cls.term.width))
+        print(cls.term.bold_blue('─' * cls.term.width))
         user_input = input(input_str)
         if user_input == '':
             return None
@@ -42,6 +43,8 @@ class Tui:
             cls._timer_stop = False
             timer_thread = threading.Thread(target=cls._print_processing_timer, daemon=True)
             timer_thread.start()
+        else:
+            cls._timer_stop = True
 
         def stop_timer():
             if cls._timer_stop:

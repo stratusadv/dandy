@@ -25,7 +25,11 @@ class CodeExplainerBot(Bot):
 
         prompt.heading('Files')
         for file_path in file_paths:
-            prompt.file(file_path)
+            prompt.file(
+                file_path,
+                triple_quote=True,
+                triple_quote_label=str(file_path)
+            )
             prompt.line_break()
 
         return self.llm.prompt_to_intel(prompt=prompt)
