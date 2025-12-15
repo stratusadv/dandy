@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BaseCommand(ABC):
+class BaseAction(ABC):
     name: str
     description: str
     calls: tuple[str, ...]

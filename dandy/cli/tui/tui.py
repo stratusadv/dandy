@@ -2,6 +2,7 @@ import threading
 import time
 from blessed import Terminal
 from dandy import consts
+from dandy.cli.tui.elements.welcome_element import WelcomeElement
 from dandy.conf import settings
 from dandy.llm.conf import LlmConfigs
 
@@ -62,8 +63,4 @@ class Tui:
 
     @classmethod
     def print_welcome(cls):
-        cls.print('')
-        cls.print('Dandy CLI Welcomes You !!!')
-        cls.print(cls.term.bold_red('Version   : ') + consts.__VERSION__)
-        cls.print(cls.term.bold_red('Model     : ') + LlmConfigs().DEFAULT.model)
-        cls.print(cls.term.bold_red('Directory : ') + str(settings.BASE_PATH))
+        WelcomeElement(cls.term).render()

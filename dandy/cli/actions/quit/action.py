@@ -1,9 +1,9 @@
 import sys
 
-from dandy.cli.commands.command import BaseCommand
+from dandy.cli.actions.action import BaseAction
 
 
-class QuitCommand(BaseCommand):
+class QuitAction(BaseAction):
     name = 'Quit'
     description = 'Quit the application.'
     calls = ('q', 'quit')
