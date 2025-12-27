@@ -1,18 +1,15 @@
 from typing import ClassVar
 
-from dandy.intel.intel import BaseIntel
 from dandy.core.service.mixin import BaseServiceMixin
-from dandy.intel.intel import DefaultIntel
+from dandy.intel.intel import BaseIntel, DefaultIntel
 from dandy.llm.conf import LlmConfigs
-from dandy.llm.config.config import LlmConfigOptions
-from dandy.llm.config.ollama import OllamaLlmConfig
-from dandy.llm.config.openai import OpenaiLlmConfig
+from dandy.llm.config.config import LlmConfig, LlmConfigOptions
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
-    llm_config: str | OllamaLlmConfig | OpenaiLlmConfig = 'DEFAULT'
+    llm_config: str | LlmConfig = 'DEFAULT'
     llm_config_options: str | LlmConfigOptions = 'DEFAULT'
     llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_role: PromptOrStr = 'Assistant'

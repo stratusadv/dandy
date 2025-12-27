@@ -32,8 +32,10 @@ dependencies = [
 development = [
     "build",
     "Faker",
+    "ruff",
     "setuptools",
     "twine",
+    "ty",
     "wheel"
 ]
 

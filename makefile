@@ -1,3 +1,4 @@
+.ONESHELL:
 .PHONY: coverage docs help idle test win-a linux-a
 
 include development.env
@@ -19,11 +20,3 @@ idle:
 
 test:
 	python -m unittest discover -v ./tests
-
-win-a:
-	cmd /C ".venv\Scripts\activate.bat"
-
-linux-a:
-	source .venv/bin/activate
-
-

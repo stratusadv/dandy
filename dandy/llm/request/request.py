@@ -1,55 +1,130 @@
-from abc import abstractmethod, ABC
-
 from pydantic import BaseModel, Field
 
 from dandy.llm.request.message import RequestMessage, RoleLiteralStr
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
+from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 
-class BaseRequestBody(BaseModel, ABC):
+class RequestBody(BaseModel):
     model: str
     messages: list[RequestMessage] = Field(default_factory=list)
+    stream: bool = False
+
+    # Some OpenAI Models require strict to be True ... Why ... I don't know!
+    response_format: dict = {
+        'type': 'json_schema',
+        'json_schema': {'name': 'response', 'strict': False, 'schema': ...},
+    }
+    max_completion_tokens: int | None = None
+    seed: int | None = None
+    temperature: float | None = None
 
     @property
     def has_system_message(self) -> bool:
         return len(self.messages) > 0 and self.messages[0].role == 'system'
 
-    @abstractmethod
     def add_message(
-        self, role: RoleLiteralStr, content: str, images: list[str] | None = None, prepend: bool = False
-    ): ...
+        self,
+        role: RoleLiteralStr,
+        content: str,
+        images: list[str] | None = None,
+        prepend: bool = False,
+    ) -> None:
+        message_content: list[dict] = [
+            {
+                'type': 'text',
+                'text': content,
+            }
+        ]
 
-    @abstractmethod
-    def get_context_length(self) -> int: ...
+        if images is not None:
+            for image in images:
+                message_content.append(
+                    {
+                        'type': 'image_url',
+                        'image_url': {
+                            'url': f'data:{get_image_mime_type_from_base64_string(image)};base64,{image}'
+                        },
+                    }
+                )
 
-    @abstractmethod
-    def get_max_completion_tokens(self) -> int: ...
+        openai_request_message = RequestMessage(
+            role=role,
+            content=message_content,
+        )
 
-    @abstractmethod
-    def get_seed(self) -> int: ...
+        if prepend:
+            self.messages.insert(0, openai_request_message)
+        else:
+            self.messages.append(openai_request_message)
 
-    @abstractmethod
-    def get_temperature(self) -> float: ...
-
-    def reset_messages(self):
-        self.messages = []
+    def get_context_length(self) -> int:
+        return 0
 
     @property
-    @abstractmethod
     def token_usage(self) -> int:
-        pass
+        token_usage = int(
+            sum(
+                [
+                    get_estimated_token_count_for_string(message.content)
+                    for message in self.messages
+                ]
+            )
+        )
+        token_usage += get_estimated_token_count_for_string(str(self.response_format))
+
+        return token_usage
+
+    def get_max_completion_tokens(self) -> int | None:
+        return self.max_completion_tokens
+
+    def get_seed(self) -> int | None:
+        return self.seed
+
+    def get_temperature(self) -> float | None:
+        return self.temperature
 
     def get_total_context_length(self) -> int | None:
-        if self.get_context_length() is None or self.get_max_completion_tokens() is None:
+        if (
+            self.get_context_length() is None
+            or self.get_max_completion_tokens() is None
+        ):
             return None
 
         return self.get_context_length() + self.get_max_completion_tokens()
 
-    @abstractmethod
-    def set_format_to_json_schema(self, json_schema: dict): ...
+    def reset_messages(self):
+        self.messages = []
 
-    @abstractmethod
-    def set_format_to_text(self): ...
+    def set_format_to_json_schema(self, json_schema: dict):
+        self.response_format['json_schema']['schema'] = json_schema
 
-    @abstractmethod
-    def to_dict(self): ...
+        # Required for some OpenAI Models ... Why ... I don't know!
+        # self.response_format['json_schema']['schema']['additionalProperties'] = False
 
+    def set_format_to_text(self):
+        self.response_format = {'type': 'text'}
+
+    def to_dict(self) -> dict:
+        model_dict = self.model_dump()
+        formated_messages = []
+        for message in model_dict['messages']:
+            for content in message['content']:
+                if content['type'] == 'text':
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['text'],
+                        }
+                    )
+                elif content['type'] == 'image_url':
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['image_url']['url'].split(';base64,')[1],
+                        }
+                    )
+
+        model_dict['messages'] = formated_messages
+
+        return model_dict

@@ -31,10 +31,9 @@ LLM_DEFAULT_TEMPERATURE: float | None = None
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'ollama',
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
+        'HOST': os.getenv("AI_API_HOST"),
+        'PORT': int(os.getenv("AI_API_POST", 443)),
+        'API_KEY': os.getenv("AI_API_KEY"),
         'MODEL': 'a_model:9b',
         'TEMPERATURE': 0.5,
         'SEED': 77,

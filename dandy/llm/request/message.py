@@ -11,6 +11,12 @@ class RequestMessage(BaseModel):
     images: List[str] |None = None
 
     def content_as_str(self) -> str:
+        if self.content[0]['type'] == 'text':
+            return self.content[0]['text']
+
+        if self.content[0]['type'] == 'image_url':
+            return self.content[0]['image_url']['url'].split(';base64,')[1]
+
         return self.content
 
 

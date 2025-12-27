@@ -2,6 +2,11 @@
 
 ## v1.4.0
 
+### Breaking
+
+- Ollama API support has been removed from this project and is now defaulted to the Open AI API standard.
+- Since Ollama supports the Open AI API standard you can continue to use Dandy with Ollama.
+
 ### Changes
 
 - The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been defaulted to `None`

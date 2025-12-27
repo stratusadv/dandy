@@ -1,17 +1,9 @@
 from dandy.conf import settings
 from dandy.core.exceptions import DandyException
-from dandy.llm.config.config import BaseLlmConfig
-from dandy.llm.config.openai import OpenaiLlmConfig
-from dandy.llm.config.ollama import OllamaLlmConfig
 from dandy.core.utils import get_settings_module_name
-
-_LLM_CONFIG_MAP = {
-    'openai': OpenaiLlmConfig,
-    'ollama': OllamaLlmConfig,
-}
+from dandy.llm.config.config import LlmConfig
 
 _DEFAULT_KEY_LIST = [
-    'TYPE',
     'HOST',
     'PORT',
     'API_KEY',
@@ -41,19 +33,10 @@ class LlmConfigs:
 
                 kwargs[key] = kwargs[key] if kwargs.get(key) else settings.LLM_CONFIGS['DEFAULT'][key]
 
-            if 'TYPE' not in kwargs:
-                message = f'All "LLM_CONFIGS" must have a "TYPE", choices are: {_LLM_CONFIG_MAP.keys()}.'
-                raise DandyException(message)
-
-            if kwargs['TYPE'] not in _LLM_CONFIG_MAP:
-                message = f'TYPE "{kwargs["TYPE"]}" in "{llm_config_name}" is not a valid, choices are: {_LLM_CONFIG_MAP.keys()}.'
-                raise DandyException(message)
-
-
             setattr(
                 self,
                 f'_{llm_config_name}',
-                _LLM_CONFIG_MAP[kwargs['TYPE']](
+                LlmConfig(
                     **{
                         key.lower(): value
                         for key, value in kwargs.items()
@@ -68,15 +51,15 @@ class LlmConfigs:
 
         self.choices = list(settings.LLM_CONFIGS.keys())
 
-    def __getattr__(self, item: str) -> BaseLlmConfig:
+    def __getattr__(self, item: str) -> LlmConfig:
         llm_config = f'_{item}'
-        if llm_config in self.__dict__ and isinstance(getattr(self, llm_config), BaseLlmConfig):
+        if llm_config in self.__dict__ and isinstance(getattr(self, llm_config), LlmConfig):
                 return getattr(self, llm_config)
 
         message = f'No llm config named "{item}" found in your settings, choices are {self.choices}.'
         raise DandyException(message)
 
-    def __getitem__(self, item: str) -> BaseLlmConfig:
+    def __getitem__(self, item: str) -> LlmConfig:
         return getattr(self, item)
 
 
