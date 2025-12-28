@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, Any
 
 from dandy.conf import settings
 from dandy.llm.config.utils import generate_random_seed
@@ -6,12 +6,12 @@ from dandy.llm.config.utils import generate_random_seed
 
 class LlmConfigOptions:
     def __init__(
-        self,
-        seed: int | None = None,
-        randomize_seed: bool | None = None,
-        max_completion_tokens: int | None = None,
-        temperature: float | None = None,
-        prompt_retry_count: int | None = None,
+            self,
+            seed: int | None = None,
+            randomize_seed: bool | None = None,
+            max_completion_tokens: int | None = None,
+            temperature: float | None = None,
+            prompt_retry_count: int | None = None,
     ):
 
         self._seed = seed
@@ -29,38 +29,35 @@ class LlmConfigOptions:
 
     @property
     def randomize_seed(self) -> bool:
-        return (
-            self._randomize_seed
-            if self._randomize_seed is not None
-            else settings.LLM_DEFAULT_RANDOMIZE_SEED
+        return self._get_value_or_settings_default(
+            self._randomize_seed,
+            settings.LLM_DEFAULT_RANDOMIZE_SEED
         )
 
     @property
     def max_completion_tokens(self) -> int:
-        return (
-            self._max_completion_tokens
-            if self._max_completion_tokens is not None
-            else settings.LLM_DEFAULT_MAX_COMPLETION_TOKENS
+        return self._get_value_or_settings_default(
+            self._max_completion_tokens,
+            settings.LLM_DEFAULT_MAX_COMPLETION_TOKENS
         )
 
     @property
     def temperature(self) -> float:
-        return (
-            self._temperature
-            if self._temperature is not None
-            else settings.LLM_DEFAULT_TEMPERATURE
+        return self._get_value_or_settings_default(
+            self._temperature,
+            settings.LLM_DEFAULT_TEMPERATURE
         )
 
     @property
     def prompt_retry_count(self) -> int:
-        print(f'{self._prompt_retry_count=}')
-        print(f'{settings.LLM_DEFAULT_PROMPT_RETRY_COUNT=}')
-
-        return (
-            self._prompt_retry_count
-            if self._prompt_retry_count is not None
-            else settings.LLM_DEFAULT_PROMPT_RETRY_COUNT
+        return self._get_value_or_settings_default(
+            self._prompt_retry_count,
+            settings.LLM_DEFAULT_PROMPT_RETRY_COUNT
         )
+
+    @staticmethod
+    def _get_value_or_settings_default(value: Any, default: Any) -> Any:
+        return value if value is not None else default
 
     def update_values(self, **kwargs):
         for key, value in kwargs.items():

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class VisionService(BaseService['VisionServiceMixin']):
     obj: VisionServiceMixin
 
-    def image_to_intel(self):
+    def image_prompt_to_intel(self):
         pass
 
     def reset_service(self):
