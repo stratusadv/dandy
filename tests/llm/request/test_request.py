@@ -18,24 +18,30 @@ class TestRequest(TestCase):
             test_image_bytes = base64.b64encode(img.read())
             test_image_string = test_image_bytes.decode('utf-8')
 
-        request_body.add_message(
-            'system',
-            'You are a helpful assistant.',
-            [test_image_string]
+        request_body.messages.create_message(
+            role='system',
+            text='You are a helpful assistant.',
+            image_base64_strings=[test_image_string]
         )
 
-        self.assertEqual(request_body.messages[0].content[0]['type'],
-                         'text')
-        self.assertEqual(request_body.messages[0].content[0]['text'],
-                         'You are a helpful assistant.')
+        self.assertEqual(
+            request_body.messages[0].content.type,
+            'text'
+        )
+        self.assertEqual(
+            request_body.messages[0].content.text,
+            'You are a helpful assistant.'
+        )
 
-        self.assertEqual(request_body.messages[0].content[1]['type'], 'image_url')
-        self.assertEqual(request_body.messages[0].content[1]['image_url']['url'],
-                         f'data:{get_image_mime_type_from_base64_string(test_image_string)};base64,{test_image_string}')
+        self.assertEqual(
+            request_body.messages[0].content.type,
+            'image_url'
+        )
+        self.assertEqual(
+            request_body.messages[0].content.image_url.url,
+            f'data:{get_image_mime_type_from_base64_string(test_image_string)};base64,{test_image_string}'
+        )
 
         request_body_dict = request_body.to_dict()
 
-        self.assertEqual(type(request_body_dict),dict)
-
-        request_body.set_format_to_text()
-        self.assertEqual(request_body.response_format['type'], 'text')
+        self.assertEqual(type(request_body_dict), dict)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Sequence
 
 from pydantic import ValidationError
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from dandy.intel.typing import IntelType
     from dandy.llm.mixin import LlmServiceMixin
     from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
-    from dandy.llm.request.message import MessageHistory, RequestMessage, RoleLiteralStr
+    from dandy.llm.request.message import MessageHistory, Message, RoleLiteralStr
 
 
 class LlmService(BaseService['LlmServiceMixin']):
@@ -58,24 +59,27 @@ class LlmService(BaseService['LlmServiceMixin']):
         return self._prompt_retry_attempt < self.obj.llm_config_options.prompt_retry_count
 
     @property
-    def messages(self) -> list[RequestMessage]:
+    def messages(self) -> MessageHistory:
         return self._request_body.messages
 
-    def add_message(
-        self, role: RoleLiteralStr, content: str, images: list[str] | None = None
-    ):
-        self._request_body.add_message(role, content, images)
-
-    def add_messages(
-        self, messages: Sequence[tuple[RoleLiteralStr, str, list[str] | None]]
-    ):
-        for role, content, images in messages:
-            self.add_message(role, content, images)
-
+    # def add_message(
+    #         self,
+    #         role: RoleLiteralStr,
+    #         content: str,
+    #         images: list[str] | None = None
+    # ):
+    #     self._request_body.add_message(role, content, images)
+    #
+    # def add_messages(
+    #         self, messages: Sequence[tuple[RoleLiteralStr, str, list[str] | None]]
+    # ):
+    #     for role, content, images in messages:
+    #         self.add_message(role, content, images)
+    #
     def _prepend_system_message(self):
-        self._request_body.add_message(
+        self._request_body.messages.create_message(
             role='system',
-            content=service_system_prompt(
+            text=service_system_prompt(
                 role=self.obj.llm_role,
                 task=self.obj.llm_task,
                 guidelines=self.obj.llm_guidelines,
@@ -85,15 +89,16 @@ class LlmService(BaseService['LlmServiceMixin']):
         )
 
     def prompt_to_intel(
-        self,
-        prompt: PromptOrStrOrNone = None,
-        intel_class: type[IntelType] | None = None,
-        intel_object: IntelType | None = None,
-        images: list[str] | None = None,
-        image_files: list[str | Path] | None = None,
-        include_fields: IncEx | None = None,
-        exclude_fields: IncEx | None = None,
-        message_history: MessageHistory | None = None,
+            self,
+            prompt: PromptOrStrOrNone = None,
+            intel_class: type[IntelType] | None = None,
+            intel_object: IntelType | None = None,
+            images: list[str] | None = None,
+            image_files: list[str | Path] | None = None,
+            include_fields: IncEx | None = None,
+            exclude_fields: IncEx | None = None,
+            message_history: MessageHistory | None = None,
+            replace_message_history: bool = False,
     ) -> IntelType:
         if intel_class and intel_object:
             message = 'Cannot specify both intel_class and intel_object.'
@@ -118,24 +123,25 @@ class LlmService(BaseService['LlmServiceMixin']):
             intel=self._intel, include=include_fields, exclude=exclude_fields
         )
 
-        if not self._request_body.has_system_message:
+        if not self._request_body.messages.has_system_message:
             self._prepend_system_message()
 
-        self._request_body.set_format_to_json_schema(self._intel_json_schema)
+        self._request_body.set_json_schema(self._intel_json_schema)
 
         if message_history:
-            for message in message_history.messages:
-                self._request_body.add_message(
-                    role=message.role, content=message.content, images=message.images
+            if replace_message_history:
+                self._request_body.messages = message_history
+            else:
+                self._request_body.messages.append_messages(
+                    message_history.messages
                 )
 
         if prompt is not None:
-            self._request_body.add_message(
+            self._request_body.messages.create_message(
                 role='user',
-                content=service_user_prompt(
+                text=service_user_prompt(
                     prompt if isinstance(prompt, Prompt) else Prompt(prompt)
                 ).to_str(),
-                images=images,
             )
 
         if len(self._request_body.messages) <= 1:
@@ -145,7 +151,7 @@ class LlmService(BaseService['LlmServiceMixin']):
         return self._request_to_intel()
 
     def _request_to_intel(
-        self,
+            self,
     ) -> IntelType:
         recorder_add_llm_request_event(
             self._request_body, self._intel_json_schema, self._event_id
@@ -155,6 +161,8 @@ class LlmService(BaseService['LlmServiceMixin']):
 
         http_request_intel = self.obj.llm_config.http_request_intel
         http_request_intel.json_data = self._request_body.model_dump()
+
+        print(json.dumps(http_request_intel.json_data, indent=4))
 
         self._response_str = self.obj.llm_config.get_response_content(
             http_connector.request_to_response(request_intel=http_request_intel)
@@ -176,7 +184,10 @@ class LlmService(BaseService['LlmServiceMixin']):
                     intel=intel_object,
                 )
 
-                self._request_body.add_message(role='assistant', content=self._response_str)
+                self._request_body.messages.create_message(
+                    role='assistant',
+                    text=self._response_str
+                )
 
                 return intel_object
 
@@ -199,9 +210,9 @@ class LlmService(BaseService['LlmServiceMixin']):
         self._request_body.reset_messages()
 
     def retry_request_to_intel(
-        self,
-        retry_event_description: str,
-        retry_user_prompt: PromptOrStr,
+            self,
+            retry_event_description: str,
+            retry_user_prompt: PromptOrStr,
     ) -> IntelType:
         if self.has_retry_attempts_available:
             self._prompt_retry_attempt += 1
@@ -210,11 +221,12 @@ class LlmService(BaseService['LlmServiceMixin']):
                 retry_event_description,
                 self._event_id,
                 remaining_attempts=self.obj.llm_config.options.prompt_retry_count
-                - self._prompt_retry_attempt,
+                                   - self._prompt_retry_attempt,
             )
 
-            self._request_body.add_message(
-                role='user', content=Prompt(retry_user_prompt).to_str()
+            self._request_body.messages.create_message(
+                role='user',
+                text=Prompt(retry_user_prompt).to_str()
             )
 
             return self._request_to_intel()
