@@ -10,29 +10,30 @@ from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.llm.conf import LlmConfigs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
-from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.intelligence.prompts import (
+    service_system_prompt,
     service_system_validation_error_prompt,
     service_user_prompt,
-    service_system_prompt,
 )
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.recorder import (
+    recorder_add_llm_failure_event,
     recorder_add_llm_request_event,
     recorder_add_llm_response_event,
-    recorder_add_llm_success_event,
-    recorder_add_llm_failure_event,
     recorder_add_llm_retry_event,
+    recorder_add_llm_success_event,
 )
 from dandy.recorder.utils import generate_new_recorder_event_id
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from dandy.llm.prompt.typing import PromptOrStrOrNone
+
     from pydantic.main import IncEx
-    from dandy.llm.prompt.typing import PromptOrStr
+
     from dandy.intel.typing import IntelType
     from dandy.llm.mixin import LlmServiceMixin
-    from dandy.llm.request.message import MessageHistory, RoleLiteralStr, RequestMessage
+    from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
+    from dandy.llm.request.message import MessageHistory, RequestMessage, RoleLiteralStr
 
 
 class LlmService(BaseService['LlmServiceMixin']):
@@ -52,7 +53,7 @@ class LlmService(BaseService['LlmServiceMixin']):
         )
 
         self._response_str = None
-        self._retry_max_attempts = 0
+        # self._retry_max_attempts = 0
         self._retry_attempt = 0
 
     @property
