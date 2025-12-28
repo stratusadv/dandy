@@ -19,8 +19,7 @@ class LlmConfig(BaseConfig):
             api_key: str | None = None,
             seed: int | None = None,
             randomize_seed: bool | None = None,
-            max_input_tokens: int | None = None,
-            max_output_tokens: int | None = None,
+            max_completion_tokens: int | None = None,
             temperature: float | None = None,
             prompt_retry_count: int | None = None,
     ):
@@ -41,8 +40,7 @@ class LlmConfig(BaseConfig):
 
         self.options = LlmConfigOptions(
             prompt_retry_count=prompt_retry_count,
-            max_input_tokens=max_input_tokens,
-            max_output_tokens=max_output_tokens,
+            max_completion_tokens=max_completion_tokens,
             seed=seed,
             randomize_seed=randomize_seed,
             temperature=temperature,
@@ -58,8 +56,7 @@ class LlmConfig(BaseConfig):
             'api_key',
             'seed',
             'randomize_seed',
-            'max_input_tokens',
-            'max_output_tokens',
+            'max_completion_tokens',
             'temperature',
             'prompt_retry_count',
         )
@@ -72,25 +69,20 @@ class LlmConfig(BaseConfig):
 
     def generate_request_body(
         self,
-        max_input_tokens: int | None = None,
-        max_output_tokens: int | None = None,
+        max_completion_tokens: int | None = None,
         seed: int | None = None,
         temperature: float | None = None,
     ) -> RequestBody:
         return RequestBody(
             model=self.model,
-            max_completion_tokens=self.options.max_output_tokens
-            if max_output_tokens is None
-            else max_output_tokens,
+            max_completion_tokens=self.options.max_completion_tokens
+            if max_completion_tokens is None
+            else max_completion_tokens,
             seed=self.options.seed if seed is None else seed,
             temperature=self.options.temperature
             if temperature is None
             else temperature,
             stream=False,
-            response_format={
-                'type': 'json_schema',
-                'json_schema': {'name': 'response', 'strict': False, 'schema': ...},
-            },
         )
 
     @staticmethod

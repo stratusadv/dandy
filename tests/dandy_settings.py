@@ -17,8 +17,8 @@ LLM_CONFIGS = {
         'PORT': int(os.getenv("AI_API_PORT", '443')),
         'API_KEY': os.getenv("AI_API_KEY"),
         'MODEL': os.getenv("LLM_DEFAULT_MODEL"),
-        'TEMPERATURE': 0.2,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
+    },
+    'VISION': {
+        'MODEL': os.getenv("LLM_VISION_MODEL"),
     },
 }

@@ -8,7 +8,6 @@ from dandy.core.service.service import BaseService
 from dandy.core.utils import encode_file_to_base64
 from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
-from dandy.llm.conf import LlmConfigs
 from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
 from dandy.llm.intelligence.prompts import (
     service_system_prompt,
@@ -46,19 +45,17 @@ class LlmService(BaseService['LlmServiceMixin']):
         self._intel_json_schema = None
 
         self._request_body = self.obj.llm_config.generate_request_body(
-            max_input_tokens=self.obj.llm_config_options.max_input_tokens,
-            max_output_tokens=self.obj.llm_config_options.max_output_tokens,
+            max_completion_tokens=self.obj.llm_config_options.max_completion_tokens,
             seed=self.obj.llm_config_options.seed,
             temperature=self.obj.llm_config_options.temperature,
         )
 
         self._response_str = None
-        # self._retry_max_attempts = 0
-        self._retry_attempt = 0
+        self._prompt_retry_attempt = 0
 
     @property
     def has_retry_attempts_available(self) -> bool:
-        return self._retry_attempt < self.obj.llm_config_options.prompt_retry_count
+        return self._prompt_retry_attempt < self.obj.llm_config_options.prompt_retry_count
 
     @property
     def messages(self) -> list[RequestMessage]:
@@ -207,13 +204,13 @@ class LlmService(BaseService['LlmServiceMixin']):
         retry_user_prompt: PromptOrStr,
     ) -> IntelType:
         if self.has_retry_attempts_available:
-            self._retry_attempt += 1
+            self._prompt_retry_attempt += 1
 
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self._event_id,
                 remaining_attempts=self.obj.llm_config.options.prompt_retry_count
-                - self._retry_attempt,
+                - self._prompt_retry_attempt,
             )
 
             self._request_body.add_message(

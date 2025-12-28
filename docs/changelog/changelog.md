@@ -11,6 +11,7 @@
 
 - The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been defaulted to `None`
 - The `LLM_DEFAULT_TEMPERATURE` and `LLM_DEFAULT_SEED` have also been defaulted to `None`
+- The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been replaced with `LLM_DEFAULT_MAX_COMPLETION_TOKES` to match with the api changes.
 
 ### Features
 

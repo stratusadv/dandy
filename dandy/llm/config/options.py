@@ -9,20 +9,16 @@ class LlmConfigOptions:
         self,
         seed: int | None = None,
         randomize_seed: bool | None = None,
-        max_input_tokens: int | None = None,
-        max_output_tokens: int | None = None,
+        max_completion_tokens: int | None = None,
         temperature: float | None = None,
         prompt_retry_count: int | None = None,
     ):
 
         self._seed = seed
         self._randomize_seed = randomize_seed
-        self._max_input_tokens = max_input_tokens
-        self._max_output_tokens = max_output_tokens
+        self._max_completion_tokens = max_completion_tokens
         self._temperature = temperature
         self._prompt_retry_count = prompt_retry_count
-        print(f'init {prompt_retry_count=}')
-        print(f'init {self.prompt_retry_count=}')
 
     @property
     def seed(self) -> int:
@@ -40,19 +36,11 @@ class LlmConfigOptions:
         )
 
     @property
-    def max_input_tokens(self) -> int:
+    def max_completion_tokens(self) -> int:
         return (
-            self._max_input_tokens
-            if self._max_input_tokens is not None
-            else settings.LLM_DEFAULT_MAX_INPUT_TOKENS
-        )
-
-    @property
-    def max_output_tokens(self) -> int:
-        return (
-            self._max_output_tokens
-            if self._max_output_tokens is not None
-            else settings.LLM_DEFAULT_MAX_OUTPUT_TOKENS
+            self._max_completion_tokens
+            if self._max_completion_tokens is not None
+            else settings.LLM_DEFAULT_MAX_COMPLETION_TOKENS
         )
 
     @property
