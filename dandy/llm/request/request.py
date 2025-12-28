@@ -13,8 +13,9 @@ class RequestBody(BaseModel):
     # Some OpenAI Models require strict to be True ... Why ... I don't know!
     response_format: dict = {
         'type': 'json_schema',
-        'json_schema': {'name': 'response', 'strict': False, 'schema': ...},
+        'json_schema': {'name': 'response_data', 'strict': True, 'schema': ...},
     }
+
     max_completion_tokens: int | None = None
     seed: int | None = None
     temperature: float | None = None

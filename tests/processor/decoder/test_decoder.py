@@ -95,28 +95,18 @@ class TestDecoder(TestCase):
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_no_keys_decoder_retry(self, mock_post_request: mock.MagicMock):
-        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'ollama':
-            mock_post_request.return_value = HttpResponseIntel(
-                status_code=200,
-                json_data={
-                    'message': {
-                        'content': '{"keys": []}',
-                    }
-                },
-            )
-        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'openai':
-            mock_post_request.return_value = HttpResponseIntel(
-                status_code=200,
-                json_data={
-                    'choices': [
-                        {
-                            'message': {
-                                'content': '{"keys": []}',
-                            }
+        mock_post_request.return_value = HttpResponseIntel(
+            status_code=200,
+            json_data={
+                'choices': [
+                    {
+                        'message': {
+                            'content': '{"keys": []}',
                         }
-                    ]
-                },
-            )
+                    }
+                ]
+            },
+        )
 
         with self.assertRaises(DecoderRecoverableException):
             value = FunDecoder().process(

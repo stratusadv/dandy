@@ -28,22 +28,26 @@ class LlmServiceMixin(BaseServiceMixin):
     )
 
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        llm_config: str | None = kwargs.get('llm_config')
+
+        if llm_config is not None:
+            self.llm_config = llm_config
+
         if isinstance(self.llm_config, str):
             self.llm_config = LlmConfigs()[self.llm_config]
 
         if isinstance(self.llm_config_options, str):
-            if isinstance(self.llm_config, str):
-                self.llm_config_options = LlmConfigs()[self.llm_config].options
-            else:
-                self.llm_config_options = self.llm_config.options
+            self.llm_config_options = self.llm_config.options
 
         self.llm_intel_class = self.__class__.llm_intel_class
+
         self.llm.set_obj_service_instance(
             self,
             None,
         )
 
-        super().__init__(**kwargs)
 
     @classmethod
     def get_llm_description(cls) -> str | None:

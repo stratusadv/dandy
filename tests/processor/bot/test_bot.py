@@ -1,9 +1,9 @@
 from unittest import TestCase
 
 from dandy.processor.processor import BaseProcessor
-from tests.processor.bot.intelligence.intel import MoneyBagIntel
-from tests.processor.bot.intelligence.bots import MoneyBagBot
 from tests.llm.decorators import run_llm_configs
+from tests.processor.bot.intelligence.bots import MoneyBagBot
+from tests.processor.bot.intelligence.intel import MoneyBagIntel
 
 
 class TestBot(TestCase):
@@ -14,8 +14,9 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_class_include(self, llm_config: str):
-        money_bag_bot = MoneyBagBot()
-        money_bag_bot.llm_config = llm_config
+        money_bag_bot = MoneyBagBot(
+            llm_config=llm_config
+        )
 
         money_bag = money_bag_bot.process(
             user_input='I have 14 coins',
@@ -29,8 +30,9 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_class_exclude(self, llm_config: str):
-        money_bag_bot = MoneyBagBot()
-        money_bag_bot.llm_config = llm_config
+        money_bag_bot = MoneyBagBot(
+            llm_config=llm_config,
+        )
 
         money_bag = money_bag_bot.process(
             # This commented prompt freezes or locks the llm in indefinite inference !!!
@@ -56,8 +58,9 @@ class TestBot(TestCase):
 
     @run_llm_configs()
     def test_bot_intel_object_include(self, llm_config: str):
-        money_bag_bot = MoneyBagBot()
-        money_bag_bot.llm_config = llm_config
+        money_bag_bot = MoneyBagBot(
+            llm_config=llm_config
+        )
 
         coins = 10
         bills = 50

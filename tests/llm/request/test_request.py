@@ -3,31 +3,15 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.core.path.tools import get_file_path_or_exception
-from dandy.llm.conf import llm_configs
+from dandy.llm.conf import LlmConfigs
 from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 
 class TestRequest(TestCase):
-    def test_ollama_config_request_body(self):
-        request_body = llm_configs.SMART.generate_request_body(
-            temperature=llm_configs.SMART.options.temperature,
-            seed=llm_configs.SMART.options.seed,
-        )
-
-        request_body.add_message(
-            'system',
-            'You are a helpful assistant.'
-        )
-
-        self.assertEqual(
-            'You are a helpful assistant.',
-                         request_body.messages[0].content
-                         )
-
-    def test_openai_config_request_body(self):
-        request_body = llm_configs.OPEN_AI_API_MODEL.generate_request_body(
-            temperature=llm_configs.OPEN_AI_API_MODEL.options.temperature,
-            seed=llm_configs.OPEN_AI_API_MODEL.options.seed,
+    def test_config_request_body(self):
+        request_body = LlmConfigs().DEFAULT.generate_request_body(
+            temperature=LlmConfigs().DEFAULT.options.temperature,
+            seed=LlmConfigs().DEFAULT.options.seed,
         )
 
         with open(get_file_path_or_exception(Path('assets', 'images', 'vision_test_image.jpg')), "rb") as img:
