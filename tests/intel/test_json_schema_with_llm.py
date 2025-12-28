@@ -1,12 +1,15 @@
 from unittest import TestCase
 
+from dandy import recorder
 from dandy.core.exceptions import DandyRecoverableException
+from dandy.recorder.decorators import recorder_to_html_file
 from tests.intel.intelligence.bots import JsonSchemaBot
 from tests.intel.intelligence.intel import OfficeIntel, PersonIntel
 from tests.llm.decorators import run_llm_configs
 
 
 class TestJsonSchemaWithLlm(TestCase):
+    @recorder_to_html_file('test_json_schema_with_llm')
     @run_llm_configs()
     def test_json_schema_with_gt_lt_field(self, llm_config: str):
         json_schema_bot = JsonSchemaBot(
@@ -22,6 +25,7 @@ class TestJsonSchemaWithLlm(TestCase):
             self.assertTrue(True)
         except DandyRecoverableException:
             self.assertTrue(False)
+
 
 
     @run_llm_configs()
