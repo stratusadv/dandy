@@ -10,7 +10,6 @@ class RequestBody(BaseModel):
     messages: list[RequestMessage] = Field(default_factory=list)
     stream: bool = False
 
-    # Some OpenAI Models require strict to be True ... Why ... I don't know!
     response_format: dict = {
         'type': 'json_schema',
         'json_schema': {'name': 'response_data', 'strict': True, 'schema': ...},
@@ -99,9 +98,6 @@ class RequestBody(BaseModel):
 
     def set_format_to_json_schema(self, json_schema: dict):
         self.response_format['json_schema']['schema'] = json_schema
-
-        # Required for some OpenAI Models ... Why ... I don't know!
-        # self.response_format['json_schema']['schema']['additionalProperties'] = False
 
     def set_format_to_text(self):
         self.response_format = {'type': 'text'}
