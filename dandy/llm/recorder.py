@@ -55,7 +55,6 @@ def recorder_add_llm_retry_event(
 
 def recorder_add_llm_request_event(
         request_body: RequestBody,
-        json_schema: dict,
         event_id: str
 ):
     llm_request_event = Event(
@@ -79,7 +78,7 @@ def recorder_add_llm_request_event(
             ),
             EventAttribute(
                 key='JSON Schema',
-                value=json.dumps(json_schema, indent=4),
+                value=json.dumps(request_body.json_schema, indent=4),
                 is_dropdown=True,
             )
         ]
@@ -88,7 +87,7 @@ def recorder_add_llm_request_event(
     for message in request_body.messages:
         llm_request_event.add_attribute(EventAttribute(
             key=message.role,
-            value=message.content.as_str(),
+            value=str(message.content),
             is_card=True,
         ))
 

@@ -200,27 +200,28 @@ class Decoder(
             )
         )
 
-        while self.llm.has_retry_attempts_available:
+        while self.llm.connector.has_retry_attempts_available:
             try:
                 self._validate_return_keys_intel(return_keys_intel, max_return_values)
                 break
 
             except DecoderNoKeysRecoverableException as error:
-                recorder_add_llm_failure_event(error, self.llm._event_id)
+                recorder_add_llm_failure_event(error, self.llm.event_id)
 
-                if self.llm.has_retry_attempts_available:
-                    return_keys_intel = self.llm.retry_request_to_intel(
+                if self.llm.connector.has_retry_attempts_available:
+                    return_keys_intel = self.llm.connector.retry_request_to_intel(
                         retry_event_description='Decoder keys intel object came back empty, retrying with no key(s) prompt.',
                         retry_user_prompt=decoder_no_key_error_prompt(),
+
                     )
                 else:
                     raise
 
             except DecoderToManyKeysRecoverableException as error:
-                recorder_add_llm_failure_event(error, self.llm._event_id)
+                recorder_add_llm_failure_event(error, self.llm.event_id)
 
-                if self.llm.has_retry_attempts_available:
-                    return_keys_intel = self.llm.retry_request_to_intel(
+                if self.llm.connector.has_retry_attempts_available:
+                    return_keys_intel = self.llm.connector.retry_request_to_intel(
                         retry_event_description='Decoder keys intel object came back with to many keys, retrying with to many key(s) prompt.',
                         retry_user_prompt=decoder_max_key_count_error_prompt(
                             returned_count=len(return_keys_intel),
@@ -237,7 +238,7 @@ class Decoder(
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
         except DecoderRecoverableException as error:
-            recorder_add_llm_failure_event(error, self.llm._event_id)
+            recorder_add_llm_failure_event(error, self.llm.event_id)
             raise
 
         return return_keys_intel

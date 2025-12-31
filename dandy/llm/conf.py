@@ -61,6 +61,3 @@ class LlmConfigs:
 
     def __getitem__(self, item: str) -> LlmConfig:
         return getattr(self, item)
-
-
-# llm_configs = LlmConfigs()

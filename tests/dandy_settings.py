@@ -19,6 +19,6 @@ LLM_CONFIGS = {
         'MODEL': os.getenv("LLM_DEFAULT_MODEL"),
     },
     'VISION': {
-        'MODEL': os.getenv("LLM_VISION_MODEL"),
+        'MODEL': os.getenv("VISION_DEFAULT_MODEL"),
     },
 }

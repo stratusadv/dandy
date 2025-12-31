@@ -1,3 +1,4 @@
+import base64
 from pathlib import Path
 from typing import List, Literal, Self, Iterator
 
@@ -47,45 +48,43 @@ class MessageContent(BaseModel):
 
 class Message(BaseModel):
     role: RoleLiteralStr
-    content: MessageContent
+    content: list[MessageContent] = Field(default_factory=list)
 
     @property
     def estimated_token_count(self) -> int:
         return get_estimated_token_count_for_string(self.__str__()) + 1
 
-    @classmethod
-    def from_text(cls, role: RoleLiteralStr, text: str) -> Self:
-        return cls(role=role, content=MessageContent(type='text', text=text))
+    def add_content_from_text(self, text: str):
+        self.content.append(
+            MessageContent(type='text', text=text)
+        )
 
-    @classmethod
-    def from_image_url(cls, role: RoleLiteralStr, image_url: str) -> Self:
-        return cls(role=role, content=MessageContent(type='image_url', image_url=ImageUrl(url=image_url)))
+    def add_content_from_image_url(self, image_url: str):
+        self.content.append(
+            MessageContent(type='image_url', image_url=ImageUrl(url=image_url))
+        )
 
-    @classmethod
-    def from_image_file_path(cls, role: RoleLiteralStr, image_file_path: Path | str) -> Self:
+    def add_content_from_image_file_path(self, image_file_path: Path | str):
         with open(Path(image_file_path), 'rb') as image_file:
-            return cls.from_image_base64_string(
-                role=role,
-                image_base64_string=image_file.read().decode("base64")
+            self.add_content_from_image_base64_string(
+                image_base64_string=base64.b64encode(
+                    image_file.read()
+                ).decode('utf-8')
             )
 
-    @classmethod
-    def from_image_base64_string(cls, role: RoleLiteralStr, image_base64_string: str) -> Self:
-        return cls(
-            role=role,
-            content=MessageContent(
+    def add_content_from_image_base64_string(self, image_base64_string: str):
+        self.content.append(
+            MessageContent(
                 type='image_url',
                 image_url=ImageUrl(
-                    url=f'data:image/data:{get_image_mime_type_from_base64_string(image_base64_string)};base64,{image_base64_string}'
+                    url=f'data:{get_image_mime_type_from_base64_string(image_base64_string)};base64,{image_base64_string}'
                 )
             )
         )
 
-    @classmethod
-    def from_input_audio_url(cls, role: RoleLiteralStr, input_audio_url: str) -> Self:
-        return cls(
-            role=role,
-            content=MessageContent(
+    def add_content_from_input_audio_url(self, input_audio_url: str):
+        self.content.append(
+            MessageContent(
                 type='input_audio',
                 input_audio=InputAudio(
                     data=input_audio_url,
@@ -94,19 +93,17 @@ class Message(BaseModel):
             )
         )
 
-    @classmethod
-    def from_input_audio_file_path(cls, role: RoleLiteralStr, input_audio_file_path: Path | str) -> Self:
+    def add_content_from_input_audio_file_path(self, input_audio_file_path: Path | str):
         with open(Path(input_audio_file_path), 'rb') as input_audio_file:
-            return cls.from_input_audio_base64_string(
-                role=role,
-                input_audio_base64_string=input_audio_file.read().decode("base64")
+            self.add_content_from_input_audio_base64_string(
+                input_audio_base64_string=base64.b64encode(
+                    input_audio_file.read()
+                ).decode('utf-8')
             )
 
-    @classmethod
-    def from_input_audio_base64_string(cls, role: RoleLiteralStr, input_audio_base64_string: str) -> Self:
-        return cls(
-            role=role,
-            content=MessageContent(
+    def add_content_from_input_audio_base64_string(self, input_audio_base64_string: str):
+        self.content.append(
+            MessageContent(
                 type='input_audio',
                 input_audio=InputAudio(
                     data=input_audio_base64_string,
@@ -151,47 +148,51 @@ class MessageHistory(BaseModel):
             input_audio_base64_strings: list[str] | None = None,
             prepend: bool = False,
     ) -> None:
-        messages = []
+        message = Message(role=role)
 
         if text is not None:
-            messages.append(Message.from_text(role=role, text=text))
+            message.add_content_from_text(text=text)
 
-        elif image_urls is not None or image_file_paths is not None or image_base64_strings is not None:
-            for image_url in image_urls or []:
-                messages.append(Message.from_image_url(role=role, image_url=image_url))
+        for image_url in image_urls or []:
+            message.add_content_from_image_url(
+                image_url=image_url
+            )
 
-            for image_file_path in image_file_paths or []:
-                messages.append(Message.from_image_file_path(role=role, image_file_path=image_file_path))
+        for image_file_path in image_file_paths or []:
+            message.add_content_from_image_file_path(
+                image_file_path=image_file_path
+            )
 
-            for image_base64_data_encode in image_base64_strings or []:
-                messages.append(
-                    Message.from_image_base64_string(role=role, image_base64_string=image_base64_data_encode))
+        for image_base64_string in image_base64_strings or []:
+            message.add_content_from_image_base64_string(
+                image_base64_string=image_base64_string
+            )
 
-        elif input_audio_urls is not None or input_audio_file_paths is not None or input_audio_base64_strings is not None:
-            for input_audio_url in input_audio_urls or []:
-                messages.append(Message.from_input_audio_url(role=role, input_audio_url=input_audio_url))
+        for input_audio_url in input_audio_urls or []:
+            message.add_content_from_input_audio_url(
+                input_audio_url=input_audio_url
+            )
 
-            for input_audio_file_path in input_audio_file_paths or []:
-                messages.append(
-                    Message.from_input_audio_file_path(role=role, input_audio_file_path=input_audio_file_path))
+        for input_audio_file_path in input_audio_file_paths or []:
+            message.add_content_from_input_audio_file_path(
+                input_audio_file_path=input_audio_file_path
+            )
 
-            for input_audio_base64_data_encode in input_audio_base64_strings or []:
-                messages.append(Message.from_input_audio_base64_string(role=role,
-                                                                       input_audio_base64_string=input_audio_base64_data_encode))
+        for input_audio_base64_string in input_audio_base64_strings or []:
+            message.add_content_from_input_audio_base64_string(
+                input_audio_base64_string=input_audio_base64_string
+            )
 
         if prepend:
-            self.prepend_messages(messages)
+            self.prepend(message)
         else:
-            self.append_messages(messages)
+            self.append(message)
 
-    def append_message(self, message: Message) -> None:
+    def append(self, message: Message) -> None:
         self.messages.append(message)
 
-    def append_messages(self, messages: list[Message]) -> None:
+    def extend(self, messages: list[Message]) -> None:
         self.messages.extend(messages)
 
-    def prepend_message(self, message: Message) -> None:
+    def prepend(self, message: Message) -> None:
         self.messages.insert(0, message)
-
-    def prepend_messages(self, messages: list[Message]) -> None:
-        self.messages = messages + self.messages

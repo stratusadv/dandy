@@ -61,7 +61,3 @@ def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
             'Please review your response provide a valid JSON in your next response, based on the previous request.'
         )
     )
-
-
-def service_user_prompt(user_prompt: PromptOrStr) -> Prompt:
-    return Prompt().prompt(user_prompt)

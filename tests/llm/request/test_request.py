@@ -21,24 +21,26 @@ class TestRequest(TestCase):
         request_body.messages.create_message(
             role='system',
             text='You are a helpful assistant.',
-            image_base64_strings=[test_image_string]
+            image_base64_strings=[
+                test_image_string
+            ]
         )
 
         self.assertEqual(
-            request_body.messages[0].content.type,
+            request_body.messages[0].content[0].type,
             'text'
         )
         self.assertEqual(
-            request_body.messages[0].content.text,
+            request_body.messages[0].content[0].text,
             'You are a helpful assistant.'
         )
 
         self.assertEqual(
-            request_body.messages[0].content.type,
+            request_body.messages[0].content[1].type,
             'image_url'
         )
         self.assertEqual(
-            request_body.messages[0].content.image_url.url,
+            request_body.messages[0].content[1].image_url.url,
             f'data:{get_image_mime_type_from_base64_string(test_image_string)};base64,{test_image_string}'
         )
 

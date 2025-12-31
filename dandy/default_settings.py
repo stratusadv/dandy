@@ -33,10 +33,15 @@ LLM_CONFIGS = {
         'HOST': os.getenv("AI_API_HOST"),
         'PORT': int(os.getenv("AI_API_POST", 443)),
         'API_KEY': os.getenv("AI_API_KEY"),
-        'MODEL': 'a_model:9b',
-        'TEMPERATURE': 0.5,
-        'SEED': 77,
-        'RANDOMIZE_SEED': False,
-        'MAX_COMPLETION_TOKENS': 8000,
+        'MODEL': 'text_model:9b',
+    },
+}
+
+VISION_CONFIGS = {
+    'DEFAULT': {
+        'HOST': os.getenv("AI_API_HOST"),
+        'PORT': int(os.getenv("AI_API_POST", 443)),
+        'API_KEY': os.getenv("AI_API_KEY"),
+        'MODEL': 'vision_model:10b',
     },
 }

@@ -7,13 +7,13 @@ from dandy.llm.request.message import MessageHistory
 class TestMessages(TestCase):
     def test_message_history(self):
         message_history = MessageHistory()
-        message_history.add_message('user', 'I was 91 years old a few days ago')
-        message_history.add_message('system', 'When is your birthday?')
-        message_history.add_message('user', 'It is my birthday today!')
-        message_history.add_message('system', 'How old are you?')
-        message_history.add_message('user', 'I just turned 92')
-        message_history.add_message('system', 'Wow! That is so old.')
-        message_history.add_message('user', 'That is ok I am feeling great')
+        message_history.create_message(role='user', text='I was 91 years old a few days ago')
+        message_history.create_message(role='system', text='When is your birthday?')
+        message_history.create_message(role='user', text='It is my birthday today!')
+        message_history.create_message(role='system', text='How old are you?')
+        message_history.create_message(role='user', text='I just turned 92')
+        message_history.create_message(role='system', text='Wow! That is so old.')
+        message_history.create_message(role='user', text='That is ok I am feeling great')
 
         class BirthdayIntel(BaseIntel):
             past_age: int

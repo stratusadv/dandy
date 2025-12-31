@@ -98,8 +98,6 @@ class Agent(
             prompt: PromptOrStr,
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
-            images: list[str] | None = None,
-            image_files: list[str | Path] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             message_history: MessageHistory | None = None,
@@ -114,9 +112,9 @@ class Agent(
             self._recorder_event_id
         )
 
-        self.llm.add_message(
+        self.llm.messages.create_message(
             role='user',
-            content=(
+            text=(
                 Prompt()
                 .text('I have the following task: ')
                 .line_break()
@@ -127,9 +125,9 @@ class Agent(
             )
         )
 
-        self.llm.add_message(
+        self.llm.messages.create_message(
             role='assistant',
-            content=(
+            text=(
                 Prompt()
                 .sub_heading('Plan Execution Results:')
                 .line_break()
@@ -138,9 +136,9 @@ class Agent(
             )
         )
 
-        self.llm.add_message(
+        self.llm.messages.create_message(
             role='user',
-            content=(
+            text=(
                 Prompt()
                 .text('Use the results of the executed plan to complete: ')
                 .line_break()
@@ -152,8 +150,6 @@ class Agent(
         return self.llm.prompt_to_intel(
             intel_class=intel_class,
             intel_object=intel_object,
-            images=images,
-            image_files=image_files,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
             message_history=message_history,
