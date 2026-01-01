@@ -8,6 +8,7 @@ from dandy.http.connector import HttpConnector
 from dandy.http.intelligence.intel import HttpRequestIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
+from dandy.llm.prompt.typing import PromptOrStrOrNone
 
 
 class AudioConnector(BaseConnector):
@@ -44,9 +45,13 @@ class AudioConnector(BaseConnector):
 
     def request_to_intel(
             self,
+            prompt: PromptOrStrOrNone = None,
             response_format: Literal['json', 'diarized_json', 'verbose_json'] = 'json',
             verbose_format: Literal['word', 'segment'] = 'word',
     ) -> IntelType:
+        if prompt is not None:
+            self._http_request_intel.data['prompt'] = prompt
+
         self._http_request_intel.data['response_format'] = response_format
 
         if response_format == 'verbose_json':

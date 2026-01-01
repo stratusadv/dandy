@@ -4,8 +4,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from dandy.audio.connector import AudioConnector
-from dandy.audio.intelligence.intel import AudioTranscriptionIntel, AudioWordsTranscriptionIntel, AudioSegmentsTranscriptionIntel
+from dandy.audio.intelligence.intel import (
+    AudioSegmentsTranscriptionIntel,
+    AudioTranscriptionIntel,
+    AudioWordsTranscriptionIntel,
+)
 from dandy.core.service.service import BaseService
+from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.recorder.utils import generate_new_recorder_event_id
 
 if TYPE_CHECKING:
@@ -27,6 +32,7 @@ class AudioService(BaseService['AudioServiceMixin']):
     def transcribe(
             self,
             audio_format: AudioFormatLiteralType,
+            prompt: PromptOrStrOrNone = None,
             audio_url: str | None = None,
             audio_file_path: str | Path | None = None,
             audio_bytes_data: bytes | None = None,
@@ -41,11 +47,14 @@ class AudioService(BaseService['AudioServiceMixin']):
             audio_bytes_data=audio_bytes_data,
         )
 
-        return audio_connector.request_to_intel()
+        return audio_connector.request_to_intel(
+            prompt=prompt,
+        )
 
     def segments_transcribe(
             self,
             audio_format: AudioFormatLiteralType,
+            prompt: PromptOrStrOrNone = None,
             audio_url: str | None = None,
             audio_file_path: str | Path | None = None,
             audio_bytes_data: bytes | None = None,
@@ -61,6 +70,7 @@ class AudioService(BaseService['AudioServiceMixin']):
         )
 
         return audio_connector.request_to_intel(
+            prompt=prompt,
             response_format='verbose_json',
             verbose_format='word',
         )
@@ -68,6 +78,7 @@ class AudioService(BaseService['AudioServiceMixin']):
     def words_transcribe(
             self,
             audio_format: AudioFormatLiteralType,
+            prompt: PromptOrStrOrNone = None,
             audio_url: str | None = None,
             audio_file_path: str | Path | None = None,
             audio_bytes_data: bytes | None = None,
@@ -83,6 +94,7 @@ class AudioService(BaseService['AudioServiceMixin']):
         )
 
         return audio_connector.request_to_intel(
+            prompt=prompt,
             response_format='verbose_json',
             verbose_format='word',
         )

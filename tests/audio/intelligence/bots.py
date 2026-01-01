@@ -8,4 +8,4 @@ class TranscriptionBot(Bot):
         return self.audio.transcribe(
             audio_format='mp3',
             audio_file_path=audio_file_path,
-        )
+        ).text
