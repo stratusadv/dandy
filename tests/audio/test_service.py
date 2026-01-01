@@ -13,11 +13,13 @@ class TestAudioService(TestCase):
         bot = Bot()
 
         transcription_intel = bot.audio.transcribe(
-            audio_format='mp3',
+            audio_format='mpeg',
             audio_file_path=Path(
                 settings.BASE_PATH, 'assets', 'audio', 'recording.mp3'
             ),
         )
+
+        print(transcription_intel)
 
         self.assertGreater(
             len(transcription_intel.text),
@@ -29,7 +31,7 @@ class TestAudioService(TestCase):
 
         transcription_intel = bot.audio.transcribe(
             prompt='Only return the animals in the text',
-            audio_format='mp3',
+            audio_format='mpeg',
             audio_file_path=Path(
                 settings.BASE_PATH, 'assets', 'audio', 'recording.mp3'
             ),
@@ -46,7 +48,7 @@ class TestAudioService(TestCase):
         bot = Bot()
 
         transcription_intel = bot.audio.words_transcribe(
-            audio_format='mp3',
+            audio_format='mpeg',
             audio_file_path=Path(
                 settings.BASE_PATH, 'assets', 'audio', 'recording.mp3'
             ),
@@ -58,7 +60,7 @@ class TestAudioService(TestCase):
         bot = Bot()
 
         transcription_intel = bot.audio.segments_transcribe(
-            audio_format='mp3',
+            audio_format='mpeg',
             audio_file_path=Path(
                 settings.BASE_PATH, 'assets', 'audio', 'recording.mp3'
             ),

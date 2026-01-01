@@ -39,8 +39,11 @@ class AudioConnector(BaseConnector):
             message = 'The AudioService requires audio_url, audio_file_path or audio_bytes_data.'
             raise ValueError(message)
 
+        # self._http_request_intel.files = {
+        #     'file': ('recording.mp3', io.BytesIO(audio_bytes_data), f'audio/{audio_format}'),
+        # }
         self._http_request_intel.files = {
-            'file': ('recording.mp3', io.BytesIO(audio_bytes_data), f'audio/{audio_format}'),
+            'file': ('recording.mp3', audio_bytes_data, f'audio/{audio_format}'),
         }
 
     def request_to_intel(
