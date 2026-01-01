@@ -1,14 +1,10 @@
-import contextlib
 from pathlib import Path
-from unittest import TestCase, mock
+from unittest import TestCase
 
-from dandy.cli.utils import check_or_create_settings
 from dandy.conf import settings
 from tests.vision.intelligence.bots.people_counting_bot import PeopleCountingBot
 
 INVALID_SETTINGS_MODULE_NAME = 'tests.invalid_dandy_settings'
-
-BASE_PATH = Path(__file__).parent.parent.parent.resolve()
 
 
 class TestVisionBot(TestCase):

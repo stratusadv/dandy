@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from dandy.llm.request.message import MessageHistory
 
 
-class RequestBody(BaseModel):
+class LlmRequestBody(BaseModel):
     model: str
     messages: MessageHistory = Field(default_factory=MessageHistory)
     stream: bool = False

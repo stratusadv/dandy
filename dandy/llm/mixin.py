@@ -2,7 +2,6 @@ from typing import ClassVar
 
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import BaseIntel, DefaultIntel
-from dandy.llm.conf import LlmConfigs
 from dandy.llm.config.config import LlmConfig, LlmConfigOptions
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service import LlmService
@@ -36,7 +35,7 @@ class LlmServiceMixin(BaseServiceMixin):
             self.llm_config = llm_config
 
         if isinstance(self.llm_config, str):
-            self.llm_config = LlmConfigs()[self.llm_config]
+            self.llm_config = LlmConfig(self.llm_config)
 
         if isinstance(self.llm_config_options, str):
             self.llm_config_options = self.llm_config.options

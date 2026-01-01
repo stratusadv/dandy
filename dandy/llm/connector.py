@@ -1,5 +1,6 @@
 from pydantic import ValidationError
 
+from dandy.core.connector.connector import BaseConnector
 from dandy.llm.prompt.prompt import Prompt
 from dandy.http.connector import HttpConnector
 from dandy.http.intelligence.intel import HttpRequestIntel
@@ -10,16 +11,16 @@ from dandy.llm.intelligence.prompts import service_system_validation_error_promp
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, recorder_add_llm_failure_event, recorder_add_llm_retry_event
-from dandy.llm.request.request import RequestBody
+from dandy.llm.request.request import LlmRequestBody
 
 
-class LlmConnector:
+class LlmConnector(BaseConnector):
     def __init__(
             self,
             event_id: str,
             prompt_retry_count: int,
             http_request_intel: HttpRequestIntel,
-            request_body: RequestBody,
+            request_body: LlmRequestBody,
     ):
         self._event_id = event_id
         self.prompt_retry_attempt = 0

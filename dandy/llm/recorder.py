@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from dandy.core.utils import pydantic_validation_error_to_str, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
 from dandy.intel.intel import BaseIntel
-from dandy.llm.request.request import RequestBody
+from dandy.llm.request.request import LlmRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.recorder.events import Event, EventAttribute, EventType
 
@@ -54,7 +54,7 @@ def recorder_add_llm_retry_event(
 
 
 def recorder_add_llm_request_event(
-        request_body: RequestBody,
+        request_body: LlmRequestBody,
         event_id: str
 ):
     llm_request_event = Event(

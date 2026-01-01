@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from dandy.default_settings import AUDIO_CONFIGS
+
 ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
@@ -11,11 +13,23 @@ if DEBUG:
     from dandy.core.debug import *
 
 
+AI_API = {
+    'HOST': os.getenv("AI_API_HOST"),
+    'PORT': int(os.getenv("AI_API_PORT", '443')),
+    'API_KEY': os.getenv("AI_API_KEY"),
+}
+
+AUDIO_CONFIGS = {
+    'DEFAULT': {
+        **AI_API,
+        'MODEL': os.getenv("AUDIO_DEFAULT_MODEL"),
+    },
+}
+
+
 LLM_CONFIGS = {
     'DEFAULT': {
-        'HOST': os.getenv("AI_API_HOST"),
-        'PORT': int(os.getenv("AI_API_PORT", '443')),
-        'API_KEY': os.getenv("AI_API_KEY"),
+        **AI_API,
         'MODEL': os.getenv("LLM_DEFAULT_MODEL"),
     },
     'VISION': {

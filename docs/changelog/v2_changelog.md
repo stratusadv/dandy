@@ -8,14 +8,14 @@
 
 ### Breaking
 
-- Ollama API support has been removed from this project and is now defaulted to the Open AI API standard.
-- Since Ollama supports the Open AI API standard you can continue to use Dandy with Ollama.
+- Ollama API support has been removed from this project and is now defaulted to the OpenAI API standard.
+- Since Ollama supports the OpenAI API standard, you can continue to use Dandy with Ollama.
 
 ### Changes
 
 - The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been defaulted to `None`
 - The `LLM_DEFAULT_TEMPERATURE` and `LLM_DEFAULT_SEED` have also been defaulted to `None`
-- The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been replaced with `LLM_DEFAULT_MAX_COMPLETION_TOKES` to match with the api changes.
+- The `LLM_DEFAULT_MAX_INPUT_TOKENS` and `LLM_DEFAULT_MAX_OUTPUT_TOKENS` have been replaced with `LLM_DEFAULT_MAX_COMPLETION_TOKENS` to match with the api changes.
 
 ### Features
 
@@ -24,6 +24,10 @@
   - Type into the input to learn more about the features.
   - Use `/` to run a command.
 - The `BaseIntel` has some new convenience methods `save_to_file` and `create_from_file` for easy long-term storage.
+- New `VisionService` has been added to bots.
+  - ********* put more information about the vision service here ***********
+- New `AudioService` has been added to bots.
+  - ********* put more information about the vision service here ***********
 
 ### Fixes
 
@@ -31,4 +35,5 @@
 - `dandy.llm.conf.LlmConfigs` are now checked during usage to allow for better control loading environments.
 - `dandy.conf.settings` now reloads its current state at the time of attribute access instead of once during init.
 - Fixed many issues with customizing all `Service` and `Processor` subclasses.
+- Decouple a lot of the llm modules to allow for better maintainability and testing.
 

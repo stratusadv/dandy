@@ -1,5 +1,6 @@
 from typing import Any
 
+from dandy.audio.mixin import AudioServiceMixin
 from dandy.file.mixin import FileServiceMixin
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.intel import BaseIntel
@@ -12,6 +13,7 @@ from dandy.vision.mixin import VisionServiceMixin
 
 
 class Bot(
+    AudioServiceMixin,
     BaseProcessor,
     BotServiceMixin,
     FileServiceMixin,

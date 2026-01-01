@@ -72,7 +72,11 @@ class HttpRequestIntel(BaseIntel):
         response = requests.request(
             method=self.method,
             url=url,
+            params=self.params,
             headers=self.headers,
+            cookies=self.cookies,
+            data=self.data,
+            files=self.files,
             json=self.json_data,
             timeout=settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
         )
