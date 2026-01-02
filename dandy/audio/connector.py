@@ -39,9 +39,6 @@ class AudioConnector(BaseConnector):
             message = 'The AudioService requires audio_url, audio_file_path or audio_bytes_data.'
             raise ValueError(message)
 
-        # self._http_request_intel.files = {
-        #     'file': ('recording.mp3', io.BytesIO(audio_bytes_data), f'audio/{audio_format}'),
-        # }
         self._http_request_intel.files = {
             'file': ('recording.mp3', audio_bytes_data, f'audio/{audio_format}'),
         }
@@ -56,6 +53,7 @@ class AudioConnector(BaseConnector):
             self._http_request_intel.data['prompt'] = prompt
 
         self._http_request_intel.data['response_format'] = response_format
+        self._http_request_intel.data['temperature'] = 0.0
 
         if response_format == 'verbose_json':
             self._http_request_intel.data['timestamp_granularities'] = [verbose_format]
