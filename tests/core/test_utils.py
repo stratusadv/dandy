@@ -12,7 +12,7 @@ class TestCoreUtils(TestCase):
         with self.assertRaises(DandyCriticalException):
             encode_file_to_base64('this/path/doesnt/exist')
 
-        file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_image.jpg')
+        file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_people_and_animal.jpg')
 
         with open(file_path, 'rb') as f:
             self.assertEqual(

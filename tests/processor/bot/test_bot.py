@@ -37,7 +37,7 @@ class TestBot(TestCase):
         money_bag = money_bag_bot.process(
             # This commented prompt freezes or locks the llm in indefinite inference !!!
             # user_input='Please give me 22 coins and 17 gems.',
-            user_input='I would love to have more gems and coins in for my personal value.',
+            user_input='I would love to have more gems with some high value and coins in my bag to increase personal value above zero.',
             intel_class=MoneyBagIntel,
             exclude={
                 'bills': True, 'gems': {
