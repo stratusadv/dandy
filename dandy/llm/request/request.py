@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from dandy.llm.options.options import LlmOptions
 from dandy.llm.request.message import MessageHistory
 
 
@@ -33,15 +34,6 @@ class LlmRequestBody(BaseModel):
     def json_schema(self, json_schema: dict):
         self.response_format['json_schema']['schema'] = json_schema
 
-    def get_max_completion_tokens(self) -> int | None:
-        return self.max_completion_tokens
-
-    def get_seed(self) -> int | None:
-        return self.seed
-
-    def get_temperature(self) -> float | None:
-        return self.temperature
-
     def model_dump(self, *args, **kwargs) -> dict:
         model_dict = super().model_dump(*args, exclude_none=True, **kwargs)
         model_dict['messages'] = model_dict.pop('messages')['messages']
@@ -50,7 +42,6 @@ class LlmRequestBody(BaseModel):
 
     def reset_messages(self):
         self.messages = MessageHistory()
-
 
     def to_dict(self) -> dict:
         model_dict = self.model_dump()

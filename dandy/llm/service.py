@@ -1,26 +1,16 @@
 from __future__ import annotations
 
+from abc import ABC
 from typing import TYPE_CHECKING
 
-from pydantic import ValidationError
-
 from dandy.core.service.service import BaseService
-from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.llm.connector import LlmConnector
-from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
+from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.intelligence.prompts import (
     service_system_prompt,
-    service_system_validation_error_prompt,
 )
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.recorder import (
-    recorder_add_llm_failure_event,
-    recorder_add_llm_request_event,
-    recorder_add_llm_response_event,
-    recorder_add_llm_retry_event,
-    recorder_add_llm_success_event,
-)
 from dandy.recorder.utils import generate_new_recorder_event_id
 
 if TYPE_CHECKING:
@@ -28,26 +18,19 @@ if TYPE_CHECKING:
 
     from dandy.intel.typing import IntelType
     from dandy.llm.mixin import LlmServiceMixin
-    from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
+    from dandy.llm.prompt.typing import PromptOrStrOrNone
     from dandy.llm.request.message import MessageHistory
 
 
-class LlmService(BaseService['LlmServiceMixin']):
-    obj: LlmServiceMixin
-
+class BaseLlmService(BaseService['LlmServiceMixin'], ABC):
     def __post_init__(self):
         self.event_id = generate_new_recorder_event_id()
-
-        self._request_body = self.obj.llm_config.generate_request_body(
-            max_completion_tokens=self.obj.llm_config_options.max_completion_tokens,
-            seed=self.obj.llm_config_options.seed,
-            temperature=self.obj.llm_config_options.temperature,
-        )
+        self._request_body = self.obj.get_llm_config().generate_request_body()
 
         self.connector = LlmConnector(
             event_id=self.event_id,
-            prompt_retry_count=self.obj.llm_config_options.prompt_retry_count,
-            http_request_intel=self.obj.llm_config.http_request_intel,
+            prompt_retry_count=self.obj.get_llm_options().prompt_retry_count,
+            http_request_intel=self.obj.get_llm_config().http_request_intel,
             request_body=self._request_body,
         )
 
@@ -66,31 +49,6 @@ class LlmService(BaseService['LlmServiceMixin']):
             ).to_str(),
             prepend=True,
         )
-
-    def prompt_to_intel(
-            self,
-            prompt: PromptOrStrOrNone = None,
-            intel_class: type[IntelType] | None = None,
-            intel_object: IntelType | None = None,
-            include_fields: IncEx | None = None,
-            exclude_fields: IncEx | None = None,
-            message_history: MessageHistory | None = None,
-            replace_message_history: bool = False,
-    ) -> IntelType:
-        intel = self._generate_intel(intel_class, intel_object)
-
-        self.connector.set_intel(intel)
-
-        self._setup_request_body(
-            intel=intel,
-            include_fields=include_fields,
-            exclude_fields=exclude_fields,
-            prompt=prompt,
-            message_history=message_history,
-            replace_message_history=replace_message_history,
-        )
-
-        return self.connector.request_to_intel()
 
     def reset_service(self):
         self.reset_messages()
@@ -119,15 +77,22 @@ class LlmService(BaseService['LlmServiceMixin']):
 
     def _setup_request_body(
             self,
-            intel: InterruptedError | type[IntelType],
+            intel_class: type[IntelType] | None = None,
+            intel_object: IntelType | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
             prompt: PromptOrStrOrNone = None,
             message_history: MessageHistory | None = None,
             replace_message_history: bool = False,
     ):
+        intel = self._generate_intel(intel_class, intel_object)
+
+        self.connector.set_intel(intel)
+
         self._request_body.json_schema = IntelFactory.intel_to_json_inc_ex_schema(
-            intel=intel, include=include_fields, exclude=exclude_fields
+            intel=intel,
+            include=include_fields,
+            exclude=exclude_fields
         )
 
         if not self._request_body.messages.has_system_message:
@@ -151,3 +116,28 @@ class LlmService(BaseService['LlmServiceMixin']):
             message = f'"{self.__class__.__name__}.llm.process_to_intel" method requires you to have a prompt or more than the system message.'
             raise LlmCriticalException(message)
 
+
+class LlmService(BaseLlmService):
+    obj: LlmServiceMixin
+
+    def prompt_to_intel(
+            self,
+            prompt: PromptOrStrOrNone = None,
+            intel_class: type[IntelType] | None = None,
+            intel_object: IntelType | None = None,
+            include_fields: IncEx | None = None,
+            exclude_fields: IncEx | None = None,
+            message_history: MessageHistory | None = None,
+            replace_message_history: bool = False,
+    ) -> IntelType:
+        self._setup_request_body(
+            intel_class=intel_class,
+            intel_object=intel_object,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            prompt=prompt,
+            message_history=message_history,
+            replace_message_history=replace_message_history,
+        )
+
+        return self.connector.request_to_intel()

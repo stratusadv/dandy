@@ -1,6 +1,6 @@
 from dandy.core.config.config import BaseConfig
 from dandy.http.intelligence.intel import HttpResponseIntel
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.options.options import LlmOptions
 from dandy.llm.request.request import LlmRequestBody
 
 
@@ -8,7 +8,7 @@ class LlmConfig(BaseConfig):
     type_: str = 'LLM'
 
     def __post_init__(self):
-        self.options = LlmConfigOptions(
+        self.options = LlmOptions(
             prompt_retry_count=self.get_settings_value('prompt_retry_count'),
             max_completion_tokens=self.get_settings_value('max_completion_tokens'),
             seed=self.get_settings_value('seed'),
@@ -24,19 +24,12 @@ class LlmConfig(BaseConfig):
 
     def generate_request_body(
         self,
-        max_completion_tokens: int | None = None,
-        seed: int | None = None,
-        temperature: float | None = None,
     ) -> LlmRequestBody:
         return LlmRequestBody(
             model=self.model,
-            max_completion_tokens=self.options.max_completion_tokens
-            if max_completion_tokens is None
-            else max_completion_tokens,
-            seed=self.options.seed if seed is None else seed,
-            temperature=self.options.temperature
-            if temperature is None
-            else temperature,
+            max_completion_tokens=self.options.max_completion_tokens,
+            seed=self.options.seed,
+            temperature=self.options.temperature,
             stream=False,
         )
 

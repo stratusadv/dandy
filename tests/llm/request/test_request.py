@@ -9,12 +9,10 @@ from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 class TestRequest(TestCase):
     def test_config_request_body(self):
-        request_body = LlmConfig('DEFAULT').generate_request_body(
-            temperature=LlmConfig('DEFAULT').options.temperature,
-            seed=LlmConfig('DEFAULT').options.seed,
-        )
+        request_body = LlmConfig('DEFAULT').generate_request_body()
 
-        with open(get_file_path_or_exception(Path('assets', 'images', 'vision_test_people_and_animal.jpg')), "rb") as img:
+        with open(get_file_path_or_exception(Path('assets', 'images', 'vision_test_people_and_animal.jpg')),
+                  "rb") as img:
             test_image_bytes = base64.b64encode(img.read())
             test_image_string = test_image_bytes.decode('utf-8')
 

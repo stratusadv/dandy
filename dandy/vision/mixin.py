@@ -5,8 +5,6 @@ from dandy.vision.service import VisionService
 
 
 class VisionServiceMixin(BaseServiceMixin):
-    vision_config: str = 'DEFAULT'
-
     vision: ClassVar[VisionService] = VisionService()
     _VisionService_instance: VisionService | None = None
 

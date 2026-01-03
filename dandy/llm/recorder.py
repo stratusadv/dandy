@@ -70,11 +70,11 @@ def recorder_add_llm_request_event(
             ),
             EventAttribute(
                 key='Temperature',
-                value=request_body.get_temperature()
+                value=request_body.temperature
             ),
             EventAttribute(
                 key='Max Completion Tokens',
-                value=request_body.get_max_completion_tokens()
+                value=request_body.max_completion_tokens
             ),
             EventAttribute(
                 key='JSON Schema',

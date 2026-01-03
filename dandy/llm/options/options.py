@@ -4,7 +4,7 @@ from dandy.conf import settings
 from dandy.llm.config.utils import generate_random_seed
 
 
-class LlmConfigOptions:
+class LlmOptions:
     def __init__(
             self,
             seed: int | None = None,

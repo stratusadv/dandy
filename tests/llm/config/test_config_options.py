@@ -1,11 +1,11 @@
 from unittest import TestCase
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.options.options import LlmOptions
 from dandy.conf import settings
 
 
 class TestConfigOptions(TestCase):
     def setUp(self):
-        self.config_options = LlmConfigOptions(
+        self.config_options = LlmOptions(
             temperature=1.0,
             max_completion_tokens=None,
             prompt_retry_count=3,
@@ -13,7 +13,7 @@ class TestConfigOptions(TestCase):
         )
 
     def test_merge_to_copy(self):
-        new_config_options = LlmConfigOptions(
+        new_config_options = LlmOptions(
             prompt_retry_count=8,
             randomize_seed=False,
         )

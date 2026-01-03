@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.options.options import LlmOptions
 from dandy.llm.prompt.prompt import Prompt
 
 
@@ -25,7 +25,7 @@ class ImageBreakdownIntel(BaseIntel):
 
 class ImageBreakdownLlmBot(Bot):
     config = 'GEMMA_3_12B_VISION'
-    config_options = LlmConfigOptions(
+    config_options = LlmOptions(
         temperature=0.1,
     )
 

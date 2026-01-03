@@ -1,4 +1,4 @@
-from dandy.llm.config.options import LlmConfigOptions
+from dandy.llm.options.options import LlmOptions
 from dandy.processor.decoder.decoder import Decoder
 
 
@@ -13,7 +13,7 @@ class FunDecoder(Decoder):
 
 class DragonDecoder(Decoder):
     mapping_keys_description = 'Battle Outcomes'
-    llm_config_options = LlmConfigOptions(temperature=0)
+    llm_options = LlmOptions(temperature=0)
     mapping = {
         'The player is packing other stuff': 'The battle was lost',
         'The player brought a sword': 'The battle was won',
@@ -22,7 +22,7 @@ class DragonDecoder(Decoder):
 
 class TreasureDecoder(Decoder):
     mapping_keys_description: str = 'Treasure Outcomes'
-    llm_config_options = LlmConfigOptions(temperature=0)
+    llm_options = LlmOptions(temperature=0)
     mapping = {
         'Brought a shovel': 'The treasure was recovered',
         'Did not bring a shovel': 'The treasure was lost'
@@ -31,7 +31,7 @@ class TreasureDecoder(Decoder):
 
 class AdventureGameDecoder(Decoder):
     mapping_keys_description = 'Adventure Direction Decisions'
-    llm_config_options = LlmConfigOptions(temperature=0)
+    llm_options = LlmOptions(temperature=0)
     mapping = {
         'The player travels down the path to the left': DragonDecoder(),
         'The player goes right into the jungle': TreasureDecoder()
@@ -39,7 +39,7 @@ class AdventureGameDecoder(Decoder):
 
 
 class NestedBirdDecoder(Decoder):
-    llm_config_options = LlmConfigOptions(temperature=0)
+    llm_options = LlmOptions(temperature=0)
     mapping_keys_description = 'Bird Descriptions'
     mapping = {
         'the bird is dark colored': Decoder(

@@ -34,7 +34,7 @@ class Bot(
     ):
         super().__init__(**kwargs)
 
-        self.llm_config_options.update_values(
+        self.get_llm_options().update_values(
             randomize_seed=llm_randomize_seed,
             seed=llm_seed,
             temperature=llm_temperature,
