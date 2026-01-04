@@ -1,6 +1,6 @@
 from dandy import Prompt, recorder_to_html_file
-from dandy.cli.commands.explain.intelligence.bots.code_explainer_bot import CodeExplainerBot
-from dandy.cli.commands.explain.intelligence.decoders.files_decoder import FilesDecoder
+from dandy.cli.actions.explain.intelligence.bots.code_explainer_bot import CodeExplainerBot
+from dandy.cli.actions.explain.intelligence.decoders.files_decoder import FilesDecoder
 from dandy.processor.decoder.exceptions import DecoderNoKeysRecoverableException
 
 

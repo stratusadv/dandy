@@ -34,4 +34,19 @@ class TestVisionBot(TestCase):
 
         print(image_compare_intel)
 
+    def test_vision_boundaries(self):
+        bot = PeopleCountingBot()
+
+        image_compare_intel = bot.vision.image_prompt_to_intel(
+            prompt=f'What is in this two pictures and what is the difference?',
+            intel_class=ImageCompareIntel,
+            image_file_paths=[
+                Path(settings.BASE_PATH, 'assets', 'images', 'vision_test_compare_all_objects.jpg'),
+                Path(settings.BASE_PATH, 'assets', 'images', 'vision_test_compare_some_objects.jpg')
+            ],
+        )
+
+        print(image_compare_intel)
+
+
 
