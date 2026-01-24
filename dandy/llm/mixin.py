@@ -16,9 +16,10 @@ class LlmServiceMixin(BaseServiceMixin):
     llm_guidelines: PromptOrStrOrNone = None
     llm_system_override_prompt: PromptOrStrOrNone = None
 
-    llm: ClassVar[LlmService] = LlmService()
+    # llm: ClassVar[LlmService] = LlmService()
 
-    _LlmService_instance: LlmService | None = None
+    # _LlmService_instance: LlmService | None = None
+    _llm_service: LlmService = ...
 
     _required_attrs: ClassVar[tuple[str, ...]] = (
         'llm_config',
@@ -64,6 +65,16 @@ class LlmServiceMixin(BaseServiceMixin):
             return f'{cls.llm_role}'
 
         return None
+
+    @property
+    def llm(self) -> LlmService:
+        if self._llm_service is ...:
+            self._llm_service = LlmService(
+                obj=self,
+                self.get_llm_config()
+            )
+
+        return self._llm_service
 
     def reset_services(self):
         super().reset_services()

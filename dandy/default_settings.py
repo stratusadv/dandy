@@ -28,14 +28,14 @@ LLM_DEFAULT_REQUEST_TIMEOUT: int | None = None
 LLM_DEFAULT_SEED: int | None = None
 LLM_DEFAULT_TEMPERATURE: float | None = None
 
-AUDIO_CONFIGS = {
-    'DEFAULT': {
-        'HOST': os.getenv("AI_API_HOST"),
-        'PORT': int(os.getenv("AI_API_POST", 443)),
-        'API_KEY': os.getenv("AI_API_KEY"),
-        'MODEL': 'vision_model:10b',
-    },
-}
+# AUDIO_CONFIGS = {
+#     'DEFAULT': {
+#         'HOST': os.getenv("AI_API_HOST"),
+#         'PORT': int(os.getenv("AI_API_POST", 443)),
+#         'API_KEY': os.getenv("AI_API_KEY"),
+#         'MODEL': 'vision_model:10b',
+#     },
+# }
 
 LLM_CONFIGS = {
     'DEFAULT': {
@@ -46,11 +46,11 @@ LLM_CONFIGS = {
     },
 }
 
-VISION_CONFIGS = {
-    'DEFAULT': {
-        'HOST': os.getenv("AI_API_HOST"),
-        'PORT': int(os.getenv("AI_API_POST", 443)),
-        'API_KEY': os.getenv("AI_API_KEY"),
-        'MODEL': 'vision_model:10b',
-    },
-}
+# VISION_CONFIGS = {
+#     'DEFAULT': {
+#         'HOST': os.getenv("AI_API_HOST"),
+#         'PORT': int(os.getenv("AI_API_POST", 443)),
+#         'API_KEY': os.getenv("AI_API_KEY"),
+#         'MODEL': 'vision_model:10b',
+#     },
+# }

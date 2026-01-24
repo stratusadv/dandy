@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
 
 
-class BaseLlmService(BaseService['LlmServiceMixin'], ABC):
+class LlmService(BaseService, ABC):
     def __post_init__(self):
         self.event_id = generate_new_recorder_event_id()
         self._request_body = self.obj.get_llm_config().generate_request_body()
@@ -49,6 +49,28 @@ class BaseLlmService(BaseService['LlmServiceMixin'], ABC):
             ).to_str(),
             prepend=True,
         )
+
+    def prompt_to_intel(
+            self,
+            prompt: PromptOrStrOrNone = None,
+            intel_class: type[IntelType] | None = None,
+            intel_object: IntelType | None = None,
+            include_fields: IncEx | None = None,
+            exclude_fields: IncEx | None = None,
+            message_history: MessageHistory | None = None,
+            replace_message_history: bool = False,
+    ) -> IntelType:
+        self._setup_request_body(
+            intel_class=intel_class,
+            intel_object=intel_object,
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            prompt=prompt,
+            message_history=message_history,
+            replace_message_history=replace_message_history,
+        )
+
+        return self.connector.request_to_intel()
 
     def reset_service(self):
         self.reset_messages()
@@ -117,27 +139,27 @@ class BaseLlmService(BaseService['LlmServiceMixin'], ABC):
             raise LlmCriticalException(message)
 
 
-class LlmService(BaseLlmService):
-    obj: LlmServiceMixin
-
-    def prompt_to_intel(
-            self,
-            prompt: PromptOrStrOrNone = None,
-            intel_class: type[IntelType] | None = None,
-            intel_object: IntelType | None = None,
-            include_fields: IncEx | None = None,
-            exclude_fields: IncEx | None = None,
-            message_history: MessageHistory | None = None,
-            replace_message_history: bool = False,
-    ) -> IntelType:
-        self._setup_request_body(
-            intel_class=intel_class,
-            intel_object=intel_object,
-            include_fields=include_fields,
-            exclude_fields=exclude_fields,
-            prompt=prompt,
-            message_history=message_history,
-            replace_message_history=replace_message_history,
-        )
-
-        return self.connector.request_to_intel()
+# class LlmService(BaseLlmService):
+#     obj: LlmServiceMixin
+#
+#     def prompt_to_intel(
+#             self,
+#             prompt: PromptOrStrOrNone = None,
+#             intel_class: type[IntelType] | None = None,
+#             intel_object: IntelType | None = None,
+#             include_fields: IncEx | None = None,
+#             exclude_fields: IncEx | None = None,
+#             message_history: MessageHistory | None = None,
+#             replace_message_history: bool = False,
+#     ) -> IntelType:
+#         self._setup_request_body(
+#             intel_class=intel_class,
+#             intel_object=intel_object,
+#             include_fields=include_fields,
+#             exclude_fields=exclude_fields,
+#             prompt=prompt,
+#             message_history=message_history,
+#             replace_message_history=replace_message_history,
+#         )
+#
+#         return self.connector.request_to_intel()

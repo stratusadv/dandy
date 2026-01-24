@@ -10,9 +10,9 @@ from dandy.recorder.recorder import Recorder
 from dandy.recorder.utils import generate_new_recorder_event_id, json_default
 
 if TYPE_CHECKING:
-    from dandy.processor.processor import BaseProcessor
+    from dandy.bot.bot import Bot
 
-def record_process_wrapper(self: BaseProcessor, method: Callable) -> Callable:
+def record_process_wrapper(self: Bot, method: Callable) -> Callable:
     @functools.wraps(method)
     def wrapper(*args, **kwargs) -> Callable:
         if getattr(self, "_recorder_called", None) is None:
