@@ -1,46 +1,44 @@
 from enum import Enum
-from typing import Any, ClassVar
+from typing import Any
 
-from dandy.core.future import AsyncFuture
+from dandy.core.future.future import AsyncFuture
 from dandy.core.utils import generate_forwardable_kwargs_if_not_none
-from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.recorder import recorder_add_llm_failure_event
-from dandy.processor.decoder.exceptions import (
+from dandy.llm.decoder.exceptions import (
     DecoderCriticalException,
     DecoderRecoverableException,
     DecoderNoKeysRecoverableException,
     DecoderToManyKeysRecoverableException,
 )
-from dandy.processor.decoder.intel import (
+from dandy.llm.decoder.intel import (
     DecoderKeysIntel,
     DecoderKeyIntel,
     DecoderValuesIntel,
 )
-from dandy.processor.decoder.intelligence.prompts import (
+from dandy.llm.decoder.intelligence.prompts import (
     decoder_no_key_error_prompt,
     decoder_max_key_count_error_prompt,
 )
-from dandy.processor.decoder.mixin import DecoderServiceMixin
-from dandy.processor.decoder.recorder import (
+# from dandy.bot.decoder.mixin import DecoderServiceMixin
+from dandy.llm.decoder.recorder import (
     recorder_add_process_decoder_value_event,
     recorder_add_chosen_mappings_event,
 )
-from dandy.processor.decoder.service import DecoderService
-from dandy.processor.processor import BaseProcessor
+# from dandy.bot.decoder.service import DecoderService
+from dandy.bot.bot import Bot
 
 
-class Decoder(
-    BaseProcessor,
-    DecoderServiceMixin,
-    LlmServiceMixin,
+class DecoderBot(
+    Bot,
+    # DecoderServiceMixin,
 ):
     mapping: dict[str, Any] = None
     mapping_keys_description: str = None
 
-    services: ClassVar[DecoderService] = DecoderService()
-    _DecoderService_instance: DecoderService | None = None
+    # services: ClassVar[DecoderService] = DecoderService()
+    # _DecoderService_instance: DecoderService | None = None
 
     def __init__(
             self,
@@ -158,7 +156,7 @@ class Decoder(
         ):
             decoder_value = self._get_selected_value(decoder_enum.value)
 
-            if isinstance(decoder_value, Decoder):
+            if isinstance(decoder_value, DecoderBot):
                 decoder_values_intel.extend(
                     decoder_value._process_decoder_to_intel(
                         prompt,

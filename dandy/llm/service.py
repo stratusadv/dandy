@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from dandy.core.service.service import BaseService
 from dandy.intel.factory import IntelFactory
 from dandy.llm.connector import LlmConnector
+from dandy.llm.decoder.mixin import DecoderServiceMixin
 from dandy.llm.exceptions import LlmCriticalException
 from dandy.llm.intelligence.prompts import (
     service_system_prompt,
@@ -17,22 +18,20 @@ if TYPE_CHECKING:
     from pydantic.main import IncEx
 
     from dandy.intel.typing import IntelType
-    from dandy.llm.mixin import LlmServiceMixin
+    # from dandy.llm.mixin import LlmServiceMixin
     from dandy.llm.prompt.typing import PromptOrStrOrNone
     from dandy.llm.request.message import MessageHistory
 
 
-class LlmService(BaseService, ABC):
+class LlmService(
+    BaseService['dandy.llm.mixin.LlmServiceMixin'],
+    DecoderServiceMixin,
+):
     def __post_init__(self):
         self.event_id = generate_new_recorder_event_id()
         self._request_body = self.obj.get_llm_config().generate_request_body()
 
-        self.connector = LlmConnector(
-            event_id=self.event_id,
-            prompt_retry_count=self.obj.get_llm_options().prompt_retry_count,
-            http_request_intel=self.obj.get_llm_config().http_request_intel,
-            request_body=self._request_body,
-        )
+        self.connector = self.generate_connector()
 
     @property
     def messages(self) -> MessageHistory:
@@ -78,6 +77,14 @@ class LlmService(BaseService, ABC):
 
     def reset_messages(self):
         self._request_body.reset_messages()
+
+    def generate_connector(self) -> LlmConnector:
+        return LlmConnector(
+            event_id=self.event_id,
+            prompt_retry_count=self.obj.get_llm_options().prompt_retry_count,
+            http_request_intel=self.obj.get_llm_config().http_request_intel,
+            request_body=self._request_body,
+        )
 
     def _generate_intel(
             self,

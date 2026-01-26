@@ -11,9 +11,8 @@ if TYPE_CHECKING:
 
 
 class HttpService(BaseService["HttpServiceMixin"]):
-    _http_connector = HttpConnector()
-
-    obj: HttpServiceMixin
+    def __post_init__(self):
+        self._http_connector = HttpConnector()
 
     def get(
         self,

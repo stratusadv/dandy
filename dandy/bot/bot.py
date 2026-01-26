@@ -31,12 +31,15 @@ class Bot(
     FileServiceMixin,
     LlmServiceMixin,
     HttpServiceMixin,
-    # IntelServiceMixin,
+    IntelServiceMixin,
     # VisionServiceMixin,
 ):
     # description: str | None = 'Generic Bot for performing generic tasks'
 
-    def __init__(self, **kwargs):
+    def __init__(
+            self,
+            **kwargs
+    ):
         super().__init__()
 
         self._recorder_event_id = ''
@@ -75,9 +78,6 @@ class Bot(
     def get_description(cls) -> str | None:
         pass
 
-    def process_to_future(self, *args, **kwargs) -> AsyncFuture:
-        return process_to_future(self.process, *args, **kwargs)
-
     # def __init__(
     #     self,
     #     llm_config: str | None = None,
@@ -93,7 +93,6 @@ class Bot(
     #         seed=llm_seed,
     #         temperature=llm_temperature,
     #     )
-
 
     def process(
         self,
@@ -111,3 +110,7 @@ class Bot(
 
         message = '`Bot.process` requires key word argument `prompt`.'
         raise ValueError(message)
+
+    def process_to_future(self, *args, **kwargs) -> AsyncFuture:
+        return process_to_future(self.process, *args, **kwargs)
+

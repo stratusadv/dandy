@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from dandy.default_settings import AUDIO_CONFIGS
+# from dandy.default_settings import AUDIO_CONFIGS
 
 ALLOW_RECORDING_TO_FILE = True
 
@@ -19,13 +19,12 @@ AI_API = {
     'API_KEY': os.getenv("AI_API_KEY"),
 }
 
-AUDIO_CONFIGS = {
-    'DEFAULT': {
-        **AI_API,
-        'MODEL': os.getenv("AUDIO_DEFAULT_MODEL"),
-    },
-}
-
+# AUDIO_CONFIGS = {
+#     'DEFAULT': {
+#         **AI_API,
+#         'MODEL': os.getenv("AUDIO_DEFAULT_MODEL"),
+#     },
+# }
 
 LLM_CONFIGS = {
     'DEFAULT': {

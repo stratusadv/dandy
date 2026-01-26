@@ -5,16 +5,9 @@ from dandy.file.service import FileService
 
 
 class FileServiceMixin(BaseServiceMixin):
-    _file_service: FileService = ...
-
     @property
     def file(self) -> FileService:
-        if self._file_service is ...:
-            self._file_service = FileService(
-                obj=self
-            )
-
-        return self._file_service
-
+        return self._get_service_instance(FileService)
+    
     def reset_services(self):
         super().reset_services()

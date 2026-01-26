@@ -3,7 +3,7 @@ from typing import Any, Callable
 from dandy.cache.cache import BaseCache
 from dandy.cache.tools import generate_cache_key
 from dandy.intel.intel import BaseIntel
-from dandy.recorder import Recorder
+from dandy.recorder.recorder import Recorder
 from dandy.recorder.events import Event, EventAttribute, EventType
 from dandy.recorder.utils import generate_new_recorder_event_id
 

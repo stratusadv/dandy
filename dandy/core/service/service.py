@@ -3,15 +3,17 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar, Self
 
-from dandy.bot.base import BaseBot
+# from dandy.bot.bot import Bot
 from dandy.core.service.exceptions import ServiceCriticalException
 
-# T_co = TypeVar('T_co', bound=Any, covariant=True)
+T_co = TypeVar('T_co', bound=Any, covariant=True)
 
 
-class BaseService(ABC):
-    def __init__(self, obj: Any):
+class BaseService(ABC, Generic[T_co]):
+    def __init__(self, obj: T_co):
         self.obj = obj
+
+        self.__post_init__()
 
     # def __new__(cls, obj: Any = None) -> Any:
     #     service_instance = cls.get_obj_service_instance(obj)
@@ -87,10 +89,10 @@ class BaseService(ABC):
     #             return cls(target)
     #
     #         cls.__get__ = __get__
-    #
-    # def __post_init__(self):
-    #     pass
-    #
+
+    def __post_init__(self):
+        pass
+
     # @staticmethod
     # def generate_service_instance_name(class_: type) -> str:
     #     return f'_{class_.__name__}_instance'
@@ -110,10 +112,10 @@ class BaseService(ABC):
     # def set_obj_service_instance(cls, obj: Any, service_instance: BaseService | None):
     #     setattr(obj, cls.generate_service_instance_name(cls), service_instance)
     #
-    # @property
-    # def obj_class(self) -> type[T_co]:
-    #     return self._obj_type
-    #
+    @property
+    def obj_class(self) -> type[T_co]:
+        return self.obj.__class__
+
     # @property
     # def _obj_is_valid(self) -> bool:
     #     return isinstance(self.obj, self._obj_type)
