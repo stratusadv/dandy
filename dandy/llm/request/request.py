@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from dandy.llm.options.options import LlmOptions
+from dandy.llm.options import LlmOptions
 from dandy.llm.request.message import MessageHistory
 
 

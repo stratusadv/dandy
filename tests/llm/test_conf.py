@@ -2,8 +2,8 @@
 from unittest import TestCase, mock
 
 from dandy.core.exceptions import DandyException
-from dandy.llm.config.config import LlmConfig
-from dandy.conf import settings, DandySettings
+from dandy.llm.config import LlmConfig
+from dandy.conf import DandySettings
 
 
 class TestLlmConfigs(TestCase):

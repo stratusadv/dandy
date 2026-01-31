@@ -1,2 +1,0 @@
-from example.book.intelligence.plot.bots.plot_outline_bot import PlotOutlineBot
-from example.book.intelligence.plot.bots.plot_point_description_bot import PlotPointDescriptionBot

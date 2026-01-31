@@ -1,38 +1,22 @@
 from abc import ABC
 from typing import Any, Self
 
-from dandy.core.future.tools import process_to_future
-
-from dandy.core.future.future import AsyncFuture
-
 from dandy.bot.recorder import record_process_wrapper
-from dandy.file.service import FileService
-
-# from dandy.audio.mixin import AudioServiceMixin
+from dandy.core.future.future import AsyncFuture
+from dandy.core.future.tools import process_to_future
 from dandy.file.mixin import FileServiceMixin
 from dandy.http.mixin import HttpServiceMixin
-from dandy.http.service import HttpService
 from dandy.intel.intel import BaseIntel
 from dandy.intel.mixin import IntelServiceMixin
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.typing import PromptOrStr
-# from dandy.bot.bot.mixin import BotServiceMixin
-# from dandy.bot.base import BaseBot
-from dandy.llm.service import LlmService
-
-
-# from dandy.vision.mixin import VisionServiceMixin
 
 
 class Bot(
-    # AudioServiceMixin,
-    # BaseBot,
-    # BotServiceMixin,
     FileServiceMixin,
     LlmServiceMixin,
     HttpServiceMixin,
     IntelServiceMixin,
-    # VisionServiceMixin,
 ):
     # description: str | None = 'Generic Bot for performing generic tasks'
 

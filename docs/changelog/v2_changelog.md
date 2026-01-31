@@ -10,6 +10,10 @@
 
 - Ollama API support has been removed from this project and is now defaulted to the OpenAI API standard.
 - Since Ollama supports the OpenAI API standard, you can continue to use Dandy with Ollama.
+- Removed `calculator` module.
+- Adapted `Decoder` from standalone processor into a service usable via the `Bot` module.
+  - `Bot().llm.decoder`
+- Removed `Agent` module.
 
 ### Changes
 
@@ -20,14 +24,11 @@
 ### Features
 
 - `FileService` is now available on `Bot` to make it easy to manipulate and work with files.
+- The `Bot().llm.prompt_to_intel` method now supports Vision.
 - The command line interface is back and better than ever, check it out by typing `dandy` in your terminal.
   - Type into the input to learn more about the features.
   - Use `/` to run a command.
 - The `BaseIntel` has some new convenience methods `save_to_file` and `create_from_file` for easy long-term storage.
-- New `VisionService` has been added to bots.
-  - ********* put more information about the vision service here ***********
-- New `AudioService` has been added to bots.
-  - ********* put more information about the vision service here ***********
 
 ### Fixes
 

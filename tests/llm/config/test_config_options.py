@@ -1,5 +1,5 @@
 from unittest import TestCase
-from dandy.llm.options.options import LlmOptions
+from dandy.llm.options import LlmOptions
 from dandy.conf import settings
 
 

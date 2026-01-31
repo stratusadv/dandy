@@ -2,19 +2,20 @@ from typing import ClassVar
 
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import BaseIntel, DefaultIntel
-from dandy.llm.config.config import LlmConfig, LlmOptions
+from dandy.llm.config import LlmConfig, LlmOptions
 from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | LlmConfig = 'DEFAULT'
-    llm_options: str | LlmOptions = 'DEFAULT'
     llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_role: PromptOrStr = 'Assistant'
     llm_task: PromptOrStrOrNone = 'Provide a response based users request, context or instructions.'
     llm_guidelines: PromptOrStrOrNone = None
     llm_system_override_prompt: PromptOrStrOrNone = None
+
+    _llm_options: LlmOptions = ...
 
     _required_attrs: ClassVar[tuple[str, ...]] = (
         'llm_config',
@@ -30,13 +31,6 @@ class LlmServiceMixin(BaseServiceMixin):
         if llm_config is not None:
             self.llm_config = llm_config
 
-        # self.llm_intel_class = self.__class__.llm_intel_class
-
-        # self.llm.set_obj_service_instance(
-        #     self,
-        #     None,
-        # )
-
     def get_llm_config(self) -> LlmConfig:
         if isinstance(self.llm_config, str):
             return LlmConfig(self.llm_config)
@@ -44,10 +38,10 @@ class LlmServiceMixin(BaseServiceMixin):
         else:
             return self.llm_config
 
-    def get_llm_options(self) -> LlmOptions:
-        if isinstance(self.llm_options, str):
+    @property
+    def llm_options(self) -> LlmOptions:
+        if self._llm_options == ...:
             return self.get_llm_config().options
-
         else:
             return self.llm_options
 

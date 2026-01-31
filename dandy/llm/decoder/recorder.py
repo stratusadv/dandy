@@ -7,7 +7,7 @@ from dandy.recorder.events import EventAttribute, Event, EventType
 from dandy.recorder.recorder import Recorder
 
 if TYPE_CHECKING:
-    from dandy.processor.decoder.decoder import Decoder
+    from dandy.llm.decoder.decoder import Decoder
 
 
 def recorder_add_process_decoder_value_event(
@@ -17,7 +17,7 @@ def recorder_add_process_decoder_value_event(
 ) -> None:
 
     processed_mapping = {}
-    for key, value in decoder.mapping.items():
+    for key, value in decoder.keys_values.items():
         if isinstance(value, (str, int, float)):
             processed_mapping[key] = value
         elif isinstance(value, type):
@@ -34,7 +34,7 @@ def recorder_add_process_decoder_value_event(
             attributes=[
                 EventAttribute(
                     key='Mapping Key Description',
-                    value=decoder.mapping_keys_description,
+                    value=decoder.keys_description,
                 ),
                 EventAttribute(
                     key='Mapping',

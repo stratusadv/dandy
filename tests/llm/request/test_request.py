@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.core.path.tools import get_file_path_or_exception
-from dandy.llm.config.config import LlmConfig
+from dandy.llm.config import LlmConfig
 from dandy.llm.utils import get_image_mime_type_from_base64_string
 
 

@@ -1,6 +1,6 @@
 from dandy.core.config.config import BaseConfig
 from dandy.http.intelligence.intel import HttpResponseIntel
-from dandy.llm.options.options import LlmOptions
+from dandy.llm.options import LlmOptions
 from dandy.llm.request.request import LlmRequestBody
 
 
