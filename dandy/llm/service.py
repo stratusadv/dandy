@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from dandy.core.service.service import BaseService
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.mixin import DecoderServiceMixin
+from dandy.llm.intelligence.prompts import service_system_prompt
 
 if TYPE_CHECKING:
     from pydantic.main import IncEx
@@ -21,7 +22,16 @@ class LlmService(
     def __post_init__(self):
         self._llm_connector: LlmConnector = LlmConnector(
             event_id=self.event_id,
-            llm_service_mixin=self.obj
+            system_prompt=service_system_prompt(
+                role=self.obj.llm_role,
+                task=self.obj.llm_task,
+                guidelines=self.obj.llm_guidelines,
+                system_override_prompt=self.obj.llm_system_override_prompt,
+            ).to_str(),
+            prompt_retry_count=self.obj.llm_options.prompt_retry_count,
+            http_request_intel=self.obj.get_llm_config().http_request_intel,
+            request_body=self.obj.get_llm_config().generate_request_body(),
+            intel_class=self.obj.llm_intel_class,
         )
 
     @property

@@ -18,9 +18,8 @@ class LlmRequestBody(BaseModel):
         },
     }
 
-    max_completion_tokens: int | None = None
-    seed: int | None = None
-    temperature: float | None = None
+    class Config:
+        extra = 'allow'
 
     @property
     def estimated_token_count(self) -> int:

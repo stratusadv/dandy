@@ -24,6 +24,7 @@ from dandy.llm.decoder.recorder import (
     recorder_add_process_decoder_value_event,
     recorder_add_chosen_mappings_event,
 )
+from dandy.llm.intelligence.prompts import service_system_prompt
 from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.recorder import recorder_add_llm_failure_event
@@ -43,16 +44,13 @@ class Decoder:
 
         for key in keys_values:
             if not isinstance(key, str):
-                message = f'Decoder keys must be strings, found {key} ({type(key)}).'
+                message = f'all keys in `keys_values` must be strings to be decoded, found {key} ({type(key)}).'
                 raise DecoderCriticalException(message)
 
         self._event_id = event_id
         self._llm_service_mixin = llm_service_mixin
 
-        self._llm_connector = LlmConnector(
-            event_id=event_id,
-            llm_service_mixin=llm_service_mixin
-        )
+        self._llm_connector = None
 
         self.keys_description = keys_description
         self.keys_values = keys_values
@@ -155,7 +153,14 @@ class Decoder:
         else:
             intel_class = DecoderKeyIntel[self.as_enum()]
 
-        self._set_llm_role_task_guidelines(max_return_values=max_return_values)
+        self._llm_connector = LlmConnector(
+            event_id=self._event_id,
+            system_prompt=self._generate_service_system_prompt(max_return_values=max_return_values),
+            prompt_retry_count=self._llm_service_mixin.llm_options.prompt_retry_count,
+            http_request_intel=self._llm_service_mixin.get_llm_config().http_request_intel,
+            request_body=self._llm_service_mixin.get_llm_config().generate_request_body(),
+            intel_class=self._llm_service_mixin.llm_intel_class,
+        )
 
         return_keys_intel = self._process_return_keys_intel(
             self._llm_connector.prompt_to_intel(
@@ -217,10 +222,7 @@ class Decoder:
 
         return return_keys_intel
 
-    def _set_llm_role_task_guidelines(self, max_return_values: int | None):
-        self.llm_role: str = f'{self.keys_description} Relationship Identifier'
-        self.llm_task: str = f'Identify the "{self.keys_description}" that best matches the user provided information or request.'
-
+    def _generate_service_system_prompt(self, max_return_values: int | None) -> Prompt:
         key_str = 'key' if max_return_values == 1 else 'keys'
 
         guidelines_prompt = Prompt()
@@ -255,7 +257,11 @@ class Decoder:
 
         guidelines_prompt.dict(self._keyed_mapping_choices_dict)
 
-        self.llm_guidelines = guidelines_prompt
+        return service_system_prompt(
+            role=f'{self.keys_description} Relationship Identifier',
+            task=f'Identify the "{self.keys_description}" that best matches the user provided information or request.',
+            guidelines=guidelines_prompt,
+        )
 
     def _validate_return_keys_intel(
             self,

@@ -1,20 +1,76 @@
-from dandy.core.config.config import BaseConfig
-from dandy.http.intelligence.intel import HttpResponseIntel
+from dandy.conf import settings
+from dandy.core.exceptions import DandyException
+
+from dandy.core.utils import get_settings_module_name
+from dandy.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
+from dandy.http.url import Url
 from dandy.llm.options import LlmOptions
 from dandy.llm.request.request import LlmRequestBody
 
+_DEFAULT_TRANSFER_KEYS = [
+    'HOST',
+    'PORT',
+    'API_KEY',
+]
 
-class LlmConfig(BaseConfig):
-    type_: str = 'LLM'
+_CONFIGS_NAME = 'LLM_CONFIGS'
 
-    def __post_init__(self):
-        self.options = LlmOptions(
-            prompt_retry_count=self.get_settings_value('prompt_retry_count'),
-            max_completion_tokens=self.get_settings_value('max_completion_tokens'),
-            seed=self.get_settings_value('seed'),
-            randomize_seed=self.get_settings_value('randomize_seed'),
-            temperature=self.get_settings_value('temperature'),
+class LlmConfig:
+    def __init__(
+            self,
+            name: str,
+    ):
+        settings_configs = getattr(settings, _CONFIGS_NAME)
+
+        if not isinstance(settings_configs, dict) or not settings_configs:
+            message = f'Your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module is configured incorrectly.'
+            raise DandyException(message)
+
+        if 'DEFAULT' not in settings_configs:
+            message = f'You need a "DEFAULT" in your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module.'
+            raise DandyException(message)
+
+        config = settings_configs.get(name)
+
+        if not isinstance(config, dict):
+            message = f'the "{_CONFIGS_NAME}" in the settings are configured incorrectly.'
+            raise DandyException(message)
+
+        for key in _DEFAULT_TRANSFER_KEYS:
+            if key in config:
+                if config[key] is None or config[key] == '':
+                    message = f'The "{key}" in "{_CONFIGS_NAME}.{name}" in your "{get_settings_module_name()}" cannot be empty.'
+                    raise DandyException(message)
+
+            config[key] = config[key] if config.get(key) else settings_configs['DEFAULT'][key]
+
+        self._settings_values = {
+            key.lower(): val
+            for key, val in config.items()
+        }
+
+        self.http_request_intel = HttpRequestIntel(
+            method='POST',
+            url=Url(
+                host=self.get_settings_value('host', True),
+                port=self.get_settings_value('port', True),
+                path_parameters=self.get_settings_value('path_parameters'),
+                query_parameters=self.get_settings_value('query_parameters'),
+            ),
+            headers=self.get_settings_value('headers') or {},
+            bearer_token=self.get_settings_value('api_key') or self.get_settings_value('bearer_token'),
         )
+
+        self.model = self.get_settings_value('model', True)
+
+        options = self._settings_values.get('options', None)
+
+        if isinstance(options, dict):
+            self.options = LlmOptions(
+                **options
+            )
+        else:
+            self.options = LlmOptions()
 
         self.http_request_intel.url.path_parameters = [
             'v1',
@@ -27,12 +83,21 @@ class LlmConfig(BaseConfig):
     ) -> LlmRequestBody:
         return LlmRequestBody(
             model=self.model,
-            max_completion_tokens=self.options.max_completion_tokens,
-            seed=self.options.seed,
-            temperature=self.options.temperature,
+            **self.options.model_dump(exclude_none=True),
             stream=False,
         )
 
     @staticmethod
     def get_response_content(response_intel: HttpResponseIntel) -> str:
         return response_intel.json_data['choices'][0]['message']['content']
+
+    def get_settings_value(self, key: str, required: bool = False):
+        value = self._settings_values.get(key)
+
+        if required and value is None:
+            message = f'The "{key}" was not found in your settings and is required by "{self.__class__.__name__}".'
+            raise DandyException(message)
+
+        return value
+
+

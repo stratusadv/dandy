@@ -68,14 +68,14 @@ def recorder_add_llm_request_event(
                 key='Model',
                 value=request_body.model
             ),
-            EventAttribute(
-                key='Temperature',
-                value=request_body.temperature
-            ),
-            EventAttribute(
-                key='Max Completion Tokens',
-                value=request_body.max_completion_tokens
-            ),
+            # EventAttribute(
+            #     key='Temperature',
+            #     value=request_body.temperature
+            # ),
+            # EventAttribute(
+            #     key='Max Completion Tokens',
+            #     value=request_body.max_completion_tokens
+            # ),
             EventAttribute(
                 key='JSON Schema',
                 value=json.dumps(request_body.json_schema, indent=4),
@@ -85,11 +85,12 @@ def recorder_add_llm_request_event(
     )
 
     for message in request_body.messages:
-        llm_request_event.add_attribute(EventAttribute(
-            key=message.role,
-            value=str(message.content),
-            is_card=True,
-        ))
+        for message_content in message.content:
+            llm_request_event.add_attribute(EventAttribute(
+                key=message.role,
+                value=str(message_content.text),
+                is_card=True,
+            ))
 
     Recorder.add_event(llm_request_event)
 

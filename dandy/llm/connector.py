@@ -8,6 +8,7 @@ from pydantic.main import IncEx
 
 from dandy.core.connector.connector import BaseConnector
 from dandy.http.connector import HttpConnector
+from dandy.http.intelligence.intel import HttpRequestIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.exceptions import LlmRecoverableException, LlmCriticalException
@@ -27,17 +28,28 @@ class LlmConnector(BaseConnector):
     def __init__(
             self,
             event_id: str,
-            llm_service_mixin: LlmServiceMixin,
+            # llm_service_mixin: LlmServiceMixin,
+            system_prompt: PromptOrStr,
+            prompt_retry_count: int,
+            http_request_intel: HttpRequestIntel,
+            request_body: LlmRequestBody,
+            intel_class: type[IntelType] | None,
     ):
         self.intel = None
-        self.llm_service_mixin = llm_service_mixin
+        # self.llm_service_mixin = llm_service_mixin
         self._event_id = event_id
         self.prompt_retry_attempt = 0
-        self.prompt_retry_count = self.llm_service_mixin.llm_options.prompt_retry_count
+        # self.prompt_retry_count = self.llm_service_mixin.llm_options.prompt_retry_count
+        self.prompt_retry_count = prompt_retry_count
+        self.system_prompt_str = str(system_prompt)
 
-        self.http_request_intel = self.llm_service_mixin.get_llm_config().http_request_intel
+        # self.http_request_intel = self.llm_service_mixin.get_llm_config().http_request_intel
+        self.http_request_intel = http_request_intel
 
-        self.request_body: LlmRequestBody = llm_service_mixin.get_llm_config().generate_request_body()
+        # self.request_body: LlmRequestBody = llm_service_mixin.get_llm_config().generate_request_body()
+        self.request_body = request_body
+
+        self.intel_class = intel_class
 
         self.response_str = None
 
@@ -49,12 +61,13 @@ class LlmConnector(BaseConnector):
     def _prepend_system_message(self):
         self.request_body.messages.create_message(
             role='system',
-            text=service_system_prompt(
-                role=self.llm_service_mixin.llm_role,
-                task=self.llm_service_mixin.llm_task,
-                guidelines=self.llm_service_mixin.llm_guidelines,
-                system_override_prompt=self.llm_service_mixin.llm_system_override_prompt,
-            ).to_str(),
+            text=self.system_prompt_str,
+            # text=service_system_prompt(
+            #     role=self.llm_service_mixin.llm_role,
+            #     task=self.llm_service_mixin.llm_task,
+            #     guidelines=self.llm_service_mixin.llm_guidelines,
+            #     system_override_prompt=self.llm_service_mixin.llm_system_override_prompt,
+            # ).to_str(),
             prepend=True,
         )
 
@@ -196,8 +209,8 @@ class LlmConnector(BaseConnector):
             raise LlmCriticalException(message)
 
         if intel_class is None and intel_object is None:
-            if self.llm_service_mixin.llm_intel_class:
-                intel_class = self.llm_service_mixin.llm_intel_class
+            if self.intel_class:
+                intel_class = self.intel_class
             else:
                 message = 'Must specify either intel_class, intel_object or llm_intel_class on the processor.'
                 raise LlmCriticalException(message)
