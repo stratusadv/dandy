@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.processor.bot.bot import Bot
+from dandy.bot.bot import Bot
 
 
 class TestIntelService(TestCase):

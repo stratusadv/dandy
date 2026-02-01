@@ -4,9 +4,8 @@ from unittest import TestCase
 from pydantic import ValidationError
 
 from dandy.core.typing.exceptions import TypingCriticalError
-from dandy.intel.intel import BaseIntel
-from dandy.intel.exceptions import IntelCriticalException
 from dandy.intel.generator import IntelClassGenerator
+from dandy.intel.intel import BaseIntel
 from tests.core.typing.consts import SIMPLE_JSON_SCHEMA
 
 

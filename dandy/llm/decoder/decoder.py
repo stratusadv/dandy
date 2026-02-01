@@ -22,11 +22,10 @@ from dandy.llm.decoder.intelligence.prompts import (
 )
 from dandy.llm.decoder.recorder import (
     recorder_add_process_decoder_value_event,
-    recorder_add_chosen_mappings_event,
+    recorder_add_chosen_values_event,
 )
 from dandy.llm.intelligence.prompts import service_system_prompt
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.recorder import recorder_add_llm_failure_event
 
 if TYPE_CHECKING:
@@ -65,20 +64,11 @@ class Decoder:
     @property
     def _keyed_mapping(self) -> dict[str, tuple[str, ...]]:
         keyed_mapping = {}
+
         for i, (choice, value) in enumerate(self.keys_values.items(), start=1):
             key = str(i)
-            if isinstance(value, dict):
-                keyed_mapping[key] = (
-                    choice,
-                    self.__class__(
-                        event_id=self._event_id,
-                        llm_service_mixin=self._llm_service_mixin,
-                        keys_description=self.keys_description,
-                        keys_values=value,
-                    ),
-                )
-            else:
-                keyed_mapping[key] = (choice, value)
+            keyed_mapping[key] = (choice, value)
+
         return keyed_mapping
 
     def as_enum(self) -> Enum:
@@ -95,23 +85,21 @@ class Decoder:
 
     def process(
             self,
-            prompt: PromptOrStr,
+            prompt: Prompt | str,
             max_return_values: int | None = None,
     ) -> DecoderValuesIntel:
         return self._process_decoder_to_intel(prompt, max_return_values)
 
     def _process_decoder_to_intel(
             self,
-            prompt: PromptOrStr,
+            prompt: Prompt | str,
             max_return_values: int | None = None,
-            mapping_name: str | None = None,
     ) -> DecoderValuesIntel:
         decoder_values_intel = DecoderValuesIntel()
         chosen_mappings = {}
 
         recorder_add_process_decoder_value_event(
             decoder=self,
-            mapping_name=mapping_name,
             event_id=self._event_id,
         )
 
@@ -120,24 +108,14 @@ class Decoder:
         ):
             decoder_value = self._get_selected_value(decoder_enum.value)
 
-            if isinstance(decoder_value, Decoder):
-                decoder_values_intel.extend(
-                    decoder_value._process_decoder_to_intel(
-                        prompt,
-                        max_return_values,
-                        mapping_name=decoder_enum.name,
-                    ).values
-                )
-            else:
-                decoder_values_intel.append(decoder_value)
-                chosen_mappings[decoder_value] = str(
-                    self._get_selected_key(decoder_enum.value)
-                )
+            decoder_values_intel.append(decoder_value)
+            chosen_mappings[decoder_value] = str(
+                self._get_selected_key(decoder_enum.value)
+            )
 
         if chosen_mappings:
-            recorder_add_chosen_mappings_event(
-                decoder=self,
-                chosen_mappings=chosen_mappings,
+            recorder_add_chosen_values_event(
+                chosen_values_keys=chosen_mappings,
                 event_id=self._event_id,
             )
 
@@ -145,7 +123,7 @@ class Decoder:
 
     def _process_decoder_prompt_to_intel(
             self,
-            prompt: PromptOrStr,
+            prompt: Prompt | str,
             max_return_values: int | None = None,
     ) -> DecoderKeysIntel:
         if max_return_values is None or max_return_values > 1:
@@ -156,9 +134,7 @@ class Decoder:
         self._llm_connector = LlmConnector(
             event_id=self._event_id,
             system_prompt=self._generate_service_system_prompt(max_return_values=max_return_values),
-            prompt_retry_count=self._llm_service_mixin.llm_options.prompt_retry_count,
-            http_request_intel=self._llm_service_mixin.get_llm_config().http_request_intel,
-            request_body=self._llm_service_mixin.get_llm_config().generate_request_body(),
+            llm_config=self._llm_service_mixin.get_llm_config(),
             intel_class=self._llm_service_mixin.llm_intel_class,
         )
 

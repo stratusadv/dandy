@@ -2,14 +2,13 @@ from pydantic import ValidationError
 
 from dandy.core.utils import pydantic_validation_error_to_str
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStrOrNone, PromptOrStr
 
 
 def service_system_prompt(
-    role: PromptOrStr,
-    task: PromptOrStrOrNone = None,
-    guidelines: PromptOrStrOrNone = None,
-    system_override_prompt: PromptOrStrOrNone = None,
+    role: Prompt | str,
+    task: Prompt | str | None = None,
+    guidelines: Prompt | str | None = None,
+    system_override_prompt: Prompt | str | None = None,
 ) -> Prompt:
     prompt = Prompt()
 

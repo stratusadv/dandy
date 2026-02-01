@@ -1,6 +1,7 @@
 from abc import ABC
 from typing import Any, Self
 
+from dandy.llm.prompt.prompt import Prompt
 from dandy.bot.recorder import record_process_wrapper
 from dandy.core.future.future import AsyncFuture
 from dandy.core.future.tools import process_to_future
@@ -8,7 +9,6 @@ from dandy.file.mixin import FileServiceMixin
 from dandy.http.mixin import HttpServiceMixin
 from dandy.intel.mixin import IntelServiceMixin
 from dandy.llm.mixin import LlmServiceMixin
-from dandy.llm.prompt.typing import PromptOrStr
 
 
 class Bot(
@@ -21,7 +21,7 @@ class Bot(
             self,
             **kwargs
     ):
-        super().__init__()
+        super().__init__(**kwargs)
 
         self._recorder_event_id = ''
 
@@ -60,13 +60,21 @@ class Bot(
         pass
 
     def process(
-        self,
-        prompt: PromptOrStr,
+            self,
+            *args,
+            **kwargs,
     ) -> Any:
-        return self.llm.prompt_to_intel(
-            prompt=prompt,
-        )
+        if len(args) >= 1 and isinstance(args[0], Prompt | str):
+            kwargs['prompt'] = args[0]
+
+        if 'prompt' in kwargs:
+            return self.llm.prompt_to_intel(**kwargs)
+
+        message = '`Bot.process` requires `prompt` as an argument.'
+        raise ValueError(message)
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
         return process_to_future(self.process, *args, **kwargs)
 
+    def reset_services(self):
+        super().reset_services()

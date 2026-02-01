@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Sequence
 
 from dandy import Bot, Prompt
-from dandy.llm.prompt.typing import PromptOrStr
 
 
 class CodeExplainerBot(Bot):
@@ -17,7 +16,7 @@ class CodeExplainerBot(Bot):
         ])
     )
 
-    def process(self, user_input: PromptOrStr, file_paths: Sequence[Path | str]):
+    def process(self, user_input: Prompt | str, file_paths: Sequence[Path | str]):
         prompt = Prompt()
         prompt.heading('User Request')
         prompt.text(user_input)

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Type
 from unittest import TestCase
 
-from dandy.processor.bot.bot import Bot
+from dandy.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
 from dandy.llm.options import LlmOptions
 from dandy.llm.prompt.prompt import Prompt

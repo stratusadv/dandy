@@ -1,5 +1,5 @@
 from dandy import Bot, Prompt
-from dandy.cli.commands.manager import CommandManager
+from dandy.cli.actions.manager import ActionManager
 from dandy.cli.intelligence.intel.default_user_input_intel import DefaultUserInputIntel
 
 def default_user_input_bot_guidelines_prompt() -> Prompt:
@@ -10,7 +10,7 @@ def default_user_input_bot_guidelines_prompt() -> Prompt:
 
     prompt.sub_heading('Commands')
 
-    for command in CommandManager().commands:
+    for command in ActionManager().actions:
         prompt.text(f'Name: {command.name} Command')
         prompt.text(f'Commands: {", ".join(command.input_calls)}')
         prompt.text(f'Description: {command.description}')

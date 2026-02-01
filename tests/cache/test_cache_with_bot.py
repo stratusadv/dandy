@@ -8,8 +8,8 @@ from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.cache import BaseCache
 from tests.cache.intelligence.caches import sql_lite_cache, memory_cache
 
-from tests.processor.bot.intelligence.intel import MoneyBagIntel
-from tests.processor.bot.intelligence.bots import MoneyBagBot
+from tests.bot.intelligence.intel import MoneyBagIntel
+from tests.bot.intelligence.bots import MoneyBagBot
 
 
 class TestCacheBot(TestCase):
@@ -31,7 +31,7 @@ class TestCacheBot(TestCase):
         cached_money_bag_bot = CachedMoneyBagBot()
 
         _ = cached_money_bag_bot.process(
-            user_input='Put 10 coins in my money bag.',
+            'Put 10 coins in my money bag.',
             intel_class=MoneyBagIntel,
             include={'coins'}
         )
@@ -41,7 +41,7 @@ class TestCacheBot(TestCase):
         cached_start = time.perf_counter()
 
         money_bag = cached_money_bag_bot.process(
-            user_input='Put 10 coins in my money bag.',
+            'Put 10 coins in my money bag.',
             intel_class=MoneyBagIntel,
             include={'coins'}
         )

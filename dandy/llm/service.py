@@ -3,6 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from dandy.llm.options import LlmOptions
+from dandy.core.future.tools import process_to_future
+from dandy.core.future.future import AsyncFuture
+from dandy.llm.prompt.prompt import Prompt
+
 from dandy.core.service.service import BaseService
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.mixin import DecoderServiceMixin
@@ -11,7 +16,6 @@ from dandy.llm.intelligence.prompts import service_system_prompt
 if TYPE_CHECKING:
     from pydantic.main import IncEx
     from dandy.intel.typing import IntelType
-    from dandy.llm.prompt.typing import PromptOrStr
     from dandy.llm.request.message import MessageHistory
 
 
@@ -28,9 +32,7 @@ class LlmService(
                 guidelines=self.obj.llm_guidelines,
                 system_override_prompt=self.obj.llm_system_override_prompt,
             ).to_str(),
-            prompt_retry_count=self.obj.llm_options.prompt_retry_count,
-            http_request_intel=self.obj.get_llm_config().http_request_intel,
-            request_body=self.obj.get_llm_config().generate_request_body(),
+            llm_config=self.obj.get_llm_config(),
             intel_class=self.obj.llm_intel_class,
         )
 
@@ -38,9 +40,13 @@ class LlmService(
     def messages(self) -> MessageHistory:
         return self._llm_connector.request_body.messages
 
+    @property
+    def options(self) -> LlmOptions:
+        return self._llm_connector.llm_config.options
+
     def prompt_to_intel(
             self,
-            prompt: PromptOrStr,
+            prompt: Prompt | str | None = None,
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
             image_urls: list[str] | None = None,
@@ -63,6 +69,9 @@ class LlmService(
             message_history=message_history,
             replace_message_history=replace_message_history,
         )
+
+    def prompt_to_intel_future(self, **kwargs) -> AsyncFuture:
+        return process_to_future(self.prompt_to_intel, **kwargs)
 
     def reset_service(self):
         self._llm_connector.reset()

@@ -1,14 +1,16 @@
 from unittest import TestCase, mock
 
 from dandy import Bot
+from dandy.http.mixin import HttpServiceMixin
 from dandy.http.service import HttpService
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 
 
 class TestHttpService(TestCase):
-    @mock.patch('dandy.http.service.HttpService._http_connector.request_to_response')
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_get_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
-        http_service = HttpService()
+        http_service_mixin = HttpServiceMixin()
+        http_service = HttpService(http_service_mixin)
 
         expected_response = HttpResponseIntel(
             status_code=200,
@@ -43,9 +45,10 @@ class TestHttpService(TestCase):
         self.assertIs(response, expected_response)
         mock_request_to_response.assert_called_once()
 
-    @mock.patch('dandy.http.service.HttpService._http_connector.request_to_response')
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_post_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
-        http_service = HttpService()
+        http_service_mixin = HttpServiceMixin()
+        http_service = HttpService(http_service_mixin)
 
         expected_response = HttpResponseIntel(
             status_code=201,
@@ -73,7 +76,6 @@ class TestHttpService(TestCase):
             params={'verbose': '1'},
             headers={'Content-Type': 'application/json'},
             cookies={'auth': 'token'},
-            content='raw-bytes',
             data={'k': 'v'},
             files={'file': b'data'},
             json={'name': 'Item'},

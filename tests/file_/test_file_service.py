@@ -4,6 +4,7 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
+from dandy.file.mixin import FileServiceMixin
 
 from dandy.core.exceptions import DandyCriticalError
 from dandy.file.service import FileService
@@ -11,7 +12,8 @@ from dandy.file.service import FileService
 
 class TestFileService(TestCase):
     def setUp(self):
-        self.file_service = FileService()
+        self.file_service_mixin = FileServiceMixin()
+        self.file_service = FileService(self.file_service_mixin)
         self.tmpdir_ctx = tempfile.TemporaryDirectory()
         self.tmpdir = Path(self.tmpdir_ctx.name)
 

@@ -52,7 +52,7 @@ class Message(BaseModel):
 
     @property
     def estimated_token_count(self) -> int:
-        return get_estimated_token_count_for_string(self.__str__()) + 1
+        return get_estimated_token_count_for_string(self.__str__())
 
     def add_content_from_text(self, text: str):
         self.content.append(

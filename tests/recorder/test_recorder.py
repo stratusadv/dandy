@@ -2,11 +2,11 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.consts import RECORDING_POSTFIX_NAME
-from dandy.processor.bot.bot import Bot
+from dandy.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.recorder import recorder_to_html_file, recorder_to_json_file, \
+from dandy.recorder.decorators import recorder_to_html_file, recorder_to_json_file, \
     recorder_to_markdown_file
-from dandy.recorder.exceptions import RecorderCriticalException
+from dandy.recorder.exceptions import RecorderCriticalError
 from dandy.recorder.recorder import Recorder, DEFAULT_RECORDER_OUTPUT_PATH
 
 RENDERER_AND_EXTENSIONS = (
@@ -23,11 +23,13 @@ RECORDING_OUTPUT_FILE_PATH = Path(
 )
 
 def get_capital_intel(country: str) -> BaseIntel:
-    capital_city_intel = Bot().process(
-        prompt=f'Please tell me just the name only of the city that is the capital of {country}?')
+    capital_city_intel = Bot().llm.prompt_to_intel(
+        prompt=f'Please tell me just the name only of the city that is the capital of {country}?'
+    )
 
-    return Bot().process(
-        prompt=f'Please describe the following city: {capital_city_intel.text}')
+    return Bot().llm.prompt_to_intel(
+        prompt=f'Please describe the following city: {capital_city_intel.text}'
+    )
 
 
 class TestRecorder(TestCase):
@@ -98,7 +100,7 @@ class TestRecorder(TestCase):
     def test_recorder_to_file_with_emoji(self):
         Recorder.start_recording(RECORDING_NAME)
 
-        _ = Bot().process(
+        _ = Bot().llm.prompt_to_intel(
             # This another prompt that seems to freeze the LLM indefinitely !!!
             # prompt='How many countries are in the 🌎? please respond with emojis!',
             prompt='How many countries are in the 🌎? please respond with numbers and emojis!',
@@ -129,5 +131,5 @@ class TestRecorder(TestCase):
 
         invalid_recorder_name = f'invalid_{RECORDING_NAME}'
 
-        with self.assertRaises(RecorderCriticalException):
+        with self.assertRaises(RecorderCriticalError):
             Recorder.check_recording_is_valid(invalid_recorder_name)

@@ -1,7 +1,7 @@
 from dandy import Prompt, recorder_to_html_file
 from dandy.cli.actions.explain.intelligence.bots.code_explainer_bot import CodeExplainerBot
-from dandy.cli.actions.explain.intelligence.decoders.files_decoder import FilesDecoder
-from dandy.processor.decoder.exceptions import DecoderNoKeysRecoverableError
+from dandy.cli.actions.explain.intelligence.decoders.files_decoder import FilesDecoderBot
+from dandy.llm.decoder.exceptions import DecoderNoKeysRecoverableError
 
 
 @recorder_to_html_file('explain_project_workflow')
@@ -9,7 +9,7 @@ def explain_project_workflow(user_input: str) -> str:
     file_paths = []
 
     try:
-        file_paths = FilesDecoder().process(
+        file_paths = FilesDecoderBot().process(
             prompt=(
                 Prompt()
                 .sub_heading('User Request:')

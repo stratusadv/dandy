@@ -10,8 +10,8 @@ from dandy.core.utils import get_settings_module_name
 class TestSettings(TestCase):
     def test_settings(self):
         self.assertEqual(
-            default_settings.LLM_DEFAULT_PROMPT_RETRY_COUNT,
-            settings.LLM_DEFAULT_PROMPT_RETRY_COUNT
+            default_settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
+            settings.HTTP_CONNECTION_TIMEOUT_SECONDS
         )
 
     @mock.patch('importlib.import_module')

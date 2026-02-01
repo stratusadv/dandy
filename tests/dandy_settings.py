@@ -20,6 +20,9 @@ LLM_CONFIGS = {
     'DEFAULT': {
         **AI_API,
         'MODEL': os.getenv("LLM_DEFAULT_MODEL"),
+        'OPTIONS': {
+            'temperature': 2.0
+        }
     },
     'VISION': {
         'MODEL': os.getenv("VISION_DEFAULT_MODEL"),

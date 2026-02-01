@@ -3,8 +3,8 @@ from unittest import TestCase, mock
 from dandy.conf import settings
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.intel.intel import BaseIntel
-from dandy.llm.exceptions import LlmCriticalException, LlmRecoverableException
-from dandy.processor.bot.bot import Bot
+from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.bot.bot import Bot
 from tests.llm.decorators import run_llm_configs
 
 
@@ -42,14 +42,14 @@ class TestService(TestCase):
             }
         )
 
-        with self.assertRaises(LlmRecoverableException):
+        with self.assertRaises(LlmRecoverableError):
             response = Bot().llm.prompt_to_intel(
                 prompt='Hello, World!',
                 intel_class=LlmDefaultIntel,
             )
 
     def test_prompt_to_intel_with_no_prompt_argument(self):
-        with self.assertRaises(LlmCriticalException):
+        with self.assertRaises(LlmCriticalError):
             _ = Bot().llm.prompt_to_intel()
 
     def test_prompt_to_intel_with_message_and_no_prompt_argument(self):

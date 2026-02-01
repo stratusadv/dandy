@@ -2,7 +2,6 @@ from pathlib import Path
 
 from dandy.cli.actions.manager import ActionManager
 from dandy.cli.intelligence.bots.default_user_input_bot import DefaultUserInputBot
-from dandy.cli.intelligence.intel.default_user_input_intel import DefaultUserInputIntel
 from dandy.cli.tui.tui import Tui
 
 

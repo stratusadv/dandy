@@ -8,10 +8,10 @@ from dandy.http.connector import HttpConnector
 from dandy.http.intelligence.intel import HttpRequestIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
+from dandy.llm.config import LlmConfig
 from dandy.llm.exceptions import LlmRecoverableError, LlmCriticalError
 from dandy.llm.intelligence.prompts import service_system_validation_error_prompt
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.prompt.typing import PromptOrStr
 from dandy.llm.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, recorder_add_llm_failure_event, recorder_add_llm_retry_event
 from dandy.llm.request.message import MessageHistory
@@ -22,24 +22,24 @@ class LlmConnector(BaseConnector):
     def __init__(
             self,
             event_id: str,
-            http_request_intel: HttpRequestIntel,
+            llm_config: LlmConfig,
             intel_class: type[IntelType] | None,
-            prompt_retry_count: int,
-            request_body: LlmRequestBody,
-            system_prompt: PromptOrStr,
+            system_prompt: Prompt | str,
     ):
         self._event_id = event_id
-        self.http_request_intel = http_request_intel
+
+        self.llm_config = llm_config
+
+        self.http_request_intel = llm_config.http_request_intel
 
         self.intel = None
         self.intel_class = intel_class
 
         self.prompt_retry_attempt = 0
-        self.prompt_retry_count = prompt_retry_count
+        self.prompt_retry_count = llm_config.options.prompt_retry_count
 
-        self.request_body = request_body
+        self.request_body = llm_config.generate_request_body()
         self.response_str = None
-
 
         self.system_prompt_str = str(system_prompt)
 
@@ -56,7 +56,7 @@ class LlmConnector(BaseConnector):
 
     def prompt_to_intel(
             self,
-            prompt: PromptOrStr,
+            prompt: Prompt | str | None = None,
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
             image_urls: list[str] | None = None,
@@ -67,6 +67,8 @@ class LlmConnector(BaseConnector):
             message_history: MessageHistory | None = None,
             replace_message_history: bool = False,
     ) -> IntelType:
+        self._update_request_body()
+
         self._set_intel(intel_class=intel_class, intel_object=intel_object)
 
         self.request_body.json_schema = IntelFactory.intel_to_json_inc_ex_schema(
@@ -99,6 +101,10 @@ class LlmConnector(BaseConnector):
                 image_file_paths=image_file_paths,
                 image_base64_strings=image_base64_strings,
             )
+
+        if len(self.request_body.messages) <= 1:
+            message = 'You cannot prompt the LlmService without at least one system and one user message.'
+            raise LlmCriticalError(message)
 
         return self._request_to_intel()
 
@@ -161,7 +167,7 @@ class LlmConnector(BaseConnector):
     def retry_request_to_intel(
             self,
             retry_event_description: str,
-            retry_user_prompt: PromptOrStr,
+            retry_user_prompt: Prompt | str,
     ) -> IntelType:
         if self.has_retry_attempts_available:
             self.prompt_retry_attempt += 1
@@ -199,3 +205,7 @@ class LlmConnector(BaseConnector):
                 raise LlmCriticalError(message)
 
         self.intel = intel_class or intel_object
+
+    def _update_request_body(self):
+        for key, value in self.llm_config.options.model_dump(exclude_none=True).items():
+            setattr(self.request_body, key, value)

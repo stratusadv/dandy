@@ -1,4 +1,4 @@
-from dandy.intel.intel import BaseIntel
+from dandy.intel.intel import BaseIntel, BaseListIntel
 from dandy.bot.bot import Bot
 from dandy.cache.tools import generate_cache_key
 from dandy.core.exceptions import DandyError, DandyRecoverableError, DandyCriticalError
@@ -7,19 +7,17 @@ from dandy.cache.memory.decorators import cache_to_memory
 from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.memory.cache import MemoryCache
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.options import LlmOptions
 from dandy.recorder.recorder import Recorder
 from dandy.recorder.decorators import recorder_to_html_file, recorder_to_json_file, recorder_to_markdown_file
 from dandy.cache.sqlite.cache import SqliteCache
 
 __all__ = [
     'BaseIntel',
-    # 'BaseListIntel',
+    'BaseListIntel',
     'Bot',
     'DandyCriticalError',
     'DandyError',
     'DandyRecoverableError',
-    'LlmOptions',
     'MemoryCache',
     'Prompt',
     'Recorder',

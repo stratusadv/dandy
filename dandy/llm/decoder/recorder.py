@@ -10,6 +10,9 @@ if TYPE_CHECKING:
     from dandy.llm.decoder.decoder import Decoder
 
 
+_EVENT_OBJECT_NAME = 'Decoder Service'
+
+
 def recorder_add_process_decoder_value_event(
         decoder: Decoder,
         event_id: str,
@@ -28,30 +31,29 @@ def recorder_add_process_decoder_value_event(
     Recorder.add_event(
         Event(
             id=event_id,
-            object_name=decoder.__class__.__name__,
-            callable_name=f'Processing "{mapping_name}" Mapping' if mapping_name else 'Processing Mapping',
+            object_name=_EVENT_OBJECT_NAME,
+            callable_name=f'Processing "{decoder.keys_description}"',
             type=EventType.OTHER,
             attributes=[
                 EventAttribute(
-                    key='Mapping Key Description',
+                    key='Keys Description',
                     value=decoder.keys_description,
                 ),
                 EventAttribute(
-                    key='Mapping',
+                    key='Keys Values',
                     value=json.dumps(processed_mapping, indent=4),
                 ),
             ]
         )
     )
 
-def recorder_add_chosen_mappings_event(
-        decoder: Decoder,
-        chosen_mappings: dict[Any, str],
+def recorder_add_chosen_values_event(
+        chosen_values_keys: dict[Any, str],
         event_id: str,
 ) -> None:
 
     processed_chosen_mappings = {}
-    for key, value in chosen_mappings.items():
+    for key, value in chosen_values_keys.items():
         if isinstance(key, type):
             processed_chosen_mappings[key.__name__] = value
         else:
@@ -60,12 +62,12 @@ def recorder_add_chosen_mappings_event(
     Recorder.add_event(
         Event(
             id=event_id,
-            object_name=decoder.__class__.__name__,
-            callable_name='Finished Selecting Value(s) from Mapping',
+            object_name=_EVENT_OBJECT_NAME,
+            callable_name='Finished Selecting Value(s)',
             type=EventType.OTHER,
             attributes=[
                 EventAttribute(
-                    key='Chosen Mapping Keys',
+                    key='Chosen Values Keys',
                     value=json.dumps(processed_chosen_mappings, indent=4),
                 ),
             ]

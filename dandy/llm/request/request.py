@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
-from dandy.llm.options import LlmOptions
 from dandy.llm.request.message import MessageHistory
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
 class LlmRequestBody(BaseModel):
@@ -23,7 +23,9 @@ class LlmRequestBody(BaseModel):
 
     @property
     def estimated_token_count(self) -> int:
-        return self.messages.estimated_token_count
+        return self.messages.estimated_token_count + get_estimated_token_count_for_string(
+            str(self.response_format['json_schema']['schema'])
+        )
 
     @property
     def json_schema(self) -> dict:

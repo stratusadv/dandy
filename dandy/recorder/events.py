@@ -37,6 +37,7 @@ class Event(BaseModel):
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
     run_time_seconds: float = 0.0
+    complete_run_time_seconds: float = 0.0
 
     if settings.DEBUG:
         def model_post_init(self, __context: Any, /):
@@ -44,6 +45,7 @@ class Event(BaseModel):
 
     def calculate_run_time(self, pre_event: Self):
         self.run_time_seconds = self.start_time - pre_event.start_time
+        self.complete_run_time_seconds = pre_event.complete_run_time_seconds + self.run_time_seconds
 
     def add_attribute(self, event_attribute: EventAttribute) -> Self:
         self.attributes.append(event_attribute)

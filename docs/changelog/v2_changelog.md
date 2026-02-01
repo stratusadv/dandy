@@ -19,6 +19,7 @@
 - All exceptions that were postfixed `yException` are now postfixed `Error`.
   - Example: `DandyCriticalException` is now `DandyCriticalError`
 - The example project has been removed.
+- Removed `PromptOrStr` and `PromptOrStrOrNone` TypeAlias's.
 
 ### Changes
 

@@ -2,39 +2,32 @@ from unittest import TestCase, mock
 
 from faker import Faker
 
-from dandy import Recorder, recorder
-from dandy.conf import settings
+from dandy import Recorder
 from dandy.http.intelligence.intel import HttpResponseIntel
-from dandy.processor.decoder.decoder import Decoder
-from dandy.processor.decoder.exceptions import (
-    DecoderCriticalException,
-    DecoderRecoverableException,
+from dandy.bot.bot import Bot
+from dandy.llm.decoder.exceptions import (
+    DecoderCriticalError,
+    DecoderRecoverableError,
 )
-from dandy.processor.processor import BaseProcessor
 from tests.decorators import nines_testing
-from tests.processor.decoder.intelligence.decoders import (
-    AdventureGameDecoder,
-    DragonDecoder,
-    FunDecoder,
-    NestedBirdDecoder,
+from tests.llm.decoder.intelligence.decoders import (
+    FunDecoderBot,
 )
 
 
 class TestDecoder(TestCase):
-    def test_decoder_import(self):
-        self.assertTrue(type(Decoder) is type(BaseProcessor))
-
     def test_invalid_decoder(self):
-        with self.assertRaises(DecoderCriticalException):
-            _ = Decoder(
-                mapping_keys_description='Numbers to a String',
-                mapping={
+        with self.assertRaises(DecoderCriticalError):
+            _ = Bot().llm.decoder.prompt_to_values(
+                prompt='I would like to see a single cat.',
+                keys_description='Numbers to a String',
+                keys_values={
                     123: 'this decoder mapping value is invalid as it needs string keys'
                 }
             )
 
     def test_decoder(self):
-        values = FunDecoder().process(
+        values = FunDecoderBot().process(
             'I enjoy seeing my dog every day and think animals are really cool. Give me two choices of things to do!',
             2
         )
@@ -42,24 +35,6 @@ class TestDecoder(TestCase):
         self.assertEqual(2, len(values))
         self.assertIn(391, values)
         self.assertIn(782, values)
-
-    def test_seperated_nested_decoder(self):
-        values = AdventureGameDecoder().process(
-            'The player goes left, and is carrying only a bucket on the adventure.',
-            1
-        )
-
-        self.assertEqual(1, len(values))
-        self.assertEqual(DragonDecoder.mapping['The player is packing other stuff'], values[0])
-
-    def test_combined_nested_decoder(self):
-        values = NestedBirdDecoder().process(
-            'I am a black bird from the famous edgar allen poe poem',
-            1
-        )
-
-        self.assertEqual(1, len(values))
-        self.assertEqual(NestedBirdDecoder.mapping['the bird is dark colored']['it is a raven'], values[0])
 
     @nines_testing()
     def test_big_user_decoder(self):
@@ -73,16 +48,14 @@ class TestDecoder(TestCase):
             pk += fake.random_int(min=5, max=50)
             user_dictionary[f'{fake.unique.name()}'] = pk
 
-        class UserLlmDecoder(Decoder):
-            mapping_keys_description = 'Employee First and Last Names'
-            mapping = user_dictionary
-
         name = fake.random_element(user_dictionary.keys())
 
         Recorder.start_recording('test_big_user_decoder')
 
-        values = UserLlmDecoder().process(
-            f'I am looking for {name}',
+        values = Bot().llm.decoder.prompt_to_values(
+            prompt=f'I am looking for {name}',
+            keys_description= 'Employee First and Last Names',
+            keys_values=user_dictionary
         )
 
         Recorder.stop_recording('test_big_user_decoder')
@@ -108,8 +81,8 @@ class TestDecoder(TestCase):
             },
         )
 
-        with self.assertRaises(DecoderRecoverableException):
-            value = FunDecoder().process(
+        with self.assertRaises(DecoderRecoverableError):
+            value = FunDecoderBot().process(
                 'I really like my pet dog and hope to get another one',
                 2
             )
@@ -129,8 +102,8 @@ class TestDecoder(TestCase):
             },
         )
 
-        with self.assertRaises(DecoderRecoverableException):
-            value = FunDecoder().process(
+        with self.assertRaises(DecoderRecoverableError):
+            value = FunDecoderBot().process(
                 'I really like my pet dog and hope to get another one',
                 2
             )

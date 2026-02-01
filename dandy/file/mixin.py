@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.file.service import FileService
 
@@ -11,3 +9,4 @@ class FileServiceMixin(BaseServiceMixin):
     
     def reset_services(self):
         super().reset_services()
+        self.file.reset_service()

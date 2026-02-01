@@ -1,8 +1,8 @@
 from pydantic.main import IncEx
 
-from dandy.processor.bot.bot import Bot
+from dandy.bot.bot import Bot
 from dandy.llm.prompt.prompt import Prompt
-from tests.processor.bot.intelligence.intel import MoneyBagIntel, HappyIntel, SadIntel
+from tests.bot.intelligence.intel import MoneyBagIntel, HappyIntel, SadIntel
 
 
 class MoneyBagBot(Bot):

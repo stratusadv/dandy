@@ -3,17 +3,20 @@ import hashlib
 from pydantic import BaseModel
 from typing import Any
 
+from dandy import Bot
 from dandy.cache.exceptions import CacheCriticalError
 from dandy.consts import CACHE_KEY_HASH_LAYER_LIMIT
 
 
 def generate_cache_key(func: object, *args, **kwargs) -> str:
     hashable_args = tuple(
-        convert_to_hashable_str(arg) for arg in args
+        convert_to_hashable_str(arg)
+        for arg in args
     )
 
     hashable_kwargs = tuple(
-        (key, convert_to_hashable_str(value)) for key, value in kwargs.items()
+        (key, convert_to_hashable_str(value))
+        for key, value in kwargs.items()
     )
 
     hashable_tuple = (
@@ -46,13 +49,17 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
 
             elif isinstance(obj, dict):
                 hashable_string= str({
-                    key: convert_to_hashable_str(value, hash_layer + 1) for key, value in obj.items()
+                    key: convert_to_hashable_str(value, hash_layer + 1)
+                    for key, value in obj.items()
                 })
 
             elif isinstance(obj, (list, tuple, set, frozenset)):
                 hashable_string= str([
                     convert_to_hashable_str(x, hash_layer + 1) for x in obj
                 ])
+
+            elif isinstance(obj, Bot):
+                hashable_string= str(obj.__class__.__qualname__)
 
             elif hasattr(obj, '__dict__'):
                 hashable_string= convert_to_hashable_str(obj.__dict__, hash_layer + 1)

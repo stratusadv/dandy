@@ -4,7 +4,7 @@ from unittest import TestCase
 from dandy.conf import settings
 from dandy.file.utils import remove_file
 from dandy.intel.intel import BaseIntel
-from dandy.intel.exceptions import IntelCriticalException
+from dandy.intel.exceptions import IntelCriticalError
 from tests.intel.intelligence.intel import ThingIntel, BagIntel, PersonIntel
 
 
@@ -17,19 +17,19 @@ class TestBaseIntel(TestCase):
         self.assertIsInstance(intel, TestingIntel)
 
     def test_base_intel_include_invalid_field(self):
-        with self.assertRaises(IntelCriticalException):
+        with self.assertRaises(IntelCriticalError):
             _ = PersonIntel.model_inc_ex_class_copy(include={"height"})
 
     def test_base_intel_include_with_required_field(self):
-        with self.assertRaises(IntelCriticalException):
+        with self.assertRaises(IntelCriticalError):
             _ = PersonIntel.model_inc_ex_class_copy(include={"middle_name"})
 
     def test_base_intel_exclude_with_required_field(self):
-        with self.assertRaises(IntelCriticalException):
+        with self.assertRaises(IntelCriticalError):
             _ = PersonIntel.model_inc_ex_class_copy(exclude={"first_name"})
 
     def test_base_intel_include_and_exclude(self):
-        with self.assertRaises(IntelCriticalException):
+        with self.assertRaises(IntelCriticalError):
             _ = PersonIntel.model_inc_ex_class_copy(
                 include={"middle_name"}, exclude={"first_name"}
             )
@@ -78,7 +78,7 @@ class TestBaseIntel(TestCase):
         try:
             _ = PersonIntel.model_inc_ex_class_copy(exclude={"height"})
 
-        except IntelCriticalException:
+        except IntelCriticalError:
             self.assertTrue(True)
 
     def test_base_intel_exclude_json_schema(self):
@@ -145,11 +145,11 @@ class TestBaseIntel(TestCase):
             _ = bag.model_inc_ex_class_copy(exclude={"stylish"}, intel_object=bag)
 
             self.assertTrue(True)
-        except IntelCriticalException:
+        except IntelCriticalError:
             self.assertFalse(True)
 
     def test_base_intel_object_include_required_empty_field(self):
-        with self.assertRaises(IntelCriticalException):
+        with self.assertRaises(IntelCriticalError):
             bag = BagIntel(color="blue", stylish=True)
 
             bag.stylish = None

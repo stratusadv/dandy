@@ -2,16 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.file import utils
 from dandy.core.service.service import BaseService
+from dandy.file import utils
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from dandy.file.mixin import FileServiceMixin
 
 
-class FileService(BaseService['FileServiceMixin']):
-    obj: FileServiceMixin
+class FileService(BaseService['dandy.file.mixin.FileServiceMixin']):
 
     @staticmethod
     def append(file_path: Path | str, content: str):

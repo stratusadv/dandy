@@ -1,16 +1,17 @@
 from unittest import TestCase
 
-from dandy.processor.processor import BaseProcessor
+from tests.bot.intelligence.bots import MoneyBagBot
+from tests.bot.intelligence.intel import MoneyBagIntel
 from tests.llm.decorators import run_llm_configs
-from tests.processor.bot.intelligence.bots import MoneyBagBot
-from tests.processor.bot.intelligence.intel import MoneyBagIntel
 
 
 class TestBot(TestCase):
     def test_bot_import(self):
-        from dandy.processor.bot.bot import Bot
+        from dandy.bot.bot import Bot
 
-        self.assertTrue(type(Bot) is type(BaseProcessor))
+        _ = Bot()
+
+        self.assertTrue(True)
 
     @run_llm_configs()
     def test_bot_intel_class_include(self, llm_config: str):

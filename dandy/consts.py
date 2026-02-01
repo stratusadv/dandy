@@ -9,7 +9,7 @@ CACHE_KEY_HASH_LAYER_LIMIT = 3 # This should be set to 3 as anything higher will
 
 # LLM
 
-ESTIMATED_CHARACTERS_PER_TOKEN = 3.5
+ESTIMATED_CHARACTERS_PER_TOKEN = 3.2 # This is set to be more conservative to account for logic containing a lot of symbols.
 
 # Recording
 
