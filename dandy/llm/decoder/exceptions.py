@@ -1,17 +1,17 @@
-from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
+from dandy.core.exceptions import DandyCriticalError, DandyRecoverableError
 
 
-class DecoderCriticalException(DandyCriticalException):
+class DecoderCriticalError(DandyCriticalError):
     pass
 
 
-class DecoderRecoverableException(DandyRecoverableException):
+class DecoderRecoverableError(DandyRecoverableError):
     pass
 
 
-class DecoderNoKeysRecoverableException(DecoderRecoverableException):
+class DecoderNoKeysRecoverableError(DecoderRecoverableError):
     pass
 
 
-class DecoderToManyKeysRecoverableException(DecoderRecoverableException):
+class DecoderToManyKeysRecoverableError(DecoderRecoverableError):
     pass

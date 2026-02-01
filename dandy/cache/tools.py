@@ -3,7 +3,7 @@ import hashlib
 from pydantic import BaseModel
 from typing import Any
 
-from dandy.cache.exceptions import CacheCriticalException
+from dandy.cache.exceptions import CacheCriticalError
 from dandy.consts import CACHE_KEY_HASH_LAYER_LIMIT
 
 
@@ -62,6 +62,6 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
 
         except TypeError as error:
             message = f'Object "{obj}" is not hashable'
-            raise CacheCriticalException(message) from error
+            raise CacheCriticalError(message) from error
 
     return hashable_string

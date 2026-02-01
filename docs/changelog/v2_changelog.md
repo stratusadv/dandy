@@ -16,11 +16,14 @@
 - Removed `Agent` module.
 - Removed all `LLM_DEFAULT_*` from settings and now require it to be set inside of `LLM_CONFIGS` for each model.
   - By default, it uses the defaults on the llm endpoint.
+- All exceptions that were postfixed `yException` are now postfixed `Error`.
+  - Example: `DandyCriticalException` is now `DandyCriticalError`
+- The example project has been removed.
 
 ### Changes
 
 - All options in `LLM_CONFIGS` now need to be inside an `OPTIONS` key and are set as lower case keys.
-  - Example would be `OPTIONS: {'temperature': 1.4, 'top_p': 0.7, 'frequency_penalty': 0.2, 'presence_penalty': 0.1}`.
+  - Example: `OPTIONS: {'temperature': 1.4, 'top_p': 0.7, 'frequency_penalty': 0.2, 'presence_penalty': 0.1}`.
 
 ### Features
 

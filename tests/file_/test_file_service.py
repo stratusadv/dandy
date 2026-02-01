@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import TestCase
 
 
-from dandy.core.exceptions import DandyCriticalException
+from dandy.core.exceptions import DandyCriticalError
 from dandy.file.service import FileService
 
 
@@ -64,7 +64,7 @@ class TestFileService(TestCase):
 
     def test_read_raises_for_missing_file(self):
         missing = self.tmpdir / "nope" / "missing.txt"
-        with self.assertRaises(DandyCriticalException):
+        with self.assertRaises(DandyCriticalError):
             FileService.read(missing)
 
     def test_reset_callable(self):

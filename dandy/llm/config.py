@@ -1,5 +1,5 @@
 from dandy.conf import settings
-from dandy.core.exceptions import DandyException
+from dandy.core.exceptions import DandyError
 
 from dandy.core.utils import get_settings_module_name
 from dandy.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
@@ -24,23 +24,23 @@ class LlmConfig:
 
         if not isinstance(settings_configs, dict) or not settings_configs:
             message = f'Your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module is configured incorrectly.'
-            raise DandyException(message)
+            raise DandyError(message)
 
         if 'DEFAULT' not in settings_configs:
             message = f'You need a "DEFAULT" in your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module.'
-            raise DandyException(message)
+            raise DandyError(message)
 
         config = settings_configs.get(name)
 
         if not isinstance(config, dict):
             message = f'the "{_CONFIGS_NAME}" in the settings are configured incorrectly.'
-            raise DandyException(message)
+            raise DandyError(message)
 
         for key in _DEFAULT_TRANSFER_KEYS:
             if key in config:
                 if config[key] is None or config[key] == '':
                     message = f'The "{key}" in "{_CONFIGS_NAME}.{name}" in your "{get_settings_module_name()}" cannot be empty.'
-                    raise DandyException(message)
+                    raise DandyError(message)
 
             config[key] = config[key] if config.get(key) else settings_configs['DEFAULT'][key]
 
@@ -96,7 +96,7 @@ class LlmConfig:
 
         if required and value is None:
             message = f'The "{key}" was not found in your settings and is required by "{self.__class__.__name__}".'
-            raise DandyException(message)
+            raise DandyError(message)
 
         return value
 

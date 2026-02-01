@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Sequence
 
 from dandy.conf import settings
-from dandy.core.exceptions import DandyCriticalException
+from dandy.core.exceptions import DandyCriticalError
 
 
 def get_file_path_or_exception(
@@ -15,7 +15,7 @@ def get_file_path_or_exception(
         return Path(settings.BASE_PATH, file_path)
 
     message = f'File "{file_path}" does not exist'
-    raise DandyCriticalException(message)
+    raise DandyCriticalError(message)
 
 
 def get_directory_path_or_exception(
@@ -28,7 +28,7 @@ def get_directory_path_or_exception(
         return Path(settings.BASE_PATH, dir_path)
 
     message = f'Directory "{dir_path}" does not exist'
-    raise DandyCriticalException(message)
+    raise DandyCriticalError(message)
 
 
 def get_directory_listing(

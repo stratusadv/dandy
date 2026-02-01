@@ -1,7 +1,7 @@
 from dandy.intel.intel import BaseIntel
 from dandy.bot.bot import Bot
 from dandy.cache.tools import generate_cache_key
-from dandy.core.exceptions import DandyException, DandyRecoverableException, DandyCriticalException
+from dandy.core.exceptions import DandyError, DandyRecoverableError, DandyCriticalError
 from dandy.core.future.tools import process_to_future
 from dandy.cache.memory.decorators import cache_to_memory
 from dandy.cache.sqlite.decorators import cache_to_sqlite
@@ -16,9 +16,9 @@ __all__ = [
     'BaseIntel',
     # 'BaseListIntel',
     'Bot',
-    'DandyCriticalException',
-    'DandyException',
-    'DandyRecoverableException',
+    'DandyCriticalError',
+    'DandyError',
+    'DandyRecoverableError',
     'LlmOptions',
     'MemoryCache',
     'Prompt',

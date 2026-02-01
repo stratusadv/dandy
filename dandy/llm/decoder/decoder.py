@@ -6,10 +6,10 @@ from typing import Any, TYPE_CHECKING
 from dandy.core.future.future import AsyncFuture
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.exceptions import (
-    DecoderCriticalException,
-    DecoderRecoverableException,
-    DecoderNoKeysRecoverableException,
-    DecoderToManyKeysRecoverableException,
+    DecoderCriticalError,
+    DecoderRecoverableError,
+    DecoderNoKeysRecoverableError,
+    DecoderToManyKeysRecoverableError,
 )
 from dandy.llm.decoder.intel import (
     DecoderKeysIntel,
@@ -45,7 +45,7 @@ class Decoder:
         for key in keys_values:
             if not isinstance(key, str):
                 message = f'all keys in `keys_values` must be strings to be decoded, found {key} ({type(key)}).'
-                raise DecoderCriticalException(message)
+                raise DecoderCriticalError(message)
 
         self._event_id = event_id
         self._llm_service_mixin = llm_service_mixin
@@ -174,7 +174,7 @@ class Decoder:
                 self._validate_return_keys_intel(return_keys_intel, max_return_values)
                 break
 
-            except DecoderNoKeysRecoverableException as error:
+            except DecoderNoKeysRecoverableError as error:
                 recorder_add_llm_failure_event(error, self._event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
@@ -186,7 +186,7 @@ class Decoder:
                 else:
                     raise
 
-            except DecoderToManyKeysRecoverableException as error:
+            except DecoderToManyKeysRecoverableError as error:
                 recorder_add_llm_failure_event(error, self._event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
@@ -206,7 +206,7 @@ class Decoder:
         try:
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
-        except DecoderRecoverableException as error:
+        except DecoderRecoverableError as error:
             recorder_add_llm_failure_event(error, self._event_id)
             raise
 
@@ -270,11 +270,11 @@ class Decoder:
     ) -> None:
         if len(return_keys_intel) == 0:
             message = f'No {self.keys_description} found.'
-            raise DecoderNoKeysRecoverableException(message)
+            raise DecoderNoKeysRecoverableError(message)
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
             message = f'Too many {self.keys_description} found.'
-            raise DecoderToManyKeysRecoverableException(message)
+            raise DecoderToManyKeysRecoverableError(message)
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture[DecoderValuesIntel]:
         return AsyncFuture[DecoderValuesIntel](self.process, *args, **kwargs)

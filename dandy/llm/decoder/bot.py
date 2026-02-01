@@ -7,10 +7,10 @@
 # from dandy.llm.prompt.typing import PromptOrStr
 # from dandy.llm.recorder import recorder_add_llm_failure_event
 # from dandy.llm.decoder.exceptions import (
-#     DecoderCriticalException,
-#     DecoderRecoverableException,
-#     DecoderNoKeysRecoverableException,
-#     DecoderToManyKeysRecoverableException,
+#     DecoderCriticalError,
+#     DecoderRecoverableError,
+#     DecoderNoKeysRecoverableError,
+#     DecoderToManyKeysRecoverableError,
 # )
 # from dandy.llm.decoder.intel import (
 #     DecoderKeysIntel,
@@ -68,11 +68,11 @@
 #
 #         if cls.mapping_keys_description is None:
 #             message = f'{cls.__name__} `mapping_keys_description` is not set.'
-#             raise DecoderCriticalException(message)
+#             raise DecoderCriticalError(message)
 #
 #         if cls.mapping is None:
 #             message = f'{cls.__name__} `mapping` is not set.'
-#             raise DecoderCriticalException(message)
+#             raise DecoderCriticalError(message)
 #
 #     def __post_init__(self):
 #         if self.mapping_keys_description is None:
@@ -84,7 +84,7 @@
 #         for key in self.mapping:
 #             if not isinstance(key, str):
 #                 message = f'Decoder keys must be strings, found {key} ({type(key)}).'
-#                 raise DecoderCriticalException(message)
+#                 raise DecoderCriticalError(message)
 #
 #     def __getitem__(self, item: str) -> Any:
 #         return self.mapping[item]
@@ -203,7 +203,7 @@
 #                 self._validate_return_keys_intel(return_keys_intel, max_return_values)
 #                 break
 #
-#             except DecoderNoKeysRecoverableException as error:
+#             except DecoderNoKeysRecoverableError as error:
 #                 recorder_add_llm_failure_event(error, self.llm.event_id)
 #
 #                 if self.llm.connector.has_retry_attempts_available:
@@ -215,7 +215,7 @@
 #                 else:
 #                     raise
 #
-#             except DecoderToManyKeysRecoverableException as error:
+#             except DecoderToManyKeysRecoverableError as error:
 #                 recorder_add_llm_failure_event(error, self.llm.event_id)
 #
 #                 if self.llm.connector.has_retry_attempts_available:
@@ -235,7 +235,7 @@
 #         try:
 #             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 #
-#         except DecoderRecoverableException as error:
+#         except DecoderRecoverableError as error:
 #             recorder_add_llm_failure_event(error, self.llm.event_id)
 #             raise
 #
@@ -298,11 +298,11 @@
 #     ) -> None:
 #         if len(return_keys_intel) == 0:
 #             message = f'No {self.mapping_keys_description} found.'
-#             raise DecoderNoKeysRecoverableException(message)
+#             raise DecoderNoKeysRecoverableError(message)
 #
 #         if max_return_values is not None and len(return_keys_intel) > max_return_values:
 #             message = f'Too many {self.mapping_keys_description} found.'
-#             raise DecoderToManyKeysRecoverableException(message)
+#             raise DecoderToManyKeysRecoverableError(message)
 #
 #     def process_to_future(self, *args, **kwargs) -> AsyncFuture[DecoderValuesIntel]:
 #         return AsyncFuture[DecoderValuesIntel](self.process, *args, **kwargs)

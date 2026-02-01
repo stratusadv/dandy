@@ -1,9 +1,9 @@
-from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
+from dandy.core.exceptions import DandyCriticalError, DandyRecoverableError
 
 
-class FileCriticalException(DandyCriticalException):
+class FileCriticalError(DandyCriticalError):
     pass
 
 
-class FileRecoverableException(DandyRecoverableException):
+class FileRecoverableError(DandyRecoverableError):
     pass

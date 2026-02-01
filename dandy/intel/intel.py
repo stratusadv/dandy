@@ -11,7 +11,7 @@ from pydantic_core import from_json
 from typing import Generic, TypeVar, Self, get_origin, Iterator
 
 from dandy.file.utils import write_to_file, read_from_file
-from dandy.intel.exceptions import IntelCriticalException
+from dandy.intel.exceptions import IntelCriticalError
 from dandy.intel.field.annotation import FieldAnnotation
 
 
@@ -54,7 +54,7 @@ class BaseIntel(BaseModel, ABC):
 
         if include and exclude:
             message = 'include and exclude cannot be used together'
-            raise IntelCriticalException(message)
+            raise IntelCriticalError(message)
 
         include_dict = cls._inc_ex_to_dict(include)
         exclude_dict = cls._inc_ex_to_dict(exclude)
@@ -168,14 +168,14 @@ class BaseIntel(BaseModel, ABC):
 
             if not include_field_names.issubset(field_names):
                 message = f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
-                raise IntelCriticalException(message)
+                raise IntelCriticalError(message)
 
         if exclude_dict:
             exclude_field_names = set(exclude_dict.keys())
 
             if not exclude_field_names.issubset(field_names):
                 message = f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
-                raise IntelCriticalException(message)
+                raise IntelCriticalError(message)
 
     @classmethod
     def _validate_inc_ex_value_or_error(
@@ -196,11 +196,11 @@ class BaseIntel(BaseModel, ABC):
                 if include is None and exclude_value and field_info.is_required():
                     if intel_object is None:
                         message = f'{field_name} is required and cannot be excluded'
-                        raise IntelCriticalException(message)
+                        raise IntelCriticalError(message)
 
                     if getattr(intel_object, field_name) is None:
                         message = f'{field_name} is required and has no value therefore cannot be excluded'
-                        raise IntelCriticalException(message)
+                        raise IntelCriticalError(message)
 
                 if (
                     exclude is None
@@ -209,11 +209,11 @@ class BaseIntel(BaseModel, ABC):
                 ):
                     if intel_object is None:
                         message = f'{field_name} is required and must be included'
-                        raise IntelCriticalException(message)
+                        raise IntelCriticalError(message)
 
                     if getattr(intel_object, field_name) is None:
                         message = f'{field_name} is required and has no value therefore it must be included'
-                        raise IntelCriticalException(message)
+                        raise IntelCriticalError(message)
 
 
 T = TypeVar('T')

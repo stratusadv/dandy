@@ -1,16 +1,9 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from dandy.core.service.service import BaseService
 from dandy.http.connector import HttpConnector
 from dandy.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
 
-if TYPE_CHECKING:
-    from dandy.http.mixin import HttpServiceMixin
 
-
-class HttpService(BaseService["HttpServiceMixin"]):
+class HttpService(BaseService['dandy.http.mixin.HttpServiceMixin']):
     def __post_init__(self):
         self._http_connector = HttpConnector()
 
@@ -37,7 +30,6 @@ class HttpService(BaseService["HttpServiceMixin"]):
         params: dict | None = None,
         headers: dict | None = None,
         cookies: dict | None = None,
-        content: str | None = None,
         data: dict | None = None,
         files: dict | None = None,
         json: dict | None = None,
@@ -49,7 +41,6 @@ class HttpService(BaseService["HttpServiceMixin"]):
                 params=params,
                 headers=headers,
                 cookies=cookies,
-                content=content,
                 data=data,
                 files=files,
                 json_data=json,

@@ -6,7 +6,6 @@ from dandy.core.future.future import AsyncFuture
 from dandy.core.future.tools import process_to_future
 from dandy.file.mixin import FileServiceMixin
 from dandy.http.mixin import HttpServiceMixin
-from dandy.intel.intel import BaseIntel
 from dandy.intel.mixin import IntelServiceMixin
 from dandy.llm.mixin import LlmServiceMixin
 from dandy.llm.prompt.typing import PromptOrStr
@@ -18,8 +17,6 @@ class Bot(
     HttpServiceMixin,
     IntelServiceMixin,
 ):
-    # description: str | None = 'Generic Bot for performing generic tasks'
-
     def __init__(
             self,
             **kwargs
@@ -62,38 +59,13 @@ class Bot(
     def get_description(cls) -> str | None:
         pass
 
-    # def __init__(
-    #     self,
-    #     llm_config: str | None = None,
-    #     llm_randomize_seed: bool | None = None,
-    #     llm_seed: int | None = None,
-    #     llm_temperature: float | None = None,
-    #     **kwargs,
-    # ):
-    #     super().__init__(**kwargs)
-    #
-    #     self.get_llm_options().update_values(
-    #         randomize_seed=llm_randomize_seed,
-    #         seed=llm_seed,
-    #         temperature=llm_temperature,
-    #     )
-
     def process(
         self,
-        *args,
-        **kwargs,
+        prompt: PromptOrStr,
     ) -> Any:
-        if len(args) >= 1 and isinstance(args[0], PromptOrStr):
-            kwargs['prompt'] = args[0]
-
-        if len(args) == 2 and issubclass(args[1], BaseIntel):
-            kwargs['intel_class'] = args[1]
-
-        if 'prompt' in kwargs:
-            return self.llm.prompt_to_intel(**kwargs)
-
-        message = '`Bot.process` requires key word argument `prompt`.'
-        raise ValueError(message)
+        return self.llm.prompt_to_intel(
+            prompt=prompt,
+        )
 
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
         return process_to_future(self.process, *args, **kwargs)

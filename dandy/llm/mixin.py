@@ -11,7 +11,7 @@ class LlmServiceMixin(BaseServiceMixin):
     llm_config: str | LlmConfig = 'DEFAULT'
     llm_intel_class: type[BaseIntel] = DefaultIntel
     llm_role: PromptOrStr = 'Assistant'
-    llm_task: PromptOrStrOrNone = 'Provide a response based users request, context or instructions.'
+    llm_task: PromptOrStrOrNone = 'Provide a response based on the users request, context or instructions.'
     llm_guidelines: PromptOrStrOrNone = None
     llm_system_override_prompt: PromptOrStrOrNone = None
 

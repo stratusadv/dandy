@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 
 from dandy import default_settings
 from dandy.conf import DandySettings, settings
-from dandy.core.exceptions import DandyCriticalException
+from dandy.core.exceptions import DandyCriticalError
 from dandy.core.utils import get_settings_module_name
 
 
@@ -17,7 +17,7 @@ class TestSettings(TestCase):
     @mock.patch('importlib.import_module')
     def test_dandy_settings_raises_dandy_critical_exception_with_invalid_module(self, mock_import_module: mock.MagicMock):
         mock_import_module.side_effect = ImportError
-        with self.assertRaises(DandyCriticalException):
+        with self.assertRaises(DandyCriticalError):
             DandySettings()
 
     @mock.patch('dandy.core.utils.get_settings_module_name')
@@ -41,7 +41,7 @@ class TestSettings(TestCase):
         original_settings_base_path = settings_module.BASE_PATH
         settings_module.BASE_PATH = None
 
-        with self.assertRaises(DandyCriticalException):
+        with self.assertRaises(DandyCriticalError):
             DandySettings()
 
         default_settings.BASE_PATH = original_default_base_path

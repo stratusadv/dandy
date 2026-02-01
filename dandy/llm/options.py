@@ -4,7 +4,7 @@ from typing import Self, Any
 from pydantic import BaseModel
 
 from dandy.conf import settings
-from dandy.llm.exceptions import LlmCriticalException
+from dandy.llm.exceptions import LlmCriticalError
 
 
 
@@ -34,7 +34,7 @@ class LlmOptions(BaseModel):
 
             if value is not None and (value < min_value or value > max_value):
                 message = f'Invalid value for {key}: {value}. Must be between {min_value} and {max_value}'
-                raise LlmCriticalException(message)
+                raise LlmCriticalError(message)
 
     # def __init__(
     #         self,

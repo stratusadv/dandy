@@ -1,6 +1,6 @@
 import importlib
 
-from dandy.core.exceptions import DandyCriticalException
+from dandy.core.exceptions import DandyCriticalError
 from dandy.core.utils import get_settings_module_name
 
 
@@ -16,11 +16,11 @@ class DandySettings:
                 self._user_settings = importlib.import_module(self._settings_module_name)
             except ImportError as error:
                 message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.'
-                raise DandyCriticalException(message) from error
+                raise DandyCriticalError(message) from error
 
         if self._default_settings.BASE_PATH is None and self._user_settings.BASE_PATH is None:
             message = f'You need a BASE_PATH in your "{self._settings_module_name}".'
-            raise DandyCriticalException(message)
+            raise DandyCriticalError(message)
 
     def __getattr__(self, name: str):
         if hasattr(self._user_settings, name):
@@ -30,7 +30,7 @@ class DandySettings:
             return getattr(self._default_settings, name)
 
         message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
-        raise DandyCriticalException(message)
+        raise DandyCriticalError(message)
 
     def reload_from_os(self):
         self._default_settings = importlib.reload(self._default_settings)

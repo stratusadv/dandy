@@ -4,7 +4,7 @@ import requests
 
 from dandy.conf import settings
 from dandy.core.connector.connector import BaseConnector
-from dandy.http.exceptions import HttpConnectorRecoverableException
+from dandy.http.exceptions import HttpConnectorRecoverableError
 from dandy.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
 
 
@@ -34,7 +34,7 @@ class HttpConnector(BaseConnector):
             f'and body text "{response_intel.text}" '
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )
-        raise HttpConnectorRecoverableException(message)
+        raise HttpConnectorRecoverableError(message)
 
 
 

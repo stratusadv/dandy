@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from dandy import recorder
-from dandy.core.exceptions import DandyRecoverableException
+from dandy.core.exceptions import DandyRecoverableError
 from dandy.recorder.decorators import recorder_to_html_file
 from tests.intel.intelligence.bots import JsonSchemaBot
 from tests.intel.intelligence.intel import OfficeIntel, PersonIntel
@@ -23,7 +23,7 @@ class TestJsonSchemaWithLlm(TestCase):
             )
 
             self.assertTrue(True)
-        except DandyRecoverableException:
+        except DandyRecoverableError:
             self.assertTrue(False)
 
 
@@ -41,7 +41,7 @@ class TestJsonSchemaWithLlm(TestCase):
             )
 
             self.assertTrue(True)
-        except DandyRecoverableException:
+        except DandyRecoverableError:
             self.assertTrue(False)
 
 
