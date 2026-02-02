@@ -5,9 +5,10 @@ from dandy.intel.service import IntelService
 
 
 class IntelServiceMixin(BaseServiceMixin):
-    intel: ClassVar[IntelService] = IntelService()
-    _IntelService_instance: IntelService | None = None
+    @property
+    def intel(self) -> IntelService:
+        return self._get_service_instance(IntelService)
 
-    def reset_services(self):
-        super().reset_services()
-        self.intel.reset_service()
+    def reset(self):
+        super().reset()
+        self.intel.reset()

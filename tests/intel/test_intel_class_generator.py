@@ -3,10 +3,9 @@ from unittest import TestCase
 
 from pydantic import ValidationError
 
-from dandy.core.typing.exceptions import TypingCriticalException
-from dandy.intel.intel import BaseIntel
-from dandy.intel.exceptions import IntelCriticalException
+from dandy.core.typing.exceptions import TypingCriticalError
 from dandy.intel.generator import IntelClassGenerator
+from dandy.intel.intel import BaseIntel
 from tests.core.typing.consts import SIMPLE_JSON_SCHEMA
 
 
@@ -69,7 +68,7 @@ class TestIntelClassGenerator(TestCase):
 
 
     def test_from_class_signature_no_annotations(self):
-        with self.assertRaises(TypingCriticalException):
+        with self.assertRaises(TypingCriticalError):
             def subtract(a, b: int):
                 return a - b
 

@@ -5,7 +5,7 @@ from typing import Any
 from dandy.intel.intel import BaseIntel
 
 
-def generate_new_recorder_event_id() -> str:
+def generate_recorder_event_id() -> str:
     alphabet = string.ascii_uppercase + string.digits
     return ''.join(random.choices(alphabet, k=4))
 

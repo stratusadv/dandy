@@ -3,17 +3,17 @@ from pathlib import Path
 from typing import Type
 
 from dandy.conf import settings
-from dandy.consts import RECORDER_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
+from dandy.consts import RECORDING_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
 from dandy.core.singleton import Singleton
 from dandy.recorder.events import Event
-from dandy.recorder.exceptions import RecorderCriticalException
+from dandy.recorder.exceptions import RecorderCriticalError
 from dandy.recorder.recording import Recording
 from dandy.recorder.renderer.html import HtmlRecordingRenderer
 from dandy.recorder.renderer.json import JsonRecordingRenderer
 from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 
-DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, RECORDER_OUTPUT_DIRECTORY)
+DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, RECORDING_OUTPUT_DIRECTORY)
 
 
 class Recorder(Singleton):
@@ -39,7 +39,7 @@ class Recorder(Singleton):
                 choices_message = f' Choices are {list(cls.recordings.keys())}'
 
             message = f'Recording "{recording_name}" does not exist. {choices_message}'
-            raise RecorderCriticalException(message)
+            raise RecorderCriticalError(message)
 
     @classmethod
     def delete_all_recordings(cls):
@@ -86,7 +86,7 @@ class Recorder(Singleton):
     ) -> str | None:
         if renderer not in cls.renderers:
             message = f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
-            raise RecorderCriticalException(message)
+            raise RecorderCriticalError(message)
 
         cls.check_recording_is_valid(recording_name)
 

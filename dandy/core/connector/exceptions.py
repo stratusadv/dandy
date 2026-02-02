@@ -1,9 +1,9 @@
-from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
+from dandy.core.exceptions import DandyCriticalError, DandyRecoverableError
 
 
-class ConnectorCriticalException(DandyCriticalException):
+class ConnectorCriticalError(DandyCriticalError):
     pass
 
 
-class ConnectorRecoverableException(DandyRecoverableException):
+class ConnectorRecoverableError(DandyRecoverableError):
     pass

@@ -2,7 +2,7 @@ from collections import UserDict
 
 from typing import Self, Any
 
-from dandy.core.exceptions import DandyCriticalException
+from dandy.core.exceptions import DandyCriticalError
 from dandy.core.typing.registry import resolve_type_from_registry
 from dandy.core.typing.typing import TypedKwargsDict
 
@@ -17,7 +17,7 @@ class TypedKwargs(UserDict):
     def __contains__(self, item: Self) -> bool:
         if not isinstance(item, TypedKwargs):
             message = f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
-            raise DandyCriticalException(message)
+            raise DandyCriticalError(message)
 
         if not self._is_valid_sub_set_typed_kwargs(item):
             return False

@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from dandy.core.service.service import BaseService
 from dandy.http.connector import HttpConnector
 from dandy.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
 
-if TYPE_CHECKING:
-    from dandy.http.mixin import HttpServiceMixin
 
-
-class HttpService(BaseService["HttpServiceMixin"]):
-    _http_connector = HttpConnector()
-
-    obj: HttpServiceMixin
+class HttpService(BaseService['dandy.http.mixin.HttpServiceMixin']):
+    def __post_init__(self):
+        self._http_connector = HttpConnector()
 
     def get(
         self,
@@ -24,7 +16,7 @@ class HttpService(BaseService["HttpServiceMixin"]):
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method="GET",
+                method='GET',
                 url=url,
                 params=params,
                 headers=headers,
@@ -38,19 +30,17 @@ class HttpService(BaseService["HttpServiceMixin"]):
         params: dict | None = None,
         headers: dict | None = None,
         cookies: dict | None = None,
-        content: str | None = None,
         data: dict | None = None,
         files: dict | None = None,
         json: dict | None = None,
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method="POST",
+                method='POST',
                 url=url,
                 params=params,
                 headers=headers,
                 cookies=cookies,
-                content=content,
                 data=data,
                 files=files,
                 json_data=json,
@@ -60,5 +50,5 @@ class HttpService(BaseService["HttpServiceMixin"]):
     def request_intel_to_response_intel(self, request_intel: HttpRequestIntel) -> HttpResponseIntel:
         return self._http_connector.request_to_response(request_intel)
 
-    def reset_service(self):
+    def reset(self):
         pass

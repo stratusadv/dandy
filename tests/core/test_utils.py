@@ -3,16 +3,17 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.conf import settings
-from dandy.core.exceptions import DandyCriticalException
-from dandy.core.utils import encode_file_to_base64, python_obj_to_markdown
+from dandy.core.exceptions import DandyCriticalError
+from dandy.core.utils import python_obj_to_markdown
+from dandy.file.utils import encode_file_to_base64
 
 
 class TestCoreUtils(TestCase):
     def test_encode_file_to_base64(self):
-        with self.assertRaises(DandyCriticalException):
+        with self.assertRaises(DandyCriticalError):
             encode_file_to_base64('this/path/doesnt/exist')
 
-        file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_image.jpg')
+        file_path = Path(settings.BASE_PATH , 'assets', 'images', 'vision_test_people_and_animal.jpg')
 
         with open(file_path, 'rb') as f:
             self.assertEqual(

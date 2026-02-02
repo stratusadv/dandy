@@ -3,7 +3,7 @@ from pathlib import Path
 from dandy.consts import RECORDING_POSTFIX_NAME, __VERSION__
 from dandy.core.utils import python_obj_to_markdown
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
-from dandy.recorder.utils import generate_new_recorder_event_id
+from dandy.recorder.utils import generate_recorder_event_id
 
 
 class MarkdownRecordingRenderer(BaseRecordingRenderer):
@@ -11,7 +11,7 @@ class MarkdownRecordingRenderer(BaseRecordingRenderer):
     file_extension: str = 'md'
 
     def _render_markdown_to_str(self) -> str:
-        markdown_str = f'# Dandy v{__VERSION__} Recording Output: {generate_new_recorder_event_id()}\n\n'
+        markdown_str = f'# Dandy v{__VERSION__} Recording Output: {generate_recorder_event_id()}\n\n'
 
         markdown_str += python_obj_to_markdown(
             self.recording.model_dump()

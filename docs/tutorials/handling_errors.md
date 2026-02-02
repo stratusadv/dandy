@@ -25,7 +25,7 @@ This is why we have `Critical` and `Recoverable` exceptions to make sure you can
 Please note the following example is a simple demonstration and we would expect your exception handling code as a developer to be more robust.
 
 ```py title="main.py"
-from dandy.core.exceptions import DandyException, DandyCriticalException, DandyRecoverableException
+from dandy.core.exceptions import DandyError, DandyCriticalError, DandyRecoverableError
 from dandy.llm import Prompt
 
 from cookie.intelligence.bots.cookie_recipe_llm_bot import CookieRecipeLlmBot
@@ -38,7 +38,7 @@ if __name__ == '__main__':
             prompt=Prompt().text('I love broccoli and oatmeal!'),
         )
 
-    except DandyRecoverableException as e:
+    except DandyRecoverableError as e:
         cookie_recipe_intel = CookieRecipeLlmBot().process(
             prompt=(
                 Prompt()
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             ),
         )
 
-    except DandyCriticalException as dandy_exception:
+    except DandyCriticalError as dandy_exception:
         print(f'Failed to generate a cookie recipe for the following reason "{dandy_exception}" ... please try again')
 
     if cookie_recipe_intel:

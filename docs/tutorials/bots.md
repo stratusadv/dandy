@@ -34,7 +34,7 @@ When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 Below is an example of how you can customize bots to make sure they work the way you want.
 
 ```python exec="True" source="above" source="material-block" session="bot"
-from dandy import BaseIntel, Bot, Prompt, LlmConfigOptions
+from dandy import BaseIntel, Bot, Prompt, LlmOptions
 
 
 class CandyIntel(BaseIntel):
@@ -45,7 +45,7 @@ class CandyIntel(BaseIntel):
 
 class CandyDesignBot(Bot):
     llm_config = 'SMART'
-    llm_config_options = LlmConfigOptions(
+    llm_options = LlmOptions(
         temperature=0.1,
         max_input_tokens=2000,
         max_output_tokens=2000,

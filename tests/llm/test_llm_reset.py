@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.processor.bot.bot import Bot
+from dandy.bot.bot import Bot
 
 
 class TestLlmReset(TestCase):
@@ -9,16 +9,16 @@ class TestLlmReset(TestCase):
 
         self.assertEqual(len(bot.llm.messages), 0)
 
-        bot.llm.add_message('user', 'Hello!')
+        bot.llm.messages.create_message(role='user', text='Hello!')
         self.assertEqual(len(bot.llm.messages), 1)
 
-        bot.llm.reset_service()
-        self.assertEqual(len(bot.llm.messages), 1)
+        bot.llm.reset()
+        self.assertEqual(len(bot.llm.messages), 0)
 
     def test_llm_reset_messages_alias_behavior(self):
         bot = Bot()
 
-        bot.llm.add_message('user', 'A')
+        bot.llm.messages.create_message(role='user', text='A')
         self.assertEqual(len(bot.llm.messages), 1)
 
         bot.llm.reset_messages()

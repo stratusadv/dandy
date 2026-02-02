@@ -1,4 +1,4 @@
-__VERSION__ = '1.3.5'
+__VERSION__ = '2.0.0.alpha.1'
 
 # Cache
 
@@ -9,13 +9,13 @@ CACHE_KEY_HASH_LAYER_LIMIT = 3 # This should be set to 3 as anything higher will
 
 # LLM
 
-ESTIMATED_CHARACTERS_PER_TOKEN = 4
+ESTIMATED_CHARACTERS_PER_TOKEN = 3.2 # This is set to be more conservative to account for logic containing a lot of symbols.
 
 # Recording
 
-RECORDER_OUTPUT_DIRECTORY = '.dandy_recorder_output'
+RECORDING_OUTPUT_DIRECTORY = 'recordings'
 RECORDING_DEFAULT_NAME = 'default'
-RECORDING_POSTFIX_NAME = '_recording_output'
+RECORDING_POSTFIX_NAME = '_recording'
 
 # Settings
 
@@ -24,8 +24,8 @@ DEFAULT_SETTINGS_FILE_NAME = f'{DEFAULT_SETTINGS_MODULE}.py'
 
 # Toolbox
 
-TOOLBOX_OUTPUT_DIRECTORY = '.dandy_toolbox_output'
-TOOLBOX_DEFAULT_ENV_FILE_NAMES = [
+CLI_WORKING_DIRECTORY = 'cli'
+CLI_DEFAULT_ENV_FILE_NAMES = [
     'dandy.env',
     'development.env',
     'dev.env',

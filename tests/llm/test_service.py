@@ -2,9 +2,9 @@ from unittest import TestCase, mock
 
 from dandy.conf import settings
 from dandy.http.intelligence.intel import HttpResponseIntel
-from dandy.processor.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
-from dandy.llm.exceptions import LlmRecoverableException, LlmCriticalException
+from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.bot.bot import Bot
 from tests.llm.decorators import run_llm_configs
 
 
@@ -29,42 +29,35 @@ class TestService(TestCase):
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_pydantic_validation_error_retry_process_prompt_to_intel(self, mock_post_request: mock.MagicMock):
-        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'ollama':
-            mock_post_request.return_value = HttpResponseIntel(
-                status_code=200,
-                json_data={
-                    'message': {
-                        'content': '{"invalid_key": "Hello, World!"}',
-                    }
-                }
-            )
-        if settings.LLM_CONFIGS['DEFAULT']['TYPE'] == 'openai':
-            mock_post_request.return_value = HttpResponseIntel(
-                status_code=200,
-                json_data={
-                    'choices': [
-                        {
-                            'message': {
-                                'content': '{"invalid_key": "Hello, World!"}',
-                            }
+        mock_post_request.return_value = HttpResponseIntel(
+            status_code=200,
+            json_data={
+                'choices': [
+                    {
+                        'message': {
+                            'content': '{"invalid_key": "Hello, World!"}',
                         }
-                    ]
-                },
-            )
+                    }
+                ]
+            }
+        )
 
-        with self.assertRaises(LlmRecoverableException):
+        with self.assertRaises(LlmRecoverableError):
             response = Bot().llm.prompt_to_intel(
                 prompt='Hello, World!',
                 intel_class=LlmDefaultIntel,
             )
 
     def test_prompt_to_intel_with_no_prompt_argument(self):
-        with self.assertRaises(LlmCriticalException):
+        with self.assertRaises(LlmCriticalError):
             _ = Bot().llm.prompt_to_intel()
 
     def test_prompt_to_intel_with_message_and_no_prompt_argument(self):
         bot = Bot()
 
-        bot.llm.add_message('user', 'Hello!')
+        bot.llm.messages.create_message(
+            role='user',
+            text='Hello!'
+        )
 
         _ = bot.llm.prompt_to_intel()

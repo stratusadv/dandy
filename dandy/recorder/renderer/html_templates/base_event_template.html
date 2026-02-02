@@ -43,9 +43,7 @@
                 <span><i class="bi bi-arrow-right"></i></span>
                 <span x-text="event.callable_name"></span>
                 <span class="float-end text-end" style="width:90px;">
-                    <span x-show="event.run_time_seconds >= 0.001"
-                          x-text="event.run_time_seconds.toLocaleString(undefined, {minimumFractionDigits: 3}) + 's'"></span>
-                    <span x-show="event.run_time_seconds < 0.001">-</span>
+                    <span x-text="event.complete_run_time_seconds.toLocaleString(undefined, {minimumFractionDigits: 3}) + 's'"></span>
                 </span>
                 <span class="float-end text-end" style="width: 100px;">
                     <span x-show="event.token_usage > 0" x-text="event.token_usage.toLocaleString()"></span>
@@ -123,6 +121,15 @@
                         </tbody>
 
                     </template>
+
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-end">
+                                <div class="text-end pt-2 pe-1"
+                                     x-text="'Run Time: ' + event.run_time_seconds.toLocaleString(undefined, {minimumFractionDigits: 3}) + 's'"></div>
+                            </td>
+                        </tr>
+                    </tfoot>
 
                 </table>
 

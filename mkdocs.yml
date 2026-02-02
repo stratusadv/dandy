@@ -55,8 +55,9 @@ nav:
       - 2024: roadmap/2024_roadmap.md
       - Legend: roadmap/roadmap_legend.md
   - Changelog:
-      - Current: changelog/changelog.md
-      - Archived: changelog/archived_changelog.md
+      - Current (v2): changelog/v2_changelog.md
+      - Archived (v1): changelog/v1_changelog.md
+      - Archived (v0): changelog/v0_changelog.md
   - About:
       - Contributors: about/contributors.md
       - Branding: about/branding.md

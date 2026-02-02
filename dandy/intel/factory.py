@@ -2,14 +2,14 @@ from pydantic.main import IncEx
 from typing import Type, Dict, Any, Callable
 
 from dandy.intel.intel import BaseIntel
-from dandy.intel.exceptions import IntelCriticalException
+from dandy.intel.exceptions import IntelCriticalError
 
 
 class IntelFactory:
     @staticmethod
     def _raise_invalid_intel_type(intel: BaseIntel | Type[BaseIntel]):
         message = f'{intel} is not subclass of BaseIntel or an instance of BaseIntel'
-        raise IntelCriticalException(message)
+        raise IntelCriticalError(message)
 
     @staticmethod
     def _run_for_intel_class_or_object(
@@ -67,4 +67,4 @@ class IntelFactory:
 
             else:
                 message = f'JSON Schema property "{property_}" did not have one of f{required_attributes}.'
-                raise IntelCriticalException(message) from None
+                raise IntelCriticalError(message) from None

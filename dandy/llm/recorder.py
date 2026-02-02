@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from dandy.core.utils import pydantic_validation_error_to_str, pascal_to_title_case
 from dandy.recorder.recorder import Recorder
 from dandy.intel.intel import BaseIntel
-from dandy.llm.request.request import BaseRequestBody
+from dandy.llm.request.request import LlmRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.recorder.events import Event, EventAttribute, EventType
 
@@ -54,45 +54,51 @@ def recorder_add_llm_retry_event(
 
 
 def recorder_add_llm_request_event(
-        request_body: BaseRequestBody,
-        json_schema: dict,
+        request_body: LlmRequestBody,
         event_id: str
 ):
+    skip_attributes = (
+        'stream',
+        'response_format',
+        'messages',
+    )
+    event_attributes = []
+
+    for key, value in request_body.model_dump().items():
+        if key not in skip_attributes:
+            event_attributes.append(
+                EventAttribute(
+                    key=key,
+                    value=str(value)
+                )
+            )
+
     llm_request_event = Event(
         id=event_id,
         object_name=_EVENT_OBJECT_NAME,
         callable_name='Request',
         type=EventType.REQUEST,
-        token_usage=request_body.token_usage,
+        token_usage=request_body.estimated_token_count,
         attributes=[
-            EventAttribute(
-                key='Model',
-                value=request_body.model
-            ),
-            EventAttribute(
-                key='Temperature',
-                value=request_body.get_temperature()
-            ),
-            EventAttribute(
-                key='Max Context Tokens',
-                value=request_body.get_total_context_length()
-            ),
+            *event_attributes,
             EventAttribute(
                 key='JSON Schema',
-                value=json.dumps(json_schema, indent=4),
+                value=json.dumps(request_body.json_schema, indent=4),
                 is_dropdown=True,
             )
         ]
     )
 
     for message in request_body.messages:
-        llm_request_event.add_attribute(EventAttribute(
-            key=message.role,
-            value=message.content_as_str(),
-            is_card=True,
-        ))
+        for message_content in message.content:
+            llm_request_event.add_attribute(EventAttribute(
+                key=message.role,
+                value=str(message_content.text),
+                is_card=True,
+            ))
 
     Recorder.add_event(llm_request_event)
+
 
 def recorder_add_llm_response_event(
         message_content: str,
@@ -145,4 +151,3 @@ def recorder_add_llm_success_event(
             ]
         )
     )
-

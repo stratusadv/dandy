@@ -2,7 +2,7 @@ import os
 from functools import wraps
 from typing import Callable
 
-from dandy.core.exceptions import DandyException
+from dandy.core.exceptions import DandyError
 
 
 def nines_testing(nines: int = int(os.getenv("TESTING_NINES", '0'))):
@@ -32,7 +32,7 @@ def nines_testing(nines: int = int(os.getenv("TESTING_NINES", '0'))):
                         )
 
                     except Exception as error:
-                        if isinstance(error, DandyException) and not has_raised_one_exception:
+                        if isinstance(error, DandyError) and not has_raised_one_exception:
                             has_raised_one_exception = True
                         else:
                             raise

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from pathlib import Path
 from types import UnionType
 from typing import Any, Union
 
@@ -9,11 +10,28 @@ from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
 from typing import Generic, TypeVar, Self, get_origin, Iterator
 
-from dandy.intel.exceptions import IntelCriticalException
+from dandy.file.utils import write_to_file, read_from_file
+from dandy.intel.exceptions import IntelCriticalError
 from dandy.intel.field.annotation import FieldAnnotation
 
 
 class BaseIntel(BaseModel, ABC):
+    @classmethod
+    def create_from_file(cls, file_path: Path | str) -> Self:
+        return cls.model_validate_json(json_data=read_from_file(file_path=file_path))
+
+    @classmethod
+    def _get_field_default_value_from_field_info(
+        cls,
+        field_info: Any,
+    ) -> Any:
+        field_default_value = field_info.default_factory or field_info.default
+
+        if isinstance(field_default_value, type):
+            field_default_value = field_default_value()
+
+        return field_default_value
+
     @classmethod
     def _inc_ex_to_dict(cls, inc_ex: IncEx | None) -> dict:
         if inc_ex is not None:
@@ -35,8 +53,8 @@ class BaseIntel(BaseModel, ABC):
             return create_model(cls.__name__, __base__=cls)
 
         if include and exclude:
-            message = "include and exclude cannot be used together"
-            raise IntelCriticalException(message)
+            message = 'include and exclude cannot be used together'
+            raise IntelCriticalError(message)
 
         include_dict = cls._inc_ex_to_dict(include)
         exclude_dict = cls._inc_ex_to_dict(exclude)
@@ -62,7 +80,9 @@ class BaseIntel(BaseModel, ABC):
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
 
-            field_default_value = cls._get_field_default_value_from_field_info(field_info)
+            field_default_value = cls._get_field_default_value_from_field_info(
+                field_info
+            )
 
             field_annotation_type = False
 
@@ -132,17 +152,8 @@ class BaseIntel(BaseModel, ABC):
     def model_validate_json_and_copy(self, json_data: str) -> Self:
         return self.model_validate_and_copy(update=from_json(json_data))
 
-    @classmethod
-    def _get_field_default_value_from_field_info(
-        cls,
-        field_info: Any,
-    ) -> Any:
-        field_default_value = field_info.default_factory or field_info.default
-
-        if isinstance(field_default_value, type):
-            field_default_value = field_default_value()
-
-        return field_default_value
+    def save_to_file(self, file_path: Path | str):
+        write_to_file(file_path=file_path, content=self.model_dump_json(indent=2))
 
     @classmethod
     def _validate_inc_ex_dict_or_error(
@@ -156,15 +167,15 @@ class BaseIntel(BaseModel, ABC):
             include_field_names = set(include_dict.keys())
 
             if not include_field_names.issubset(field_names):
-                message = f"include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}."
-                raise IntelCriticalException(message)
+                message = f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
+                raise IntelCriticalError(message)
 
         if exclude_dict:
             exclude_field_names = set(exclude_dict.keys())
 
             if not exclude_field_names.issubset(field_names):
-                message = f"exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}."
-                raise IntelCriticalException(message)
+                message = f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
+                raise IntelCriticalError(message)
 
     @classmethod
     def _validate_inc_ex_value_or_error(
@@ -184,12 +195,12 @@ class BaseIntel(BaseModel, ABC):
             ):
                 if include is None and exclude_value and field_info.is_required():
                     if intel_object is None:
-                        message = f"{field_name} is required and cannot be excluded"
-                        raise IntelCriticalException(message)
+                        message = f'{field_name} is required and cannot be excluded'
+                        raise IntelCriticalError(message)
 
                     if getattr(intel_object, field_name) is None:
-                        message = f"{field_name} is required and has no value therefore cannot be excluded"
-                        raise IntelCriticalException(message)
+                        message = f'{field_name} is required and has no value therefore cannot be excluded'
+                        raise IntelCriticalError(message)
 
                 if (
                     exclude is None
@@ -197,15 +208,15 @@ class BaseIntel(BaseModel, ABC):
                     and field_info.is_required()
                 ):
                     if intel_object is None:
-                        message = f"{field_name} is required and must be included"
-                        raise IntelCriticalException(message)
+                        message = f'{field_name} is required and must be included'
+                        raise IntelCriticalError(message)
 
                     if getattr(intel_object, field_name) is None:
-                        message = f"{field_name} is required and has no value therefore it must be included"
-                        raise IntelCriticalException(message)
+                        message = f'{field_name} is required and has no value therefore it must be included'
+                        raise IntelCriticalError(message)
 
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
@@ -219,7 +230,7 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         ]
 
         if len(list_fields) != 1:
-            message = "BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing"
+            message = 'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing'
             raise ValueError(message)
 
         self._list_name = list_fields[0]

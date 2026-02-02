@@ -1,52 +1,71 @@
-from abc import abstractmethod, ABC
-
 from pydantic import BaseModel, Field
 
-from dandy.llm.request.message import RequestMessage, RoleLiteralStr
+from dandy.llm.request.message import MessageHistory
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 
-class BaseRequestBody(BaseModel, ABC):
+class LlmRequestBody(BaseModel):
     model: str
-    messages: list[RequestMessage] = Field(default_factory=list)
+    messages: MessageHistory = Field(default_factory=MessageHistory)
+    stream: bool = False
+
+    response_format: dict = {
+        'type': 'json_schema',
+        'json_schema': {
+            'name': 'response_data',
+            'strict': True,
+            'schema': ...
+        },
+    }
+
+    class Config:
+        extra = 'allow'
 
     @property
-    def has_system_message(self) -> bool:
-        return len(self.messages) > 0 and self.messages[0].role == 'system'
+    def estimated_token_count(self) -> int:
+        return self.messages.estimated_token_count + get_estimated_token_count_for_string(
+            str(self.response_format['json_schema']['schema'])
+        )
 
-    @abstractmethod
-    def add_message(
-        self, role: RoleLiteralStr, content: str, images: list[str] | None = None, prepend: bool = False
-    ): ...
+    @property
+    def json_schema(self) -> dict:
+        return self.response_format['json_schema']['schema']
 
-    @abstractmethod
-    def get_context_length(self) -> int: ...
+    @json_schema.setter
+    def json_schema(self, json_schema: dict):
+        self.response_format['json_schema']['schema'] = json_schema
 
-    @abstractmethod
-    def get_max_completion_tokens(self) -> int: ...
+    def model_dump(self, *args, **kwargs) -> dict:
+        model_dict = super().model_dump(*args, exclude_none=True, **kwargs)
+        model_dict['messages'] = model_dict.pop('messages')['messages']
 
-    @abstractmethod
-    def get_seed(self) -> int: ...
-
-    @abstractmethod
-    def get_temperature(self) -> float: ...
+        return model_dict
 
     def reset_messages(self):
-        self.messages = []
+        self.messages = MessageHistory()
 
-    @property
-    @abstractmethod
-    def token_usage(self) -> int:
-        pass
+    def to_dict(self) -> dict:
+        model_dict = self.model_dump()
 
-    def get_total_context_length(self) -> int:
-        return self.get_context_length() + self.get_max_completion_tokens()
+        formated_messages = []
 
-    @abstractmethod
-    def set_format_to_json_schema(self, json_schema: dict): ...
+        for message in model_dict['messages']:
+            for content in message['content']:
+                if content['type'] == 'text':
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['text'],
+                        }
+                    )
+                elif content['type'] == 'image_url':
+                    formated_messages.append(
+                        {
+                            'role': message['role'],
+                            'content': content['image_url']['url'].split(';base64,')[1],
+                        }
+                    )
 
-    @abstractmethod
-    def set_format_to_text(self): ...
+        model_dict['messages'] = formated_messages
 
-    @abstractmethod
-    def to_dict(self): ...
-
+        return model_dict

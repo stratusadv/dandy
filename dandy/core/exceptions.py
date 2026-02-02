@@ -1,10 +1,10 @@
-class DandyException(Exception):
+class DandyError(Exception):
     pass
 
 
-class DandyCriticalException(DandyException):
+class DandyCriticalError(DandyError):
     pass
 
 
-class DandyRecoverableException(DandyException):
+class DandyRecoverableError(DandyError):
     pass

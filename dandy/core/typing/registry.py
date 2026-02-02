@@ -1,11 +1,8 @@
 from typing import Any
 
 from dandy.core.typing.typing import TypedKwargsDict
-from dandy.llm.prompt.typing import PromptOrStr, PromptOrStrOrNone
 
 TYPE_REGISTRY = {
-    'PromptOrStr': PromptOrStr,
-    'PromptOrStrOrNone': PromptOrStrOrNone,
     'TypedKwargsDict': TypedKwargsDict,
 }
 

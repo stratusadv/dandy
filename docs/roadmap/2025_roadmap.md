@@ -2,21 +2,19 @@
 
 ## December
 
-- Advanced Agents
-- Improved Vision
+- v2 Refactor ✅
 
 ## November
 
-- Text to Speech
-- Speech to Text
+- Improved Stability ✅
 
 ## October
 
-- v1 Stable Release 📖
+- v1 Stable Release 📖✅
 
 ## September
 
-- v1 Alpha Release 🚧
+- v1 Alpha Release 🚧✅
 
 ## August
 

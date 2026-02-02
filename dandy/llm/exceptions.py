@@ -1,14 +1,14 @@
-from dandy.core.exceptions import DandyCriticalException, DandyRecoverableException
+from dandy.core.exceptions import DandyCriticalError, DandyRecoverableError
 
 
-class LlmCriticalException(DandyCriticalException):
+class LlmCriticalError(DandyCriticalError):
     pass
 
 
-class LlmValidationCriticalException(LlmCriticalException):
+class LlmValidationCriticalError(LlmCriticalError):
     def __init__(self):
-        super().__init__("The format of the response from the LLM service war not processable.")
+        super().__init__('The format of the response from the LLM service war not processable.')
 
 
-class LlmRecoverableException(DandyRecoverableException):
+class LlmRecoverableError(DandyRecoverableError):
     pass
