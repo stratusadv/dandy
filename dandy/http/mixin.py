@@ -7,6 +7,6 @@ class HttpServiceMixin(BaseServiceMixin):
     def http(self) -> HttpService:
         return self._get_service_instance(HttpService)
 
-    def reset_services(self):
-        super().reset_services()
-        self.http.reset_service()
+    def reset(self):
+        super().reset()
+        self.http.reset()

@@ -9,6 +9,6 @@ class IntelServiceMixin(BaseServiceMixin):
     def intel(self) -> IntelService:
         return self._get_service_instance(IntelService)
 
-    def reset_services(self):
-        super().reset_services()
-        self.intel.reset_service()
+    def reset(self):
+        super().reset()
+        self.intel.reset()

@@ -50,5 +50,5 @@ class HttpService(BaseService['dandy.http.mixin.HttpServiceMixin']):
     def request_intel_to_response_intel(self, request_intel: HttpRequestIntel) -> HttpResponseIntel:
         return self._http_connector.request_to_response(request_intel)
 
-    def reset_service(self):
+    def reset(self):
         pass

@@ -70,4 +70,4 @@ class TestFileService(TestCase):
             FileService.read(missing)
 
     def test_reset_callable(self):
-        self.file_service.reset_service()
+        self.file_service.reset()

@@ -9,6 +9,6 @@ class DecoderServiceMixin(BaseServiceMixin):
     def decoder(self) -> DecoderService:
         return self._get_service_instance(DecoderService)
 
-    def reset_services(self):
-        super().reset_services()
-        self.decoder.reset_service()
+    def reset(self):
+        super().reset()
+        self.decoder.reset()

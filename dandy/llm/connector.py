@@ -5,7 +5,6 @@ from pydantic.main import IncEx
 
 from dandy.core.connector.connector import BaseConnector
 from dandy.http.connector import HttpConnector
-from dandy.http.intelligence.intel import HttpRequestIntel
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
@@ -15,7 +14,6 @@ from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
     recorder_add_llm_success_event, recorder_add_llm_failure_event, recorder_add_llm_retry_event
 from dandy.llm.request.message import MessageHistory
-from dandy.llm.request.request import LlmRequestBody
 
 
 class LlmConnector(BaseConnector):
@@ -30,22 +28,19 @@ class LlmConnector(BaseConnector):
 
         self.llm_config = llm_config
 
-        self.http_request_intel = llm_config.http_request_intel
-
         self.intel = None
         self.intel_class = intel_class
 
         self.prompt_retry_attempt = 0
-        self.prompt_retry_count = llm_config.options.prompt_retry_count
 
-        self.request_body = llm_config.generate_request_body()
+        self.request_body = self.llm_config.generate_request_body()
         self.response_str = None
 
         self.system_prompt_str = str(system_prompt)
 
     @property
     def has_retry_attempts_available(self) -> bool:
-        return self.prompt_retry_attempt < self.prompt_retry_count
+        return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
 
     def _prepend_system_message(self):
         self.request_body.messages.create_message(
@@ -112,8 +107,8 @@ class LlmConnector(BaseConnector):
         self.prompt_retry_attempt = 0
 
     def reset(self):
-        self.request_body.reset_messages()
-        self._prepend_system_message()
+        self.llm_config.reset()
+        self.request_body = self.llm_config.generate_request_body()
 
     def _request_to_intel(
             self,
@@ -124,10 +119,10 @@ class LlmConnector(BaseConnector):
 
         http_connector = HttpConnector()
 
-        self.http_request_intel.json_data = self.request_body.model_dump()
+        self.llm_config.http_request_intel.json_data = self.request_body.model_dump()
 
         self.response_str = http_connector.request_to_response(
-            request_intel=self.http_request_intel
+            request_intel=self.llm_config.http_request_intel
         ).json_data['choices'][0]['message']['content']
 
         recorder_add_llm_response_event(
@@ -175,7 +170,7 @@ class LlmConnector(BaseConnector):
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self._event_id,
-                remaining_attempts=self.prompt_retry_count - self.prompt_retry_attempt,
+                remaining_attempts=self.llm_config.options.prompt_retry_count - self.prompt_retry_attempt,
             )
 
             self.request_body.messages.create_message(
@@ -185,7 +180,7 @@ class LlmConnector(BaseConnector):
 
             return self._request_to_intel()
 
-        message = f'Failed to get the correct response from the LlmService after {self.prompt_retry_count} attempts.'
+        message = f'Failed to get the correct response from the LlmService after {self.llm_config.options.prompt_retry_count} attempts.'
         raise LlmRecoverableError(message)
 
     def _set_intel(

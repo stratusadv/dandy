@@ -38,7 +38,7 @@ class FileService(BaseService['dandy.file.mixin.FileServiceMixin']):
     def remove_directory(directory_path: Path | str):
         utils.remove_directory(directory_path)
 
-    def reset_service(self):
+    def reset(self):
         pass
 
     def rm(self, file_path: Path | str):

@@ -8,11 +8,9 @@ from dandy.intel.generator import IntelClassGenerator
 
 if TYPE_CHECKING:
     from dandy.intel.intel import BaseIntel
-    from dandy.intel.mixin import IntelServiceMixin
 
 
-class IntelService(BaseService['IntelServiceMixin']):
-    obj: IntelServiceMixin
+class IntelService(BaseService['dandy.intel.mixin.IntelServiceMixin']):
 
     @staticmethod
     def intel_class_from_callable_signature(
@@ -33,5 +31,5 @@ class IntelService(BaseService['IntelServiceMixin']):
     ) -> BaseIntel:
         return IntelFactory.json_str_to_intel_object(json_str=json_str, intel=intel)
 
-    def reset_service(self):
+    def reset(self):
         pass

@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import ClassVar, TypeVar
 
 from dandy.core.service.exceptions import ServiceCriticalError
@@ -8,6 +8,9 @@ T = TypeVar('T')
 
 class BaseServiceMixin(ABC):
     _required_attrs: ClassVar[tuple[str, ...]] = ()
+
+    def __init__(self, **kwargs):
+        pass
 
     def __init_subclass__(cls):
         super().__init_subclass__()
@@ -19,11 +22,13 @@ class BaseServiceMixin(ABC):
 
     def _get_service_instance(self, service_class: type[T]) -> T:
         service_instance_attr = f'_{service_class.__name__}_instance'
+
         if getattr(self, service_instance_attr, None) is None:
             setattr(self, service_instance_attr, service_class(obj=self))
 
         return getattr(self, service_instance_attr)
 
-    def reset_services(self):
+    @abstractmethod
+    def reset(self):
         pass
 

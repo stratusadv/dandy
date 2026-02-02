@@ -76,5 +76,5 @@ class Bot(
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
         return process_to_future(self.process, *args, **kwargs)
 
-    def reset_services(self):
-        super().reset_services()
+    def reset(self):
+        super().reset()

@@ -50,6 +50,6 @@ class LlmServiceMixin(BaseServiceMixin):
     def llm(self) -> LlmService:
         return self._get_service_instance(LlmService)
 
-    def reset_services(self):
-        super().reset_services()
-        self.llm.reset_service()
+    def reset(self):
+        super().reset()
+        self.llm.reset()

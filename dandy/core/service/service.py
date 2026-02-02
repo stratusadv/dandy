@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
 from dandy.recorder.utils import generate_new_recorder_event_id
@@ -21,3 +21,7 @@ class BaseService(ABC, Generic[T_co]):
     @property
     def obj_class(self) -> type[T_co]:
         return self.obj.__class__
+
+    @abstractmethod
+    def reset(self):
+        raise NotImplementedError

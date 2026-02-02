@@ -34,6 +34,8 @@
   - Type into the input to learn more about the features.
   - Use `/` to run a command.
 - The `BaseIntel` has some new convenience methods `save_to_file` and `create_from_file` for easy long-term storage.
+- Configuring LLM options can now be done through `Bot().llm.options` and `Bot().llm.decoder.options`.
+  - Example: `new_bot = Bot() ... new_bot.llm.options.temperature=1.4`
 
 ### Fixes
 

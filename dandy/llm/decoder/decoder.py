@@ -37,22 +37,14 @@ class Decoder:
             self,
             event_id: str,
             llm_service_mixin: LlmServiceMixin,
-            keys_description: str,
-            keys_values: dict[str, Any],
     ):
-
-        for key in keys_values:
-            if not isinstance(key, str):
-                message = f'all keys in `keys_values` must be strings to be decoded, found {key} ({type(key)}).'
-                raise DecoderCriticalError(message)
-
         self._event_id = event_id
         self._llm_service_mixin = llm_service_mixin
-
+        self.llm_config = self._llm_service_mixin.get_llm_config()
         self._llm_connector = None
 
-        self.keys_description = keys_description
-        self.keys_values = keys_values
+        self.keys_description = None
+        self.keys_values = None
 
     def __getitem__(self, item: str) -> Any:
         return self.keys_values[item]
@@ -86,15 +78,18 @@ class Decoder:
     def process(
             self,
             prompt: Prompt | str,
+            keys_description: str,
+            keys_values: dict[str, Any],
             max_return_values: int | None = None,
     ) -> DecoderValuesIntel:
-        return self._process_decoder_to_intel(prompt, max_return_values)
+        for key in keys_values:
+            if not isinstance(key, str):
+                message = f'all keys in `keys_values` must be strings to be decoded, found {key} ({type(key)}).'
+                raise DecoderCriticalError(message)
 
-    def _process_decoder_to_intel(
-            self,
-            prompt: Prompt | str,
-            max_return_values: int | None = None,
-    ) -> DecoderValuesIntel:
+        self.keys_description = keys_description
+        self.keys_values = keys_values
+
         decoder_values_intel = DecoderValuesIntel()
         chosen_mappings = {}
 
@@ -134,8 +129,8 @@ class Decoder:
         self._llm_connector = LlmConnector(
             event_id=self._event_id,
             system_prompt=self._generate_service_system_prompt(max_return_values=max_return_values),
-            llm_config=self._llm_service_mixin.get_llm_config(),
-            intel_class=self._llm_service_mixin.llm_intel_class,
+            llm_config=self.llm_config,
+            intel_class=intel_class,
         )
 
         return_keys_intel = self._process_return_keys_intel(
@@ -252,5 +247,3 @@ class Decoder:
             message = f'Too many {self.keys_description} found.'
             raise DecoderToManyKeysRecoverableError(message)
 
-    def process_to_future(self, *args, **kwargs) -> AsyncFuture[DecoderValuesIntel]:
-        return AsyncFuture[DecoderValuesIntel](self.process, *args, **kwargs)

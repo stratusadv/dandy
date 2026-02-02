@@ -86,4 +86,4 @@ class TestHttpService(TestCase):
 
     def test_reset_callable(self):
         bot = Bot()
-        bot.http.reset_service()
+        bot.http.reset()

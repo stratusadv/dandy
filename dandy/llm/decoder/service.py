@@ -9,6 +9,12 @@ from dandy.llm.prompt.prompt import Prompt
 
 
 class DecoderService(BaseService['dandy.llm.decoder.mixin.DecoderServiceMixin']):
+    def __post_init__(self):
+        self.decoder = Decoder(
+            event_id=self.obj.event_id,
+            llm_service_mixin=self.obj.obj,
+        )
+
     def prompt_to_value(
             self,
             prompt: Prompt | str,
@@ -22,6 +28,10 @@ class DecoderService(BaseService['dandy.llm.decoder.mixin.DecoderServiceMixin'])
             max_return_values=1
         )[0]
 
+    @property
+    def options(self):
+        return self.decoder.llm_config.options
+
     def prompt_to_value_future(self, **kwargs) -> AsyncFuture:
         return process_to_future(self.prompt_to_value, **kwargs)
 
@@ -32,18 +42,15 @@ class DecoderService(BaseService['dandy.llm.decoder.mixin.DecoderServiceMixin'])
             keys_values: dict[str, Any],
             max_return_values: int | None = None,
     ) -> DecoderValuesIntel:
-        return Decoder(
-            event_id=self.obj.event_id,
-            llm_service_mixin=self.obj.obj,
+        return self.decoder.process(
+            prompt=prompt,
             keys_description=keys_description,
             keys_values=keys_values,
-        ).process(
-            prompt=prompt,
             max_return_values=max_return_values
         )
 
     def prompt_to_values_future(self, **kwargs) -> AsyncFuture:
         return process_to_future(self.prompt_to_values, **kwargs)
 
-    def reset_service(self):
+    def reset(self):
         pass

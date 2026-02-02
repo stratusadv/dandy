@@ -20,6 +20,8 @@ class LlmConfig:
             self,
             name: str,
     ):
+        self.name = name
+
         settings_configs = getattr(settings, _CONFIGS_NAME)
 
         if not isinstance(settings_configs, dict) or not settings_configs:
@@ -63,14 +65,9 @@ class LlmConfig:
 
         self.model = self.get_settings_value('model', True)
 
-        options = self._settings_values.get('options', None)
+        self.options = LlmOptions()
 
-        if isinstance(options, dict):
-            self.options = LlmOptions(
-                **options
-            )
-        else:
-            self.options = LlmOptions()
+        self._set_options_from_config()
 
         self.http_request_intel.url.path_parameters = [
             'v1',
@@ -99,5 +96,17 @@ class LlmConfig:
             raise DandyError(message)
 
         return value
+
+    def reset(self):
+        self._set_options_from_config()
+
+    def _set_options_from_config(self):
+        options = self._settings_values.get('options', None)
+
+        if isinstance(options, dict):
+            self.options = LlmOptions(
+                **options
+            )
+
 
 

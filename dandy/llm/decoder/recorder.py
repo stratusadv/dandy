@@ -16,7 +16,6 @@ _EVENT_OBJECT_NAME = 'Decoder Service'
 def recorder_add_process_decoder_value_event(
         decoder: Decoder,
         event_id: str,
-        mapping_name: str | None = None,
 ) -> None:
 
     processed_mapping = {}

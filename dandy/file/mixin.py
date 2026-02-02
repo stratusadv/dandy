@@ -7,6 +7,6 @@ class FileServiceMixin(BaseServiceMixin):
     def file(self) -> FileService:
         return self._get_service_instance(FileService)
     
-    def reset_services(self):
-        super().reset_services()
-        self.file.reset_service()
+    def reset(self):
+        super().reset()
+        self.file.reset()

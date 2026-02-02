@@ -73,8 +73,9 @@ class LlmService(
     def prompt_to_intel_future(self, **kwargs) -> AsyncFuture:
         return process_to_future(self.prompt_to_intel, **kwargs)
 
-    def reset_service(self):
+    def reset(self):
         self._llm_connector.reset()
+        self.reset_messages()
 
     def reset_messages(self):
         self._llm_connector.request_body.reset_messages()
