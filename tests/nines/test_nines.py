@@ -1,7 +1,8 @@
 from random import randint
 from unittest import TestCase
 
-from tests.decorators import nines_testing
+from tests.nines.decorators import nines_testing
+
 
 class TestNines(TestCase):
     def test_nines(self):

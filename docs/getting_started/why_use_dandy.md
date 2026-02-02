@@ -118,17 +118,19 @@ Bots encapsulate the full lifecycle of an AI interaction — from system prompt 
 ```python
 from dandy import Bot, Prompt, BaseIntel
 
+
 class EmployeeEvaluationBot(Bot):
-    llm_role = 'Employee Evaluator'
-    llm_task = 'Read through the provided employee information and classify their skills.'
-    llm_guidelines = Prompt().list([
+    role = 'Employee Evaluator'
+    task = 'Read through the provided employee information and classify their skills.'
+    guidelines = Prompt().list([
         'Use context through out the information to return the top skills.',
         'Please only identify 3 primary and secondary skills.',
     ])
-    llm_intel_class = EmployeeEvaluationIntel # From "Intel Development Practice"
+    intel_class = EmployeeEvaluationIntel  # From "Intel Development Practice"
 
 
-employee_evaluation_intel = EmployeeEvaluationBot.process(employee_information_prompt) # From "Prompting with Structure"
+employee_evaluation_intel = EmployeeEvaluationBot.process(
+    employee_information_prompt)  # From "Prompting with Structure"
 
 print(employee_evaluation_intel.primary_skills[0])  # Prints the first primary skill
 

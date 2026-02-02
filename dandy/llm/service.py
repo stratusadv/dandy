@@ -3,11 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dandy.llm.options import LlmOptions
 from dandy.core.future.tools import process_to_future
-from dandy.core.future.future import AsyncFuture
-from dandy.llm.prompt.prompt import Prompt
-
 from dandy.core.service.service import BaseService
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.mixin import DecoderServiceMixin
@@ -15,7 +11,11 @@ from dandy.llm.intelligence.prompts import service_system_prompt
 
 if TYPE_CHECKING:
     from pydantic.main import IncEx
+
+    from dandy.core.future.future import AsyncFuture
     from dandy.intel.typing import IntelType
+    from dandy.llm.options import LlmOptions
+    from dandy.llm.prompt.prompt import Prompt
     from dandy.llm.request.message import MessageHistory
 
 
@@ -27,13 +27,13 @@ class LlmService(
         self._llm_connector: LlmConnector = LlmConnector(
             recorder_event_id=self.recorder_event_id,
             system_prompt=service_system_prompt(
-                role=self.obj.llm_role,
-                task=self.obj.llm_task,
-                guidelines=self.obj.llm_guidelines,
-                system_override_prompt=self.obj.llm_system_override_prompt,
+                role=self.obj.role,
+                task=self.obj.task,
+                guidelines=self.obj.guidelines,
+                system_override_prompt=self.obj.system_override_prompt,
             ).to_str(),
             llm_config=self.obj.get_llm_config(),
-            intel_class=self.obj.llm_intel_class,
+            intel_class=self.obj.intel_class,
         )
 
     @property

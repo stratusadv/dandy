@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.llm.decoder.service import DecoderService
 

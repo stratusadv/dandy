@@ -5,9 +5,9 @@ from dandy import Bot, Prompt
 
 
 class CodeExplainerBot(Bot):
-    llm_role = 'Code Explainer'
-    llm_task = 'Explain how the code in the provided files works in reflection to the users request.'
-    llm_guidelines = (
+    role = 'Code Explainer'
+    task = 'Explain how the code in the provided files works in reflection to the users request.'
+    guidelines = (
         Prompt()
         .list([
             'Explain code in the order that a developer would need to learn it.',

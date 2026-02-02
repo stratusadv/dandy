@@ -1,13 +1,13 @@
 import base64
 from pathlib import Path
-from typing import List, Literal, Self, Iterator
+from typing import Iterator, List, Literal
 
 from pydantic import BaseModel, Field
 
-from dandy.llm.tokens.utils import get_estimated_token_count_for_string
-from dandy.file.image.utils import get_image_mime_type_from_base64_string
 from dandy.file.audio.utils import get_audio_format_from_base64_string
+from dandy.file.image.utils import get_image_mime_type_from_base64_string
 from dandy.file.utils import get_file_extension_from_url_string
+from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 RoleLiteralStr = Literal['user', 'assistant', 'system']
 DetailLiteralStr = Literal['auto', 'low', 'high']
@@ -34,17 +34,16 @@ class MessageContent(BaseModel):
     input_audio: InputAudio | None = None
 
     def as_str(self) -> str:
-        if self.type == 'text':
+        if self.type == 'text' and self.text:
             return self.text
 
-        elif self.type == 'image_url':
+        if self.type == 'image_url' and self.image_url:
             return self.image_url.__str__()
 
-        elif self.type == 'input_audio':
+        if self.type == 'input_audio' and self.input_audio:
             return self.input_audio.as_data_encoded_base64()
 
-        else:
-            return self.__str__()
+        return self.__str__()
 
 
 class Message(BaseModel):

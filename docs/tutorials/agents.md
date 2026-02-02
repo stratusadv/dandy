@@ -14,7 +14,7 @@ from dandy import Agent, Bot, BaseIntel
 
 
 class IdeaBot(Bot):
-    llm_role = 'Creative Idea Maker'
+    role = 'Creative Idea Maker'
 
     def process(self, user_input: str) -> BaseIntel:
         return self.llm.prompt_to_intel(

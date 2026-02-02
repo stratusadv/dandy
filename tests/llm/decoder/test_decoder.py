@@ -3,16 +3,16 @@ from unittest import TestCase, mock
 from faker import Faker
 
 from dandy import Recorder
-from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.bot.bot import Bot
+from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.llm.decoder.exceptions import (
     DecoderCriticalError,
     DecoderRecoverableError,
 )
-from tests.decorators import nines_testing
 from tests.llm.decoder.intelligence.decoders import (
     FunDecoderBot,
 )
+from tests.nines.decorators import nines_testing
 
 
 class TestDecoder(TestCase):

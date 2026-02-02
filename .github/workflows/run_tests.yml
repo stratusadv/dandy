@@ -13,13 +13,15 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   AI_API_HOST: ${{ secrets.AI_API_HOST }}
   AI_API_KEY: ${{ secrets.AI_API_KEY }}
-  LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
-  VISION_DEFAULT_MODEL: ${{ secrets.VISION_DEFAULT_MODEL }}
   DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+  LLM_AUDIO_MODEL: ${{ secrets.LLM_AUDIO_MODEL }}
+  LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
+  LLM_THINKING_MODEL: ${{ secrets.LLM_THINKING_MODEL }}
+  LLM_VISION_MODEL: ${{ secrets.LLM_VISION_MODEL }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
 
 jobs:
   dandy-testing:
