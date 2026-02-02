@@ -26,8 +26,8 @@ class CodeExplainerBot(Bot):
         for file_path in file_paths:
             prompt.file(
                 file_path,
-                triple_quote=True,
-                triple_quote_label=str(file_path)
+                triple_backtick=True,
+                triple_backtick_label=str(file_path)
             )
             prompt.line_break()
 
