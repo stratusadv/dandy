@@ -75,7 +75,7 @@
 
 ### Fixes
 
-- Rename `EventItem` to `EventAttribute` for more seperation of concerns when it comes to dictionaries.
+- Rename `EventItem` to `EventAttribute` for more separation of concerns when it comes to dictionaries.
 
 ## v0.14.5
 
@@ -279,7 +279,7 @@
 
 ### Features
 
-- In the `LLM_CONFIGS` in your settings the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will now flow to the other configs if they are not specificed.
+- In the `LLM_CONFIGS` in your settings the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will now flow to the other configs if they are not specified.
 - Added --version to the CLI interface for Dandy.
 - The OpenAI llm service now use json_schema for the response format.
 - The OllamaAI llm service now use json_schema for the response format.
@@ -520,13 +520,13 @@
 
 ### Fixes
 
-- Fixed prompt list to handle indention and nested lists, tuples and sets.
+- Fixed prompt list to handle indentation and nested lists, tuples and sets.
 
 ## v0.1.2
 
 ### Changes
 
-- Debug Recorder html output has improved and more condensed formating.
+- Debug Recorder html output has improved and more condensed formatting.
 
 ### Fixes
 
@@ -597,7 +597,7 @@
 ## v0.0.3
 
 ### Changes
-- Change the structure for Llm config, service and http to be able to handle mutiple Llm services easily
+- Change the structure for Llm config, service and http to be able to handle multiple Llm services easily
 
 ## v0.0.2
 
