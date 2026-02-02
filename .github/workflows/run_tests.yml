@@ -13,13 +13,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  OLLAMA_1_HOST: ${{ secrets.OLLAMA_1_HOST }}
-  OLLAMA_2_HOST: ${{ secrets.OLLAMA_2_HOST }}
-  OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
   OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   AI_API_HOST: ${{ secrets.AI_API_HOST }}
   AI_API_KEY: ${{ secrets.AI_API_KEY }}
+  LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
+  VISION_DEFAULT_MODEL: ${{ secrets.VISION_DEFAULT_MODEL }}
   DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
 
 jobs:
