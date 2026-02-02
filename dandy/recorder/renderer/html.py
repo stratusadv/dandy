@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dandy.consts import __VERSION__, RECORDING_POSTFIX_NAME
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
-from dandy.recorder.utils import generate_new_recorder_event_id
+from dandy.recorder.utils import generate_recorder_event_id
 
 
 class HtmlRecordingRenderer(BaseRecordingRenderer):
@@ -27,7 +27,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
                 f'{self.recording.start_datetime.strftime("%Y-%m-%d %H:%M")}'
             ).replace(
                 '__recording_id__',
-                f'{generate_new_recorder_event_id()}'
+                f'{generate_recorder_event_id()}'
             ).replace(
                 '__recording_event_template__',
                 self._render_event_html_template_to_str()

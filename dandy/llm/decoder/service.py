@@ -11,7 +11,7 @@ from dandy.llm.prompt.prompt import Prompt
 class DecoderService(BaseService['dandy.llm.decoder.mixin.DecoderServiceMixin']):
     def __post_init__(self):
         self.decoder = Decoder(
-            event_id=self.obj.event_id,
+            event_id=self.obj.recorder_event_id,
             llm_service_mixin=self.obj.obj,
         )
 

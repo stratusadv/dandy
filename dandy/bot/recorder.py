@@ -7,7 +7,7 @@ from typing import Callable, TYPE_CHECKING
 from dandy.core.utils import pascal_to_title_case
 from dandy.recorder.events import Event, EventType, EventAttribute
 from dandy.recorder.recorder import Recorder
-from dandy.recorder.utils import generate_new_recorder_event_id, json_default
+from dandy.recorder.utils import generate_recorder_event_id, json_default
 
 if TYPE_CHECKING:
     from dandy.bot.bot import Bot
@@ -16,7 +16,7 @@ def record_process_wrapper(self: Bot, method: Callable) -> Callable:
     @functools.wraps(method)
     def wrapper(*args, **kwargs) -> Callable:
         if getattr(self, "_recorder_called", None) is None:
-            self._recorder_event_id = generate_new_recorder_event_id()
+            self._recorder_event_id = generate_recorder_event_id()
 
         if Recorder.is_recording and not getattr(self, "_recorder_called", False):
             Recorder.add_event(

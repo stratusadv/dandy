@@ -24,7 +24,7 @@ class LlmConnector(BaseConnector):
             intel_class: type[IntelType] | None,
             system_prompt: Prompt | str,
     ):
-        self._event_id = event_id
+        self._recorder_event_id = event_id
 
         self.llm_config = llm_config
 
@@ -114,7 +114,7 @@ class LlmConnector(BaseConnector):
             self,
     ) -> IntelType:
         recorder_add_llm_request_event(
-            self.request_body, self._event_id
+            self.request_body, self._recorder_event_id
         )
 
         http_connector = HttpConnector()
@@ -126,7 +126,7 @@ class LlmConnector(BaseConnector):
         ).json_data['choices'][0]['message']['content']
 
         recorder_add_llm_response_event(
-            message_content=self.response_str, event_id=self._event_id
+            message_content=self.response_str, event_id=self._recorder_event_id
         )
 
         try:
@@ -137,7 +137,7 @@ class LlmConnector(BaseConnector):
             if intel_object is not None:
                 recorder_add_llm_success_event(
                     description='Validated response from prompt into intel object.',
-                    event_id=self._event_id,
+                    event_id=self._recorder_event_id,
                     intel=intel_object,
                 )
 
@@ -152,7 +152,7 @@ class LlmConnector(BaseConnector):
             raise LlmRecoverableError(message)
 
         except ValidationError as error:
-            recorder_add_llm_failure_event(error, self._event_id)
+            recorder_add_llm_failure_event(error, self._recorder_event_id)
 
             return self.retry_request_to_intel(
                 retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
@@ -169,7 +169,7 @@ class LlmConnector(BaseConnector):
 
             recorder_add_llm_retry_event(
                 retry_event_description,
-                self._event_id,
+                self._recorder_event_id,
                 remaining_attempts=self.llm_config.options.prompt_retry_count - self.prompt_retry_attempt,
             )
 
