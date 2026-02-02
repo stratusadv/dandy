@@ -5,8 +5,9 @@ from typing import List, Literal, Self, Iterator
 from pydantic import BaseModel, Field
 
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
-from dandy.llm.utils import get_image_mime_type_from_base64_string, get_audio_format_from_base64_string, \
-    get_file_extension_from_url_string
+from dandy.file.image.utils import get_image_mime_type_from_base64_string
+from dandy.file.audio.utils import get_audio_format_from_base64_string
+from dandy.file.utils import get_file_extension_from_url_string
 
 RoleLiteralStr = Literal['user', 'assistant', 'system']
 DetailLiteralStr = Literal['auto', 'low', 'high']

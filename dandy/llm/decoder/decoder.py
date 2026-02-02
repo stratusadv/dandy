@@ -3,7 +3,6 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, TYPE_CHECKING
 
-from dandy.core.future.future import AsyncFuture
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.exceptions import (
     DecoderCriticalError,
@@ -35,10 +34,10 @@ if TYPE_CHECKING:
 class Decoder:
     def __init__(
             self,
-            event_id: str,
+            recorder_event_id: str,
             llm_service_mixin: LlmServiceMixin,
     ):
-        self._recorder_event_id = event_id
+        self.recorder_event_id = recorder_event_id
         self._llm_service_mixin = llm_service_mixin
         self.llm_config = self._llm_service_mixin.get_llm_config()
         self._llm_connector = None
@@ -95,7 +94,7 @@ class Decoder:
 
         recorder_add_process_decoder_value_event(
             decoder=self,
-            event_id=self._recorder_event_id,
+            event_id=self.recorder_event_id,
         )
 
         for decoder_enum in self._process_decoder_prompt_to_intel(
@@ -111,7 +110,7 @@ class Decoder:
         if chosen_mappings:
             recorder_add_chosen_values_event(
                 chosen_values_keys=chosen_mappings,
-                event_id=self._recorder_event_id,
+                event_id=self.recorder_event_id,
             )
 
         return decoder_values_intel
@@ -127,7 +126,7 @@ class Decoder:
             intel_class = DecoderKeyIntel[self.as_enum()]
 
         self._llm_connector = LlmConnector(
-            event_id=self._recorder_event_id,
+            recorder_event_id=self.recorder_event_id,
             system_prompt=self._generate_service_system_prompt(max_return_values=max_return_values),
             llm_config=self.llm_config,
             intel_class=intel_class,
@@ -146,7 +145,7 @@ class Decoder:
                 break
 
             except DecoderNoKeysRecoverableError as error:
-                recorder_add_llm_failure_event(error, self._recorder_event_id)
+                recorder_add_llm_failure_event(error, self.recorder_event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
                     return_keys_intel = self._llm_connector.retry_request_to_intel(
@@ -158,7 +157,7 @@ class Decoder:
                     raise
 
             except DecoderToManyKeysRecoverableError as error:
-                recorder_add_llm_failure_event(error, self._recorder_event_id)
+                recorder_add_llm_failure_event(error, self.recorder_event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
                     return_keys_intel = self._llm_connector.retry_request_to_intel(
@@ -178,7 +177,7 @@ class Decoder:
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
         except DecoderRecoverableError as error:
-            recorder_add_llm_failure_event(error, self._recorder_event_id)
+            recorder_add_llm_failure_event(error, self.recorder_event_id)
             raise
 
         return return_keys_intel
@@ -213,7 +212,7 @@ class Decoder:
                 )
         else:
             guidelines.append(
-                f"Return as many numbered {key_str} as you find that are relevant to the user's response."
+                f'Return as many numbered {key_str} as you find that are relevant to the user\'s response.'
             )
 
         guidelines.append(

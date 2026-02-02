@@ -16,7 +16,7 @@ class HttpService(BaseService['dandy.http.mixin.HttpServiceMixin']):
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method="GET",
+                method='GET',
                 url=url,
                 params=params,
                 headers=headers,
@@ -36,7 +36,7 @@ class HttpService(BaseService['dandy.http.mixin.HttpServiceMixin']):
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
             HttpRequestIntel(
-                method="POST",
+                method='POST',
                 url=url,
                 params=params,
                 headers=headers,

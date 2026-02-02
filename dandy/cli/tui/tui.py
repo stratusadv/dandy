@@ -1,10 +1,9 @@
 import threading
 import time
+
 from blessed import Terminal
-from dandy import consts
+
 from dandy.cli.tui.elements.welcome_element import WelcomeElement
-from dandy.conf import settings
-from dandy.llm.conf import LlmConfigs
 
 
 class Tui:

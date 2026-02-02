@@ -3,7 +3,7 @@ from pathlib import Path
 from dandy import Prompt
 from dandy.bot.bot import Bot
 from dandy.cli.conf import config
-from dandy.core.path.tools import get_directory_listing
+from dandy.file.utils import get_directory_listing
 
 
 class FilesDecoderBot(Bot):

@@ -1,22 +1,10 @@
-import base64
 import os
 import re
-from pathlib import Path
 from typing import Any, Iterable
 
 from pydantic import ValidationError
 
 from dandy.consts import DEFAULT_SETTINGS_MODULE
-from dandy.core.exceptions import DandyCriticalError
-
-
-def encode_file_to_base64(file_path: str | Path) -> str:
-    if not Path(file_path).is_file():
-        message = f'File "{file_path}" does not exist'
-        raise DandyCriticalError(message)
-
-    with open(file_path, 'rb') as f:
-        return base64.b64encode(f.read()).decode('utf-8')
 
 
 def get_settings_module_name() -> str:

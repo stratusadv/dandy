@@ -7,7 +7,7 @@ class LlmCriticalError(DandyCriticalError):
 
 class LlmValidationCriticalError(LlmCriticalError):
     def __init__(self):
-        super().__init__("The format of the response from the LLM service war not processable.")
+        super().__init__('The format of the response from the LLM service war not processable.')
 
 
 class LlmRecoverableError(DandyRecoverableError):

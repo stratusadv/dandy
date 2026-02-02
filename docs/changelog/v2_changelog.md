@@ -23,6 +23,7 @@
 - Removed `PromptOrStr` and `PromptOrStrOrNone` TypeAlias's.
 - Removed `toolbox` module (functionality replaced by the new CLI).
 - Removed `makefile`.
+- All `Prompt` methods have had the argument `triple_quote` changed to `triple_backtick`.
 
 ### Changes
 

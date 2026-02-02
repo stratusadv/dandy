@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.llm.utils import get_image_mime_type_from_base64_string
+from dandy.file.image.utils import get_image_mime_type_from_base64_string
 
 
 class TestLlmUtils(TestCase):

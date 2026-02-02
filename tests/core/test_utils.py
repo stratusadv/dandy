@@ -4,7 +4,8 @@ from unittest import TestCase
 
 from dandy.conf import settings
 from dandy.core.exceptions import DandyCriticalError
-from dandy.core.utils import encode_file_to_base64, python_obj_to_markdown
+from dandy.core.utils import python_obj_to_markdown
+from dandy.file.utils import encode_file_to_base64
 
 
 class TestCoreUtils(TestCase):

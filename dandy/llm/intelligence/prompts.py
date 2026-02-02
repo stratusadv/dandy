@@ -55,7 +55,7 @@ def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
         .text(
             'Here is the validation error provided by Pydantic when it tried to parse the JSON:'
         )
-        .text(f'{pydantic_validation_error_to_str(error)}', triple_quote=True)
+        .text(f'{pydantic_validation_error_to_str(error)}', triple_backtick=True)
         .text(
             'Please review your response provide a valid JSON in your next response, based on the previous request.'
         )

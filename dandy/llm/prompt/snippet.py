@@ -8,12 +8,8 @@ from dataclasses import dataclass
 from random import randint, shuffle
 from typing import TYPE_CHECKING, Sequence
 
-from dandy.core.path.tools import (
-    get_file_path_or_exception,
-    get_directory_path_or_exception,
-    get_directory_listing,
-)
-from dandy.llm.prompt.utils import list_to_str
+from dandy.file.utils import get_file_path_or_exception, get_directory_path_or_exception, get_directory_listing
+from dandy.llm.prompt.tools import list_to_str
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -23,18 +19,19 @@ if TYPE_CHECKING:
 
 @dataclass(kw_only=True)
 class BaseSnippet(ABC):
-    triple_quote: bool = False
-    triple_quote_label: str | None = None
+    triple_backtick: bool = False
+    triple_backtick_label: str | None = None
 
     def __str__(self):
         return self.to_str()
 
     def to_str(self):
-        if self.triple_quote:
-            if self.triple_quote_label:
-                return f'""" {self.triple_quote_label}\n{self._to_str()}"""\n'
+        if self.triple_backtick:
+            if self.triple_backtick_label:
+                return f'``` {self.triple_backtick_label}\n{self._to_str()}```\n'
+            else:
+                return f'```\n{self._to_str()}```\n'
 
-            return f'"""\n{self._to_str()}"""\n'
         return self._to_str()
 
     @abstractmethod

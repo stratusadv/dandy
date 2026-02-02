@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 def record_process_wrapper(self: Bot, method: Callable) -> Callable:
     @functools.wraps(method)
     def wrapper(*args, **kwargs) -> Callable:
-        if getattr(self, "_recorder_called", None) is None:
-            self._recorder_event_id = generate_recorder_event_id()
+        if getattr(self, '_recorder_called', None) is None:
+            self.recorder_event_id = generate_recorder_event_id()
 
-        if Recorder.is_recording and not getattr(self, "_recorder_called", False):
+        if Recorder.is_recording and not getattr(self, '_recorder_called', False):
             Recorder.add_event(
                 Event(
-                    id=self._recorder_event_id,
+                    id=self.recorder_event_id,
                     object_name=pascal_to_title_case(self.__class__.__qualname__),
                     callable_name='Process',
                     type=EventType.RUN,
@@ -56,10 +56,10 @@ def record_process_wrapper(self: Bot, method: Callable) -> Callable:
 
         result = method(*args, **kwargs)
 
-        if Recorder.is_recording and getattr(self, "_recorder_called", True):
+        if Recorder.is_recording and getattr(self, '_recorder_called', True):
             Recorder.add_event(
                 Event(
-                    id=self._recorder_event_id,
+                    id=self.recorder_event_id,
                     object_name=pascal_to_title_case(self.__class__.__qualname__),
                     callable_name='Process Returned Result',
                     type=EventType.RESULT,

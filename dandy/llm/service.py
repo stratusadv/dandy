@@ -25,7 +25,7 @@ class LlmService(
 ):
     def __post_init__(self):
         self._llm_connector: LlmConnector = LlmConnector(
-            event_id=self.recorder_event_id,
+            recorder_event_id=self.recorder_event_id,
             system_prompt=service_system_prompt(
                 role=self.obj.llm_role,
                 task=self.obj.llm_task,

@@ -23,7 +23,7 @@ class Bot(
     ):
         super().__init__(**kwargs)
 
-        self._recorder_event_id = ''
+        self.recorder_event_id = ''
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -40,9 +40,9 @@ class Bot(
                 attr = super().__getattribute__(name)
 
                 if (
-                        name == "process"
+                        name == 'process'
                         and callable(attr)
-                        and not hasattr(attr, "_wrapped")
+                        and not hasattr(attr, '_wrapped')
                 ):
                     wrapped = record_process_wrapper(self, attr)
                     wrapped._wrapped = True

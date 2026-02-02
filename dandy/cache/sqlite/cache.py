@@ -34,7 +34,7 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{SQLITE_CACHE_TABLE_NAME}';")
+            cursor.execute(f'SELECT name FROM sqlite_master WHERE type="table" AND name="{SQLITE_CACHE_TABLE_NAME}";')
 
             return cursor.fetchone() is not None
 
@@ -43,14 +43,14 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
-            cursor.execute(f"""
+            cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {SQLITE_CACHE_TABLE_NAME} (
                     key TEXT PRIMARY KEY,
                     value TEXT,
                     cache_name TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            ''')
 
             connection.commit()
 
