@@ -1,50 +1,44 @@
 from typing import ClassVar
 
-from dandy.llm.prompt.prompt import Prompt
-
 from dandy.core.service.mixin import BaseServiceMixin
 from dandy.intel.intel import BaseIntel, DefaultIntel
-from dandy.llm.config import LlmConfig, LlmOptions
+from dandy.llm.config import LlmConfig
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
-    llm_config: str | LlmConfig = 'DEFAULT'
-    llm_intel_class: type[BaseIntel] = DefaultIntel
-    llm_role: Prompt | str = 'Assistant'
-    llm_task: Prompt | str | None = 'Provide a response based on the users request, context or instructions.'
-    llm_guidelines: Prompt | str | None = None
-    llm_system_override_prompt: Prompt | str | None = None
+    llm_config: str = 'DEFAULT'
+    intel_class: type[BaseIntel] = DefaultIntel
+    role: Prompt | str = 'Assistant'
+    task: Prompt | str | None = (
+        'Provide a response based on the users request, context or instructions.'
+    )
+    guidelines: Prompt | str | None = None
+    system_override_prompt: Prompt | str | None = None
 
     _required_attrs: ClassVar[tuple[str, ...]] = (
         'llm_config',
-        'llm_role',
+        'role',
+        'task',
     )
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        llm_config: str | None = None,
+        llm_temperature: float | None = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
-        llm_config: str | None = kwargs.get('llm_config', None)
-
-        if llm_config is not None:
+        if isinstance(llm_config, str):
             self.llm_config = llm_config
 
+        if isinstance(llm_temperature, float):
+            self.llm.options.temperature = llm_temperature
+
     def get_llm_config(self) -> LlmConfig:
-        if isinstance(self.llm_config, str):
-            return LlmConfig(self.llm_config)
-
-        else:
-            return self.llm_config
-
-    @classmethod
-    def get_llm_description(cls) -> str | None:
-        if cls.llm_role:
-            if cls.llm_task:
-                return f'{cls.llm_role}: {cls.llm_task}'
-
-            return f'{cls.llm_role}'
-
-        return None
+        return LlmConfig(self.llm_config)
 
     @property
     def llm(self) -> LlmService:

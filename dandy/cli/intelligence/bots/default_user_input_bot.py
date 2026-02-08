@@ -2,6 +2,7 @@ from dandy import Bot, Prompt
 from dandy.cli.actions.manager import ActionManager
 from dandy.cli.intelligence.intel.default_user_input_intel import DefaultUserInputIntel
 
+
 def default_user_input_bot_guidelines_prompt() -> Prompt:
     prompt = Prompt()
 
@@ -19,10 +20,10 @@ def default_user_input_bot_guidelines_prompt() -> Prompt:
 
 
 class DefaultUserInputBot(Bot):
-    llm_role = 'Dandy CLI Helper'
-    llm_task = 'Read the user input and provide suggestions on how they can accomplish their task'
-    llm_guidelines = default_user_input_bot_guidelines_prompt()
-    llm_intel_class = DefaultUserInputIntel
+    role = 'Dandy CLI Helper'
+    task = 'Read the user input and provide suggestions on how they can accomplish their task'
+    guidelines = default_user_input_bot_guidelines_prompt()
+    intel_class = DefaultUserInputIntel
 
     def process(self, user_input: str) -> DefaultUserInputIntel:
         return self.llm.prompt_to_intel(

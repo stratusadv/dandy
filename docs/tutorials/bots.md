@@ -51,15 +51,15 @@ class CandyDesignBot(Bot):
         max_completion_tokens=2000,
         prompt_retry_count=3
     )
-    llm_role = (
+    role = (
         Prompt()
         .text('You are a candy design bot.')
         .line_break()
     )
-    llm_task = (
+    task = (
         Prompt('Use the request to make a new type of candy')
     )
-    llm_guidelines = (
+    guidelines = (
         Prompt()
         .list([
             'Make sure you response is sugar based not chocolate based.',

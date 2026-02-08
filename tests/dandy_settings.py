@@ -21,10 +21,19 @@ LLM_CONFIGS = {
         **AI_API,
         'MODEL': os.getenv("LLM_DEFAULT_MODEL"),
         'OPTIONS': {
-            'temperature': 2.0
+            'temperature': 0.7
         }
     },
+    'THINKING': {
+        'MODEL': os.getenv("LLM_THINKING_MODEL"),
+        'OPTIONS': {
+            'temperature': 0.4
+        }
+    },
+    'AUDIO': {
+        'MODEL': os.getenv("LLM_AUDIO_MODEL"),
+    },
     'VISION': {
-        'MODEL': os.getenv("VISION_DEFAULT_MODEL"),
+        'MODEL': os.getenv("LLM_VISION_MODEL"),
     },
 }
