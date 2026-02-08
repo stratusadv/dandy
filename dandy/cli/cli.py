@@ -11,6 +11,10 @@ class DandyCli:
         self.action_manager = ActionManager()
         self.user_inputs = []
 
+        # Setup autocomplete with all available action commands
+        all_commands = list(self.action_manager.calls_actions.keys())
+        Tui.setup_autocomplete(all_commands)
+
     def run(self):
         stop_timer = None
         Tui.print_welcome()

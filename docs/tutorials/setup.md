@@ -10,8 +10,9 @@ pip install dandy
 
 !!! info
 
-    The Dandy package will also install 
-    [`httpx`](https://www.python-httpx.org/), 
+    The Dandy package will also install
+    [`blessed`](https://blessed.readthedocs.io/),
+    [`requests`](https://requests.readthedocs.io/),
     [`pydantic`](https://docs.pydantic.dev/latest/) and
     [`python-dotenv`](https://github.com/theskumar/python-dotenv) packages.
 
@@ -29,7 +30,6 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'ollama',
         'HOST': os.getenv("OLLAMA_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
         'API_KEY': os.getenv("OLLAMA_API_KEY"),
@@ -39,7 +39,6 @@ LLM_CONFIGS = {
         'MODEL': 'llama3.2:3b-instruct-q4_K_M',
     },
     'GPT_4o': {
-        'TYPE': 'openai',
         'HOST': os.getenv("OPENAI_HOST"),
         'PORT': int(os.getenv("OPENAI_PORT", 443)),
         'API_KEY': os.getenv("OPENAI_API_KEY"),
@@ -54,7 +53,7 @@ The `DEFAULT` in the `LLM_CONFIGS` will be used when no other config is specifie
 
 !!! tip
 
-    Once the `DEFAULT` config is specified, the `TYPE`, `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will flow to the other configs if they are not specificed.
+    Once the `DEFAULT` config is specified, the `HOST`, `PORT` AND `API_KEY` from the `DEFAULT` config will flow to the other configs if they are not specified.
 
 ## Environment Variables
 

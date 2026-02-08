@@ -16,7 +16,7 @@ You can create a `dandy_settings.py` file in the root of your project with the f
 import os
 from pathlib import Path
 
-ALLOW_DEBUG_RECORDING = True
+ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
@@ -24,7 +24,6 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'openai',
         'HOST': 'https://api.openai.com',
         'PORT': 443,
         'API_KEY': os.getenv('OPENAI_API_KEY'),
@@ -36,10 +35,9 @@ LLM_CONFIGS = {
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'ollama',
         'HOST': os.getenv("OLLAMA_HOST"),
         'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"), 
+        'API_KEY': os.getenv("OLLAMA_API_KEY"),
         'MODEL': 'qwen3:30b-instruct',
     },}
 ```

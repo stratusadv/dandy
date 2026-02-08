@@ -7,7 +7,7 @@ Bots should represent a singular action you want to do within your project.
 
 ## Create a Basic Bot
 
-To create your own bot, we are going to use the `Bot` class from the `dandy.llm` module.
+To create your own bot, we are going to use the `Bot` class from the `dandy` module.
 
 ```python exec="True" source="above" source="material-block" session="bot"
 from dandy import Bot, Prompt
@@ -34,7 +34,8 @@ When you create a bot it uses all the defaults of the `dandy_settings.py` file.
 Below is an example of how you can customize bots to make sure they work the way you want.
 
 ```python exec="True" source="above" source="material-block" session="bot"
-from dandy import BaseIntel, Bot, Prompt, LlmOptions
+from dandy import BaseIntel, Bot, Prompt
+from dandy.llm.options import LlmOptions
 
 
 class CandyIntel(BaseIntel):
@@ -47,10 +48,8 @@ class CandyDesignBot(Bot):
     llm_config = 'SMART'
     llm_options = LlmOptions(
         temperature=0.1,
-        max_input_tokens=2000,
-        max_output_tokens=2000,
-        prompt_retry_count=3,
-        randomize_seed=True
+        max_completion_tokens=2000,
+        prompt_retry_count=3
     )
     llm_role = (
         Prompt()

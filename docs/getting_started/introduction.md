@@ -35,7 +35,7 @@ Detailed interaction recording for building robust safety and governance.
 
 !!! tip
 
-    Check out [How Dandy Helps](../getting_started/how_dandy_helps.md) to get a more in depth understanding of how Dandy can help you across your project.
+    Check out [Why Use Dandy](../getting_started/why_use_dandy.md) to get a more in depth understanding of how Dandy can help you across your project.
 
 ## Ready to Go?
 
