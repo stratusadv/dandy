@@ -8,11 +8,11 @@ class TestLlmMixin(TestCase):
     def test_processor_with_mixin(self):
         testing_bot = TestingBot()
 
-        self.assertEqual(testing_bot.llm_role, "Parrot Assistant")
+        self.assertEqual(testing_bot.role, "Parrot Assistant")
 
-        testing_bot.llm_role = "Not Testing Master"
+        testing_bot.role = "Not Testing Master"
 
-        self.assertEqual(testing_bot.llm_role, "Not Testing Master")
+        self.assertEqual(testing_bot.role, "Not Testing Master")
 
         another_bot = TestingBot(llm_task="Do another thing")
 
@@ -28,8 +28,8 @@ class TestLlmMixin(TestCase):
         testing_bot = TestingBot()
         other_bot = OtherBot()
 
-        self.assertEqual(testing_bot.llm_role, "Parrot Assistant")
-        self.assertEqual(other_bot.llm_role, "Cockatiel Assistant")
+        self.assertEqual(testing_bot.role, "Parrot Assistant")
+        self.assertEqual(other_bot.role, "Cockatiel Assistant")
 
         happy_intel = testing_bot.process(
             "I wear sombreros",

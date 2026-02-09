@@ -36,7 +36,7 @@ class PlotPointDescriptionBot(Bot):
 
         if previous_plot_point_intels:
             plot_point_prompt.prompt(
-                plot_intel_prompt(PlotPointsIntel(items=previous_plot_point_intels)),
+                plot_intel_prompt(PlotPointsIntel(plot_points=previous_plot_point_intels)),
             )
 
             plot_point_prompt.line_break()

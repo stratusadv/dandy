@@ -14,18 +14,22 @@ class PlotOutlineBot(Bot):
     llm_config = 'THINKING'
     role = 'Plot Writer'
     task = 'You will be given a book title, overview, world and characters.'
-    guidelines = (
-        Prompt()
-        .text('You will generate a plot using the classic heroes journey plot structure.')
-        .text('Create 10 unnumbered outlines for plot points')
-    )
 
     def process(
             self,
             book_intel: BookIntel,
+            chapter_count: int,
     ) -> PlotPointsIntel:
+        self.guidelines = (
+            Prompt()
+            .text('You will generate a plot using the classic heroes journey plot structure.')
+            .text(f'Create {chapter_count} plot points based on the provided information')
+        )
+
+        print(self.guidelines)
+
         return self.llm.prompt_to_intel(
             prompt=book_intel_prompt(book_intel),
             intel_class=PlotPointsIntel,
-            include_fields={'items': {'outline'}}
+            include_fields={'plot_points': {'outline'}}
         )

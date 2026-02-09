@@ -11,4 +11,4 @@ class PlotPointIntel(BaseIntel):
 
 
 class PlotPointsIntel(BaseListIntel[PlotPointIntel]):
-    items: list[PlotPointIntel] = Field(default_factory=list)
+    plot_points: list[PlotPointIntel] = Field(default_factory=list)

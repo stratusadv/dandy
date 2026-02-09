@@ -32,7 +32,10 @@ def create_book(user_input: str, chapter_count: int = 10) -> Book:
     book_intel.world = WorldCreationBot().process(book_intel)
 
     logging.info('Setting up the plot')
-    book_intel.plot = plot_creation(book_intel)
+    book_intel.plot = plot_creation(
+        book_intel=book_intel,
+        chapter_count=chapter_count,
+    )
 
     logging.info('Writing the chapters for all to read')
     book_intel.chapters = chapters_creation(
