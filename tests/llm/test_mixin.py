@@ -14,9 +14,9 @@ class TestLlmMixin(TestCase):
 
         self.assertEqual(testing_bot.role, "Not Testing Master")
 
-        another_bot = TestingBot(llm_task="Do another thing")
+        another_bot = TestingBot(task="Do another thing")
 
-        self.assertEqual(another_bot.llm_task, "Do another thing")
+        self.assertEqual(another_bot.task, "Do another thing")
 
         happy_intel = testing_bot.process(
             "I wear country hats",

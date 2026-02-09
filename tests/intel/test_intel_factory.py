@@ -4,7 +4,7 @@ from unittest import TestCase
 from pydantic import ValidationError
 
 from dandy.core.typing.exceptions import TypingCriticalError
-from dandy.intel.generator import IntelClassGenerator
+from dandy.intel.factory import IntelFactory
 from dandy.intel.intel import BaseIntel
 from tests.core.typing.consts import SIMPLE_JSON_SCHEMA
 
@@ -14,7 +14,7 @@ class TestIntelClassGenerator(TestCase):
         def math(a: int, b: int) -> int:
             return a + b
 
-        new_intel_class = IntelClassGenerator.from_callable_signature(math)
+        new_intel_class = IntelFactory.callable_signature_to_intel_class(math)
 
         try:
             _ = new_intel_class(
@@ -40,7 +40,7 @@ class TestIntelClassGenerator(TestCase):
         def chaos_math(a: float, b: int, chaos_list: list[Chaos]) -> float:
             return a + b + sum((chaos.x + chaos.y for chaos in chaos_list))
 
-        new_intel_class = IntelClassGenerator.from_callable_signature(chaos_math)
+        new_intel_class = IntelFactory.callable_signature_to_intel_class(chaos_math)
 
         try:
             _ = new_intel_class(
@@ -72,10 +72,10 @@ class TestIntelClassGenerator(TestCase):
             def subtract(a, b: int):
                 return a - b
 
-            IntelClassGenerator.from_callable_signature(subtract)
+            IntelFactory.callable_signature_to_intel_class(subtract)
 
     def test_from_simple_json_schema(self):
-        new_intel_class = IntelClassGenerator.from_simple_json_schema(
+        new_intel_class = IntelFactory.simple_json_schema_to_intel_class(
             json.dumps(SIMPLE_JSON_SCHEMA)
         )
 

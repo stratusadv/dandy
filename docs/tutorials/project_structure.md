@@ -20,10 +20,8 @@ Below is a simple example of the recommended structure for a basic project / mod
  ├── 📄 ...
  └── 📁 intelligence/ <-- Dandy related code should be in this directory
       ├── 📄 __init__.py
-      ├── 📄 agents.py
       ├── 📄 bots.py
       ├── 📄 intel.py
-      ├── 📄 decoders.py
       ├── 📄 prompts.py
       └── 📄 ...
 📄 __init__.py
@@ -78,19 +76,13 @@ Below is a more advanced example with comments of the recommended structure for 
       │    │    ├── 📄 plot_outline_bot.py
       │    │    ├── 📄 plot_point_description_bot.py
       │    │    └── 📄 ...
-      │    ├── 📁 decoders/
-      │    │    ├── 📄 __init__.py
-      │    │    ├── 📄 plot_guide_decoder.py <- If a file gets to busy, modularize anything to make it easier to follow
-      │    │    └── 📄 ...
       │    ├── 📄 __init__.py
       │    ├── 📄 intel.py
       │    ├── 📄 prompts.py <-- All of the plot prompts in this file can be used across the project
       │    └── 📄 ...
       ├── 📁 world/
       │    ├── 📄 __init__.py
-      │    ├── 📄 agents.py <-- This would be for Agents that thinks of worlds
       │    ├── 📄 bots.py
-      │    ├── 📄 decoders.py
       │    ├── 📄 intel.py
       │    └── 📄 ...
       ├── 📄 __init__.py

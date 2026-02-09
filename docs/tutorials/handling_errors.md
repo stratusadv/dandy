@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 .text('I love broccoli and oatmeal!')
                 .line_break()
                 .text('Last time I requested a cookie recipe I got the following error:')
-                .text(str(e), triple_quote=True)
+                .text(str(e), triple_backtick=True)
             ),
         )
 

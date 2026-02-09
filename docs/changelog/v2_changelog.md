@@ -22,9 +22,9 @@
 - The `example` project has moved to `tests.example_project` and has been added as a required test.
 - Removed `PromptOrStr` and `PromptOrStrOrNone` TypeAlias's.
 - Removed `toolbox` module (functionality replaced by the new CLI).
-- Removed `makefile`.
+- Replaced `makefile` with `justfile`.
 - All `Prompt` methods have had the argument `triple_quote` changed to `triple_backtick`.
-- All attributes on `Bot` that were prefixed with `llm_` have had their prefix removed (except `llm_config`).
+- All attributes on `Bot` that were prefixed with `llm_` have had their prefix removed (except `llm_config` and `llm_temperature`).
   - Example: `Bot().llm_task` is now `Bot().task`
 
 ### Changes
