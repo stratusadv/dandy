@@ -12,31 +12,31 @@ class BaseCache(ABC, BaseModel):
 
     @abstractmethod
     def __len__(self) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get(self, key: str) -> Any | None:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def set(self, key: str, value: Any):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def clean(self):
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def clear(cls, cache_name: str = CACHE_DEFAULT_NAME):
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def clear_all(cls):
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def destroy_all(cls):
-        pass
+        raise NotImplementedError

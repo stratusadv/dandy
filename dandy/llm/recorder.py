@@ -2,12 +2,12 @@ import json
 
 from pydantic import ValidationError
 
-from dandy.core.utils import pydantic_validation_error_to_str, pascal_to_title_case
-from dandy.recorder.recorder import Recorder
+from dandy.core.utils import pascal_to_title_case, pydantic_validation_error_to_str
 from dandy.intel.intel import BaseIntel
 from dandy.llm.request.request import LlmRequestBody
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 from dandy.recorder.events import Event, EventAttribute, EventType
+from dandy.recorder.recorder import Recorder
 
 _EVENT_OBJECT_NAME = 'LLM Service'
 
@@ -145,7 +145,7 @@ def recorder_add_llm_success_event(
                 ),
                 EventAttribute(
                     key=intel.__class__.__name__ if intel_json else 'Result',
-                    value=intel_json if intel_json else 'None',
+                    value=intel_json or 'None',
                     is_card=True
                 ),
             ]

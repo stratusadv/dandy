@@ -16,8 +16,8 @@ class BaseRecordingRenderer(BaseModel, ABC):
             self,
             path: Path | str,
     ):
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def to_str(self) -> str:
-        ...
+        raise NotImplementedError

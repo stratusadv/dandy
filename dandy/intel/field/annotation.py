@@ -1,6 +1,5 @@
 from types import NoneType
-
-from typing import get_origin, get_args, Type, List, Tuple, Set, Any
+from typing import Any, List, ParamSpec, Set, Tuple, Type, get_args, get_origin
 
 from dandy.intel.exceptions import IntelCriticalError
 
@@ -43,5 +42,5 @@ class FieldAnnotation:
         return get_origin(self.first_inner) in (list, List, tuple, Tuple, set, Set)
 
     @property
-    def origin(self) -> Type | None:
+    def origin(self) -> ParamSpec:
         return get_origin(self.annotation)

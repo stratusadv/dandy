@@ -8,11 +8,16 @@ from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
-from dandy.llm.exceptions import LlmRecoverableError, LlmCriticalError
+from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.llm.intelligence.prompts import service_system_validation_error_prompt
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.recorder import recorder_add_llm_request_event, recorder_add_llm_response_event, \
-    recorder_add_llm_success_event, recorder_add_llm_failure_event, recorder_add_llm_retry_event
+from dandy.llm.recorder import (
+    recorder_add_llm_failure_event,
+    recorder_add_llm_request_event,
+    recorder_add_llm_response_event,
+    recorder_add_llm_retry_event,
+    recorder_add_llm_success_event,
+)
 from dandy.llm.request.message import MessageHistory
 
 
@@ -54,6 +59,9 @@ class LlmConnector(BaseConnector):
             prompt: Prompt | str | None = None,
             intel_class: type[IntelType] | None = None,
             intel_object: IntelType | None = None,
+            audio_urls: list[str] | None = None,
+            audio_file_paths: list[str | Path] | None = None,
+            audio_base64_strings: list[str] | None = None,
             image_urls: list[str] | None = None,
             image_file_paths: list[str | Path] | None = None,
             image_base64_strings: list[str] | None = None,
@@ -87,6 +95,14 @@ class LlmConnector(BaseConnector):
             self.request_body.messages.create_message(
                 role='user',
                 text=Prompt(prompt).to_str(),
+            )
+
+        if audio_urls or audio_file_paths or audio_base64_strings:
+            self.request_body.messages.create_message(
+                role='user',
+                audio_urls=audio_urls,
+                audio_file_paths=audio_file_paths,
+                audio_base64_strings=audio_base64_strings
             )
 
         if image_urls or image_file_paths or image_base64_strings:

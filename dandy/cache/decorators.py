@@ -2,9 +2,10 @@ from typing import Any, Callable
 
 from dandy.cache.cache import BaseCache
 from dandy.cache.tools import generate_cache_key
+from dandy.core.utils import pascal_to_title_case
 from dandy.intel.intel import BaseIntel
-from dandy.recorder.recorder import Recorder
 from dandy.recorder.events import Event, EventAttribute, EventType
+from dandy.recorder.recorder import Recorder
 from dandy.recorder.utils import generate_recorder_event_id
 
 
@@ -32,7 +33,7 @@ def cache_decorator_function(
             Recorder.add_event(
                 Event(
                     id=generate_recorder_event_id(),
-                    object_name='Cache',
+                    object_name=pascal_to_title_case(cache.__class__.__qualname__),
                     callable_name='Response',
                     type=EventType.RESPONSE,
                     attributes=[

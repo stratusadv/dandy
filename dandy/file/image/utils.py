@@ -1,21 +1,18 @@
 from __future__ import annotations
 
+from dandy.file.exceptions import FileRecoverableError
+from dandy.file.image.constants import BASE64_IMAGE_MIME_SIGNATURES
+
 
 def get_image_format_from_base64_string(base64_string: str) -> str | None:
     return get_image_mime_type_from_base64_string(base64_string).split('/')[1]
 
 
 def get_image_mime_type_from_base64_string(base64_string: str) -> str | None:
-    SIGNATURES = {
-        'JVBERi0': 'application/pdf',
-        'R0lGODdh': 'image/gif',
-        'R0lGODlh': 'image/gif',
-        'iVBORw0KGgo': 'image/png',
-        '/9j/': 'image/jpg',
-    }
 
-    for signature in SIGNATURES:
+    for signature in BASE64_IMAGE_MIME_SIGNATURES:
         if base64_string.startswith(signature):
-            return SIGNATURES[signature]
+            return BASE64_IMAGE_MIME_SIGNATURES[signature]
 
-    return None
+    message = 'Unable to determine image format from base64 string'
+    raise FileRecoverableError(message)

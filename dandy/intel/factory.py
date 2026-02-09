@@ -1,16 +1,17 @@
-from pydantic.main import IncEx
-from typing import Type, Dict, Any, Callable
+from typing import Any, Callable, Dict, Type
 
-from dandy.intel.intel import BaseIntel
+from pydantic.main import IncEx, create_model
+
+from dandy.core.typing.tools import (
+    get_typed_kwargs_from_callable_signature,
+    get_typed_kwargs_from_simple_json_schema,
+)
+from dandy.core.typing.typed_kwargs import TypedKwargs
 from dandy.intel.exceptions import IntelCriticalError
+from dandy.intel.intel import BaseIntel
 
 
 class IntelFactory:
-    @staticmethod
-    def _raise_invalid_intel_type(intel: BaseIntel | Type[BaseIntel]):
-        message = f'{intel} is not subclass of BaseIntel or an instance of BaseIntel'
-        raise IntelCriticalError(message)
-
     @staticmethod
     def _run_for_intel_class_or_object(
         intel: BaseIntel | Type[BaseIntel],
@@ -24,7 +25,8 @@ class IntelFactory:
         if issubclass(intel, BaseIntel):
             return class_func(**kwargs)
 
-        raise IntelFactory._raise_invalid_intel_type(intel)
+        message = f'{intel} is not subclass of BaseIntel or an instance of BaseIntel'
+        raise IntelCriticalError(message)
 
     @classmethod
     def intel_to_json_inc_ex_schema(
@@ -60,6 +62,7 @@ class IntelFactory:
     @classmethod
     def _validate_json_schema_or_error(cls, json_schema: Dict):
         required_attributes = ('allOf', 'anyOf', 'not', 'oneOf', 'type', '$ref')
+
         for property_ in json_schema['properties']:
             for required_attribute in required_attributes:
                 if required_attribute in json_schema['properties'][property_]:
@@ -68,3 +71,34 @@ class IntelFactory:
             else:
                 message = f'JSON Schema property "{property_}" did not have one of f{required_attributes}.'
                 raise IntelCriticalError(message) from None
+
+    @classmethod
+    def callable_signature_to_intel_class(cls, callable_: Callable) -> Type[BaseIntel]:
+
+        typed_kwargs = get_typed_kwargs_from_callable_signature(callable_)
+
+        return cls.typed_kwargs_to_intel_class(
+            f'{callable_.__name__}Intel',
+            typed_kwargs,
+        )
+
+    @classmethod
+    def simple_json_schema_to_intel_class(
+        cls,
+        simple_json_schema: dict | str,
+        class_name: str = 'SimpleJsonSchemaIntel',
+    ) -> Type[BaseIntel]:
+        typed_kwargs = get_typed_kwargs_from_simple_json_schema(
+            simple_json_schema,
+        )
+
+        return cls.typed_kwargs_to_intel_class(
+            class_name,
+            typed_kwargs,
+        )
+
+    @staticmethod
+    def typed_kwargs_to_intel_class(
+        intel_class_name: str, typed_kwargs: TypedKwargs
+    ) -> Type[BaseIntel]:
+        return create_model(intel_class_name, __base__=BaseIntel, **typed_kwargs)

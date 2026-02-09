@@ -1,27 +1,28 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.exceptions import (
     DecoderCriticalError,
-    DecoderRecoverableError,
     DecoderNoKeysRecoverableError,
+    DecoderRecoverableError,
     DecoderToManyKeysRecoverableError,
 )
 from dandy.llm.decoder.intel import (
-    DecoderKeysIntel,
     DecoderKeyIntel,
+    DecoderKeysIntel,
     DecoderValuesIntel,
 )
 from dandy.llm.decoder.intelligence.prompts import (
-    decoder_no_key_error_prompt,
+    decoder_guidelines_prompt,
     decoder_max_key_count_error_prompt,
+    decoder_no_key_error_prompt,
 )
 from dandy.llm.decoder.recorder import (
-    recorder_add_process_decoder_value_event,
     recorder_add_chosen_values_event,
+    recorder_add_process_decoder_value_event,
 )
 from dandy.llm.intelligence.prompts import service_system_prompt
 from dandy.llm.prompt.prompt import Prompt
@@ -193,44 +194,14 @@ class Decoder:
         return return_keys_intel
 
     def _generate_service_system_prompt(self, max_return_values: int | None) -> Prompt:
-        key_str = 'key' if max_return_values == 1 else 'keys'
-
-        guidelines_prompt = Prompt()
-
-        guidelines = [
-            f'Read through all of the "{self.keys_description}" dict values and return the numbered {key_str} that matches the values with information relevant to the user\'s request.',
-        ]
-
-        if max_return_values is not None and max_return_values > 0:
-            if max_return_values == 1:
-                guidelines.append(
-                    f'You must return exactly one numbered {key_str}.'
-                )
-            else:
-                guidelines.append(
-                    f'Return up to a maximum of {max_return_values} numbered {key_str}.'
-                )
-        else:
-            guidelines.append(
-                f'Return as many numbered {key_str} as you find that are relevant to the user\'s response.'
-            )
-
-        guidelines.append(
-            'Always return at least one numbered key closest to the user\'s request.'
-        )
-
-        guidelines_prompt.list(guidelines)
-
-        guidelines_prompt.line_break()
-        guidelines_prompt.heading(f'{self.keys_description} Dict')
-        guidelines_prompt.line_break()
-
-        guidelines_prompt.dict(self._keyed_mapping_choices_dict)
-
         return service_system_prompt(
             role=f'{self.keys_description} Relationship Identifier',
             task=f'Identify the "{self.keys_description}" that best matches the user provided information or request.',
-            guidelines=guidelines_prompt,
+            guidelines=decoder_guidelines_prompt(
+                keys_description=self.keys_description,
+                keyed_mapping_choices_dict=self._keyed_mapping_choices_dict,
+                max_return_values=max_return_values,
+            ),
         )
 
     def _validate_return_keys_intel(

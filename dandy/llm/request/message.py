@@ -143,9 +143,9 @@ class MessageHistory(BaseModel):
             image_urls: list[str] | None = None,
             image_file_paths: list[Path | str] | None = None,
             image_base64_strings: list[str] | None = None,
-            input_audio_urls: list[str] | None = None,
-            input_audio_file_paths: list[str] | None = None,
-            input_audio_base64_strings: list[str] | None = None,
+            audio_urls: list[str] | None = None,
+            audio_file_paths: list[str] | None = None,
+            audio_base64_strings: list[str] | None = None,
             prepend: bool = False,
     ) -> None:
         message = Message(role=role)
@@ -168,19 +168,19 @@ class MessageHistory(BaseModel):
                 image_base64_string=image_base64_string
             )
 
-        for input_audio_url in input_audio_urls or []:
+        for audio_url in audio_urls or []:
             message.add_content_from_input_audio_url(
-                input_audio_url=input_audio_url
+                input_audio_url=audio_url
             )
 
-        for input_audio_file_path in input_audio_file_paths or []:
+        for audio_file_path in audio_file_paths or []:
             message.add_content_from_input_audio_file_path(
-                input_audio_file_path=input_audio_file_path
+                input_audio_file_path=audio_file_path
             )
 
-        for input_audio_base64_string in input_audio_base64_strings or []:
+        for audio_base64_string in audio_base64_strings or []:
             message.add_content_from_input_audio_base64_string(
-                input_audio_base64_string=input_audio_base64_string
+                input_audio_base64_string=audio_base64_string
             )
 
         if prepend:

@@ -1,18 +1,28 @@
 from __future__ import annotations
 
 from abc import ABC
-from pathlib import Path
 from types import UnionType
-from typing import Any, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Iterator,
+    Self,
+    TypeVar,
+    Union,
+    get_origin,
+)
 
 from pydantic import BaseModel, PrivateAttr
 from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
-from typing import Generic, TypeVar, Self, get_origin, Iterator
 
-from dandy.file.utils import write_to_file, read_from_file
+from dandy.file.utils import read_from_file, write_to_file
 from dandy.intel.exceptions import IntelCriticalError
 from dandy.intel.field.annotation import FieldAnnotation
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class BaseIntel(BaseModel, ABC):

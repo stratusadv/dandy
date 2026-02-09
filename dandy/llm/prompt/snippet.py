@@ -8,11 +8,16 @@ from dataclasses import dataclass
 from random import randint, shuffle
 from typing import TYPE_CHECKING, Sequence
 
-from dandy.file.utils import get_file_path_or_exception, get_directory_path_or_exception, get_directory_listing
+from dandy.file.utils import (
+    get_directory_listing,
+    get_directory_path_or_exception,
+    get_file_path_or_exception,
+)
 from dandy.llm.prompt.tools import list_to_str
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from dandy.intel.intel import BaseIntel
     from dandy.llm.prompt.prompt import Prompt
 
@@ -200,7 +205,6 @@ class SubHeadingSnippet(BaseSnippet):
 class TextSnippet(BaseSnippet):
     text: str
     label: str = ''
-    text: str
 
     def _to_str(self) -> str:
         if self.label != '':

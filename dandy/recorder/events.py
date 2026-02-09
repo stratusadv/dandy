@@ -1,14 +1,14 @@
 import logging
-from enum import Enum
+from enum import StrEnum
 from time import perf_counter
+from typing import Any, Self
 
 from pydantic import BaseModel, Field
-from typing import Self, Any
 
 from dandy.conf import settings
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     RUN = 'run'
     RETRY = 'retry'
     REQUEST = 'request'

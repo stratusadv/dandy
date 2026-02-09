@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dandy.file.audio.constants import BASE64_AUDIO_MIME_SIGNATURES
 from dandy.file.exceptions import FileRecoverableError
 
 
@@ -8,18 +9,10 @@ def get_audio_format_from_base64_string(base64_string: str) -> str:
 
 
 def get_audio_mime_type_from_base64_string(base64_string: str) -> str:
-    SIGNATURES = {
-        'SUQzA': 'audio/mp3',
-        '//': 'audio/mp3',
-        'T2dnU': 'audio/ogg',
-        'UklGR': 'audio/wav',
-        'AAAAZ': 'audio/mp4',
-        '//O': 'audio/mp4',
-    }
 
-    for signature in SIGNATURES:
+    for signature in BASE64_AUDIO_MIME_SIGNATURES:
         if base64_string.startswith(signature):
-            return SIGNATURES[signature]
+            return BASE64_AUDIO_MIME_SIGNATURES[signature]
 
     message = 'Unable to determine audio format from base64 string'
     raise FileRecoverableError(message)

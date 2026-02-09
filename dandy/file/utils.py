@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Sequence
 from urllib.parse import urlparse
 
-from dandy.core.exceptions import DandyCriticalError
 from dandy.conf import settings
+from dandy.file.exceptions import FileCriticalError, FileRecoverableError
 
 
 def append_to_file(file_path: Path | str, content: str):
@@ -19,16 +19,13 @@ def append_to_file(file_path: Path | str, content: str):
 
 
 def clean_file_extensions(file_extensions: Sequence[str]) -> Sequence[str]:
-    return [
-        ext if ext[0:1] == '.' else f'.{ext}'
-        for ext in file_extensions
-    ]
+    return [ext if ext[0:1] == '.' else f'.{ext}' for ext in file_extensions]
 
 
 def encode_file_to_base64(file_path: str | Path) -> str:
     if not Path(file_path).is_file():
         message = f'File "{file_path}" does not exist'
-        raise DandyCriticalError(message)
+        raise FileCriticalError(message)
 
     with open(file_path, 'rb') as f:
         return base64.b64encode(f.read()).decode('utf-8')
@@ -39,7 +36,7 @@ def file_exists(file_path: Path | str) -> bool:
 
 
 def get_file_path_or_exception(
-        file_path: str | Path,
+    file_path: str | Path,
 ) -> Path:
     if Path(file_path).is_file():
         return Path(file_path)
@@ -48,11 +45,11 @@ def get_file_path_or_exception(
         return Path(settings.BASE_PATH, file_path)
 
     message = f'File "{file_path}" does not exist'
-    raise DandyCriticalError(message)
+    raise FileCriticalError(message)
 
 
 def get_directory_path_or_exception(
-        dir_path: str | Path,
+    dir_path: str | Path,
 ) -> Path:
     if Path(dir_path).is_dir():
         return Path(dir_path)
@@ -61,14 +58,14 @@ def get_directory_path_or_exception(
         return Path(settings.BASE_PATH, dir_path)
 
     message = f'Directory "{dir_path}" does not exist'
-    raise DandyCriticalError(message)
+    raise FileCriticalError(message)
 
 
 def get_directory_listing(
-        dir_path: str | Path,
-        max_depth: int | None = None,
-        file_extensions: Sequence[str] | None = None,
-        _current_depth: int = 0,
+    dir_path: str | Path,
+    max_depth: int | None = None,
+    file_extensions: Sequence[str] | None = None,
+    _current_depth: int = 0,
 ) -> list[str]:
     if _current_depth == 0 and file_extensions is not None:
         file_extensions = clean_file_extensions(file_extensions)
@@ -96,7 +93,7 @@ def get_directory_listing(
     return items
 
 
-def get_file_extension_from_url_string(url):
+def get_file_extension_from_url_string(url: str) -> str:
     parsed_url = urlparse(url)
 
     return Path(parsed_url.path).suffix.lower()[1:]
@@ -104,6 +101,10 @@ def get_file_extension_from_url_string(url):
 
 def make_directory(directory_path: Path | str):
     Path(directory_path).mkdir(parents=True, exist_ok=True)
+
+    if not Path(directory_path).is_dir():
+        message = f'Failed to create directory "{directory_path}"'
+        raise FileRecoverableError(message)
 
 
 def read_from_file(file_path: Path | str) -> str:
@@ -116,9 +117,17 @@ def read_from_file(file_path: Path | str) -> str:
 def remove_directory(directory_path: Path | str):
     Path(directory_path).rmdir()
 
+    if Path(directory_path).is_dir():
+        message = f'Failed to remove directory "{directory_path}"'
+        raise FileRecoverableError(message)
+
 
 def remove_file(file_path: Path | str):
     Path(file_path).unlink(missing_ok=True)
+
+    if Path(file_path).exists():
+        message = f'Failed to remove file "{file_path}"'
+        raise FileRecoverableError(message)
 
 
 def write_to_file(file_path: Path | str, content: str):

@@ -1,6 +1,7 @@
 
+from typing import Any, Generic, TypeVar
+
 from pydantic import Field
-from typing import Generic, TypeVar, Any
 
 from dandy.intel.intel import BaseIntel, BaseListIntel
 
@@ -11,7 +12,7 @@ class DecoderKeyIntel(BaseIntel, Generic[T]):
     key: T
 
 
-class DecoderKeysIntel(BaseListIntel[T], Generic[T]):
+class DecoderKeysIntel(BaseListIntel[list[T]], Generic[T]):
     keys: list[T] = Field(default_factory=list)
 
 

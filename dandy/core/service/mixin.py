@@ -9,9 +9,6 @@ T = TypeVar('T')
 class BaseServiceMixin(ABC):
     _required_attrs: ClassVar[tuple[str, ...]] = ()
 
-    def __init__(self, **kwargs):
-        pass
-
     def __init_subclass__(cls):
         super().__init_subclass__()
         for attr in cls._required_attrs:
@@ -30,5 +27,5 @@ class BaseServiceMixin(ABC):
 
     @abstractmethod
     def reset(self):
-        pass
+        raise NotImplementedError
 
