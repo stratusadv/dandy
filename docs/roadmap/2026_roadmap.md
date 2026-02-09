@@ -50,19 +50,19 @@
 
 ## April
 
-- Something
+- Something 📖
 
 ## March
 
-- Something
+- Something 📖
 
 ## February
 
-- v2 Stable Release
+- v2 Stable Release 🚧
 
 ## January
 
-- v2 Alpha Release 🚧
+- v2 Alpha Release ✅
 
 ## Legend
 

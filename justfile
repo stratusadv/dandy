@@ -1,5 +1,7 @@
 set windows-shell := ["powershell.exe", "-c"]
 set shell := ["sh", "-c"]
+set dotenv-load
+set dotenv-filename := "development.env"
 
 RESEARCH_PROMPT := "Can you design a really unique python library in a single code snippet."
 ACTIVATE_VENV := if os() == "linux" { "source .venv/bin/activate" } else { ".venv/Scripts/activate" }
@@ -19,3 +21,7 @@ run-tests:
 run-doc-tests:
 	{{ACTIVATE_VENV}}
 	mkdocs build --strict
+
+run-cli:
+	{{ACTIVATE_VENV}}
+	dandy
