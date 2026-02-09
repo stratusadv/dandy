@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dandy.consts import RECORDING_POSTFIX_NAME, __VERSION__
+from dandy.constants import RECORDING_POSTFIX_NAME, __VERSION__
 from dandy.core.utils import python_obj_to_markdown
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
 from dandy.recorder.utils import generate_recorder_event_id

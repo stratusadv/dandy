@@ -5,7 +5,7 @@ from typing import Any
 
 from dandy import Bot
 from dandy.cache.exceptions import CacheCriticalError
-from dandy.consts import CACHE_KEY_HASH_LAYER_LIMIT
+from dandy.constants import CACHE_KEY_HASH_LAYER_LIMIT
 
 
 def generate_cache_key(func: object, *args, **kwargs) -> str:

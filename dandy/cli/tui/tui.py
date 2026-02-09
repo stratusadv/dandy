@@ -1,9 +1,11 @@
+import random
 import sys
 import threading
 import time
 
 from blessed import Terminal
 
+from dandy.cli.constants import PROCESSING_PHRASES
 from dandy.cli.tui.elements.welcome_element import WelcomeElement
 
 
@@ -19,16 +21,16 @@ class Tui:
     @classmethod
     def _print_processing_timer(cls):
         start_time = time.time()
-        hat_frames = ['🎩', '🪄', '✨', '🎩', '✨', '🪄']
-        frame_index = 0
+        processing_phrase = f' ↳ {random.choice(PROCESSING_PHRASES)} '
 
         while not cls._timer_stop:
             elapsed = time.time() - start_time
-            current_hat = hat_frames[frame_index % len(hat_frames)]
-            print(f'\r{cls.term.bold_green(" ↳ Processing ")} {current_hat} {cls.term.bold_white(f"{elapsed:.1f}s")}', end='',
-                  flush=True)
-            frame_index += 1
-            time.sleep(0.15)
+            print(
+                f'\r{cls.term.bold_green(processing_phrase)}{cls.term.bold_white(f"{elapsed:.1f}s")}',
+                end='',
+                flush=True
+            )
+            time.sleep(0.1)
 
         print(cls.term.bold_green(' Done'))
         print(cls.term.bold_green('-' * cls.term.width))
@@ -156,7 +158,8 @@ class Tui:
                         sys.stdout.write(input_str + ''.join(buffer))
 
                         # Display hints
-                        hint_lines = cls._display_autocomplete_hints(current_matches, match_index % len(current_matches))
+                        hint_lines = cls._display_autocomplete_hints(current_matches,
+                                                                     match_index % len(current_matches))
 
                         # Move cursor back to input line
                         for _ in range(hint_lines):
@@ -225,7 +228,6 @@ class Tui:
     @classmethod
     def print(cls, content: str):
         print(content)
-
 
     @classmethod
     def print_welcome(cls):

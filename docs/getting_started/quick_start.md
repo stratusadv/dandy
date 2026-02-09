@@ -20,26 +20,14 @@ ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
-# Standard OpenAI API config
-
 LLM_CONFIGS = {
     'DEFAULT': {
-        'HOST': 'https://api.openai.com',
-        'PORT': 443,
+        'HOST': os.getenv('OPENAI_HOST', 'https://api.openai.com'),
+        'PORT': int(os.getenv('OPENAI_PORT', 443)),
         'API_KEY': os.getenv('OPENAI_API_KEY'),
         'MODEL': 'gpt-4o-mini',
     }
 }
-
-# or if using the Ollama API
-
-LLM_CONFIGS = {
-    'DEFAULT': {
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
-        'MODEL': 'qwen3:30b-instruct',
-    },}
 ```
 
 ## Simple LLM Interaction

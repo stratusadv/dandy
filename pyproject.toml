@@ -85,7 +85,7 @@ dandy = [
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "dandy.consts.__VERSION__" }
+version = { attr = "dandy.constants.__VERSION__" }
 
 [tool.ruff]
 extend = "ruff.toml"

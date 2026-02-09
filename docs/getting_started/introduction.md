@@ -22,7 +22,7 @@ Integrate AI logic into your codebase with zero context-switching, feels like na
 Auto-recovers from 90% of common errors, including API failures, rate limits, and malformed responses.
 
 #### Flexible API
-Pre-wired for common AI providers (OpenAI/Ollama) and connectors for custom API's.
+Works with any OpenAI-compatible API provider and includes connectors for custom API's.
 
 #### Deployment Ready
 Add AI features to live apps in hours, not weeks, with less downtime and project refactoring.

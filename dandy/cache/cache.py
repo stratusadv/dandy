@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from dandy.consts import CACHE_DEFAULT_NAME
+from dandy.constants import CACHE_DEFAULT_NAME
 
 
 class BaseCache(ABC, BaseModel):

@@ -2,7 +2,7 @@ import inspect
 import json
 from typing import Callable, Dict, List
 
-from dandy.core.typing.consts import STRING_TO_TYPE_MAP
+from dandy.core.typing.constants import STRING_TO_TYPE_MAP
 from dandy.core.typing.exceptions import TypingRecoverableError, TypingCriticalError
 from dandy.core.typing.typed_kwargs import TypedKwargs
 

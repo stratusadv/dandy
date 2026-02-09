@@ -4,7 +4,7 @@ from typing import Any, Iterable
 
 from pydantic import ValidationError
 
-from dandy.consts import DEFAULT_SETTINGS_MODULE
+from dandy.constants import DEFAULT_SETTINGS_MODULE
 
 
 def get_settings_module_name() -> str:

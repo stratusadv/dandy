@@ -6,6 +6,9 @@ repo_url: https://github.com/stratusadv/dandy
 
 copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
 
+exclude_docs: |
+  tutorials/prompt_test_document.md
+
 extra_css:
   - static/css/extra.css
   - static/css/mkdocstrings.css
@@ -51,6 +54,7 @@ nav:
       - 12. Example Project: tutorials/example_project.md
   - API Reference: reference/
   - Roadmap:
+      - 2026: roadmap/2026_roadmap.md
       - 2025: roadmap/2025_roadmap.md
       - 2024: roadmap/2024_roadmap.md
       - Legend: roadmap/roadmap_legend.md

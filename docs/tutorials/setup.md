@@ -30,24 +30,18 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'HOST': os.getenv("OLLAMA_HOST"),
-        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
-        'API_KEY': os.getenv("OLLAMA_API_KEY"),
-        'MODEL': 'llama3.1:8b-instruct-q4_K_M',
-    },
-    'LLAMA_3_2_3B': {
-        'MODEL': 'llama3.2:3b-instruct-q4_K_M',
+        'HOST': os.getenv('OPENAI_HOST', 'https://api.openai.com'),
+        'PORT': int(os.getenv('OPENAI_PORT', 443)),
+        'API_KEY': os.getenv('OPENAI_API_KEY'),
+        'MODEL': 'gpt-4o-mini',
     },
     'GPT_4o': {
-        'HOST': os.getenv("OPENAI_HOST"),
-        'PORT': int(os.getenv("OPENAI_PORT", 443)),
-        'API_KEY': os.getenv("OPENAI_API_KEY"),
         'MODEL': 'gpt-4o',
     },
 }
 ```
 
-This configuration allows us to use both Ollama and OpenAI as our LLM services.
+This configuration sets up OpenAI as the LLM service with multiple model options.
 
 The `DEFAULT` in the `LLM_CONFIGS` will be used when no other config is specified for any llm actions.
 

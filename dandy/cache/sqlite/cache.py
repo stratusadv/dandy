@@ -2,10 +2,10 @@ import pickle
 import sqlite3
 from typing import Any
 
-import dandy.consts
+import dandy.constants
 from dandy.cache.cache import BaseCache
 from dandy.cache.sqlite.connection import SqliteConnection
-from dandy.consts import SQLITE_CACHE_TABLE_NAME, SQLITE_CACHE_DB_NAME
+from dandy.constants import SQLITE_CACHE_TABLE_NAME, SQLITE_CACHE_DB_NAME
 
 
 class SqliteCache(BaseCache):
@@ -108,7 +108,7 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     @classmethod
-    def clear(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
+    def clear(cls, cache_name: str = dandy.constants.CACHE_DEFAULT_NAME):
         if cls._table_exists():
             with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
                 cursor = connection.cursor()

@@ -20,34 +20,36 @@ Let's make ourselves a `Decoder` and add `@cache_to_memory` to the `process` met
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from time import perf_counter
 
-from dandy import Decoder, cache_to_memory
+from dandy import Bot, cache_to_memory
 
 
-class NumberDecoder(Decoder):
-    mapping_keys_description = 'Verbose Number Descriptions'
-    mapping = {
-        'small numbers': 1,
-        'medium numbers': 30,
-        'large numbers': 100,
-        'over 9000 numbers': 9002,
-    }
-    
+class NumberDecoderBot(Bot):
     @cache_to_memory()
-    def process(self, *args, **kwargs):
-        return super().process(*args, **kwargs)
-    
-number_decoder = NumberDecoder()
+    def process(self, prompt: str):
+        return self.llm.decoder.prompt_to_value(
+            prompt=prompt,
+            keys_description='Verbose Number Descriptions',
+            keys_values={
+                'small numbers': 1,
+                'medium numbers': 30,
+                'large numbers': 100,
+                'over 9000 numbers': 9002,
+            }
+        )
+
+
+number_decoder = NumberDecoderBot()
 
 start_time = perf_counter()
 
-print(number_decoder.process('I really like large numbers')[0])
+print(number_decoder.process('I really like large numbers'))
 
 uncached_finish_time = perf_counter() - start_time
 
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
-print(number_decoder.process('I really like large numbers')[0])
-    
+print(number_decoder.process('I really like large numbers'))
+
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 
 print(f'Finished cached in {cached_finish_time:.5f} seconds')

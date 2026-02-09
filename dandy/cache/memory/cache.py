@@ -1,6 +1,6 @@
 from typing import OrderedDict, Any
 
-import dandy.consts
+import dandy.constants
 from dandy.cache.cache import BaseCache
 
 _memory_cache = {}
@@ -32,7 +32,7 @@ class MemoryCache(BaseCache):
             self._cache.popitem(last=False)
 
     @classmethod
-    def clear(cls, cache_name: str = dandy.consts.CACHE_DEFAULT_NAME):
+    def clear(cls, cache_name: str = dandy.constants.CACHE_DEFAULT_NAME):
         if cache_name in _memory_cache:
             _memory_cache[cache_name].clear()
 

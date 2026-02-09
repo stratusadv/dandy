@@ -1,14 +1,14 @@
 from functools import wraps
 from typing import Callable
 
-import dandy.consts
+import dandy.constants
 from dandy.cache.decorators import cache_decorator_function
 from dandy.cache.memory.cache import MemoryCache
 from dandy.conf import settings
 
 
 def cache_to_memory(
-        cache_name: str = dandy.consts.CACHE_DEFAULT_NAME,
+        cache_name: str = dandy.constants.CACHE_DEFAULT_NAME,
         limit: int = settings.CACHE_MEMORY_LIMIT
 ) -> Callable:
     def decorator(func: Callable) -> Callable:

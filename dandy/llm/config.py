@@ -34,8 +34,12 @@ class LlmConfig:
 
         config = settings_configs.get(name)
 
+        if config is None:
+            message = f'The "{name}" in "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module is not configured.'
+            raise DandyError(message)
+
         if not isinstance(config, dict):
-            message = f'the "{_CONFIGS_NAME}" in the settings are configured incorrectly.'
+            message = f'the "{_CONFIGS_NAME}" in the "{get_settings_module_name()}" module are configured incorrectly.'
             raise DandyError(message)
 
         for key in _DEFAULT_TRANSFER_KEYS:
@@ -92,7 +96,7 @@ class LlmConfig:
         value = self._settings_values.get(key)
 
         if required and value is None:
-            message = f'The "{key}" was not found in your settings and is required by "{self.__class__.__name__}".'
+            message = f'The "{key.upper()}" was not found in your settings and is required by "{self.__class__.__name__}".'
             raise DandyError(message)
 
         return value

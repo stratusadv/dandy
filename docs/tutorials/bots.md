@@ -35,7 +35,6 @@ Below is an example of how you can customize bots to make sure they work the way
 
 ```python exec="True" source="above" source="material-block" session="bot"
 from dandy import BaseIntel, Bot, Prompt
-from dandy.llm.options import LlmOptions
 
 
 class CandyIntel(BaseIntel):
@@ -45,20 +44,13 @@ class CandyIntel(BaseIntel):
 
 
 class CandyDesignBot(Bot):
-    llm_config = 'SMART'
-    llm_options = LlmOptions(
-        temperature=0.1,
-        max_completion_tokens=2000,
-        prompt_retry_count=3
-    )
+    llm_config = 'THINKING'
     role = (
         Prompt()
         .text('You are a candy design bot.')
         .line_break()
     )
-    task = (
-        Prompt('Use the request to make a new type of candy')
-    )
+    task = 'Use the request to make a new type of candy' # Any were you can use a Prompt you can also use a string
     guidelines = (
         Prompt()
         .list([
@@ -70,6 +62,9 @@ class CandyDesignBot(Bot):
     intel_class = CandyIntel
 
     def process(self, user_prompt: Prompt | str, candy_theme: str) -> CandyIntel:
+        self.llm.options.temperature = 0.1
+        self.llm.options.max_completion_tokens=2000
+        
         prompt = (
             Prompt()
             .heading('Request')

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from dandy.llm.request.message import MessageHistory
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
@@ -18,8 +18,9 @@ class LlmRequestBody(BaseModel):
         },
     }
 
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(
+        extra='allow'
+    )
 
     @property
     def estimated_token_count(self) -> int:

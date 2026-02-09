@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from dandy.llm.exceptions import LlmCriticalError
 
@@ -22,8 +22,9 @@ class LlmOptions(BaseModel):
     temperature: float | None = None
     top_p: float | None = None
 
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(
+        extra='allow'
+    )
 
     def model_post_init(self, context: Any):
         for key, (min_value, max_value) in _VALUES_MIN_MAX.items():
