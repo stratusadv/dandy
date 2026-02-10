@@ -1,60 +1,51 @@
 # 2026 Roadmap
 
-- Bots Calling Bots
-- Stateful Memory
-- Full Type Handling
-- Full Open AI Options Support
-- Data Compaction
-- Data Encoding
-- File System Control
-- Data Enrichment
-- Enterprise Controls
-- Command Line Interface (Feedback Loop or Support)
-- Full Error / Exception Handling
-- Database Connector
-- Recorder Improved to Support Complex Execution
-- Cache Improved
-- Prompting Improved
-
 ## December
 
-- Something
+- Prompting Improved
 
 ## November
 
-- Something
+- Recorder Improved to Support Complex Execution
 
 ## October
 
-- Something
+- Full Type Handling
 
 ## September
 
-- Something
+- Enterprise Controls
 
 ## August
 
-- Something
+- Full Error / Exception Handling
 
 ## July
 
-- Something
+- Data Compaction
+- Data Encoding
+- Data Enrichment
 
 ## June
 
-- Something
+- Bots Calling Bots
+- Stateful Memory
 
 ## May
 
-- Something
+- Database Connector
+- Cache Improved
 
 ## April
 
-- Something 📖
+- File System Control
+- Llm Vision Service Update
+- Llm Listening Service Update
 
 ## March
 
-- Something 📖
+- Full Open AI Options Support 📖
+- Command Line Interface (Feedback Loop or Support) 📖
 
 ## February
 
