@@ -3,6 +3,8 @@ __pycache__/
 .dandy*/
 .idea/
 .junie/
+.cache/
+.npm/
 .venv*/
 venv*/
 build/
