@@ -14,6 +14,10 @@ build-venv:
 	{{ACTIVATE_VENV}}
 	uv pip install -e .[development,documentation]
 
+dandy-cli:
+	{{ACTIVATE_VENV}}
+	dandy
+
 run-tests:
 	{{ACTIVATE_VENV}}
 	python -m unittest discover -v ./tests

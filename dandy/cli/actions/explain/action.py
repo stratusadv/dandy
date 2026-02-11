@@ -12,13 +12,18 @@ class ExplainAction(BaseAction):
         print('Chat help')
 
     def run(self):
-        user_input, stop_timer = Tui.input('Explain')
+        while True:
+            user_input, stop_timer = Tui.input('Explain')
 
-        answer = explain_project_workflow(user_input)
+            if user_input == '/back':
+                stop_timer()
+                break
 
-        stop_timer()
+            answer = explain_project_workflow(user_input)
 
-        Tui.print(answer)
+            stop_timer()
+
+            Tui.print(answer)
 
     def render(self):
         print('hello')

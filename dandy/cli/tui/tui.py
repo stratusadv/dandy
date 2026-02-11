@@ -28,7 +28,7 @@ class Tui:
             print(
                 f'\r{cls.term.bold_green(processing_phrase)}{cls.term.bold_white(f"{elapsed:.1f}s")}',
                 end='',
-                flush=True
+                flush=True,
             )
             time.sleep(0.1)
 
@@ -36,29 +36,32 @@ class Tui:
         print(cls.term.bold_green('-' * cls.term.width))
 
     @classmethod
-    def _get_matches(cls, text):
-        """Get matching commands for autocomplete."""
+    def _get_matching_actions(cls, text: str) -> list[str]:
         if not text.startswith('/'):
             return []
 
         text_without_slash = text[1:]
-        matches = [f'/{cmd}' for cmd in cls._action_commands if cmd.startswith(text_without_slash)]
+        matches = [
+            f'/{cmd}'
+            for cmd in cls._action_commands
+            if cmd.startswith(text_without_slash)
+        ]
         return matches
 
     @classmethod
-    def setup_autocomplete(cls, action_commands):
+    def setup_autocomplete(cls, action_commands: list):
         """Setup autocomplete with action commands."""
         cls._action_commands = action_commands
 
     @classmethod
-    def _display_autocomplete_hints(cls, matches, selected_index):
+    def _display_autocomplete_hints(cls, action_matches: list, selected_index: int) -> int:
         """Display autocomplete options below the input line."""
-        if not matches:
+        if not action_matches:
             return 0
 
         # Clear previous hints - use gray color instead of dim for Windows compatibility
         hint_text = cls.term.gray('  Options: ')
-        for i, match in enumerate(matches):
+        for i, match in enumerate(action_matches):
             if i == selected_index:
                 hint_text += cls.term.bold_cyan(f'{match} ')
             else:
@@ -66,7 +69,17 @@ class Tui:
 
         sys.stdout.write('\n' + hint_text)
         sys.stdout.flush()
+
         return 1  # Number of lines used for hints
+
+    @classmethod
+    def _clear_hint_lines(cls, hint_lines: int):
+        if hint_lines > 0:
+            for _ in range(hint_lines):
+                sys.stdout.write(cls.term.move_down(1))
+            sys.stdout.write('\r' + cls.term.clear_eol())
+            for _ in range(hint_lines):
+                sys.stdout.write(cls.term.move_up(1))
 
     @classmethod
     def input(cls, sub_app: str | None = None, run_process_timer: bool = True):
@@ -90,27 +103,16 @@ class Tui:
             while True:
                 key = cls.term.inkey(timeout=None)
 
-                if key.name == 'KEY_ENTER' or key == '\n' or key == '\r':
-                    # Clear hint lines before accepting input
-                    if hint_lines > 0:
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_down(1))
-                        sys.stdout.write('\r' + cls.term.clear_eol())
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_up(1))
+                if key.name == 'KEY_ENTER' or key in {'\n', '\r'}:
+                    cls._clear_hint_lines(hint_lines)
                     sys.stdout.write('\n')
                     sys.stdout.flush()
                     break
-                elif key.name == 'KEY_BACKSPACE' or key == '\x7f' or key == '\x08':
+
+                elif key.name == 'KEY_BACKSPACE' or key in {'\x7f', '\x08'}:
                     if buffer:
                         buffer.pop()
-                        # Clear hint lines
-                        if hint_lines > 0:
-                            for _ in range(hint_lines):
-                                sys.stdout.write(cls.term.move_down(1))
-                            sys.stdout.write('\r' + cls.term.clear_eol())
-                            for _ in range(hint_lines):
-                                sys.stdout.write(cls.term.move_up(1))
+                        cls._clear_hint_lines(hint_lines)
                         hint_lines = 0
                         # Redraw line
                         sys.stdout.write('\r' + cls.term.clear_eol())
@@ -119,14 +121,17 @@ class Tui:
                         # Check for new matches after backspace
                         current_text = ''.join(buffer)
                         if current_text.startswith('/') and len(current_text) > 1:
-                            current_matches = cls._get_matches(current_text)
+                            current_matches = cls._get_matching_actions(current_text)
                             match_index = 0
                             # Display hints
                             if current_matches:
-                                hint_lines = cls._display_autocomplete_hints(current_matches, -1)
+                                hint_lines = cls._display_autocomplete_hints(
+                                    current_matches, -1
+                                )
                                 # Move cursor back to input line
                                 for _ in range(hint_lines):
                                     sys.stdout.write(cls.term.move_up(1))
+
                                 sys.stdout.write('\r' + input_str + ''.join(buffer))
                         else:
                             current_matches = []
@@ -136,30 +141,29 @@ class Tui:
                 elif key.name == 'KEY_TAB' or key == '\t':
                     # Tab pressed - autocomplete
                     current_text = ''.join(buffer)
-                    if not current_matches or current_text != getattr(cls, '_last_autocomplete_text', ''):
-                        current_matches = cls._get_matches(current_text)
+                    if not current_matches or current_text != getattr(
+                        cls, '_last_autocomplete_text', ''
+                    ):
+                        current_matches = cls._get_matching_actions(current_text)
                         match_index = 0
                         cls._last_autocomplete_text = current_text
 
                     if current_matches:
                         # Cycle through matches
-                        buffer = list(current_matches[match_index % len(current_matches)])
+                        buffer = list(
+                            current_matches[match_index % len(current_matches)]
+                        )
 
-                        # Clear hint lines
-                        if hint_lines > 0:
-                            for _ in range(hint_lines):
-                                sys.stdout.write(cls.term.move_down(1))
-                            sys.stdout.write('\r' + cls.term.clear_eol())
-                            for _ in range(hint_lines):
-                                sys.stdout.write(cls.term.move_up(1))
+                        cls._clear_hint_lines(hint_lines)
 
                         # Redraw line
                         sys.stdout.write('\r' + cls.term.clear_eol())
                         sys.stdout.write(input_str + ''.join(buffer))
 
                         # Display hints
-                        hint_lines = cls._display_autocomplete_hints(current_matches,
-                                                                     match_index % len(current_matches))
+                        hint_lines = cls._display_autocomplete_hints(
+                            current_matches, match_index % len(current_matches)
+                        )
 
                         # Move cursor back to input line
                         for _ in range(hint_lines):
@@ -176,22 +180,18 @@ class Tui:
                     buffer.append(key)
                     current_text = ''.join(buffer)
 
-                    # Clear old hints
-                    if hint_lines > 0:
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_down(1))
-                        sys.stdout.write('\r' + cls.term.clear_eol())
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_up(1))
+                    cls._clear_hint_lines(hint_lines)
 
                     # Check for new matches
                     if current_text.startswith('/') and len(current_text) > 1:
-                        current_matches = cls._get_matches(current_text)
+                        current_matches = cls._get_matching_actions(current_text)
                         match_index = 0
 
                         # Display new hints
                         sys.stdout.write(key)
-                        hint_lines = cls._display_autocomplete_hints(current_matches, -1)
+                        hint_lines = cls._display_autocomplete_hints(
+                            current_matches, -1
+                        )
 
                         # Move cursor back to input line
                         for _ in range(hint_lines):
@@ -206,12 +206,15 @@ class Tui:
                     sys.stdout.flush()
 
         user_input = ''.join(buffer)
+
         if user_input == '':
             return None
 
         if run_process_timer:
             cls._timer_stop = False
-            timer_thread = threading.Thread(target=cls._print_processing_timer, daemon=True)
+            timer_thread = threading.Thread(
+                target=cls._print_processing_timer, daemon=True
+            )
             timer_thread.start()
         else:
             cls._timer_stop = True
