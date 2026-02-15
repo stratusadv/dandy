@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from dandy.cli.actions.manager import ActionManager
-from dandy.cli.intelligence.bots.default_user_input_bot import DefaultUserInputBot
 from dandy.cli.tui.tui import Tui
 
 
@@ -16,7 +15,6 @@ class DandyCli:
         Tui.setup_autocomplete(all_commands)
 
     def run(self):
-        stop_timer = None
         Tui.print_welcome()
 
         while True:
@@ -26,24 +24,19 @@ class DandyCli:
                 user_input_words = user_input.split(' ')
 
                 if user_input_words[0][0] == '/':
+
                     self.action_manager.call(
                         action=user_input_words[0][1:],
                         user_input=' '.join(user_input_words[1:]),
                     )
 
-                    stop_timer()
-
-
                 else:
-                    default_intel = DefaultUserInputBot().process(user_input)
-                    stop_timer()
+                    self.action_manager.call(
+                        action='help',
+                        user_input=' '.join(user_input_words),
+                    )
 
-                    Tui.print(default_intel.response)
-
-            if stop_timer is not None:
-                stop_timer()
-
-            user_input, stop_timer = Tui.get_user_input(run_process_timer=False)
+            user_input = Tui.get_user_input(run_process_timer=False)
 
             self.user_inputs.append(user_input)
 

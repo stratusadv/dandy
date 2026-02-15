@@ -22,8 +22,13 @@ class BaseAction(ABC):
     def input_calls(cls) -> list[str]:
         return [f'/{call}' for call in cls.calls]
 
+    @classmethod
+    @property
+    def name_gerund(cls) -> str:
+        return f'{cls.name}ing'
+
     @abstractmethod
-    def run(self, user_input: str):
+    def run(self, user_input: str) -> str:
         raise NotImplementedError
 
     @abstractmethod

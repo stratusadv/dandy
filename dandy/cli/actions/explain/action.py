@@ -12,9 +12,8 @@ class ExplainAction(BaseAction):
         print('Chat help')
 
     def run(self, user_input: str):
-        answer = explain_project_workflow(user_input)
+        return explain_project_workflow(user_input)
 
-        Tui.print(answer)
 
     def render(self):
         print('hello')

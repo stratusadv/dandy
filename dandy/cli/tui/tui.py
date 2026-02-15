@@ -1,39 +1,24 @@
 import random
 import sys
-import threading
-import time
+from time import time
 
 from blessed import Terminal
 
+from dandy import constants
+from dandy.cli.actions.action import BaseAction
+from dandy.cli.conf import config
 from dandy.cli.constants import PROCESSING_PHRASES
-from dandy.cli.tui.elements.welcome_element import WelcomeElement
+from dandy.cli.tui.tools import wrap_text_with_indentation
+from dandy.llm.config import LlmConfig
 
 
 class Tui:
     term = Terminal()
-    _timer_stop = False
     _action_commands = []
 
     @classmethod
     def clear(cls):
         print(cls.term.clear)
-
-    @classmethod
-    def _print_processing_timer(cls):
-        start_time = time.time()
-        processing_phrase = f' ↳ {random.choice(PROCESSING_PHRASES)} '
-
-        while not cls._timer_stop:
-            elapsed = time.time() - start_time
-            print(
-                f'\r{cls.term.bold_green(processing_phrase)}{cls.term.bold_white(f"{elapsed:.1f}s")}',
-                end='',
-                flush=True,
-            )
-            time.sleep(0.1)
-
-        print(cls.term.bold_green(' Done'))
-        print(cls.term.bold_green('-' * cls.term.width))
 
     @classmethod
     def _get_matching_actions(cls, text: str) -> list[str]:
@@ -83,9 +68,8 @@ class Tui:
 
     @classmethod
     def get_user_input(cls, run_process_timer: bool = True):
-        input_str = cls.term.bold_blue('🎩 ')
-
         print(cls.term.bold_blue('─' * cls.term.width))
+        input_prefix = cls.term.bold_blue('🎩 ')
 
         # Custom input with autocomplete support
         buffer = []
@@ -94,17 +78,18 @@ class Tui:
         hint_lines = 0
 
         with cls.term.cbreak():
-            sys.stdout.write(input_str)
+            sys.stdout.write(input_prefix)
             sys.stdout.flush()
 
             while True:
                 key = cls.term.inkey(timeout=None)
 
                 if key.name == 'KEY_ENTER' or key in {'\n', '\r'}:
-                    cls._clear_hint_lines(hint_lines)
-                    sys.stdout.write('\n')
-                    sys.stdout.flush()
-                    break
+                    if buffer:
+                        cls._clear_hint_lines(hint_lines)
+                        sys.stdout.write('\n')
+                        sys.stdout.flush()
+                        break
 
                 elif key.name == 'KEY_BACKSPACE' or key in {'\x7f', '\x08'}:
                     if buffer:
@@ -113,7 +98,7 @@ class Tui:
                         hint_lines = 0
                         # Redraw line
                         sys.stdout.write('\r' + cls.term.clear_eol())
-                        sys.stdout.write(input_str + ''.join(buffer))
+                        sys.stdout.write(input_prefix + ''.join(buffer))
 
                         # Check for new matches after backspace
                         current_text = ''.join(buffer)
@@ -129,7 +114,7 @@ class Tui:
                                 for _ in range(hint_lines):
                                     sys.stdout.write(cls.term.move_up(1))
 
-                                sys.stdout.write('\r' + input_str + ''.join(buffer))
+                                sys.stdout.write('\r' + input_prefix + ''.join(buffer))
                         else:
                             current_matches = []
                             match_index = 0
@@ -155,7 +140,7 @@ class Tui:
 
                         # Redraw line
                         sys.stdout.write('\r' + cls.term.clear_eol())
-                        sys.stdout.write(input_str + ''.join(buffer))
+                        sys.stdout.write(input_prefix + ''.join(buffer))
 
                         # Display hints
                         hint_lines = cls._display_autocomplete_hints(
@@ -165,7 +150,7 @@ class Tui:
                         # Move cursor back to input line
                         for _ in range(hint_lines):
                             sys.stdout.write(cls.term.move_up(1))
-                        sys.stdout.write('\r' + input_str + ''.join(buffer))
+                        sys.stdout.write('\r' + input_prefix + ''.join(buffer))
                         sys.stdout.flush()
 
                         match_index += 1
@@ -193,7 +178,7 @@ class Tui:
                         # Move cursor back to input line
                         for _ in range(hint_lines):
                             sys.stdout.write(cls.term.move_up(1))
-                        sys.stdout.write('\r' + input_str + ''.join(buffer))
+                        sys.stdout.write('\r' + input_prefix + ''.join(buffer))
                     else:
                         current_matches = []
                         match_index = 0
@@ -202,33 +187,43 @@ class Tui:
 
                     sys.stdout.flush()
 
-        user_input = ''.join(buffer)
-
-        if user_input == '':
-            return None
-
-        if run_process_timer:
-            cls._timer_stop = False
-            timer_thread = threading.Thread(
-                target=cls._print_processing_timer, daemon=True
-            )
-            timer_thread.start()
-        else:
-            cls._timer_stop = True
-
-        def stop_timer():
-            if cls._timer_stop:
-                return
-
-            cls._timer_stop = True
-            timer_thread.join(timeout=0.5)
-
-        return user_input, stop_timer
+        return ''.join(buffer)
 
     @classmethod
     def print(cls, content: str):
         print(content)
 
+
     @classmethod
     def print_welcome(cls):
-        WelcomeElement(cls.term).render()
+        print('')
+        print('Dandy CLI Welcomes You !!!')
+        print(cls.term.bold_purple('─' * cls.term.width))
+        print(cls.term.bold_purple('Version   : ') + constants.__VERSION__)
+        print(cls.term.bold_purple('Model     : ') + LlmConfig('DEFAULT').model)
+        print(cls.term.bold_purple('Directory : ') + str(config.project_base_path))
+
+    @classmethod
+    def print_running_action(cls, action: BaseAction):
+        phrase = random.choice(PROCESSING_PHRASES)
+        print(f' ↳ {cls.term.bold_blue}{phrase} in preparation of "{action.name_gerund}" {cls.term.normal}',)
+
+    @classmethod
+    def print_completed_action(cls, start_time: float, action: BaseAction):
+        print(f'   ↳ {cls.term.bold_green}Finished in only {time() - start_time:.1f}s{cls.term.normal}',)
+
+    @classmethod
+    def print_start_task(cls, action_name: str, task: str) -> float:
+        print(f'   ↳ {cls.term.bold_orange}{action_name}{cls.term.normal} "{task}" ... ', end='')
+        return time()
+
+    @classmethod
+    def print_end_task(cls, start_time: float, action_name: str = 'done'):
+        print(f'{cls.term.green}done {time() - start_time:.1f}s{cls.term.normal}')
+
+    @classmethod
+    def print_output(cls, output: str):
+        print(cls.term.bold_green('─' * cls.term.width), flush=True)
+        print(wrap_text_with_indentation(output, cls.term.width))
+
+
