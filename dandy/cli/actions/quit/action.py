@@ -11,8 +11,9 @@ class QuitAction(BaseAction):
     def help(self):
         print('Quit help')
 
-    def run(self):
-        print('Quitting...')
+    def run(self, user_input: str):
+        message = f'ignoring "{user_input}"' if user_input else ''
+        print(f'Quitting ... {message}')
         sys.exit(0)
 
     def render(self):

@@ -82,11 +82,8 @@ class Tui:
                 sys.stdout.write(cls.term.move_up(1))
 
     @classmethod
-    def input(cls, sub_app: str | None = None, run_process_timer: bool = True):
+    def get_user_input(cls, run_process_timer: bool = True):
         input_str = cls.term.bold_blue('🎩 ')
-
-        if sub_app is not None:
-            input_str += cls.term.bold_blue(sub_app) + ' > '
 
         print(cls.term.bold_blue('─' * cls.term.width))
 

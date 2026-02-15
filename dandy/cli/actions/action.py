@@ -23,7 +23,7 @@ class BaseAction(ABC):
         return [f'/{call}' for call in cls.calls]
 
     @abstractmethod
-    def run(self):
+    def run(self, user_input: str):
         raise NotImplementedError
 
     @abstractmethod

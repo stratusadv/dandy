@@ -16,10 +16,13 @@ class ActionManager:
             for calls in action.calls:
                 self.calls_actions[calls] = action
 
-    def call(self, action: str):
+    def call(self, action: str, user_input: str):
         action = self.calls_actions.get(action)
+
         if action:
-            action().run()
+            action().run(
+                user_input=user_input
+            )
 
         else:
             print('Action not found')

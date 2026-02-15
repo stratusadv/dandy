@@ -11,19 +11,10 @@ class ExplainAction(BaseAction):
     def help(self):
         print('Chat help')
 
-    def run(self):
-        while True:
-            user_input, stop_timer = Tui.input('Explain')
+    def run(self, user_input: str):
+        answer = explain_project_workflow(user_input)
 
-            if user_input == '/back':
-                stop_timer()
-                break
-
-            answer = explain_project_workflow(user_input)
-
-            stop_timer()
-
-            Tui.print(answer)
+        Tui.print(answer)
 
     def render(self):
         print('hello')

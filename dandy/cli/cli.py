@@ -21,19 +21,29 @@ class DandyCli:
 
         while True:
             user_input = self.newest_user_input
+
             if user_input is not None:
-                if user_input[0] == '/':
+                user_input_words = user_input.split(' ')
+
+                if user_input_words[0][0] == '/':
+                    self.action_manager.call(
+                        action=user_input_words[0][1:],
+                        user_input=' '.join(user_input_words[1:]),
+                    )
+
                     stop_timer()
-                    self.action_manager.call(user_input[1:])
+
+
                 else:
                     default_intel = DefaultUserInputBot().process(user_input)
                     stop_timer()
+
                     Tui.print(default_intel.response)
 
             if stop_timer is not None:
                 stop_timer()
 
-            user_input, stop_timer = Tui.input(run_process_timer=False)
+            user_input, stop_timer = Tui.get_user_input(run_process_timer=False)
 
             self.user_inputs.append(user_input)
 
