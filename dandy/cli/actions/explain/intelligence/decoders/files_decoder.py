@@ -2,7 +2,7 @@ from pathlib import Path
 
 from dandy import Prompt
 from dandy.bot.bot import Bot
-from dandy.cli.conf import config
+from dandy.cli.session import config
 from dandy.file.utils import get_directory_listing
 
 

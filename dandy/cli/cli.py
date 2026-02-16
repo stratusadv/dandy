@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dandy.cli.actions.manager import ActionManager
-from dandy.cli.tui.tui import Tui
+from dandy.cli.tui.tui import tui
 
 
 class DandyCli:
@@ -11,11 +11,12 @@ class DandyCli:
         self.user_inputs = []
 
         # Setup autocomplete with all available action commands
-        all_commands = list(self.action_manager.calls_actions.keys())
-        Tui.setup_autocomplete(all_commands)
+        tui.setup_autocomplete(
+            list(self.action_manager.calls_actions.keys())
+        )
 
     def run(self):
-        Tui.print_welcome()
+        tui.printer.welcome()
 
         while True:
             user_input = self.newest_user_input
@@ -36,7 +37,9 @@ class DandyCli:
                         user_input=' '.join(user_input_words),
                     )
 
-            user_input = Tui.get_user_input(run_process_timer=False)
+            tui.printer.blue_divider()
+
+            user_input = tui.get_user_input()
 
             self.user_inputs.append(user_input)
 

@@ -1,229 +1,196 @@
-import random
 import sys
-from time import time
 
 from blessed import Terminal
+from blessed.keyboard import Keystroke
 
-from dandy import constants
-from dandy.cli.actions.action import BaseAction
-from dandy.cli.conf import config
-from dandy.cli.constants import PROCESSING_PHRASES
-from dandy.cli.tui.tools import wrap_text_with_indentation
-from dandy.llm.config import LlmConfig
+from dandy.cli.tui.printer import Printer
+
+tui_terminal = Terminal()
 
 
 class Tui:
-    term = Terminal()
-    _action_commands = []
+    def __init__(self):
+        self.term = tui_terminal
+        self.printer = Printer(tui_terminal)
 
-    @classmethod
-    def clear(cls):
-        print(cls.term.clear)
+        self._buffer = []
+        self._action_commands = []
+        self._last_autocomplete_text = ''
+        self._match_index = 0
+        self._current_matches = []
+        self._hint_lines = 0
+        self._input_prefix = self.term.bold_blue('🎩 ')
+        self._processing_input = False
 
-    @classmethod
-    def _get_matching_actions(cls, text: str) -> list[str]:
+    def clear(self):
+        print(self.term.clear)
+
+    def _get_matching_actions(self, text: str) -> list[str]:
         if not text.startswith('/'):
             return []
 
         text_without_slash = text[1:]
         matches = [
             f'/{cmd}'
-            for cmd in cls._action_commands
+            for cmd in self._action_commands
             if cmd.startswith(text_without_slash)
         ]
         return matches
 
-    @classmethod
-    def setup_autocomplete(cls, action_commands: list):
+    def setup_autocomplete(self, action_commands: list):
         """Setup autocomplete with action commands."""
-        cls._action_commands = action_commands
+        self._action_commands = action_commands
 
-    @classmethod
-    def _display_autocomplete_hints(cls, action_matches: list, selected_index: int) -> int:
+    def _display_autocomplete_hints(self, action_matches: list, selected_index: int) -> int:
         """Display autocomplete options below the input line."""
         if not action_matches:
             return 0
 
         # Clear previous hints - use gray color instead of dim for Windows compatibility
-        hint_text = cls.term.gray('  Options: ')
+        hint_text = self.term.gray('  Options: ')
         for i, match in enumerate(action_matches):
             if i == selected_index:
-                hint_text += cls.term.bold_cyan(f'{match} ')
+                hint_text += self.term.bold_cyan(f'{match} ')
             else:
-                hint_text += cls.term.gray(f'{match} ')
+                hint_text += self.term.gray(f'{match} ')
 
         sys.stdout.write('\n' + hint_text)
         sys.stdout.flush()
 
         return 1  # Number of lines used for hints
 
-    @classmethod
-    def _clear_hint_lines(cls, hint_lines: int):
-        if hint_lines > 0:
-            for _ in range(hint_lines):
-                sys.stdout.write(cls.term.move_down(1))
-            sys.stdout.write('\r' + cls.term.clear_eol())
-            for _ in range(hint_lines):
-                sys.stdout.write(cls.term.move_up(1))
+    def _clear_hint_lines(self):
+        if self._hint_lines > 0:
+            for _ in range(self._hint_lines):
+                sys.stdout.write(self.term.move_down(1))
+            sys.stdout.write('\r' + self.term.clear_eol())
+            for _ in range(self._hint_lines):
+                sys.stdout.write(self.term.move_up(1))
 
-    @classmethod
-    def get_user_input(cls, run_process_timer: bool = True):
-        print(cls.term.bold_blue('─' * cls.term.width))
-        input_prefix = cls.term.bold_blue('🎩 ')
+    def get_user_input(self):
+        self._buffer = []
+        self._match_index = 0
+        self._current_matches = []
+        self._hint_lines = 0
 
-        # Custom input with autocomplete support
-        buffer = []
-        match_index = 0
-        current_matches = []
-        hint_lines = 0
-
-        with cls.term.cbreak():
-            sys.stdout.write(input_prefix)
+        with self.term.cbreak():
+            sys.stdout.write(self._input_prefix)
             sys.stdout.flush()
 
-            while True:
-                key = cls.term.inkey(timeout=None)
+            self._processing_input = True
+
+            while self._processing_input:
+                key = self.term.inkey(timeout=None)
 
                 if key.name == 'KEY_ENTER' or key in {'\n', '\r'}:
-                    if buffer:
-                        cls._clear_hint_lines(hint_lines)
-                        sys.stdout.write('\n')
-                        sys.stdout.flush()
-                        break
+                    self._process_enter_key()
 
                 elif key.name == 'KEY_BACKSPACE' or key in {'\x7f', '\x08'}:
-                    if buffer:
-                        buffer.pop()
-                        cls._clear_hint_lines(hint_lines)
-                        hint_lines = 0
-                        # Redraw line
-                        sys.stdout.write('\r' + cls.term.clear_eol())
-                        sys.stdout.write(input_prefix + ''.join(buffer))
+                    self._process_backspace_key()
 
-                        # Check for new matches after backspace
-                        current_text = ''.join(buffer)
-                        if current_text.startswith('/') and len(current_text) > 1:
-                            current_matches = cls._get_matching_actions(current_text)
-                            match_index = 0
-                            # Display hints
-                            if current_matches:
-                                hint_lines = cls._display_autocomplete_hints(
-                                    current_matches, -1
-                                )
-                                # Move cursor back to input line
-                                for _ in range(hint_lines):
-                                    sys.stdout.write(cls.term.move_up(1))
-
-                                sys.stdout.write('\r' + input_prefix + ''.join(buffer))
-                        else:
-                            current_matches = []
-                            match_index = 0
-
-                        sys.stdout.flush()
                 elif key.name == 'KEY_TAB' or key == '\t':
-                    # Tab pressed - autocomplete
-                    current_text = ''.join(buffer)
-                    if not current_matches or current_text != getattr(
-                        cls, '_last_autocomplete_text', ''
-                    ):
-                        current_matches = cls._get_matching_actions(current_text)
-                        match_index = 0
-                        cls._last_autocomplete_text = current_text
+                    self._process_tab_key()
 
-                    if current_matches:
-                        # Cycle through matches
-                        buffer = list(
-                            current_matches[match_index % len(current_matches)]
-                        )
+                elif not key.is_sequence:
+                    self._process_key(key)
 
-                        cls._clear_hint_lines(hint_lines)
+        return ''.join(self._buffer)
 
-                        # Redraw line
-                        sys.stdout.write('\r' + cls.term.clear_eol())
-                        sys.stdout.write(input_prefix + ''.join(buffer))
+    def _process_enter_key(self):
+        if self._buffer:
+            self._clear_hint_lines()
+            sys.stdout.write('\n')
+            sys.stdout.flush()
 
-                        # Display hints
-                        hint_lines = cls._display_autocomplete_hints(
-                            current_matches, match_index % len(current_matches)
-                        )
+            self._processing_input = False
 
-                        # Move cursor back to input line
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_up(1))
-                        sys.stdout.write('\r' + input_prefix + ''.join(buffer))
-                        sys.stdout.flush()
+    def _process_backspace_key(self):
+        if self._buffer:
+            self._buffer.pop()
+            self._clear_hint_lines()
+            self._hint_lines = 0
+            # Redraw line
+            sys.stdout.write('\r' + self.term.clear_eol())
+            sys.stdout.write(self._input_prefix + ''.join(self._buffer))
 
-                        match_index += 1
-                elif key.is_sequence:
-                    # Ignore other special keys
-                    pass
-                else:
-                    # Regular character
-                    buffer.append(key)
-                    current_text = ''.join(buffer)
+            # Check for new matches after backspace
+            current_text = ''.join(self._buffer)
+            if current_text.startswith('/') and len(current_text) > 1:
+                self._current_matches = self._get_matching_actions(current_text)
+                self._match_index = 0
+                # Display hints
+                if self._current_matches:
+                    self._show_hints()
+            else:
+                self._current_matches = []
+                self._match_index = 0
 
-                    cls._clear_hint_lines(hint_lines)
+            sys.stdout.flush()
 
-                    # Check for new matches
-                    if current_text.startswith('/') and len(current_text) > 1:
-                        current_matches = cls._get_matching_actions(current_text)
-                        match_index = 0
+    def _process_tab_key(self):
+        # Tab pressed - autocomplete
+        current_text = ''.join(self._buffer)
+        if not self._current_matches or current_text != self._last_autocomplete_text:
+            self._current_matches = self._get_matching_actions(current_text)
+            self._match_index = 0
+            self._last_autocomplete_text = current_text
 
-                        # Display new hints
-                        sys.stdout.write(key)
-                        hint_lines = cls._display_autocomplete_hints(
-                            current_matches, -1
-                        )
+        if self._current_matches:
+            # Cycle through matches
+            self._buffer = list(
+                self._current_matches[self._match_index % len(self._current_matches)]
+            )
 
-                        # Move cursor back to input line
-                        for _ in range(hint_lines):
-                            sys.stdout.write(cls.term.move_up(1))
-                        sys.stdout.write('\r' + input_prefix + ''.join(buffer))
-                    else:
-                        current_matches = []
-                        match_index = 0
-                        hint_lines = 0
-                        sys.stdout.write(key)
+            self._clear_hint_lines()
 
-                    sys.stdout.flush()
+            # Redraw line
+            sys.stdout.write('\r' + self.term.clear_eol())
+            sys.stdout.write(self._input_prefix + ''.join(self._buffer))
 
-        return ''.join(buffer)
+            # Display hints
+            self._hint_lines = self._display_autocomplete_hints(
+                self._current_matches, self._match_index % len(self._current_matches)
+            )
 
-    @classmethod
-    def print(cls, content: str):
-        print(content)
+            # Move cursor back to input line
+            for _ in range(self._hint_lines):
+                sys.stdout.write(self.term.move_up(1))
+            sys.stdout.write('\r' + self._input_prefix + ''.join(self._buffer))
+            sys.stdout.flush()
 
+            self._match_index += 1
 
-    @classmethod
-    def print_welcome(cls):
-        print('')
-        print('Dandy CLI Welcomes You !!!')
-        print(cls.term.bold_purple('─' * cls.term.width))
-        print(cls.term.bold_purple('Version   : ') + constants.__VERSION__)
-        print(cls.term.bold_purple('Model     : ') + LlmConfig('DEFAULT').model)
-        print(cls.term.bold_purple('Directory : ') + str(config.project_base_path))
+    def _process_key(self, key: Keystroke):
+        self._buffer.append(key)
+        current_text = ''.join(self._buffer)
 
-    @classmethod
-    def print_running_action(cls, action: BaseAction):
-        phrase = random.choice(PROCESSING_PHRASES)
-        print(f' ↳ {cls.term.bold_blue}{phrase} in preparation of "{action.name_gerund}" {cls.term.normal}',)
+        self._clear_hint_lines()
 
-    @classmethod
-    def print_completed_action(cls, start_time: float, action: BaseAction):
-        print(f'   ↳ {cls.term.bold_green}Finished in only {time() - start_time:.1f}s{cls.term.normal}',)
+        # Check for new matches
+        if current_text.startswith('/') and len(current_text) > 1:
+            self._current_matches = self._get_matching_actions(current_text)
+            self._match_index = 0
 
-    @classmethod
-    def print_start_task(cls, action_name: str, task: str) -> float:
-        print(f'   ↳ {cls.term.bold_orange}{action_name}{cls.term.normal} "{task}" ... ', end='')
-        return time()
+            # Display new hints
+            sys.stdout.write(key)
+            self._show_hints()
+        else:
+            self._current_matches = []
+            self._match_index = 0
+            self._hint_lines = 0
+            sys.stdout.write(key)
 
-    @classmethod
-    def print_end_task(cls, start_time: float, action_name: str = 'done'):
-        print(f'{cls.term.green}done {time() - start_time:.1f}s{cls.term.normal}')
+        sys.stdout.flush()
 
-    @classmethod
-    def print_output(cls, output: str):
-        print(cls.term.bold_green('─' * cls.term.width), flush=True)
-        print(wrap_text_with_indentation(output, cls.term.width))
+    def _show_hints(self):
+        self._hint_lines = self._display_autocomplete_hints(
+            self._current_matches, -1
+        )
+        # Move cursor back to input line
+        for _ in range(self._hint_lines):
+            sys.stdout.write(self.term.move_up(1))
+
+        sys.stdout.write('\r' + self._input_prefix + ''.join(self._buffer))
 
 
+tui = Tui()

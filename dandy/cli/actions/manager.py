@@ -2,7 +2,7 @@ from time import time, sleep
 
 from dandy.cli.actions.constants import ACTIONS
 from dandy.cli.actions.help.action import HelpAction
-from dandy.cli.tui.tui import Tui
+from dandy.cli.tui.tui import tui
 
 
 class ActionManager:
@@ -18,7 +18,7 @@ class ActionManager:
     def call(self, action: str, user_input: str):
         action = self.calls_actions.get(action)
 
-        Tui.print_running_action(action)
+        tui.printer.running_action(action)
 
         sleep(0.3)
 
@@ -29,9 +29,11 @@ class ActionManager:
                 user_input=user_input
             )
 
-            Tui.print_completed_action(start_time, action)
+            tui.printer.completed_action(start_time, action)
 
-            Tui.print_output(result)
+            tui.printer.green_divider()
+
+            tui.printer.output(result)
 
         else:
             print('Action not found')

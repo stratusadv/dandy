@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from dandy.cli.utils import check_or_create_settings, load_environment_variables  # noqa: PLC0415
-from dandy.cli.conf import config
+from dandy.cli.session import config
 
 def main():
     CWD_PATH = Path.cwd()

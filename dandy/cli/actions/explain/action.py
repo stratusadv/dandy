@@ -1,6 +1,6 @@
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.actions.explain.intelligence.workflow import explain_project_workflow
-from dandy.cli.tui.tui import Tui
+from dandy.cli.tui.tui import tui
 
 
 class ExplainAction(BaseAction):

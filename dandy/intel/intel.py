@@ -28,7 +28,11 @@ if TYPE_CHECKING:
 class BaseIntel(BaseModel, ABC):
     @classmethod
     def create_from_file(cls, file_path: Path | str) -> Self:
-        return cls.model_validate_json(json_data=read_from_file(file_path=file_path))
+        return cls.model_validate_json(
+            json_data=read_from_file(
+                file_path=file_path
+            )
+        )
 
     @classmethod
     def _get_field_default_value_from_field_info(

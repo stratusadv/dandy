@@ -1,0 +1,47 @@
+import random
+from time import time
+
+from blessed import Terminal
+
+from dandy import constants
+from dandy.cli.actions.action import BaseAction
+from dandy.cli.session import config
+from dandy.cli.constants import PROCESSING_PHRASES
+from dandy.cli.tui.tools import wrap_text_with_indentation
+from dandy.llm.config import LlmConfig
+
+
+class Printer:
+    def __init__(self, terminal: Terminal) -> None:
+        self.term = terminal
+
+    def blue_divider(self):
+        print(self.term.bold_blue('─' * self.term.width), flush=True)
+
+    def green_divider(self):
+        print(self.term.bold_green('─' * self.term.width), flush=True)
+
+    def welcome(self):
+        print('')
+        print(self.term.bold_purple('Dandy CLI Welcomes You !!!'))
+        print(self.term.bold_purple('─' * self.term.width))
+        print(self.term.bold_purple('Version   : ') + constants.__VERSION__)
+        print(self.term.bold_purple('Model     : ') + LlmConfig('DEFAULT').model)
+        print(self.term.bold_purple('Directory : ') + str(config.project_base_path))
+
+    def running_action(self, action: BaseAction):
+        phrase = random.choice(PROCESSING_PHRASES)
+        print(f' ↳ {self.term.bold_blue}{phrase} in preparation of "{action.name_gerund}" {self.term.normal}', )
+
+    def completed_action(self, start_time: float, action: BaseAction):
+        print(f'   ↳ {self.term.bold_green}Finished in only {time() - start_time:.1f}s{self.term.normal}', )
+
+    def start_task(self, action_name: str, task: str) -> float:
+        print(f'   ↳ {self.term.bold_orange}{action_name}{self.term.normal} "{task}" ... ', end='')
+        return time()
+
+    def end_task(self, start_time: float, action_name: str = 'done'):
+        print(f'{self.term.green}done {time() - start_time:.1f}s{self.term.normal}')
+
+    def output(self, output: str):
+        print(wrap_text_with_indentation(output, self.term.width))
