@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from dandy.cli.session import DandyCliSession
+
 
 class BaseAction(ABC):
     name: str

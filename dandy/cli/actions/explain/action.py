@@ -1,6 +1,7 @@
+from click import prompt
+
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.actions.explain.intelligence.workflow import explain_project_workflow
-from dandy.cli.tui.tui import tui
 
 
 class ExplainAction(BaseAction):
@@ -12,8 +13,9 @@ class ExplainAction(BaseAction):
         print('Chat help')
 
     def run(self, user_input: str):
-        return explain_project_workflow(user_input)
-
+        return explain_project_workflow(
+            user_input=user_input,
+        )
 
     def render(self):
         print('hello')

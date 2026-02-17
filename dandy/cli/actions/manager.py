@@ -1,7 +1,10 @@
-from time import time, sleep
+from time import sleep, time
+
+from requests import Session
 
 from dandy.cli.actions.constants import ACTIONS
 from dandy.cli.actions.help.action import HelpAction
+from dandy.cli.session import DandyCliSession
 from dandy.cli.tui.tui import tui
 
 
@@ -15,14 +18,14 @@ class ActionManager:
             for calls in action.calls:
                 self.calls_actions[calls] = action
 
-    def call(self, action: str, user_input: str):
-        action = self.calls_actions.get(action)
-
-        tui.printer.running_action(action)
-
-        sleep(0.3)
+    def call(self, action_key: str, user_input: str):
+        action = self.calls_actions.get(action_key)
 
         if action:
+            tui.printer.running_action(action)
+
+            sleep(0.3)
+
             start_time = time()
 
             result = action().run(
@@ -36,4 +39,8 @@ class ActionManager:
             tui.printer.output(result)
 
         else:
-            print('Action not found')
+            tui.printer.error(
+                error='Action not found',
+                description=f'"{action_key}" is not a valid, choices are {tuple(self.calls_actions.keys())}',
+            )
+

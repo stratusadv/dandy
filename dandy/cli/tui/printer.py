@@ -1,12 +1,12 @@
 import random
-from time import time
+from time import sleep, time
 
 from blessed import Terminal
 
 from dandy import constants
 from dandy.cli.actions.action import BaseAction
-from dandy.cli.session import config
 from dandy.cli.constants import PROCESSING_PHRASES
+from dandy.cli.session import session
 from dandy.cli.tui.tools import wrap_text_with_indentation
 from dandy.llm.config import LlmConfig
 
@@ -21,27 +21,47 @@ class Printer:
     def green_divider(self):
         print(self.term.bold_green('─' * self.term.width), flush=True)
 
+    def red_divider(self):
+        print(self.term.bold_red('─' * self.term.width), flush=True)
+
     def welcome(self):
-        print('')
-        print(self.term.bold_purple('Dandy CLI Welcomes You !!!'))
+        print(self.term.bold_purple('\nDandy CLI Welcomes You !!!'))
         print(self.term.bold_purple('─' * self.term.width))
-        print(self.term.bold_purple('Version   : ') + constants.__VERSION__)
-        print(self.term.bold_purple('Model     : ') + LlmConfig('DEFAULT').model)
-        print(self.term.bold_purple('Directory : ') + str(config.project_base_path))
+        print(self.term.bold_purple('Version      : ') + constants.__VERSION__)
+        print(self.term.bold_purple('Model        : ') + LlmConfig('DEFAULT').model)
+        print(self.term.bold_purple('Project Dir  : ') + str(session.project_base_path))
 
     def running_action(self, action: BaseAction):
         phrase = random.choice(PROCESSING_PHRASES)
-        print(f' ↳ {self.term.bold_blue}{phrase} in preparation of "{action.name_gerund}" {self.term.normal}', )
+        print(
+            f' ↳ {self.term.bold_blue}{phrase} in preparation of "{action.name_gerund}" {self.term.normal}',
+        )
 
     def completed_action(self, start_time: float, action: BaseAction):
-        print(f'   ↳ {self.term.bold_green}Finished in only {time() - start_time:.1f}s{self.term.normal}', )
+        print(
+            f'   ↳ {self.term.bold_green}Finished in only {time() - start_time:.1f}s{self.term.normal}',
+        )
 
     def start_task(self, action_name: str, task: str) -> float:
-        print(f'   ↳ {self.term.bold_orange}{action_name}{self.term.normal} "{task}" ... ', end='')
+        print(
+            f'   ↳ {self.term.bold_orange}{action_name}{self.term.normal} "{task}" ... ',
+            end='',
+        )
         return time()
 
     def end_task(self, start_time: float, action_name: str = 'done'):
         print(f'{self.term.green}done {time() - start_time:.1f}s{self.term.normal}')
 
     def output(self, output: str):
-        print(wrap_text_with_indentation(output, self.term.width))
+        wrapped_output = wrap_text_with_indentation(output, self.term.width)
+
+        for line in wrapped_output.splitlines():
+            sleep(0.02)
+            print(line)
+
+    def error(self, error: str, description: str):
+        print(f' ↳ {self.term.red}Error: {self.term.normal}{error} !!!')
+        self.red_divider()
+        print(f'{description}')
+
+

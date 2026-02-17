@@ -5,15 +5,12 @@ from dandy.cli.tui.tui import tui
 
 
 class DandyCli:
-    def __init__(self, current_working_directory: Path | str):
-        self.cwd = Path(current_working_directory)
+    def __init__(self):
         self.action_manager = ActionManager()
         self.user_inputs = []
 
         # Setup autocomplete with all available action commands
-        tui.setup_autocomplete(
-            list(self.action_manager.calls_actions.keys())
-        )
+        tui.setup_autocomplete(list(self.action_manager.calls_actions.keys()))
 
     def run(self):
         tui.printer.welcome()
@@ -25,9 +22,8 @@ class DandyCli:
                 user_input_words = user_input.split(' ')
 
                 if user_input_words[0][0] == '/':
-
                     self.action_manager.call(
-                        action=user_input_words[0][1:],
+                        action_key=user_input_words[0][1:],
                         user_input=' '.join(user_input_words[1:]),
                     )
 

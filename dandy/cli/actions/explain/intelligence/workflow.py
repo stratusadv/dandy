@@ -1,3 +1,4 @@
+from pathlib import Path
 from time import time
 
 from dandy import Prompt, recorder_to_html_file
@@ -25,7 +26,7 @@ def explain_project_workflow(user_input: str) -> str:
                 .sub_heading('Instructions:')
                 .text('I am looking for files that would be help me with my request.')
                 .text('Please give me the file paths for anything that would help with my full request.')
-            )
+            ),
         )
 
         tui.printer.end_task(start_time)

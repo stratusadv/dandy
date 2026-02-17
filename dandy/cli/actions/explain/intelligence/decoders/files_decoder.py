@@ -2,7 +2,7 @@ from pathlib import Path
 
 from dandy import Prompt
 from dandy.bot.bot import Bot
-from dandy.cli.session import config
+from dandy.cli.session import session
 from dandy.file.utils import get_directory_listing
 
 
@@ -14,7 +14,7 @@ class FilesDecoderBot(Bot):
             keys_values={
                 **{file_path: file_path
                    for file_path in get_directory_listing(
-                        dir_path=Path(config.project_base_path / 'dandy'),
+                        dir_path=Path(session.project_base_path / 'dandy'),
                         max_depth=None,
                         file_extensions=['py', 'md'],
                     )
@@ -22,7 +22,7 @@ class FilesDecoderBot(Bot):
                 **{
                     file_path: file_path
                     for file_path in get_directory_listing(
-                        dir_path=Path(config.project_base_path / 'docs'),
+                        dir_path=Path(session.project_base_path / 'docs'),
                         max_depth=None,
                         file_extensions=['py', 'md'],
                     )
@@ -30,7 +30,7 @@ class FilesDecoderBot(Bot):
                 **{
                     file_path: file_path
                     for file_path in get_directory_listing(
-                        dir_path=Path(config.project_base_path / 'tests'),
+                        dir_path=Path(session.project_base_path / 'tests'),
                         max_depth=None,
                         file_extensions=['py', 'md'],
                     )
