@@ -89,3 +89,9 @@ version = { attr = "dandy.constants.__VERSION__" }
 
 [tool.ruff]
 extend = "ruff.toml"
+[tool.codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+skip = '.git*,*.svg,*.css,.cache,.npm'
+check-hidden = true
+# ignore-regex = ''
+ignore-words-list = 'doesnt'
