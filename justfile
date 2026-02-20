@@ -4,28 +4,20 @@ set dotenv-load
 set dotenv-filename := "development.env"
 
 RESEARCH_PROMPT := "Can you design a really unique python library in a single code snippet."
-ACTIVATE_VENV := if os() == "linux" { "source .venv/bin/activate" } else { ".venv/Scripts/activate" }
+PYTHON := if os() == "linux" { ".venv/bin/python" } else { ".venv/Scripts/python.exe" }
 
 default:
 	just --list
 
 build-venv:
 	uv venv .venv/
-	{{ACTIVATE_VENV}}
 	uv pip install -e .[development,documentation]
 
-dandy-cli:
-	{{ACTIVATE_VENV}}
-	dandy
+run-cli:
+	{{PYTHON}} ./dandy/cli/main.py
 
 run-tests:
-	{{ACTIVATE_VENV}}
 	python -m unittest discover -v ./tests
 
 run-doc-tests:
-	{{ACTIVATE_VENV}}
 	mkdocs build --strict
-
-run-cli:
-	{{ACTIVATE_VENV}}
-	dandy

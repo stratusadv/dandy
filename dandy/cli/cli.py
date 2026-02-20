@@ -29,7 +29,7 @@ class DandyCli:
 
                 else:
                     self.action_manager.call(
-                        action='help',
+                        action_key='help',
                         user_input=' '.join(user_input_words),
                     )
 

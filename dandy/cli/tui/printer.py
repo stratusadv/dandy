@@ -7,6 +7,7 @@ from dandy import constants
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.constants import PROCESSING_PHRASES
 from dandy.cli.session import session
+from dandy.cli.tui.ascii import DANDY_ANSII
 from dandy.cli.tui.tools import wrap_text_with_indentation
 from dandy.llm.config import LlmConfig
 
@@ -18,6 +19,9 @@ class Printer:
     def blue_divider(self):
         print(self.term.bold_blue('─' * self.term.width), flush=True)
 
+    def purple_divider(self):
+        print(self.term.bold_purple('─' * self.term.width), flush=True)
+
     def green_divider(self):
         print(self.term.bold_green('─' * self.term.width), flush=True)
 
@@ -25,11 +29,11 @@ class Printer:
         print(self.term.bold_red('─' * self.term.width), flush=True)
 
     def welcome(self):
-        print(self.term.bold_purple('\nDandy CLI Welcomes You !!!'))
-        print(self.term.bold_purple('─' * self.term.width))
-        print(self.term.bold_purple('Version      : ') + constants.__VERSION__)
-        print(self.term.bold_purple('Model        : ') + LlmConfig('DEFAULT').model)
-        print(self.term.bold_purple('Project Dir  : ') + str(session.project_base_path))
+        print(self.term.bold_blue(f'\n{DANDY_ANSII}'))
+        self.blue_divider()
+        print(self.term.bold_blue('Version      : ') + constants.__VERSION__)
+        print(self.term.bold_blue('Model        : ') + LlmConfig('DEFAULT').model)
+        print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
 
     def running_action(self, action: BaseAction):
         phrase = random.choice(PROCESSING_PHRASES)
