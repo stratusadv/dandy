@@ -67,7 +67,7 @@ class Tui:
 
     def get_user_input(self, question: str | None = None) -> str:
         if question:
-            self._input_prefix = self.term.purple('   ⦿ ')
+            self._input_prefix = self.term.purple('⦿ ')
             self.printer.indented_event(
                 text=f'{self.term.purple}Question: {self.term.normal}{question}',
                 indent=1

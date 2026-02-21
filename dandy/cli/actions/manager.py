@@ -1,4 +1,4 @@
-from time import sleep, time
+from time import perf_counter, sleep, time
 
 from dandy.cli.actions.constants import ACTIONS
 from dandy.cli.actions.help.action import HelpAction
@@ -23,7 +23,7 @@ class ActionManager:
 
             sleep(0.3)
 
-            start_time = time()
+            start_time = perf_counter()
 
             result = action().run(
                 user_input=user_input
