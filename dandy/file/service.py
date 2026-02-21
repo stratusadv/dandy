@@ -47,3 +47,4 @@ class FileService(BaseService['dandy.file.mixin.FileServiceMixin']):
     @staticmethod
     def write(file_path: Path | str, content: str):
         utils.write_to_file(file_path, content)
+

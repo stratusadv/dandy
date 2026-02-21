@@ -1,10 +1,8 @@
 from functools import wraps
 from pathlib import Path
-
 from typing import Callable
 
 from dandy.recorder.recorder import Recorder
-from dandy.recorder.recorder import DEFAULT_RECORDER_OUTPUT_PATH
 
 
 def _recorder_to_file_decorator_function(
@@ -35,7 +33,10 @@ def _recorder_to_file_decorator_function(
         Recorder.delete_recording(recording_name)
 
 
-def recorder_to_html_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_html_file(recording_name: str | None = None, path: Path | str | None = None):
+    if path is None:
+        path = Recorder.get_default_recording_path()
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -46,7 +47,10 @@ def recorder_to_html_file(recording_name: str | None = None, path: Path | str = 
     return decorator
 
 
-def recorder_to_json_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_json_file(recording_name: str | None = None, path: Path | str | None = None):
+    if path is None:
+        path = Recorder.get_default_recording_path()
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -57,7 +61,10 @@ def recorder_to_json_file(recording_name: str | None = None, path: Path | str = 
     return decorator
 
 
-def recorder_to_markdown_file(recording_name: str | None = None, path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH):
+def recorder_to_markdown_file(recording_name: str | None = None, path: Path | str | None = None):
+    if path is None:
+        path = Recorder.get_default_recording_path()
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):

@@ -3,21 +3,18 @@ from __future__ import annotations
 import atexit
 import concurrent.futures
 import threading
-
-from typing import Callable, TypeVar, Generic, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Generic, TypeVar
 
 from dandy.conf import settings
 from dandy.core.future.exceptions import (
-    FutureRecoverableError,
     FutureCriticalError,
+    FutureRecoverableError,
 )
 
 if TYPE_CHECKING:
     from concurrent.futures import Future
 
-thread_pool_executor = concurrent.futures.ThreadPoolExecutor(
-    max_workers=settings.FUTURES_MAX_WORKERS,
-)
+thread_pool_executor = concurrent.futures.ThreadPoolExecutor()
 
 atexit.register(thread_pool_executor.shutdown, wait=True)
 
@@ -26,6 +23,8 @@ R = TypeVar('R')
 
 class AsyncFuture(Generic[R]):
     def __init__(self, callable_: Callable[..., R], *args, **kwargs):
+        thread_pool_executor._max_workers = settings.FUTURES_MAX_WORKERS
+
         self._future: Future = thread_pool_executor.submit(callable_, *args, **kwargs)
 
         self._result: R = None

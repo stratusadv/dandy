@@ -39,8 +39,8 @@ class Event(BaseModel):
     run_time_seconds: float = 0.0
     complete_run_time_seconds: float = 0.0
 
-    if settings.DEBUG:
-        def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /):
+        if settings.DEBUG:
             logging.debug(str(self))
 
     def calculate_run_time(self, pre_event: Self):
