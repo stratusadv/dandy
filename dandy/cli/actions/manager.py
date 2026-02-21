@@ -1,10 +1,7 @@
 from time import sleep, time
 
-from requests import Session
-
 from dandy.cli.actions.constants import ACTIONS
 from dandy.cli.actions.help.action import HelpAction
-from dandy.cli.session import DandyCliSession
 from dandy.cli.tui.tui import tui
 
 

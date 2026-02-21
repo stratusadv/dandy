@@ -22,3 +22,6 @@ dev_tool.exe
 dev_tool*.exe
 
 example_book.md
+
+!dandy/cli/actions/build/
+

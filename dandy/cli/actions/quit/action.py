@@ -6,7 +6,7 @@ from dandy.cli.actions.action import BaseAction
 class QuitAction(BaseAction):
     name = 'Quit'
     description = 'Quit the application.'
-    calls = ('q', 'quit', 'exit')
+    calls = ('q', 'quit')
 
     def help(self):
         print('Quit help')

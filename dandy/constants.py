@@ -25,10 +25,5 @@ DEFAULT_SETTINGS_FILE_NAME = f'{DEFAULT_SETTINGS_MODULE}.py'
 # CLI
 
 CLI_WORKING_DIRECTORY = 'cli'
-CLI_DEFAULT_ENV_FILE_NAMES = [
-    'dandy.env',
-    'development.env',
-    'dev.env',
-    '.env',
-]
+
 

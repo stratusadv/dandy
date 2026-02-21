@@ -1,5 +1,3 @@
-from click import prompt
-
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.actions.explain.intelligence.workflow import explain_project_workflow
 

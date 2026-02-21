@@ -38,16 +38,14 @@ class Tui:
         return matches
 
     def setup_autocomplete(self, action_commands: list):
-        """Setup autocomplete with action commands."""
         self._action_commands = action_commands
 
     def _display_autocomplete_hints(self, action_matches: list, selected_index: int) -> int:
-        """Display autocomplete options below the input line."""
         if not action_matches:
             return 0
 
         # Clear previous hints - use gray color instead of dim for Windows compatibility
-        hint_text = self.term.gray('  Options: ')
+        hint_text = self.term.bold_blue('  Options: ')
         for i, match in enumerate(action_matches):
             if i == selected_index:
                 hint_text += self.term.bold_cyan(f'{match} ')
@@ -67,7 +65,19 @@ class Tui:
             for _ in range(self._hint_lines):
                 sys.stdout.write(self.term.move_up(1))
 
-    def get_user_input(self):
+    def get_user_input(self, question: str | None = None) -> str:
+        if question:
+            self._input_prefix = self.term.purple('   ⦿ ')
+            self.printer.indented_event(
+                text=f'{self.term.purple}Question: {self.term.normal}{question}',
+                indent=1
+            )
+            self.printer.purple_divider()
+
+        else:
+            self._input_prefix = self.term.bold_blue('⦿ ')
+            self.printer.blue_divider()
+
         self._buffer = []
         self._match_index = 0
         self._current_matches = []
@@ -93,6 +103,9 @@ class Tui:
 
                 elif not key.is_sequence:
                     self._process_key(key)
+
+        if question:
+            self.printer.divider()
 
         return ''.join(self._buffer)
 

@@ -9,8 +9,11 @@ class DandyCli:
         self.action_manager = ActionManager()
         self.user_inputs = []
 
-        # Setup autocomplete with all available action commands
-        tui.setup_autocomplete(list(self.action_manager.calls_actions.keys()))
+        tui.setup_autocomplete(
+            list(
+                self.action_manager.calls_actions.keys()
+            )
+        )
 
     def run(self):
         tui.printer.welcome()
@@ -32,8 +35,6 @@ class DandyCli:
                         action_key='help',
                         user_input=' '.join(user_input_words),
                     )
-
-            tui.printer.blue_divider()
 
             user_input = tui.get_user_input()
 

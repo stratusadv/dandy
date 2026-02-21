@@ -1,9 +1,8 @@
 from pathlib import Path
-
 from typing import Type
 
 from dandy.conf import settings
-from dandy.constants import RECORDING_OUTPUT_DIRECTORY, RECORDING_DEFAULT_NAME
+from dandy.constants import RECORDING_DEFAULT_NAME, RECORDING_OUTPUT_DIRECTORY
 from dandy.core.singleton import Singleton
 from dandy.recorder.events import Event
 from dandy.recorder.exceptions import RecorderCriticalError
@@ -12,8 +11,6 @@ from dandy.recorder.renderer.html import HtmlRecordingRenderer
 from dandy.recorder.renderer.json import JsonRecordingRenderer
 from dandy.recorder.renderer.markdown import MarkdownRecordingRenderer
 from dandy.recorder.renderer.renderer import BaseRecordingRenderer
-
-DEFAULT_RECORDER_OUTPUT_PATH = Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, RECORDING_OUTPUT_DIRECTORY)
 
 
 class Recorder(Singleton):
@@ -51,6 +48,10 @@ class Recorder(Singleton):
         del cls.recordings[recording_name]
 
     @classmethod
+    def get_default_recording_path(cls) -> Path:
+        return Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, RECORDING_OUTPUT_DIRECTORY)
+
+    @classmethod
     def get_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> Recording:
         cls.check_recording_is_valid(recording_name)
         return cls.recordings[recording_name]
@@ -82,8 +83,11 @@ class Recorder(Singleton):
             to_file: bool,
             renderer: str,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str | None = None
     ) -> str | None:
+        if path is None:
+            path = cls.get_default_recording_path()
+
         if renderer not in cls.renderers:
             message = f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
             raise RecorderCriticalError(message)
@@ -131,8 +135,11 @@ class Recorder(Singleton):
     def to_html_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str | None = None
     ):
+        if path is None:
+            path = cls.get_default_recording_path()
+
         cls.to_file(
             recording_name,
             'html',
@@ -153,8 +160,11 @@ class Recorder(Singleton):
     def to_json_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str | None = None
     ):
+        if path is None:
+            path = cls.get_default_recording_path()
+
         cls.to_file(
             recording_name,
             'json',
@@ -175,8 +185,11 @@ class Recorder(Singleton):
     def to_markdown_file(
             cls,
             recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str = DEFAULT_RECORDER_OUTPUT_PATH
+            path: Path | str | None = None
     ):
+        if path is None:
+            path = cls.get_default_recording_path()
+
         cls.to_file(
             recording_name,
             'markdown',
