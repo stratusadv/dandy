@@ -14,26 +14,10 @@ class FilesDecoderBot(Bot):
             keys_values={
                 **{file_path: file_path
                    for file_path in get_directory_listing(
-                        dir_path=Path(session.project_base_path / 'dandy'),
+                        dir_path=Path(session.project_base_path),
                         max_depth=None,
                         file_extensions=['py', 'md'],
                     )
                    },
-                **{
-                    file_path: file_path
-                    for file_path in get_directory_listing(
-                        dir_path=Path(session.project_base_path / 'docs'),
-                        max_depth=None,
-                        file_extensions=['py', 'md'],
-                    )
-                },
-                **{
-                    file_path: file_path
-                    for file_path in get_directory_listing(
-                        dir_path=Path(session.project_base_path / 'tests'),
-                        max_depth=None,
-                        file_extensions=['py', 'md'],
-                    )
-                }
             }
         )
