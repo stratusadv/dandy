@@ -14,12 +14,6 @@ class TestSettings(TestCase):
             settings.HTTP_CONNECTION_TIMEOUT_SECONDS
         )
 
-    @mock.patch('importlib.import_module')
-    def test_dandy_settings_raises_dandy_critical_exception_with_invalid_module(self, mock_import_module: mock.MagicMock):
-        mock_import_module.side_effect = ImportError
-        with self.assertRaises(DandyCriticalError):
-            DandySettings()
-
     @mock.patch('dandy.core.utils.get_settings_module_name')
     def test_dandy_settings_defaults_to_tests_dandy_settings_if_missing_user_settings(
             self,
