@@ -7,7 +7,7 @@ from dandy.intel.intel import BaseIntel
 from dandy.recorder.decorators import recorder_to_html_file, recorder_to_json_file, \
     recorder_to_markdown_file
 from dandy.recorder.exceptions import RecorderCriticalError
-from dandy.recorder.recorder import Recorder, DEFAULT_RECORDER_OUTPUT_PATH
+from dandy.recorder.recorder import Recorder
 
 RENDERER_AND_EXTENSIONS = (
     ('html', '.html'),
@@ -18,7 +18,7 @@ RENDERER_AND_EXTENSIONS = (
 RECORDING_NAME = 'test_recorder'
 
 RECORDING_OUTPUT_FILE_PATH = Path(
-    DEFAULT_RECORDER_OUTPUT_PATH,
+    Recorder.get_default_recording_path(),
     f'{RECORDING_NAME}{RECORDING_POSTFIX_NAME}',
 )
 
@@ -113,7 +113,7 @@ class TestRecorder(TestCase):
 
             render_method(
                 RECORDING_NAME,
-                DEFAULT_RECORDER_OUTPUT_PATH,
+                Recorder.get_default_recording_path(),
             )
 
             with open(
