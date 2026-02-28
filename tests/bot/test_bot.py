@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from dandy.bot.bot import Bot
+
 from tests.bot.intelligence.bots import MoneyBagBot
 from tests.bot.intelligence.intel import MoneyBagIntel
 from tests.llm.decorators import run_llm_configs
@@ -7,8 +9,6 @@ from tests.llm.decorators import run_llm_configs
 
 class TestBot(TestCase):
     def test_bot_import(self):
-        from dandy.bot.bot import Bot
-
         _ = Bot()
 
         self.assertTrue(True)

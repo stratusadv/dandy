@@ -4,6 +4,7 @@ __pycache__/
 .idea/
 .junie/
 .cache/
+.opencode/
 .npm/
 .venv*/
 venv*/
@@ -19,6 +20,7 @@ inspectionProfiles/
 *.bat
 *.db
 *.sql
+
 
 dev_tool.exe
 dev_tool*.exe
