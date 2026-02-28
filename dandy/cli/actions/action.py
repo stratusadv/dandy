@@ -8,10 +8,10 @@ class BaseAction(ABC):
     description: str
     calls: tuple[str, ...]
 
-    def __post_init__(self):
+    def __init_subclass__(cls, **kwargs):
         check_attrs = ['name', 'description', 'calls']
         for attr in check_attrs:
-            if not hasattr(self, attr):
+            if not hasattr(cls, attr):
                 message = f'Command `{attr}` is required'
                 raise ValueError(message)
 

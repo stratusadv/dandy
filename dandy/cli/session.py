@@ -8,27 +8,31 @@ from dandy.file.utils import file_exists
 
 class DandyCliSession(BaseIntel):
     project_base_path: Path | None = None
-    cli_working_directory: Path | None = None
+    project_dandy_path: Path | None = None
+    project_dandy_cli_path: Path | None = None
     is_loaded: bool = False
 
     def post_init(self, project_base_path: Path) -> None:
         self.project_base_path = project_base_path
-        self.cli_working_directory = Path(
+        self.project_dandy_path = Path(
             self.project_base_path,
             settings.DANDY_DIRECTORY,
+        )
+        self.project_dandy_cli_path = Path(
+            self.project_dandy_path,
             CLI_WORKING_DIRECTORY,
         )
 
     @property
     def session_file_path(self) -> Path:
-        return Path(self.cli_working_directory, 'session.json')
+        return Path(self.project_dandy_cli_path, 'session.json')
 
     def load(self):
         if file_exists(self.session_file_path):
             loaded_session = DandyCliSession.create_from_file(self.session_file_path)
 
             loaded_session.project_base_path = self.project_base_path
-            loaded_session.cli_working_directory = self.cli_working_directory
+            loaded_session.project_dandy_cli_path = self.project_dandy_cli_path
 
             self.__dict__.update(loaded_session.__dict__)
 
