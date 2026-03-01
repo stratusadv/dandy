@@ -9,7 +9,7 @@ class CodeAction(BaseAction):
     description = 'Code something inside your project!'
     calls = ('c', 'Code')
 
-    def help(self):
+    def help(self) -> None:
         print('Chat help')
 
     def run(self, user_input: str) -> str:
@@ -24,5 +24,5 @@ class CodeAction(BaseAction):
 
         return f'Coding {user_input}...'
 
-    def render(self):
+    def render(self) -> None:
         print('hello')

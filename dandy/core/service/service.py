@@ -9,13 +9,13 @@ T_co = TypeVar('T_co', bound=Any, covariant=True)
 
 
 class BaseService(ABC, Generic[T_co]):
-    def __init__(self, obj: T_co):
+    def __init__(self, obj: T_co) -> None:
         self.recorder_event_id = generate_recorder_event_id()
         self.obj = obj
 
         self.__post_init__()
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         pass
 
     @property
@@ -23,5 +23,5 @@ class BaseService(ABC, Generic[T_co]):
         return self.obj.__class__
 
     @abstractmethod
-    def reset(self):
+    def reset(self) -> None:
         raise NotImplementedError

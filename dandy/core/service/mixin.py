@@ -9,11 +9,11 @@ T = TypeVar('T')
 class BaseServiceMixin(ABC):
     _required_attrs: ClassVar[tuple[str, ...]] = ()
 
-    def __init__(self, **kwargs):
+    @abstractmethod
+    def __init__(self, **kwargs) -> None:
         """Required for super() call chain"""
-        pass
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         super().__init_subclass__()
         for attr in cls._required_attrs:
             if getattr(cls, attr) is None:
@@ -30,6 +30,6 @@ class BaseServiceMixin(ABC):
         return getattr(self, service_instance_attr)
 
     @abstractmethod
-    def reset(self):
+    def reset(self) -> None:
         """Cannot use NotImplementedError do to call chain"""
-        pass
+
