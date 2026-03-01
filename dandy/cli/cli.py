@@ -15,6 +15,21 @@ class DandyCli:
             )
         )
 
+    def process_user_input(self, user_input: str):
+        user_input_words = user_input.split(' ')
+
+        if user_input_words[0][0] == '/':
+            self.action_manager.call(
+                action_key=user_input_words[0][1:],
+                user_input=' '.join(user_input_words[1:]),
+            )
+
+        else:
+            self.action_manager.call(
+                action_key='help',
+                user_input=' '.join(user_input_words),
+            )
+
     def run(self):
         tui.printer.welcome()
 
@@ -22,19 +37,7 @@ class DandyCli:
             user_input = self.newest_user_input
 
             if user_input is not None:
-                user_input_words = user_input.split(' ')
-
-                if user_input_words[0][0] == '/':
-                    self.action_manager.call(
-                        action_key=user_input_words[0][1:],
-                        user_input=' '.join(user_input_words[1:]),
-                    )
-
-                else:
-                    self.action_manager.call(
-                        action_key='help',
-                        user_input=' '.join(user_input_words),
-                    )
+                self.process_user_input(user_input)
 
             user_input = tui.get_user_input()
 

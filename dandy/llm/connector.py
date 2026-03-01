@@ -48,7 +48,7 @@ class LlmConnector(BaseConnector):
         return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
 
     def _prepend_system_message(self):
-        self.request_body.messages.create_message(
+        self.request_body.messages.add_message(
             role='system',
             text=self.system_prompt_str,
             prepend=True,
@@ -92,13 +92,13 @@ class LlmConnector(BaseConnector):
                 )
 
         if prompt is not None:
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 text=Prompt(prompt).to_str(),
             )
 
         if audio_urls or audio_file_paths or audio_base64_strings:
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 audio_urls=audio_urls,
                 audio_file_paths=audio_file_paths,
@@ -106,7 +106,7 @@ class LlmConnector(BaseConnector):
             )
 
         if image_urls or image_file_paths or image_base64_strings:
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 image_urls=image_urls,
                 image_file_paths=image_file_paths,
@@ -157,7 +157,7 @@ class LlmConnector(BaseConnector):
                     intel=intel_object,
                 )
 
-                self.request_body.messages.create_message(
+                self.request_body.messages.add_message(
                     role='assistant',
                     text=self.response_str
                 )
@@ -189,7 +189,7 @@ class LlmConnector(BaseConnector):
                 remaining_attempts=self.llm_config.options.prompt_retry_count - self.prompt_retry_attempt,
             )
 
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 text=Prompt(retry_user_prompt).to_str()
             )

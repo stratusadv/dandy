@@ -136,7 +136,7 @@ class MessageHistory(BaseModel):
     def has_system_message(self) -> bool:
         return len(self.messages) > 0 and self.messages[0].role == 'system'
 
-    def create_message(
+    def add_message(
             self,
             role: RoleLiteralStr,
             text: str | None = None,

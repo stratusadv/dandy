@@ -9,7 +9,7 @@ class TestLlmReset(TestCase):
 
         self.assertEqual(len(bot.llm.messages), 0)
 
-        bot.llm.messages.create_message(role='user', text='Hello!')
+        bot.llm.messages.add_message(role='user', text='Hello!')
         self.assertEqual(len(bot.llm.messages), 1)
 
         bot.llm.reset()
@@ -18,7 +18,7 @@ class TestLlmReset(TestCase):
     def test_llm_reset_messages_alias_behavior(self):
         bot = Bot()
 
-        bot.llm.messages.create_message(role='user', text='A')
+        bot.llm.messages.add_message(role='user', text='A')
         self.assertEqual(len(bot.llm.messages), 1)
 
         bot.llm.reset_messages()

@@ -27,7 +27,7 @@ class Printer:
         print(self.term.bold_purple('─' * self.term.width), flush=True)
 
     def divider(self):
-        print('─' * self.term.width, flush=True)
+        print(self.term.bold_grey('─' * self.term.width), flush=True)
 
     def green_divider(self):
         print(self.term.bold_green('─' * self.term.width), flush=True)
@@ -36,7 +36,7 @@ class Printer:
         print(self.term.bold_red('─' * self.term.width), flush=True)
 
     def welcome(self):
-        print(self.term.bold_blue(f'\n{DANDY_ANSII}'))
+        print(self.term.bold_blue(f'\n{DANDY_ANSII}\n'))
         self.blue_divider()
         print(self.term.bold_blue('Version      : ') + constants.__VERSION__)
         print(self.term.bold_blue('Model        : ') + LlmConfig('DEFAULT').model)
@@ -56,7 +56,7 @@ class Printer:
 
     def start_task(self, action_name: str, task: str) -> float:
         self.indented_event(
-            text=f'{self.term.orange}{action_name}{self.term.normal} "{task}" ... ',
+            text=f'{self.term.bold_orange}{action_name}{self.term.normal} "{task}" ... ',
             indent=1,
             end='',
         )

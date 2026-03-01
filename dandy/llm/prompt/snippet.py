@@ -25,19 +25,29 @@ if TYPE_CHECKING:
 @dataclass(kw_only=True)
 class BaseSnippet(ABC):
     triple_backtick: bool = False
-    triple_backtick_label: str | None = None
+    triple_backtick_inner_label: str | None = None
+    triple_backtick_outer_label: str | None = None
 
     def __str__(self):
         return self.to_str()
 
     def to_str(self):
-        if self.triple_backtick:
-            if self.triple_backtick_label:
-                return f'``` {self.triple_backtick_label}\n{self._to_str()}```\n'
-            else:
-                return f'```\n{self._to_str()}```\n'
+        snippet_str = ''
 
-        return self._to_str()
+        if self.triple_backtick:
+            if self.triple_backtick_outer_label:
+                snippet_str += f'**{self.triple_backtick_outer_label}**\n'
+
+            snippet_str += '```'
+
+            if self.triple_backtick_inner_label:
+                snippet_str += f'{self.triple_backtick_inner_label}\n'
+
+            snippet_str += f'{self._to_str()}```\n'
+        else:
+            snippet_str += self._to_str()
+
+        return snippet_str
 
     @abstractmethod
     def _to_str(self) -> str:

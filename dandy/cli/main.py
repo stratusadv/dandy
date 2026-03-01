@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import dotenv
+from blessed import Terminal
 
 CWD_PATH = Path.cwd()
 
@@ -15,7 +16,8 @@ env_file_names = [
 for env_file_name in env_file_names:
     env_file_path = Path(CWD_PATH, env_file_name)
     if env_file_path.exists():
-        print(f'Loading environment variables from "{env_file_path}"')
+        env_term = Terminal()
+        print(env_term.blue(f'\nLoading environment variables from "{env_file_path}"'))
         dotenv.load_dotenv(env_file_path)
 
 sys.path.append(str(CWD_PATH))
@@ -39,12 +41,31 @@ def main():
     if not session.is_loaded:
         session.save()
 
-
     from dandy.cli.cli import DandyCli
 
     cli = DandyCli()
 
-    cli.run()
+    if len(sys.argv) > 1:
+        user_input = ' '.join(sys.argv[1:])
+
+        if user_input[0] == '-':
+            user_input = '/' + user_input[1:]
+
+        if user_input[0] != '/':
+            user_input = '/' + user_input
+
+        arg_term = Terminal()
+
+        print(arg_term.bold_blue(f'\nDandy'))
+
+        cli.process_user_input(
+            user_input=user_input
+        )
+
+    else:
+        cli.run()
+
+    print('')
 
 
 if __name__ == '__main__':

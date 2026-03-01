@@ -1,6 +1,14 @@
 # Changelog
 
-## v2.0.0.alpha
+## v2.1.0
+
+### Features
+
+- CLI !!!
+  - Use `dandy` to access the new command line interface.
+  - 
+
+## v2.0.0
 
 ### Major Release
 

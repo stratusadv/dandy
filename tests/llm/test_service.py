@@ -55,7 +55,7 @@ class TestService(TestCase):
     def test_prompt_to_intel_with_message_and_no_prompt_argument(self):
         bot = Bot()
 
-        bot.llm.messages.create_message(
+        bot.llm.messages.add_message(
             role='user',
             text='Hello!'
         )

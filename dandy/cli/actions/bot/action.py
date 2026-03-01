@@ -4,9 +4,12 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+from dandy import Prompt
 from dandy.bot.bot import Bot
 from dandy.cli.actions.action import BaseAction
+from dandy.cli.intelligence.bots.source_code_bot import SourceCodeBot
 from dandy.cli.session import session
+from dandy.cli.tui.tui import tui
 from dandy.file.utils import make_directory
 
 
@@ -28,7 +31,42 @@ class BotAction(BaseAction):
         }
 
     def build_bot(self, user_input: str) -> str:
-        return f'Building "{user_input}"...'
+        parts = user_input.split()
+
+        if len(parts) < 2:
+            bot_description = tui.get_user_input(question='Please describe the bot you want to build')
+        else:
+            bot_description = " ".join(parts[2:])
+
+        start_time = tui.printer.start_task('Building', 'create a new bot')
+
+        code_reference_prompt = (
+            Prompt()
+            .module_source('dandy.bot.bot')
+            .lb()
+            .module_source('dandy.llm.service')
+            .lb()
+            .module_source('dandy.file.service')
+            .lb()
+            .module_source('dandy.http.service')
+            .lb()
+            .module_source('dandy.intel.service')
+            .lb()
+            .sub_heading('Tutorials')
+            .lb()
+            .file(Path(session.project_base_path, 'docs', 'tutorials', 'bots.md'))
+        )
+
+        source_code_intel = SourceCodeBot().process(
+            user_input=bot_description,
+            code_reference_prompt=code_reference_prompt
+        )
+
+        source_code_intel.write_to_directory(self.bots_path)
+
+        tui.printer.end_task(start_time)
+
+        return f'Bot created at "{Path(self.bots_path, source_code_intel.recommended_file_name)}"'
 
     def help(self):
         return f"""Usage: /bot run <BotName> [optional inline prompt]
