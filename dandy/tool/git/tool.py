@@ -20,7 +20,7 @@ class GitTool(BaseTool):
             return False
 
     @staticmethod
-    def diff_file(self, file_path: Path | str) -> dict:
+    def diff_file(file_path: Path | str) -> dict:
         file_path_str = str(file_path)
 
         try:

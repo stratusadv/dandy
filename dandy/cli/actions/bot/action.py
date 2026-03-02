@@ -16,7 +16,7 @@ from dandy.file.utils import make_directory
 class BotAction(BaseAction):
     name = 'Bot'
     description = 'Bots at your service!'
-    calls = ('bot',)
+    calls = ('b', 'bot')
 
     def __init__(self):
         self.bots_path = Path(session.project_dandy_path, 'bots')

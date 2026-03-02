@@ -7,7 +7,7 @@ from dandy.cli.tui.tui import tui
 class CodeAction(BaseAction):
     name = 'Code'
     description = 'Code something inside your project!'
-    calls = ('c', 'Code')
+    calls = ('c', 'code')
 
     def help(self) -> None:
         print('Chat help')

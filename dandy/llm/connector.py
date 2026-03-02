@@ -8,6 +8,8 @@ from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
+from dandy.llm.diligence.handler import BaseDiligenceHandler, PreDiligenceHandler, \
+    PostDiligenceHandler
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.llm.intelligence.prompts import service_system_validation_error_prompt
 from dandy.llm.prompt.prompt import Prompt
@@ -28,6 +30,7 @@ class LlmConnector(BaseConnector):
             llm_config: LlmConfig,
             intel_class: type[IntelType] | None,
             system_prompt: Prompt | str,
+            diligence: float = 1.0,
     ):
         self.recorder_event_id = recorder_event_id
 
@@ -43,9 +46,19 @@ class LlmConnector(BaseConnector):
 
         self.system_prompt_str = str(system_prompt)
 
+        self.diligence = diligence
+
     @property
     def has_retry_attempts_available(self) -> bool:
         return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
+
+    def _apply_diligence(self, diligence_handler_class: type[BaseDiligenceHandler]) -> None:
+        if self.diligence != 1.0:
+            diligence_handler_class(
+                level=self.diligence,
+            ).apply(
+                llm_connector=self
+            )
 
     def _prepend_system_message(self):
         self.request_body.messages.add_message(
@@ -117,7 +130,13 @@ class LlmConnector(BaseConnector):
             message = 'You cannot prompt the LlmService without at least one system and one user message.'
             raise LlmCriticalError(message)
 
-        return self._request_to_intel()
+        self._apply_diligence(PreDiligenceHandler)
+
+        response_intel_object = self._request_to_intel()
+
+        self._apply_diligence(PostDiligenceHandler)
+
+        return response_intel_object
 
     def _reset_prompt_retry_attempt(self):
         self.prompt_retry_attempt = 0
@@ -220,3 +239,4 @@ class LlmConnector(BaseConnector):
     def _update_request_body(self):
         for key, value in self.llm_config.options.model_dump(exclude_none=True).items():
             setattr(self.request_body, key, value)
+
