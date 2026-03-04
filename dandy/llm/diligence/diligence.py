@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 class BaseDiligence(ABC):
     trigger_level: float
     trigger_operator: Callable[[float, float], bool]
+    requires_new_llm_request: bool = False
 
     def __init_subclass__(cls, **kwargs) -> None:
         if (

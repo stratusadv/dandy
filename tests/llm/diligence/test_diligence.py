@@ -20,5 +20,5 @@ class TestDiligence(TestCase):
 
             Recorder.stop_recording(f'diligence_{int_level}')
 
-            if int_level in {0, 21}:
+            if int_level in {0, 2, 20}:
                 Recorder.to_html_file(f'diligence_{int_level}')

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dandy.llm.diligence.vowel_removal.constants import VOWELS
 from dandy.llm.diligence.stop_word_removal.constants import STOP_WORDS
 import re
 
@@ -11,10 +12,9 @@ if TYPE_CHECKING:
     from dandy.llm.connector import LlmConnector
 
 
-class StopWordRemovalDiligence(BaseDiligence):
-    trigger_level: float = 0.2
+class VowelRemovalDiligence(BaseDiligence):
+    trigger_level: float = 0.0
     trigger_operator: Callable[[float, float], bool] = operator.le
-    requires_new_llm_request: bool = False
 
     @classmethod
     def apply(cls, llm_connector: LlmConnector) -> None:
@@ -22,24 +22,23 @@ class StopWordRemovalDiligence(BaseDiligence):
             if isinstance(llm_connector.request_body.messages[i], list):
                 for k in range(len(llm_connector.request_body.messages[i])):
                     for j in range(len(llm_connector.request_body.messages[i][k].content)):
-                        stripped_text = cls.remove_stop_words(llm_connector.request_body.messages[i][k].content[j].text)
+                        stripped_text = cls.remove_vowels(llm_connector.request_body.messages[i][k].content[j].text)
                         llm_connector.request_body.messages[i][k].content[j].text = stripped_text
             else:
                 for j in range(len(llm_connector.request_body.messages[i].content)):
-                    stripped_text = cls.remove_stop_words(llm_connector.request_body.messages[i].content[j].text)
+                    stripped_text = cls.remove_vowels(llm_connector.request_body.messages[i].content[j].text)
                     llm_connector.request_body.messages[i].content[j].text = stripped_text
 
         llm_connector.request_body.messages.add_message(
             role='system',
-            text='Assume Stop Words',
+            text='Assume Vowels',
             prepend=True,
         )
 
     @staticmethod
-    def remove_stop_words(text: str) -> str:
-        stop_words = [re.escape(word) for word in STOP_WORDS]
-        pattern = r'\b(' + '|'.join(stop_words) + r')\b'
+    def remove_vowels(text: str) -> str:
+        remove_str = ''.join(VOWELS)
 
-        cleaned_text = re.sub(pattern, '', text.lower())
+        translation_table = str.maketrans('', '', remove_str)
 
-        return re.sub(r'\s+', ' ', cleaned_text).strip()
+        return text.lower().translate(translation_table)
