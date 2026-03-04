@@ -23,6 +23,3 @@ class CodeAction(BaseAction):
         tui.printer.end_task(start_time)
 
         return f'Coding {user_input}...'
-
-    def render(self) -> None:
-        print('hello')

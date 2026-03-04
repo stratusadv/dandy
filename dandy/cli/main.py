@@ -22,16 +22,16 @@ for env_file_name in env_file_names:
 
 sys.path.append(str(CWD_PATH))
 
-from dandy.cli.session import session
-from dandy.cli.utils import check_or_create_settings
+from dandy.cli.session import session  # noqa: E402
+from dandy.cli.utils import check_or_create_settings  # noqa: E402
 
 
-def main():
+def main() -> None:
     sys.path.append(str(CWD_PATH))
 
     check_or_create_settings(CWD_PATH)
 
-    from dandy.conf import settings
+    from dandy.conf import settings  # noqa: PLC0415
 
     settings.reload_from_os()
 
@@ -41,7 +41,7 @@ def main():
     if not session.is_loaded:
         session.save()
 
-    from dandy.cli.cli import DandyCli
+    from dandy.cli.cli import DandyCli  # noqa: PLC0415
 
     cli = DandyCli()
 
@@ -56,7 +56,7 @@ def main():
 
         arg_term = Terminal()
 
-        print(arg_term.bold_blue(f'\nDandy'))
+        print(arg_term.bold_blue('\nDandy'))
 
         cli.process_user_input(
             user_input=user_input
@@ -65,7 +65,7 @@ def main():
     else:
         cli.run()
 
-    print('')
+    print()
 
 
 if __name__ == '__main__':

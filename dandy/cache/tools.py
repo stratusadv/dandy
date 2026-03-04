@@ -26,11 +26,10 @@ def generate_cache_key(func: object, *args, **kwargs) -> str:
         hashable_kwargs,
     )
 
-    hash_key = hashlib.shake_128(
+    return hashlib.shake_128(
         str(hashable_tuple).encode()
     ).hexdigest(16)
 
-    return hash_key
 
 
 def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:

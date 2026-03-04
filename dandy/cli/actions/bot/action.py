@@ -18,7 +18,7 @@ class BotAction(BaseAction):
     description = 'Bots at your service!'
     calls = ('b', 'bot')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.bots_path = Path(session.project_dandy_path, 'bots')
 
         make_directory(self.bots_path)
@@ -29,6 +29,13 @@ class BotAction(BaseAction):
             'help': self.help,
             'run': self.run_bot,
         }
+
+    @property
+    def help_string(self) -> str:
+        return f"""Usage: /bot run <BotName> [optional inline prompt]
+        If no prompt, enter multi-line (end with /end).
+        Other subcommands: {self.sub_commands_methods.keys()}
+        """
 
     def build_bot(self, user_input: str) -> str:
         parts = user_input.split()
@@ -55,6 +62,8 @@ class BotAction(BaseAction):
             .sub_heading('Tutorials')
             .lb()
             .file(Path(session.project_base_path, 'docs', 'tutorials', 'bots.md'))
+            .lb()
+            .text('The file name for this code should be postfixed with `_bot` example `task_reviewer_bot.py`')
         )
 
         source_code_intel = SourceCodeBot().process(
@@ -66,13 +75,10 @@ class BotAction(BaseAction):
 
         tui.printer.end_task(start_time)
 
-        return f'Bot created at "{Path(self.bots_path, source_code_intel.recommended_file_name)}"'
+        return f'Bot created at "{Path(self.bots_path, source_code_intel.file_name_with_extension)}"'
 
-    def help(self):
-        return f"""Usage: /bot run <BotName> [optional inline prompt]
-        If no prompt, enter multi-line (end with /end). 
-        Other subcommands: {self.sub_commands_methods.keys()}
-        """
+    def help(self) -> None:
+        print(self.help_string)
 
     def list_bots(self, user_input: str) -> str:
         assert user_input
@@ -88,8 +94,7 @@ class BotAction(BaseAction):
                 user_input=user_input
             )
 
-        else:
-            return self.help()
+        return self.help_string
 
     def run_bot(self, user_input: str) -> str:
         parts = user_input.split()
@@ -110,25 +115,25 @@ class BotAction(BaseAction):
         # Find the first Bot subclass in the module
         bot_class: type | None = None
 
-        for name, obj in inspect.getmembers(module):
+        for _, obj in inspect.getmembers(module):
             if inspect.isclass(obj) and issubclass(obj, Bot) and obj != Bot:
                 bot_class: type = obj
                 break
 
-        if not bot_class:
+        if bot_class is None:
             return f"Error: No Bot subclass found in {module_name}.py"
 
+        output = ''
+
         try:
-            bot_class().process()
+            if issubclass(bot_class, Bot):
+                bot_class().process()
 
-            return f'{bot_class.__name__} ran successfully!'
+                output = f'{bot_class.__name__} ran successfully!'
         except Exception as e:
-            message = f"Bot failed with Error: {e}"
-            return message
+            output = f"Bot failed with Error: {e}"
 
-    def render(self):
-        # Placeholder; not used in current CLI, but required
-        pass
+        return output
 
     @property
     def bot_files(self) -> list[str] | None:

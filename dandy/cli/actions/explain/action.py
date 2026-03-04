@@ -7,13 +7,10 @@ class ExplainAction(BaseAction):
     description = 'This will explain what the current project does.'
     calls = ('e', 'explain')
 
-    def help(self):
+    def help(self) -> None:
         print('Chat help')
 
-    def run(self, user_input: str):
+    def run(self, user_input: str) -> str:
         return explain_project_workflow(
             user_input=user_input,
         )
-
-    def render(self):
-        print('hello')

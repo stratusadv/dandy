@@ -52,7 +52,7 @@ class Bot(
                     and not hasattr(attr, '_wrapped')
                 ):
                     wrapped = record_process_wrapper(self, attr)
-                    wrapped._wrapped = True
+                    setattr(wrapped, '_wrapped', True)
 
                     return wrapped
 

@@ -6,13 +6,12 @@ from dandy.file.utils import write_to_file
 
 
 class SourceCodeIntel(BaseIntel):
-    recommended_file_name: str
+    file_name_with_extension: str
     language: Literal['python']
-    extension: Literal['py']
     code: str
 
-    def write_to_directory(self, dir_path: Path | str):
+    def write_to_directory(self, dir_path: Path | str) -> None:
         write_to_file(
-            file_path=Path(dir_path) / self.recommended_file_name,
+            file_path=Path(dir_path) / self.file_name_with_extension,
             content=self.code,
         )

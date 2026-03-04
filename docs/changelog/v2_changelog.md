@@ -6,7 +6,18 @@
 
 - CLI !!!
   - Use `dandy` to access the new command line interface.
-  - 
+  - All commands have a basic help provided with autocomplete.
+  - The default / no command will answer questions about the cli.
+- Diligence System (Experimental)
+  - The `Bot` class has a new attribute called `diligence` which is defaulted to `1.0`
+  - You can adjust `diligence` between `0.0` (almost no effort) and `2.0` (maximum effort)
+  - Adjusting the diligence level allows you to control processing with any LLM.
+  - This feature is experimental and works with any llm model.
+
+### Fixes
+
+  - Updated the `dandy.conf.settings` to be much more flexible with different use cases and systems.
+  - Lots of refactoring, typing and code cleaning to new `ruff` and `ty` configuration.
 
 ## v2.0.0
 

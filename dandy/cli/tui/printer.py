@@ -5,7 +5,7 @@ from blessed import Terminal
 
 from dandy import constants
 from dandy.cli.actions.action import BaseAction
-from dandy.cli.constants import PROCESSING_PHRASES
+from dandy.cli.processing_phrases import PROCESSING_PHRASES
 from dandy.cli.session import session
 from dandy.cli.tui.ascii import DANDY_ANSII
 from dandy.cli.tui.tools import wrap_text_with_indentation
