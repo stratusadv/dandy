@@ -8,6 +8,11 @@ from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
+from dandy.llm.diligence.handler import (
+    BaseDiligenceHandler,
+    PreDiligenceHandler,
+    PostDiligenceHandler,
+)
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.llm.intelligence.prompts import service_system_validation_error_prompt
 from dandy.llm.prompt.prompt import Prompt
@@ -23,11 +28,12 @@ from dandy.llm.request.message import MessageHistory
 
 class LlmConnector(BaseConnector):
     def __init__(
-            self,
-            recorder_event_id: str,
-            llm_config: LlmConfig,
-            intel_class: type[IntelType] | None,
-            system_prompt: Prompt | str,
+        self,
+        recorder_event_id: str,
+        llm_config: LlmConfig,
+        intel_class: type[IntelType] | None,
+        system_prompt: Prompt | str,
+        diligence: float = 1.0,
     ):
         self.recorder_event_id = recorder_event_id
 
@@ -43,41 +49,52 @@ class LlmConnector(BaseConnector):
 
         self.system_prompt_str = str(system_prompt)
 
+        self.diligence = diligence
+
     @property
     def has_retry_attempts_available(self) -> bool:
         return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
 
+    @property
+    def _changed_diligence(self) -> bool:
+        return self.diligence != 1.0
+
+    def _http_request_to_response_str(self) -> None:
+        http_connector = HttpConnector()
+
+        self.llm_config.http_request_intel.json_data = self.request_body.model_dump()
+
+        self.response_str = http_connector.request_to_response(
+            request_intel=self.llm_config.http_request_intel
+        ).json_data['choices'][0]['message']['content']
+
     def _prepend_system_message(self):
-        self.request_body.messages.create_message(
-            role='system',
-            text=self.system_prompt_str,
-            prepend=True,
+        self.request_body.messages.add_message(
+            role='system', text=self.system_prompt_str, prepend=True
         )
 
     def prompt_to_intel(
-            self,
-            prompt: Prompt | str | None = None,
-            intel_class: type[IntelType] | None = None,
-            intel_object: IntelType | None = None,
-            audio_urls: list[str] | None = None,
-            audio_file_paths: list[str | Path] | None = None,
-            audio_base64_strings: list[str] | None = None,
-            image_urls: list[str] | None = None,
-            image_file_paths: list[str | Path] | None = None,
-            image_base64_strings: list[str] | None = None,
-            include_fields: IncEx | None = None,
-            exclude_fields: IncEx | None = None,
-            message_history: MessageHistory | None = None,
-            replace_message_history: bool = False,
+        self,
+        prompt: Prompt | str | None = None,
+        intel_class: type[IntelType] | None = None,
+        intel_object: IntelType | None = None,
+        audio_urls: list[str] | None = None,
+        audio_file_paths: list[str | Path] | None = None,
+        audio_base64_strings: list[str] | None = None,
+        image_urls: list[str] | None = None,
+        image_file_paths: list[str | Path] | None = None,
+        image_base64_strings: list[str] | None = None,
+        include_fields: IncEx | None = None,
+        exclude_fields: IncEx | None = None,
+        message_history: MessageHistory | None = None,
+        replace_message_history: bool = False,
     ) -> IntelType:
         self._update_request_body()
 
         self._set_intel(intel_class=intel_class, intel_object=intel_object)
 
         self.request_body.json_schema = IntelFactory.intel_to_json_inc_ex_schema(
-            intel=self.intel,
-            include=include_fields,
-            exclude=exclude_fields
+            intel=self.intel, include=include_fields, exclude=exclude_fields
         )
 
         if not self.request_body.messages.has_system_message:
@@ -87,26 +104,21 @@ class LlmConnector(BaseConnector):
             if replace_message_history:
                 self.request_body.messages = message_history
             else:
-                self.request_body.messages.extend(
-                    message_history.messages
-                )
+                self.request_body.messages.extend(message_history.messages)
 
         if prompt is not None:
-            self.request_body.messages.create_message(
-                role='user',
-                text=Prompt(prompt).to_str(),
-            )
+            self.request_body.messages.add_message(role='user', text=Prompt(prompt).to_str())
 
         if audio_urls or audio_file_paths or audio_base64_strings:
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 audio_urls=audio_urls,
                 audio_file_paths=audio_file_paths,
-                audio_base64_strings=audio_base64_strings
+                audio_base64_strings=audio_base64_strings,
             )
 
         if image_urls or image_file_paths or image_base64_strings:
-            self.request_body.messages.create_message(
+            self.request_body.messages.add_message(
                 role='user',
                 image_urls=image_urls,
                 image_file_paths=image_file_paths,
@@ -114,10 +126,23 @@ class LlmConnector(BaseConnector):
             )
 
         if len(self.request_body.messages) <= 1:
-            message = 'You cannot prompt the LlmService without at least one system and one user message.'
+            message = (
+                'You cannot prompt the LlmService without at least one system and one user message.'
+            )
             raise LlmCriticalError(message)
 
-        return self._request_to_intel()
+        if self._changed_diligence:
+            PreDiligenceHandler(level=self.diligence).apply(llm_connector=self)
+
+        response_intel_object = self._request_to_intel()
+
+        if self._changed_diligence:
+            PostDiligenceHandler(level=self.diligence).apply(llm_connector=self)
+
+            if PostDiligenceHandler(level=self.diligence).requires_new_llm_request:
+                response_intel_object = self._request_to_intel()
+
+        return response_intel_object
 
     def _reset_prompt_retry_attempt(self):
         self.prompt_retry_attempt = 0
@@ -126,20 +151,10 @@ class LlmConnector(BaseConnector):
         self.llm_config.reset()
         self.request_body = self.llm_config.generate_request_body()
 
-    def _request_to_intel(
-            self,
-    ) -> IntelType:
-        recorder_add_llm_request_event(
-            self.request_body, self.recorder_event_id
-        )
+    def _request_to_intel(self) -> IntelType:
+        recorder_add_llm_request_event(self.request_body, self.recorder_event_id)
 
-        http_connector = HttpConnector()
-
-        self.llm_config.http_request_intel.json_data = self.request_body.model_dump()
-
-        self.response_str = http_connector.request_to_response(
-            request_intel=self.llm_config.http_request_intel
-        ).json_data['choices'][0]['message']['content']
+        self._http_request_to_response_str()
 
         recorder_add_llm_response_event(
             message_content=self.response_str, event_id=self.recorder_event_id
@@ -157,10 +172,7 @@ class LlmConnector(BaseConnector):
                     intel=intel_object,
                 )
 
-                self.request_body.messages.create_message(
-                    role='assistant',
-                    text=self.response_str
-                )
+                self.request_body.messages.add_message(role='assistant', text=self.response_str)
 
                 return intel_object
 
@@ -176,9 +188,7 @@ class LlmConnector(BaseConnector):
             )
 
     def retry_request_to_intel(
-            self,
-            retry_event_description: str,
-            retry_user_prompt: Prompt | str,
+        self, retry_event_description: str, retry_user_prompt: Prompt | str
     ) -> IntelType:
         if self.has_retry_attempts_available:
             self.prompt_retry_attempt += 1
@@ -186,12 +196,12 @@ class LlmConnector(BaseConnector):
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self.recorder_event_id,
-                remaining_attempts=self.llm_config.options.prompt_retry_count - self.prompt_retry_attempt,
+                remaining_attempts=self.llm_config.options.prompt_retry_count
+                - self.prompt_retry_attempt,
             )
 
-            self.request_body.messages.create_message(
-                role='user',
-                text=Prompt(retry_user_prompt).to_str()
+            self.request_body.messages.add_message(
+                role='user', text=Prompt(retry_user_prompt).to_str()
             )
 
             return self._request_to_intel()
@@ -200,9 +210,7 @@ class LlmConnector(BaseConnector):
         raise LlmRecoverableError(message)
 
     def _set_intel(
-            self,
-            intel_class: type[IntelType] | None = None,
-            intel_object: IntelType | None = None,
+        self, intel_class: type[IntelType] | None = None, intel_object: IntelType | None = None
     ):
         if intel_class and intel_object:
             message = 'Cannot specify both intel_class and intel_object.'

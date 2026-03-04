@@ -8,15 +8,15 @@ class BaseAction(ABC):
     description: str
     calls: tuple[str, ...]
 
-    def __post_init__(self):
+    def __init_subclass__(cls, **kwargs) -> None:
         check_attrs = ['name', 'description', 'calls']
         for attr in check_attrs:
-            if not hasattr(self, attr):
+            if not hasattr(cls, attr):
                 message = f'Command `{attr}` is required'
                 raise ValueError(message)
 
     @abstractmethod
-    def help(self):
+    def help(self) -> None:
         raise NotImplementedError
 
     @classmethod
@@ -31,8 +31,4 @@ class BaseAction(ABC):
 
     @abstractmethod
     def run(self, user_input: str) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    def render(self):
         raise NotImplementedError

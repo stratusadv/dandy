@@ -8,11 +8,9 @@ class QuitAction(BaseAction):
     description = 'Quit the application.'
     calls = ('q', 'quit')
 
-    def help(self):
+    def help(self) -> None:
         print('Quit help')
 
-    def run(self, user_input: str):
+    def run(self, user_input: str) -> str:
+        assert user_input
         sys.exit(0)
-
-    def render(self):
-        print('Quitting...')

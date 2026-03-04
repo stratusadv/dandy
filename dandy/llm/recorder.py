@@ -91,11 +91,11 @@ def recorder_add_llm_request_event(
 
     for message in request_body.messages:
         for message_content in message.content:
-            llm_request_event.add_attribute(EventAttribute(
+            llm_request_event.add_attribute(
                 key=message.role,
                 value=str(message_content.text),
                 is_card=True,
-            ))
+            )
 
     Recorder.add_event(llm_request_event)
 

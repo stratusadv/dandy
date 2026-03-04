@@ -1,14 +1,14 @@
 from functools import wraps
 from typing import Callable
 
-import dandy.constants
 from dandy.cache.decorators import cache_decorator_function
 from dandy.cache.sqlite.cache import SqliteCache
 from dandy.conf import settings
+from dandy.constants import CACHE_DEFAULT_NAME
 
 
 def cache_to_sqlite(
-        cache_name: str = dandy.constants.CACHE_DEFAULT_NAME,
+        cache_name: str = CACHE_DEFAULT_NAME,
         limit: int | None = None
 ) -> Callable:
     if limit is None:

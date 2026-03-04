@@ -33,22 +33,39 @@ class Event(BaseModel):
     object_name: str
     callable_name: str
     type: EventType
-    attributes: list[EventAttribute] | None = Field(default_factory=list)
+    attributes: list[EventAttribute] = Field(default_factory=list)
     start_time: float = Field(default_factory=perf_counter)
     token_usage: int = 0
     run_time_seconds: float = 0.0
     complete_run_time_seconds: float = 0.0
 
-    def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /) -> None:
         if settings.DEBUG:
             logging.debug(str(self))
 
-    def calculate_run_time(self, pre_event: Self):
+    def calculate_run_time(self, pre_event: Self) -> None:
         self.run_time_seconds = self.start_time - pre_event.start_time
-        self.complete_run_time_seconds = pre_event.complete_run_time_seconds + self.run_time_seconds
+        self.complete_run_time_seconds = (
+            pre_event.complete_run_time_seconds + self.run_time_seconds
+        )
 
-    def add_attribute(self, event_attribute: EventAttribute) -> Self:
-        self.attributes.append(event_attribute)
+    def add_attribute(
+        self,
+        key: str,
+        value: Any,
+        is_dropdown: bool = False,
+        is_card: bool = False,
+        is_base64_image: bool = False,
+    ) -> Self:
+        self.attributes.append(
+            EventAttribute(
+                key=key,
+                value=value,
+                is_dropdown=is_dropdown,
+                is_card=is_card,
+                is_base64_image=is_base64_image,
+            )
+        )
 
         return self
 

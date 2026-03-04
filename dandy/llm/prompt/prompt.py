@@ -91,7 +91,7 @@ class Prompt:
                 file_path=file_path,
                 encoding=encoding,
                 triple_backtick=triple_backtick,
-                triple_backtick_label=triple_backtick_label
+                triple_backtick_inner_label=triple_backtick_label
             )
         )
 
@@ -140,12 +140,18 @@ class Prompt:
 
         return self
 
-    def module_source(self, module_name: str, triple_backtick: bool = True) -> Self:
+    def module_source(
+            self,
+            module_name: str,
+            triple_backtick: bool = True,
+            language: str = 'python',
+    ) -> Self:
         self.snippets.append(
             snippet.ModuleSourceSnippet(
                 module_name=module_name,
                 triple_backtick=triple_backtick,
-                triple_backtick_label=module_name,
+                triple_backtick_inner_label=language,
+                triple_backtick_outer_label=f'module: {module_name}'
             )
         )
 
@@ -156,7 +162,7 @@ class Prompt:
             snippet.ObjectSourceSnippet(
                 object_module_name=object_module_name,
                 triple_backtick=triple_backtick,
-                triple_backtick_label=object_module_name,
+                triple_backtick_inner_label=object_module_name,
             )
         )
 
@@ -214,7 +220,7 @@ class Prompt:
                 text=text,
                 label=label,
                 triple_backtick=triple_backtick,
-                triple_backtick_label=triple_backtick_label,
+                triple_backtick_inner_label=triple_backtick_label,
             )
         )
 

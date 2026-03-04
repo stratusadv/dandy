@@ -24,6 +24,7 @@ Dandy is a Python Artificial Intelligence Framework that simplifies the developm
 - **Imports**: Follow this order: standard library → third-party → local (dandy.*)
 - **Type hints**: Always use type hints for function signatures
 - **Imports**: Use absolute imports (e.g., `from dandy.bot.bot import Bot`)
+- **Verbose**: Always use verbose names (e.g., `sub_command` not `subcmd`)
 
 ### Naming Conventions
 

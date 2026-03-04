@@ -1,7 +1,7 @@
 from typing import OrderedDict, Any
 
-import dandy.constants
 from dandy.cache.cache import BaseCache
+from dandy.constants import CACHE_DEFAULT_NAME
 
 _memory_cache = {}
 
@@ -23,23 +23,23 @@ class MemoryCache(BaseCache):
     def get(self, key: str) -> Any | None:
         return self._cache.get(key)
 
-    def set(self, key: str, value: Any):
+    def set(self, key: str, value: Any) -> None:
         self._cache[key] = value
         self.clean()
 
-    def clean(self):
+    def clean(self) -> None:
         if len(self._cache) > self.limit:
             self._cache.popitem(last=False)
 
     @classmethod
-    def clear(cls, cache_name: str = dandy.constants.CACHE_DEFAULT_NAME):
+    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME) -> None:
         if cache_name in _memory_cache:
             _memory_cache[cache_name].clear()
 
     @classmethod
-    def clear_all(cls):
+    def clear_all(cls) -> None:
         _memory_cache.clear()
 
     @classmethod
-    def destroy_all(cls):
+    def destroy_all(cls) -> None:
         cls.clear_all()

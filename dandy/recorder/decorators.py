@@ -12,10 +12,10 @@ def _recorder_to_file_decorator_function(
         recording_name: str | None,
         renderer: str,
         path: Path | str,
-):
+) -> Callable:
     if recording_name is None:
         recording_name = (
-            str(func.__qualname__)
+            str(func.__qualname__)  # ty:ignore[unresolved-attribute]
             .replace('.', '_')
             .replace('<', '')
             .replace('>', '')
@@ -33,13 +33,13 @@ def _recorder_to_file_decorator_function(
         Recorder.delete_recording(recording_name)
 
 
-def recorder_to_html_file(recording_name: str | None = None, path: Path | str | None = None):
+def recorder_to_html_file(recording_name: str | None = None, path: Path | str | None = None) -> Callable:
     if path is None:
         path = Recorder.get_default_recording_path()
 
-    def decorator(func: Callable):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Callable:
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'html', path)
 
         return wrapper
@@ -47,13 +47,13 @@ def recorder_to_html_file(recording_name: str | None = None, path: Path | str | 
     return decorator
 
 
-def recorder_to_json_file(recording_name: str | None = None, path: Path | str | None = None):
+def recorder_to_json_file(recording_name: str | None = None, path: Path | str | None = None) -> Callable:
     if path is None:
         path = Recorder.get_default_recording_path()
 
-    def decorator(func: Callable):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Callable:
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'json', path)
 
         return wrapper
@@ -61,13 +61,13 @@ def recorder_to_json_file(recording_name: str | None = None, path: Path | str | 
     return decorator
 
 
-def recorder_to_markdown_file(recording_name: str | None = None, path: Path | str | None = None):
+def recorder_to_markdown_file(recording_name: str | None = None, path: Path | str | None = None) -> Callable:
     if path is None:
         path = Recorder.get_default_recording_path()
 
-    def decorator(func: Callable):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Callable:
             return _recorder_to_file_decorator_function(func, args, kwargs, recording_name, 'markdown', path)
 
         return wrapper

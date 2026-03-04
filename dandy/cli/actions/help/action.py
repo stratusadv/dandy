@@ -10,7 +10,7 @@ class HelpAction(BaseAction):
     description = 'Get help on how to use the Dandy command line interface.'
     calls = ('h', 'help')
 
-    def help(self):
+    def help(self) -> None:
         print('help of all sorts')
 
     def run(self, user_input: str) -> str:
@@ -23,5 +23,3 @@ class HelpAction(BaseAction):
         return default_intel.response
 
 
-    def render(self):
-        print('Helping...')

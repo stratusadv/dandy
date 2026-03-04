@@ -114,7 +114,7 @@ class Message(BaseModel):
 
 
 class MessageHistory(BaseModel):
-    messages: List[Message] = Field(default_factory=list)
+    messages: list[Message] = Field(default_factory=list)
 
     def __len__(self) -> int:
         return len(self.messages)
@@ -122,10 +122,10 @@ class MessageHistory(BaseModel):
     def __getitem__(self, index: int) -> list[Message] | Message:
         return self.messages[index]
 
-    def __iter__(self) -> Iterator[Message]:
+    def __iter__(self) -> Iterator[list[Message] | Message]:
         yield from self.messages
 
-    def __setitem__(self, index: int, message: Message):
+    def __setitem__(self, index: int, message: Message) -> None:
         self.messages[index] = message
 
     @property
@@ -136,7 +136,7 @@ class MessageHistory(BaseModel):
     def has_system_message(self) -> bool:
         return len(self.messages) > 0 and self.messages[0].role == 'system'
 
-    def create_message(
+    def add_message(
             self,
             role: RoleLiteralStr,
             text: str | None = None,

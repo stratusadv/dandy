@@ -22,7 +22,7 @@ class Bot(
         llm_config: str | None = None,
         llm_temperature: float | None = None,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(
             llm_config=llm_config,
             llm_temperature=llm_temperature,
@@ -37,7 +37,7 @@ class Bot(
 
         self.__post_init__()
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         super().__init_subclass__()
 
         if ABC not in cls.__bases__:
@@ -52,7 +52,7 @@ class Bot(
                     and not hasattr(attr, '_wrapped')
                 ):
                     wrapped = record_process_wrapper(self, attr)
-                    wrapped._wrapped = True
+                    setattr(wrapped, '_wrapped', True)
 
                     return wrapped
 
@@ -60,7 +60,7 @@ class Bot(
 
             cls.__getattribute__ = __getattribute__
 
-    def __post_init__(self):  # noqa: B027
+    def __post_init__(self) -> None:  # noqa: B027
         pass
 
     @classmethod
@@ -84,5 +84,5 @@ class Bot(
     def process_to_future(self, *args, **kwargs) -> AsyncFuture:
         return process_to_future(self.process, *args, **kwargs)
 
-    def reset(self):
+    def reset(self) -> None:
         super().reset()

@@ -21,7 +21,7 @@ class HttpResponseIntel(BaseIntel):
         except ValueError:
             json_data = {}
 
-        return HttpResponseIntel(
+        return cls(
             status_code=requests_response.status_code,
             reason=requests_response.reason,
             text=requests_response.text,
@@ -29,7 +29,7 @@ class HttpResponseIntel(BaseIntel):
         )
 
     @property
-    def json_str(self) -> str:
+    def json_str(self) -> str | None:
         return self.text
 
 
@@ -48,7 +48,7 @@ class HttpRequestIntel(BaseIntel):
     def json_str(self) -> str:
         return json.dumps(self.json_data)
 
-    def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /) -> None:
         self.generate_headers()
 
     def as_requests_request(self) -> requests.Request:
@@ -83,7 +83,7 @@ class HttpRequestIntel(BaseIntel):
 
         return HttpResponseIntel.from_requests_response(response)
 
-    def generate_headers(self):
+    def generate_headers(self) -> None:
         if self.bearer_token is not None:
             if self.headers is None:
                 self.headers = {}

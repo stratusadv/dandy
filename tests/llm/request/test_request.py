@@ -16,7 +16,7 @@ class TestRequest(TestCase):
             test_image_bytes = base64.b64encode(img.read())
             test_image_string = test_image_bytes.decode('utf-8')
 
-        request_body.messages.create_message(
+        request_body.messages.add_message(
             role='system',
             text='You are a helpful assistant.',
             image_base64_strings=[

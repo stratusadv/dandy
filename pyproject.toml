@@ -32,6 +32,7 @@ dependencies = [
 development = [
     "build",
     "Faker",
+    "pytest",
     "ruff",
     "setuptools",
     "twine",
@@ -89,6 +90,10 @@ version = { attr = "dandy.constants.__VERSION__" }
 
 [tool.ruff]
 extend = "ruff.toml"
+
+[tool.ty]
+extend = "ty.toml"
+
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
 skip = '.git*,*.svg,*.css,.cache,.npm'

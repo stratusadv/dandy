@@ -1,4 +1,5 @@
 import importlib
+import os
 
 from dandy.core.exceptions import DandyCriticalError
 from dandy.core.utils import get_settings_module_name
@@ -36,9 +37,12 @@ class DandySettings:
 
         if self._settings_module_name is not None:
             try:
-                self._user_settings = importlib.import_module(
-                    self._settings_module_name
-                )
+                if self._user_settings is not ...:
+                    self._user_settings = importlib.reload(self._user_settings)
+                else:
+                    self._user_settings = importlib.import_module(
+                        self._settings_module_name
+                    )
 
                 self._has_loaded_user_settings = True
 

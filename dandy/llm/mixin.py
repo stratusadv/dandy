@@ -8,6 +8,7 @@ from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
+    diligence: float = 1.0
     llm_config: str = 'DEFAULT'
     intel_class: type[BaseIntel] = DefaultIntel
     role: Prompt | str = 'Assistant'
@@ -25,11 +26,15 @@ class LlmServiceMixin(BaseServiceMixin):
 
     def __init__(
         self,
+        diligence: float | None = None,
         llm_config: str | None = None,
         llm_temperature: float | None = None,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(**kwargs)
+
+        if isinstance(diligence, float):
+            self.diligence = diligence
 
         if isinstance(llm_config, str):
             self.llm_config = llm_config
@@ -44,6 +49,6 @@ class LlmServiceMixin(BaseServiceMixin):
     def llm(self) -> LlmService:
         return self._get_service_instance(LlmService)
 
-    def reset(self):
+    def reset(self) -> None:
         super().reset()
         self.llm.reset()
