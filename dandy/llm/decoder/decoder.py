@@ -37,7 +37,7 @@ class Decoder:
             self,
             recorder_event_id: str,
             llm_service_mixin: LlmServiceMixin,
-    ):
+    ) -> None:
         self.recorder_event_id = recorder_event_id
         self._llm_service_mixin = llm_service_mixin
         self.llm_config = self._llm_service_mixin.get_llm_config()

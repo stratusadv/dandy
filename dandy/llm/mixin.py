@@ -26,12 +26,24 @@ class LlmServiceMixin(BaseServiceMixin):
 
     def __init__(
         self,
+        role: Prompt | str | None = None,
+        task: Prompt | str | None = None,
+        guidelines: Prompt | str | None = None,
         diligence: float | None = None,
         llm_config: str | None = None,
         llm_temperature: float | None = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
+
+        if isinstance(role, (Prompt, str)):
+            self.role = role
+
+        if isinstance(task, (Prompt, str)):
+            self.task = task
+
+        if isinstance(guidelines, (Prompt, str)):
+            self.guidelines = guidelines
 
         if isinstance(diligence, float):
             self.diligence = diligence

@@ -9,9 +9,6 @@ T = TypeVar('T')
 class BaseServiceMixin(ABC):
     _required_attrs: ClassVar[tuple[str, ...]] = ()
 
-    def __init__(self, **kwargs) -> None:  # noqa: B027
-        """Required for super() call chain"""
-
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
         for attr in cls._required_attrs:

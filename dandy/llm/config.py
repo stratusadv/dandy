@@ -19,7 +19,7 @@ class LlmConfig:
     def __init__(
             self,
             name: str,
-    ):
+    ) -> None:
         self.name = name
 
         settings_configs = getattr(settings, _CONFIGS_NAME)

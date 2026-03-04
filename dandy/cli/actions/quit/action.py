@@ -12,5 +12,4 @@ class QuitAction(BaseAction):
         print('Quit help')
 
     def run(self, user_input: str) -> str:
-        assert user_input
         sys.exit(0)
