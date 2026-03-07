@@ -7,6 +7,7 @@ from dandy.core.future.tools import process_to_future
 from dandy.core.service.service import BaseService
 from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.mixin import DecoderServiceMixin
+from dandy.llm.diligence.mixin import DiligenceServiceMixin
 from dandy.llm.intelligence.prompts import service_system_prompt
 
 if TYPE_CHECKING:
@@ -22,11 +23,11 @@ if TYPE_CHECKING:
 class LlmService(
     BaseService['dandy.llm.mixin.LlmServiceMixin'],
     DecoderServiceMixin,
+    DiligenceServiceMixin,
 ):
     def __post_init__(self):
         self._llm_connector: LlmConnector = LlmConnector(
             recorder_event_id=self.recorder_event_id,
-            diligence=self.obj.diligence,
             system_prompt=service_system_prompt(
                 role=self.obj.role,
                 task=self.obj.task,
@@ -35,6 +36,8 @@ class LlmService(
             ).to_str(),
             llm_config=self.obj.get_llm_config(),
             intel_class=self.obj.intel_class,
+            post_diligence_handler=self.diligence.post_handler,
+            pre_diligence_handler=self.diligence.pre_handler,
         )
 
     @property

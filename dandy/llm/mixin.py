@@ -8,7 +8,6 @@ from dandy.llm.service import LlmService
 
 
 class LlmServiceMixin(BaseServiceMixin):
-    diligence: float = 1.0
     llm_config: str = 'DEFAULT'
     intel_class: type[BaseIntel] = DefaultIntel
     role: Prompt | str = 'Assistant'
@@ -29,7 +28,6 @@ class LlmServiceMixin(BaseServiceMixin):
         role: Prompt | str | None = None,
         task: Prompt | str | None = None,
         guidelines: Prompt | str | None = None,
-        diligence: float | None = None,
         llm_config: str | None = None,
         llm_temperature: float | None = None,
         **kwargs,
@@ -44,9 +42,6 @@ class LlmServiceMixin(BaseServiceMixin):
 
         if isinstance(guidelines, (Prompt, str)):
             self.guidelines = guidelines
-
-        if isinstance(diligence, float):
-            self.diligence = diligence
 
         if isinstance(llm_config, str):
             self.llm_config = llm_config

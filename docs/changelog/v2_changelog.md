@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.2.0
+
+### Features
+- 
+- Diligence System (Experimental)
+  - The `llm` service class has a new sub service called `diligence`.
+  - You can activate different diligence systems through `Bot().llm.diligence`.
+    - Note diligence can have both positive and negative effects and should be used with caution  
+    - Example `Bot.llm.dilligence.stop_word_removal.activate()` will activate the stop word removal in the llm connector.
+    - `Bot.llm.diligence.vowel_removal` & `Bot.llm.diligence.second_pass`
+
+
 ## v2.1.0
 
 ### Features

@@ -3,22 +3,43 @@ from unittest import TestCase, mock
 from dandy import Recorder
 from tests.llm.diligence.intelligence.bot import CelestialObserverBot
 
+QUESTION = 'What is the large round object that is circling the plant earth, is generally only visible at night and affects the tides?'
+ANSWER = 'moon'
+
 
 class TestDiligence(TestCase):
+    def setUp(self) -> None:
+        self.celestial_observer_bot = CelestialObserverBot()
+
     def test_default_diligence(self) -> None:
+        celestial_intel = self.celestial_observer_bot.process(QUESTION)
 
-        for int_level in range(21):
-            test_bot = CelestialObserverBot(diligence=int_level * 0.1)
+        assert celestial_intel.text.lower() == ANSWER
 
-            Recorder.start_recording(f'diligence_{int_level}')
+    def test_stop_word_removal_diligence(self) -> None:
+        self.celestial_observer_bot.llm.diligence.stop_word_removal.activate()
 
-            celestial_intel = test_bot.process(
-                'What is the large round object that is circling the plant earth, is generally only visible at night and affects the tides?'
-            )
+        celestial_intel = self.celestial_observer_bot.process(QUESTION)
 
-            assert celestial_intel.text.lower() == 'moon'
+        assert celestial_intel.text.lower() == ANSWER
 
-            Recorder.stop_recording(f'diligence_{int_level}')
+    def test_vowel_removal_diligence(self) -> None:
+        self.celestial_observer_bot.llm.diligence.vowel_removal.activate()
+        celestial_intel = self.celestial_observer_bot.process(QUESTION)
 
-            if int_level in {0, 2, 20}:
-                Recorder.to_html_file(f'diligence_{int_level}')
+        assert celestial_intel.text.lower() == ANSWER
+
+    def test_second_pass_diligence(self) -> None:
+        self.celestial_observer_bot.llm.diligence.second_pass.activate()
+        celestial_intel = self.celestial_observer_bot.process(QUESTION)
+
+        assert celestial_intel.text.lower() == ANSWER
+
+    def test_all_diligence(self) -> None:
+        self.celestial_observer_bot.llm.diligence.stop_word_removal.activate()
+        self.celestial_observer_bot.llm.diligence.vowel_removal.activate()
+        self.celestial_observer_bot.llm.diligence.second_pass.activate()
+
+        celestial_intel = self.celestial_observer_bot.process(QUESTION)
+
+        assert celestial_intel.text.lower() == ANSWER

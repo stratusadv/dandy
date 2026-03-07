@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 from pydantic.main import IncEx
@@ -8,11 +11,6 @@ from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
-from dandy.llm.diligence.handler import (
-    BaseDiligenceHandler,
-    PreDiligenceHandler,
-    PostDiligenceHandler,
-)
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.llm.intelligence.prompts import service_system_validation_error_prompt
 from dandy.llm.prompt.prompt import Prompt
@@ -25,6 +23,9 @@ from dandy.llm.recorder import (
 )
 from dandy.llm.request.message import MessageHistory
 
+if TYPE_CHECKING:
+    from dandy.llm.diligence.handler import DiligenceHandler
+
 
 class LlmConnector(BaseConnector):
     def __init__(
@@ -33,7 +34,8 @@ class LlmConnector(BaseConnector):
         llm_config: LlmConfig,
         intel_class: type[IntelType] | None,
         system_prompt: Prompt | str,
-        diligence: float = 1.0,
+        post_diligence_handler: DiligenceHandler | None = None,
+        pre_diligence_handler: DiligenceHandler | None = None,
     ):
         self.recorder_event_id = recorder_event_id
 
@@ -49,15 +51,12 @@ class LlmConnector(BaseConnector):
 
         self.system_prompt_str = str(system_prompt)
 
-        self.diligence = diligence
+        self.post_diligence_handler = post_diligence_handler
+        self.pre_diligence_handler = pre_diligence_handler
 
     @property
     def has_retry_attempts_available(self) -> bool:
         return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
-
-    @property
-    def _changed_diligence(self) -> bool:
-        return self.diligence != 1.0
 
     def _http_request_to_response_str(self) -> None:
         http_connector = HttpConnector()
@@ -131,15 +130,15 @@ class LlmConnector(BaseConnector):
             )
             raise LlmCriticalError(message)
 
-        if self._changed_diligence:
-            PreDiligenceHandler(level=self.diligence).apply(llm_connector=self)
+        if self.pre_diligence_handler is not None:
+            self.pre_diligence_handler.apply(llm_connector=self)
 
         response_intel_object = self._request_to_intel()
 
-        if self._changed_diligence:
-            PostDiligenceHandler(level=self.diligence).apply(llm_connector=self)
+        if self.post_diligence_handler is not None:
+            self.post_diligence_handler.apply(llm_connector=self)
 
-            if PostDiligenceHandler(level=self.diligence).requires_new_llm_request:
+            if self.post_diligence_handler.requires_new_llm_request:
                 response_intel_object = self._request_to_intel()
 
         return response_intel_object
