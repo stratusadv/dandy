@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from dandy.llm.connector import LlmConnector
@@ -13,11 +13,7 @@ class BaseDiligence(ABC):
     requires_new_llm_request: bool = False
 
     def __init_subclass__(cls, **kwargs) -> None:
-        if (
-            cls.trigger_level == 1.0
-            or cls.trigger_level > 2.0
-            or cls.trigger_level < 0.0
-        ):
+        if cls.trigger_level == 1.0 or cls.trigger_level > 2.0 or cls.trigger_level < 0.0:
             message = f"`{cls.__name__}` should have a trigger level between 0.0 and 2.0 and not 1.0 as it's used as the default."
             raise ValueError(message)
 
