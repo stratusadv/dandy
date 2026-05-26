@@ -1,40 +1,17 @@
 # 2026 Roadmap
 
-## December
+## January
 
-- Prompting Improved
+- v2 Alpha Release ✅
 
-## November
+## February
 
-- Recorder Improved to Support Complex Execution
+- v2 Stable Release 🚧
 
-## October
+## March
 
-- Full Type Handling
-
-## September
-
-- Enterprise Controls
-
-## August
-
-- Full Error / Exception Handling
-
-## July
-
-- Data Compaction
-- Data Encoding
-- Data Enrichment
-
-## June
-
-- Bots Calling Bots
-- Stateful Memory
-
-## May
-
-- Database Connector
-- Cache Improved
+- Full Open AI Options Support 📖
+- Command Line Interface (Feedback Loop or Support) 📖
 
 ## April
 
@@ -42,18 +19,41 @@
 - Llm Vision Service Update
 - Llm Listening Service Update
 
-## March
+## May
 
-- Full Open AI Options Support 📖
-- Command Line Interface (Feedback Loop or Support) 📖
+- Database Connector
+- Cache Improved
 
-## February
+## June
 
-- v2 Stable Release 🚧
+- Bots Calling Bots
+- Stateful Memory
 
-## January
+## July
 
-- v2 Alpha Release ✅
+- Data Compaction
+- Data Encoding
+- Data Enrichment
+
+## August
+
+- Full Error / Exception Handling
+
+## September
+
+- Enterprise Controls
+
+## October
+
+- Full Type Handling
+
+## November
+
+- Recorder Improved to Support Complex Execution
+
+## December
+
+- Prompting Improved
 
 ## Legend
 

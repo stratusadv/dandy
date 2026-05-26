@@ -1,23 +1,8 @@
 # 2024 Roadmap
 
-## December
+## July
 
-- Debug Recorder HTML Output ✅
-
-## November
-
-- Dandy CLI ✅
-- LLM Config Options ✅
- 
-## October
-
-- Async Futures ✅
-- LLM Prompt System ✅
-
-## September
-
-- Debug Recorder ✅
-- LLM Configs ✅
+- Prototype ✅
 
 ## August
 
@@ -25,9 +10,24 @@
 - Ollama Integration ✅
 - OpenAI Integration ✅
 
-## July
+## September
 
-- Prototype ✅
+- Debug Recorder ✅
+- LLM Configs ✅
+
+## October
+
+- Async Futures ✅
+- LLM Prompt System ✅
+
+## November
+
+- Dandy CLI ✅
+- LLM Config Options ✅
+
+## December
+
+- Debug Recorder HTML Output ✅
 
 ## Legend
 

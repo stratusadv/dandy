@@ -1,42 +1,16 @@
 # 2025 Roadmap
 
-## December
+## January
 
-- v2 Refactor ✅
+- Dandy Settings ✅
+- Intel Structure ✅
+- Project Structure ✅
 
-## November
+## February
 
-- Improved Stability ✅
-
-## October
-
-- v1 Stable Release 📖✅
-
-## September
-
-- v1 Alpha Release 🚧✅
-
-## August
-
-- v1 Prototype ✅
-
-## July
-
-- v1 Refactor ✅
-
-## June
-
-- Agents ✅
-
-## May
-
-- Agents (Experimental) ✅
-
-## April
-
-- Calculator ✅
-- Improved Recording ✅
-- Robust Documentation ✅
+- Initial Documentation & Website ✅
+- JSON Schema (Ollama & OpenAI) ✅
+- LLM Bot Upgrade ✅
 
 ## March
 
@@ -46,17 +20,43 @@
 - Map & LlmMap ✅
 - Vision ✅
 
-## February
+## April
 
-- Initial Documentation & Website ✅
-- JSON Schema (Ollama & OpenAI) ✅
-- LLM Bot Upgrade ✅
+- Calculator ✅
+- Improved Recording ✅
+- Robust Documentation ✅
 
-## January
+## May
 
-- Dandy Settings ✅
-- Intel Structure ✅
-- Project Structure ✅
+- Agents (Experimental) ✅
+
+## June
+
+- Agents ✅
+
+## July
+
+- v1 Refactor ✅
+
+## August
+
+- v1 Prototype ✅
+
+## September
+
+- v1 Alpha Release 🚧✅
+
+## October
+
+- v1 Stable Release 📖✅
+
+## November
+
+- Improved Stability ✅
+
+## December
+
+- v2 Refactor ✅
 
 ## Legend
 
