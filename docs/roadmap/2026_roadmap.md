@@ -6,46 +6,47 @@
 
 ## February
 
-- v2 Stable Release 🚧
+- v2 Stable Release ✅
 
 ## March
 
-- Full Open AI Options Support 📖
-- Command Line Interface (Feedback Loop or Support) 📖
+- Command Line Interface Prototype ✅
 
 ## April
 
-- File System Control
-- Llm Vision Service Update
-- Llm Listening Service Update
+- Full OpenAI Options Support 🚧
 
 ## May
 
-- Database Connector
-- Cache Improved
+- Documentation Update 🚧
 
 ## June
 
+- File System Control 🚧
+- Llm Vision Service Update
+- Llm Listening Service Update
 - Bots Calling Bots
 - Stateful Memory
 
 ## July
 
-- Data Compaction
-- Data Encoding
-- Data Enrichment
+- Database Connector
+- Cache Improved
 
 ## August
 
 - Full Error / Exception Handling
+- Data Compaction
 
 ## September
 
 - Enterprise Controls
+- Data Encoding
 
 ## October
 
 - Full Type Handling
+- Data Enrichment
 
 ## November
 
