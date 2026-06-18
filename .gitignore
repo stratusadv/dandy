@@ -15,6 +15,7 @@ dist/
 dandy.egg-info/
 inspectionProfiles/
 
+
 ~*.*
 *.env
 *.bat
@@ -24,6 +25,8 @@ inspectionProfiles/
 
 dev_tool.exe
 dev_tool*.exe
+
+example_project_book.md
 
 example_book.md
 
