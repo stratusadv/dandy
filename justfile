@@ -17,7 +17,7 @@ test:
 test-app app:
     {{ PYTHON }} -m pytest {{ app }}
 test-coverage:
-    {{ PYTHON }} -m pytest . --cov=django_spire --cov-report=term-missing
+    {{ PYTHON }} -m pytest . --cov=dandy --cov-report=term-missing --cov-report=html:.converage_html
 test-coverage-app app:
     {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing
 test-failed:

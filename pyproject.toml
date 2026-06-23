@@ -33,6 +33,7 @@ development = [
     "build",
     "Faker",
     "pytest",
+    "pytest-cov",
     "ruff",
     "setuptools",
     "twine",
