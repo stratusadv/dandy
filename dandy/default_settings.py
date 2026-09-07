@@ -12,8 +12,6 @@ CACHE_MEMORY_LIMIT: int = 1000
 CACHE_SQLITE_DATABASE_PATH: Path | str = BASE_PATH
 CACHE_SQLITE_LIMIT: int = 10000
 
-DANDY_DIRECTORY = '.dandy'
-
 DEBUG: bool = False
 
 FUTURES_MAX_WORKERS: int = 10
@@ -23,16 +21,24 @@ HTTP_CONNECTION_TIMEOUT_SECONDS: int | None = 60
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'HOST': os.getenv("AI_API_HOST"),
-        'PORT': int(os.getenv("AI_API_POST", 443)),
-        'API_KEY': os.getenv("AI_API_KEY"),
-        'MODEL': os.getenv("AI_API_MODEL"),
+        'HOST': os.getenv('AI_API_HOST'),
+        'PORT': int(os.getenv('AI_API_POST', 443)),
+        'API_KEY': os.getenv('AI_API_KEY'),
+        'MODEL': os.getenv('AI_API_MODEL'),
+        'CONTEXT_SIZE': 65536,
         'OPTIONS': {
             'frequency_penalty': None,
-            'max_completion_tokens': None,
             'presence_penalty': None,
             'temperature': None,
             'top_p': None,
-        }
-    },
+        },
+    }
+}
+
+CLI_CONFIG = {
+    'AUDIO': None,
+    'CODING': 'DEFAULT',
+    'SIMPLE': 'DEFAULT',
+    'THINKING': 'DEFAULT',
+    'VISION': None,
 }

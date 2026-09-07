@@ -1,48 +1,64 @@
-from pathlib import Path
-
-from dandy.cli.actions.manager import ActionManager
+from dandy.cli.agent.coding_agent import CodingAgent
 from dandy.cli.tui.tui import tui
+
+CLI_COMMANDS = ('clear', 'quit')
 
 
 class DandyCli:
-    def __init__(self):
-        self.action_manager = ActionManager()
-        self.user_inputs = []
+    def __init__(self) -> None:
+        self.agent = CodingAgent()
 
-        tui.setup_autocomplete(
-            list(
-                self.action_manager.calls_actions.keys()
-            )
+    def process_user_input(self, user_input: str) -> bool:
+        """Process one user input, returning False to stop the loop."""
+        if user_input.startswith('/'):
+            return self.process_command(user_input)
+
+        self.process_agent_input(user_input)
+        return True
+
+    def process_command(self, user_input: str) -> bool:
+        command = user_input.split(' ', 1)[0][1:].lower()
+
+        if command == 'clear':
+            self.agent.clear()
+            tui.printer.output('Conversation cleared.')
+            return True
+
+        if command in {'exit', 'quit', 'q'}:
+            return False
+
+        tui.printer.error(
+            error='Unknown command',
+            description=f'"{command}" is not a valid command. Try {tuple(CLI_COMMANDS)}.',
         )
+        return True
 
-    def process_user_input(self, user_input: str):
-        user_input_words = user_input.split(' ')
+    def process_agent_input(self, user_input: str) -> None:
+        tui.printer.running_phrase('Coding')
 
-        if user_input_words[0][0] == '/':
-            self.action_manager.call(
-                action_key=user_input_words[0][1:],
-                user_input=' '.join(user_input_words[1:]),
+        try:
+            result_intel = tui.printer.run_timed_task(
+                action_name='Coding',
+                task=user_input[:80],
+                work=lambda update: self.agent.chat(user_input, progress_callback=update),
             )
+        except Exception as error:
+            tui.printer.error(error='Coding agent failed', description=str(error))
+            return
 
-        else:
-            self.action_manager.call(
-                action_key='help',
-                user_input=' '.join(user_input_words),
-            )
+        tui.printer.green_divider()
+        tui.printer.output(result_intel.text)
 
-    def run(self):
+    def run(self) -> None:
         tui.printer.welcome()
 
         while True:
-            user_input = self.newest_user_input
-
-            if user_input is not None:
-                self.process_user_input(user_input)
-
             user_input = tui.get_user_input()
 
-            self.user_inputs.append(user_input)
+            if user_input is None:
+                break
 
-    @property
-    def newest_user_input(self) -> str | None:
-        return self.user_inputs[-1] if len(self.user_inputs) > 0 else None
+            if not self.process_user_input(user_input):
+                break
+
+        tui.printer.green_divider()

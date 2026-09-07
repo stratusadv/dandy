@@ -4,20 +4,19 @@ from unittest import TestCase, mock
 from dandy import default_settings
 from dandy.conf import DandySettings, settings
 from dandy.core.exceptions import DandyCriticalError
-from dandy.core.utils import get_settings_module_name
+from dandy.conf.utils import get_settings_module_name
 
 
 class TestSettings(TestCase):
     def test_settings(self):
         self.assertEqual(
             default_settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
-            settings.HTTP_CONNECTION_TIMEOUT_SECONDS
+            settings.HTTP_CONNECTION_TIMEOUT_SECONDS,
         )
 
-    @mock.patch('dandy.core.utils.get_settings_module_name')
+    @mock.patch('dandy.conf.utils.get_settings_module_name')
     def test_dandy_settings_defaults_to_tests_dandy_settings_if_missing_user_settings(
-            self,
-            mock_get_settings_module_name: mock.MagicMock
+        self, mock_get_settings_module_name: mock.MagicMock
     ):
         mock_get_settings_module_name.return_value = None
 
@@ -28,6 +27,7 @@ class TestSettings(TestCase):
 
     def test_dandy_settings_raises_dandy_critical_exception_with_none_BASE_PATH(self):
         from dandy import default_settings
+
         original_default_base_path = default_settings.BASE_PATH
         default_settings.BASE_PATH = None
 

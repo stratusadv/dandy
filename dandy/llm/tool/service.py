@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from pydantic import ValidationError
 
@@ -31,6 +31,7 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
             tools: list[ToolType] | None = None,
             tool_functions: dict[str, ToolHandler] | None = None,
             max_tool_iterations: int = 5,
+            progress_callback: Callable[[str], None] | None = None,
             **kwargs,
     ) -> IntelType:
         tool_instances = to_tool_instances(tools)
@@ -40,6 +41,9 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
         iteration_count = 0
 
         while True:
+            if progress_callback is not None:
+                progress_callback('Thinking')
+
             intel = self.obj.prompt_to_intel(
                 prompt=prompt if iteration_count == 0 else None,
                 intel_class=intel_class,
@@ -59,6 +63,9 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
                 raise LlmRecoverableError(message)
 
             for tool_call in intel:
+                if progress_callback is not None:
+                    progress_callback(f'Running {tool_call.name}')
+
                 self._process_tool_call(
                     tool_call=tool_call,
                     tools_by_name=tools_by_name,

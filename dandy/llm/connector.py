@@ -9,6 +9,7 @@ from pydantic.main import IncEx
 from dandy.core.connector.connector import BaseConnector
 from dandy.http.connector import HttpConnector
 from dandy.intel.factory import IntelFactory
+from dandy.intel.intel import DefaultIntel
 from dandy.intel.typing import IntelType
 from dandy.llm.config import LlmConfig
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
@@ -162,7 +163,7 @@ class LlmConnector(BaseConnector):
             self.request_body.tools = None
             self.request_body.tool_choice = None
 
-        if message_history:
+        if message_history is not None:
             if replace_message_history:
                 self.request_body.messages = message_history
             else:
@@ -234,12 +235,32 @@ class LlmConnector(BaseConnector):
             raise LlmRecoverableError(message)
 
         except ValidationError as error:
+            if self._should_fallback_to_default_text(error):
+                recorder_add_llm_success_event(
+                    description='Response was plain text; stored it in DefaultIntel.',
+                    event_id=self.recorder_event_id,
+                    intel=DefaultIntel(text=self.response_str),
+                )
+
+                self.request_body.messages.add_message(role='assistant', text=self.response_str)
+
+                return DefaultIntel(text=self.response_str)
+
             recorder_add_llm_failure_event(error, self.recorder_event_id)
 
             return self.retry_request_to_intel(
                 retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
                 retry_user_prompt=service_system_validation_error_prompt(error),
             )
+
+    def _should_fallback_to_default_text(self, error: ValidationError) -> bool:
+        if not self.response_str:
+            return False
+
+        if not isinstance(self.intel, DefaultIntel) and self.intel is not DefaultIntel:
+            return False
+
+        return {entry['type'] for entry in error.errors()} == {'json_invalid'}
 
     def _parse_tool_calls_to_intel(self) -> LlmToolCallsIntel:
         tool_calls_intel = LlmToolCallsIntel()

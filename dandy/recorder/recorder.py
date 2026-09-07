@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Type
 
 from dandy.conf import settings
-from dandy.constants import RECORDING_DEFAULT_NAME, RECORDING_OUTPUT_DIRECTORY
+from dandy.constants import RECORDING_DEFAULT_NAME, RECORDING_OUTPUT_DIRECTORY, DANDY_LOCAL_DIRECTORY_NAME
 from dandy.core.singleton import Singleton
 from dandy.recorder.events import Event
 from dandy.recorder.exceptions import RecorderCriticalError
@@ -49,7 +49,7 @@ class Recorder(Singleton):
 
     @classmethod
     def get_default_recording_path(cls) -> Path:
-        return Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, RECORDING_OUTPUT_DIRECTORY)
+        return Path(settings.BASE_PATH, DANDY_LOCAL_DIRECTORY_NAME, RECORDING_OUTPUT_DIRECTORY)
 
     @classmethod
     def get_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> Recording:

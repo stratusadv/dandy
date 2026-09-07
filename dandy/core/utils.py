@@ -1,18 +1,7 @@
-import os
 import re
 from typing import Any, Iterable
 
 from pydantic import ValidationError
-
-from dandy.constants import DEFAULT_SETTINGS_MODULE
-
-
-def get_settings_module_name() -> str:
-    return (
-        os.getenv('DANDY_SETTINGS_MODULE')
-        if os.getenv('DANDY_SETTINGS_MODULE') is not None
-        else DEFAULT_SETTINGS_MODULE
-    )
 
 
 def pascal_to_title_case(pascal_case_string: str) -> str:
@@ -27,9 +16,7 @@ def pydantic_validation_error_to_str(error: ValidationError) -> str:
     return error.__str__()
 
 
-def python_obj_to_markdown(
-    python_obj: Any, markdown_str: str = '', level: int = 2
-) -> str:
+def python_obj_to_markdown(python_obj: Any, markdown_str: str = '', level: int = 2) -> str:
 
     if isinstance(python_obj, dict):
         for key, value in python_obj.items():

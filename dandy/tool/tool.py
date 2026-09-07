@@ -49,7 +49,7 @@ class BaseTool:
 
         return self.intel_class
 
-    def handle(self, arguments: BaseIntel | str) -> str | BaseIntel:  # noqa: ARG002
+    def handle(self, arguments: BaseIntel) -> str | BaseIntel:  # noqa: ARG002
         """Execute the tool for the given arguments.
 
         Subclasses override this to make the tool self-contained and reusable.

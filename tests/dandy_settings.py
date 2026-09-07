@@ -5,7 +5,7 @@ ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 if DEBUG:
     from dandy.core.debug import *
@@ -23,20 +23,21 @@ LLM_CONFIGS = {
     'DEFAULT': {
         **AI_API,
         'MODEL': os.getenv('LLM_DEFAULT_MODEL', 'gpt-test'),
-        'OPTIONS': {
-            'temperature': 0.7
-        }
+        'CONTEXT_SIZE': 65536,
+        'OPTIONS': {'temperature': 0.7},
     },
     'THINKING': {
         'MODEL': os.getenv('LLM_THINKING_MODEL', 'gpt-test'),
-        'OPTIONS': {
-            'temperature': 0.4
-        }
+        'OPTIONS': {'temperature': 0.4},
     },
-    'AUDIO': {
-        'MODEL': os.getenv('LLM_AUDIO_MODEL', 'gpt-test'),
-    },
-    'VISION': {
-        'MODEL': os.getenv('LLM_VISION_MODEL', 'gpt-test'),
-    },
+    'AUDIO': {'MODEL': os.getenv('LLM_AUDIO_MODEL', 'gpt-test')},
+    'VISION': {'MODEL': os.getenv('LLM_VISION_MODEL', 'gpt-test')},
+}
+
+CLI_CONFIG = {
+    'AUDIO': None,
+    'CODING': 'DEFAULT',
+    'SIMPLE': 'DEFAULT',
+    'THINKING': 'DEFAULT',
+    'VISION': None,
 }

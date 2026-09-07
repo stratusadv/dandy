@@ -137,6 +137,30 @@ class TestLlmToolService(TestCase):
         self.assertNotIn('response_format', first_request.json_data)
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_progress_steps(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "San Francisco"}'),
+            content_response('{"text": "Sunny and 70 degrees."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in San Francisco?',
+            intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+            tool_functions={'get_weather': HandleWeatherTool().handle},
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(
+            progress_steps,
+            ['Thinking', 'Running get_weather', 'Thinking'],
+        )
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_returns_tool_calls_manually(self, mock_post_request):
         mock_post_request.side_effect = [
             tool_call_response('get_weather', '{"location": "Paris"}'),

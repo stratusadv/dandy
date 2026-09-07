@@ -4,6 +4,8 @@ from pathlib import Path
 import dotenv
 from blessed import Terminal
 
+from dandy.constants import __VERSION__
+
 CWD_PATH = Path.cwd()
 
 env_file_names = [
@@ -26,8 +28,37 @@ from dandy.cli.session import session  # noqa: E402
 from dandy.cli.utils import check_or_create_settings  # noqa: E402
 
 
+USAGE = (
+    '\n'
+    'Usage:\n'
+    '  dandy                         Start the interactive assistant (REPL)\n'
+    '  dandy "<your request>"        Run one request then exit\n'
+    '  dandy -h, --help              Show this help message\n'
+    '  dandy -v, --version           Show the version\n'
+    '\n'
+    'With no request, dandy starts an interactive session and stays in an '
+    'agentic loop: every message you type is sent to the coding agent. '
+    'Start a line with /clear to reset the conversation or /quit to exit; '
+    'pressing escape twice also exits the loop.\n'
+)
+
+
+def _print_usage() -> None:
+    term = Terminal()
+    print(term.bold_blue('\nDandy') + term.normal + USAGE)
+
+
 def main() -> None:
     sys.path.append(str(CWD_PATH))
+
+    if len(sys.argv) > 1 and sys.argv[1] in {'-h', '--help'}:
+        _print_usage()
+        return
+
+    if len(sys.argv) > 1 and sys.argv[1] in {'-v', '--version'}:
+        arg_term = Terminal()
+        print(arg_term.bold_blue(f'\nDandy {__VERSION__}'))
+        return
 
     check_or_create_settings(CWD_PATH)
 
@@ -47,12 +78,6 @@ def main() -> None:
 
     if len(sys.argv) > 1:
         user_input = ' '.join(sys.argv[1:])
-
-        if user_input[0] == '-':
-            user_input = '/' + user_input[1:]
-
-        if user_input[0] != '/':
-            user_input = '/' + user_input
 
         arg_term = Terminal()
 

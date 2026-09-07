@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.conf import settings
+from dandy.constants import DANDY_LOCAL_DIRECTORY_NAME
 from dandy.file.utils import remove_file
 from dandy.intel.intel import BaseIntel
 from dandy.intel.exceptions import IntelCriticalError
@@ -158,7 +159,7 @@ class TestBaseIntel(TestCase):
 
     def test_base_intel_object_file(self):
         try:
-            bag_file_path = Path(settings.BASE_PATH, settings.DANDY_DIRECTORY, 'test_intel_files', 'test_bag.json')
+            bag_file_path = Path(settings.BASE_PATH, DANDY_LOCAL_DIRECTORY_NAME, 'test_intel_files', 'test_bag.json')
             bag = BagIntel(
                 color='maroon',
                 stylish=False,

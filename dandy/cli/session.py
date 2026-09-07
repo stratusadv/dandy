@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from dandy.conf import settings
-from dandy.constants import CLI_WORKING_DIRECTORY
+from dandy import constants
+from dandy.constants import CLI_WORKING_DIRECTORY, DANDY_LOCAL_DIRECTORY_NAME
 from dandy.file.utils import file_exists
 from dandy.intel.intel import BaseIntel
 
@@ -17,7 +17,7 @@ class DandyCliSession(BaseIntel):
     def project_dandy_path(self) -> Path:
         return Path(
             self.project_base_path,
-            settings.DANDY_DIRECTORY,
+            DANDY_LOCAL_DIRECTORY_NAME,
         )
 
     @property

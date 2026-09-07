@@ -57,6 +57,11 @@ def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
         )
         .text(f'{pydantic_validation_error_to_str(error)}', triple_backtick=True)
         .text(
-            'Please review your response provide a valid JSON in your next response, based on the previous request.'
+            'Please review your response and provide valid JSON in your next response, '
+            'based on the previous request.'
+        )
+        .text(
+            'Respond with raw JSON only. Do not wrap the JSON in markdown code fences, '
+            'and do not add any other text around it.'
         )
     )

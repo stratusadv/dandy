@@ -63,8 +63,7 @@ class CandyDesignBot(Bot):
 
     def process(self, user_prompt: Prompt | str, candy_theme: str) -> CandyIntel:
         self.llm.options.temperature = 0.1
-        self.llm.options.max_completion_tokens=6000
-        
+
         prompt = (
             Prompt()
             .heading('Request')
