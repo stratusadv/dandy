@@ -49,7 +49,7 @@ class _TaskProgress:
     def completed_frame(self, label: str, duration: float) -> str:
         indent = ' ' * ((self.step_indent * 2) + 1)
         return (
-            f'\r{self.term.green}{indent}↳ {label} took {duration:.1f}s'
+            f'\r{indent}↳ {label} {self.term.green}took {duration:.1f}s'
             f'{self.term.normal}{self.term.clear_eol()}'
         )
 
@@ -69,6 +69,9 @@ class Printer:
         print(self.term.bold_purple('─' * self.term.width), flush=True)
 
     def divider(self):
+        print(self.term.bold_grey('─' * self.term.width), flush=True)
+
+    def grey_divider(self):
         print(self.term.bold_grey('─' * self.term.width), flush=True)
 
     def green_divider(self):

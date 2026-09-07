@@ -4,6 +4,8 @@ from pathlib import Path
 import dotenv
 from blessed import Terminal
 
+from dandy.cli.tui.printer import Printer
+from dandy.cli.tui.tui import tui
 from dandy.constants import __VERSION__
 
 CWD_PATH = Path.cwd()
@@ -19,7 +21,7 @@ for env_file_name in env_file_names:
     env_file_path = Path(CWD_PATH, env_file_name)
     if env_file_path.exists():
         env_term = Terminal()
-        print(env_term.blue(f'\nLoading environment variables from "{env_file_path}"'))
+        # print(env_term.blue(f'\nLoading environment variables from "{env_file_path}"'))
         dotenv.load_dotenv(env_file_path)
 
 sys.path.append(str(CWD_PATH))
@@ -45,7 +47,7 @@ USAGE = (
 
 def _print_usage() -> None:
     term = Terminal()
-    print(term.bold_blue('\nDandy') + term.normal + USAGE)
+    print(term.bold_blue('\n Dandy') + term.normal + USAGE)
 
 
 def main() -> None:
@@ -81,7 +83,9 @@ def main() -> None:
 
         arg_term = Terminal()
 
-        print(arg_term.bold_blue('\nDandy'))
+        print(arg_term.bold_blue('\n\U0001F3A9 Dandy'))
+
+        tui.printer.blue_divider()
 
         cli.process_user_input(
             user_input=user_input
@@ -90,8 +94,8 @@ def main() -> None:
     else:
         cli.run()
 
+    tui.printer.grey_divider()
     print()
-
 
 if __name__ == '__main__':
     sys.exit(main())
