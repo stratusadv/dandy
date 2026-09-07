@@ -1,10 +1,10 @@
 import subprocess
 from pathlib import Path
 
-from dandy.tool.tool import BaseTool
+from dandy.tool.subprocess_tool import BaseSubprocessTool
 
 
-class GitTool(BaseTool):
+class GitTool(BaseSubprocessTool):
     def setup(self) -> bool:
         try:
             subprocess.run(

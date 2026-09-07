@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from dandy import Bot, Prompt, recorder_to_html_file
+from dandy.bot.bot import Bot
 from dandy.cli.intelligence.intel.source_code_intel import SourceCodeIntel
+from dandy.llm.prompt.prompt import Prompt
+from dandy.recorder.decorators import recorder_to_html_file
 
 
 class SourceCodeBot(Bot):

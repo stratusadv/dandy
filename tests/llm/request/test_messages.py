@@ -3,16 +3,19 @@ from unittest import TestCase
 from dandy.bot.bot import Bot
 from dandy.intel.intel import BaseIntel
 from dandy.llm.request.message import MessageHistory
+from tests.consts import live_llm_test
 
 class TestMessages(TestCase):
+    @live_llm_test
     def test_message_history(self):
         message_history = MessageHistory()
+        message_history.add_message(
+            role='system',
+            text='You are chatting about a birthday. Ask when it is, then how old they are now, then react with surprise.',
+        )
         message_history.add_message(role='user', text='I was 91 years old a few days ago')
-        message_history.add_message(role='system', text='When is your birthday?')
         message_history.add_message(role='user', text='It is my birthday today!')
-        message_history.add_message(role='system', text='How old are you?')
         message_history.add_message(role='user', text='I just turned 92')
-        message_history.add_message(role='system', text='Wow! That is so old.')
         message_history.add_message(role='user', text='That is ok I am feeling great')
 
         class BirthdayIntel(BaseIntel):

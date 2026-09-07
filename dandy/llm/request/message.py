@@ -9,7 +9,7 @@ from dandy.file.image.utils import get_image_mime_type_from_base64_string
 from dandy.file.utils import get_file_extension_from_url_string
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
-RoleLiteralStr = Literal['user', 'assistant', 'system']
+RoleLiteralStr = Literal['user', 'assistant', 'system', 'tool']
 DetailLiteralStr = Literal['auto', 'low', 'high']
 TypeLiteralStr = Literal['text', 'image_url', 'input_audio']
 
@@ -49,10 +49,31 @@ class MessageContent(BaseModel):
 class Message(BaseModel):
     role: RoleLiteralStr
     content: list[MessageContent] = Field(default_factory=list)
+    tool_call_id: str | None = None
+    tool_calls: list[dict] | None = None
+
+    @property
+    def text_content(self) -> str:
+        return ''.join(
+            message_content.text or ''
+            for message_content in self.content
+            if message_content.text
+        )
 
     @property
     def estimated_token_count(self) -> int:
         return get_estimated_token_count_for_string(self.__str__())
+
+    def model_dump(self, *args, **kwargs) -> dict:
+        kwargs['exclude_none'] = True
+        model_dict = super().model_dump(*args, **kwargs)
+
+        if self.role == 'tool':
+            model_dict['content'] = self.text_content
+        elif self.tool_calls:
+            model_dict['content'] = None
+
+        return model_dict
 
     def add_content_from_text(self, text: str):
         self.content.append(
@@ -146,9 +167,15 @@ class MessageHistory(BaseModel):
             audio_urls: list[str] | None = None,
             audio_file_paths: list[str] | None = None,
             audio_base64_strings: list[str] | None = None,
+            tool_call_id: str | None = None,
+            tool_calls: list[dict] | None = None,
             prepend: bool = False,
     ) -> None:
-        message = Message(role=role)
+        message = Message(
+            role=role,
+            tool_call_id=tool_call_id,
+            tool_calls=tool_calls,
+        )
 
         if text is not None:
             message.add_content_from_text(text=text)

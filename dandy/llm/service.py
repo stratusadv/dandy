@@ -9,6 +9,7 @@ from dandy.llm.connector import LlmConnector
 from dandy.llm.decoder.mixin import DecoderServiceMixin
 from dandy.llm.diligence.mixin import DiligenceServiceMixin
 from dandy.llm.intelligence.prompts import service_system_prompt
+from dandy.llm.tool.mixin import LlmToolServiceMixin
 
 if TYPE_CHECKING:
     from pydantic.main import IncEx
@@ -18,12 +19,14 @@ if TYPE_CHECKING:
     from dandy.llm.options import LlmOptions
     from dandy.llm.prompt.prompt import Prompt
     from dandy.llm.request.message import MessageHistory
+    from dandy.tool.tool import ToolType
 
 
 class LlmService(
     BaseService['dandy.llm.mixin.LlmServiceMixin'],
     DecoderServiceMixin,
     DiligenceServiceMixin,
+    LlmToolServiceMixin,
 ):
     def __post_init__(self):
         self._llm_connector: LlmConnector = LlmConnector(
@@ -61,6 +64,8 @@ class LlmService(
             image_base64_strings: list[str] | None = None,
             include_fields: IncEx | None = None,
             exclude_fields: IncEx | None = None,
+            tools: list[ToolType] | None = None,
+            tool_choice: str | dict | None = None,
             message_history: MessageHistory | None = None,
             replace_message_history: bool = False,
     ) -> IntelType:
@@ -76,6 +81,8 @@ class LlmService(
             image_base64_strings=image_base64_strings,
             include_fields=include_fields,
             exclude_fields=exclude_fields,
+            tools=tools,
+            tool_choice=tool_choice,
             message_history=message_history,
             replace_message_history=replace_message_history,
         )

@@ -7,6 +7,7 @@ from dandy.core.future.future import AsyncFuture
 from dandy.core.future.exceptions import FutureRecoverableError
 from dandy.intel.intel import BaseIntel
 from tests.bot.intelligence.bots import TestingBot, OtherBot
+from tests.consts import live_llm_test
 
 
 class StoryIntel(BaseIntel):
@@ -51,6 +52,7 @@ class TestFuture(TestCase):
             squared_future.set_timeout(0.1)
             _ = squared_future.result
 
+    @live_llm_test
     def test_bot_future(self):
         response_future = PirateStoryBot().process_to_future(
             'Write a quick poem about pirates enjoying a day at the beach.',
@@ -58,6 +60,7 @@ class TestFuture(TestCase):
 
         self.assertTrue(len(response_future.result.text) > 0)
 
+    @live_llm_test
     def test_bot_race_condition_future(self):
         bot_prompts = [
             (TestingBot(), 'fedora hats and canes'),

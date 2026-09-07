@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Sequence
 
-from dandy import Bot, Prompt
+from dandy.bot.bot import Bot
+from dandy.llm.prompt.prompt import Prompt
 
 
 class CodeExplainerBot(Bot):

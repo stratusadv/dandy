@@ -1,4 +1,4 @@
-from dandy import Bot
+from dandy.bot.bot import Bot
 from dandy.cli.actions.help.intelligence.intel.default_user_input_intel import DefaultUserInputIntel
 from dandy.cli.actions.help.intelligence.prompt import default_user_input_bot_guidelines_prompt
 

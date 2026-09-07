@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from dandy import Prompt
 from dandy.bot.bot import Bot
 from dandy.cli.session import session
 from dandy.file.utils import get_directory_listing
+from dandy.llm.prompt.prompt import Prompt
 
 
 class FilesDecoderBot(Bot):

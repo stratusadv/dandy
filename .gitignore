@@ -4,6 +4,8 @@ __pycache__/
 .idea/
 .junie/
 .cache/
+.claude/
+.crush/
 .opencode/
 .npm/
 .venv*/

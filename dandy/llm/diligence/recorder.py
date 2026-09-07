@@ -1,5 +1,5 @@
-from dandy import Recorder
 from dandy.recorder.events import Event, EventType, EventAttribute
+from dandy.recorder.recorder import Recorder
 
 
 def recorder_add_llm_diligence_event(

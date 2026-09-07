@@ -5,6 +5,7 @@ from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.intel.intel import BaseIntel
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.bot.bot import Bot
+from tests.consts import live_llm_test
 from tests.llm.decorators import run_llm_configs
 
 
@@ -52,6 +53,7 @@ class TestService(TestCase):
         with self.assertRaises(LlmCriticalError):
             _ = Bot().llm.prompt_to_intel()
 
+    @live_llm_test
     def test_prompt_to_intel_with_message_and_no_prompt_argument(self):
         bot = Bot()
 

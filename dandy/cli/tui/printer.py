@@ -3,12 +3,12 @@ from time import perf_counter, sleep, time
 
 from blessed import Terminal
 
-from dandy import constants
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.processing_phrases import PROCESSING_PHRASES
 from dandy.cli.session import session
 from dandy.cli.tui.ascii import DANDY_ANSII
 from dandy.cli.tui.tools import wrap_text_with_indentation
+from dandy.constants import __VERSION__
 from dandy.llm.config import LlmConfig
 
 
@@ -38,7 +38,7 @@ class Printer:
     def welcome(self):
         print(self.term.bold_blue(f'\n{DANDY_ANSII}\n'))
         self.blue_divider()
-        print(self.term.bold_blue('Version      : ') + constants.__VERSION__)
+        print(self.term.bold_blue('Version      : ') + __VERSION__)
         print(self.term.bold_blue('Model        : ') + LlmConfig('DEFAULT').model)
         print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
 

@@ -1,12 +1,14 @@
 from unittest import TestCase, mock
 
 from dandy import Recorder
+from tests.consts import live_llm_test
 from tests.llm.diligence.intelligence.bot import CelestialObserverBot
 
 QUESTION = 'What is the large round object that is circling the plant earth, is generally only visible at night and affects the tides?'
 ANSWER = 'moon'
 
 
+@live_llm_test
 class TestDiligence(TestCase):
     def setUp(self) -> None:
         self.celestial_observer_bot = CelestialObserverBot()

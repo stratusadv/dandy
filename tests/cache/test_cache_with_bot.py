@@ -10,8 +10,10 @@ from tests.cache.intelligence.caches import sql_lite_cache, memory_cache
 
 from tests.bot.intelligence.intel import MoneyBagIntel
 from tests.bot.intelligence.bots import MoneyBagBot
+from tests.consts import live_llm_test
 
 
+@live_llm_test
 class TestCacheBot(TestCase):
     @classmethod
     def tearDownClass(cls):

@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from dandy import BaseIntel
 from dandy.conf import settings
 from dandy.constants import CLI_WORKING_DIRECTORY
 from dandy.file.utils import file_exists
+from dandy.intel.intel import BaseIntel
 
 
 class DandyCliSession(BaseIntel):

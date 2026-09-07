@@ -1,5 +1,5 @@
-from dandy import Prompt
 from dandy.cli.actions.constants import ACTIONS
+from dandy.llm.prompt.prompt import Prompt
 
 
 def default_user_input_bot_guidelines_prompt() -> Prompt:

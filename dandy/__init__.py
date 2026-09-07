@@ -8,6 +8,7 @@ from dandy.core.exceptions import DandyCriticalError, DandyError, DandyRecoverab
 from dandy.core.future.tools import process_to_future
 from dandy.intel.intel import BaseIntel, BaseListIntel
 from dandy.llm.prompt.prompt import Prompt
+from dandy.tool.tool import BaseTool
 from dandy.recorder.decorators import (
     recorder_to_html_file,
     recorder_to_json_file,
@@ -18,6 +19,7 @@ from dandy.recorder.recorder import Recorder
 __all__ = [
     'BaseIntel',
     'BaseListIntel',
+    'BaseTool',
     'Bot',
     'DandyCriticalError',
     'DandyError',

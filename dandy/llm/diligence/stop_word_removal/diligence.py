@@ -29,11 +29,7 @@ class StopWordRemovalDiligence(BaseDiligence):
                     stripped_text = cls.remove_stop_words(llm_connector.request_body.messages[i].content[j].text)
                     llm_connector.request_body.messages[i].content[j].text = stripped_text
 
-        llm_connector.request_body.messages.add_message(
-            role='system',
-            text='Assume Stop Words',
-            prepend=True,
-        )
+        cls._prepend_system_instruction(llm_connector, 'Assume Stop Words')
 
     @staticmethod
     def remove_stop_words(text: str) -> str:

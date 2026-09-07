@@ -4,10 +4,10 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from dandy import Prompt
 from dandy.bot.bot import Bot
 from dandy.cli.actions.action import BaseAction
 from dandy.cli.intelligence.bots.source_code_bot import SourceCodeBot
+from dandy.llm.prompt.prompt import Prompt
 from dandy.cli.session import session
 from dandy.cli.tui.tui import tui
 from dandy.file.utils import make_directory

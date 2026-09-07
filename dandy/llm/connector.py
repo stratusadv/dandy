@@ -22,6 +22,9 @@ from dandy.llm.recorder import (
     recorder_add_llm_success_event,
 )
 from dandy.llm.request.message import MessageHistory
+from dandy.llm.tool.intel import LlmToolCallIntel, LlmToolCallsIntel
+from dandy.llm.tool.recorder import recorder_add_tool_call_event
+from dandy.tool.tool import ToolType, to_tool_instances
 
 if TYPE_CHECKING:
     from dandy.llm.diligence.handler import DiligenceHandler
@@ -48,6 +51,7 @@ class LlmConnector(BaseConnector):
 
         self.request_body = self.llm_config.generate_request_body()
         self.response_str = None
+        self.tool_calls = None
 
         self.system_prompt_str = str(system_prompt)
 
@@ -63,9 +67,12 @@ class LlmConnector(BaseConnector):
 
         self.llm_config.http_request_intel.json_data = self.request_body.model_dump()
 
-        self.response_str = http_connector.request_to_response(
+        response_message = http_connector.request_to_response(
             request_intel=self.llm_config.http_request_intel
-        ).json_data['choices'][0]['message']['content']
+        ).json_data['choices'][0]['message']
+
+        self.response_str = response_message.get('content') or ''
+        self.tool_calls = response_message.get('tool_calls') or None
 
     def _prepend_system_message(self):
         self.request_body.messages.add_message(
@@ -85,6 +92,8 @@ class LlmConnector(BaseConnector):
         image_base64_strings: list[str] | None = None,
         include_fields: IncEx | None = None,
         exclude_fields: IncEx | None = None,
+        tools: list[ToolType] | None = None,
+        tool_choice: str | dict | None = None,
         message_history: MessageHistory | None = None,
         replace_message_history: bool = False,
     ) -> IntelType:
@@ -96,33 +105,19 @@ class LlmConnector(BaseConnector):
             intel=self.intel, include=include_fields, exclude=exclude_fields
         )
 
-        if not self.request_body.messages.has_system_message:
-            self._prepend_system_message()
-
-        if message_history:
-            if replace_message_history:
-                self.request_body.messages = message_history
-            else:
-                self.request_body.messages.extend(message_history.messages)
-
-        if prompt is not None:
-            self.request_body.messages.add_message(role='user', text=Prompt(prompt).to_str())
-
-        if audio_urls or audio_file_paths or audio_base64_strings:
-            self.request_body.messages.add_message(
-                role='user',
-                audio_urls=audio_urls,
-                audio_file_paths=audio_file_paths,
-                audio_base64_strings=audio_base64_strings,
-            )
-
-        if image_urls or image_file_paths or image_base64_strings:
-            self.request_body.messages.add_message(
-                role='user',
-                image_urls=image_urls,
-                image_file_paths=image_file_paths,
-                image_base64_strings=image_base64_strings,
-            )
+        self._update_request_body_options(
+            tools=tools,
+            tool_choice=tool_choice,
+            message_history=message_history,
+            replace_message_history=replace_message_history,
+            prompt=prompt,
+            audio_urls=audio_urls,
+            audio_file_paths=audio_file_paths,
+            audio_base64_strings=audio_base64_strings,
+            image_urls=image_urls,
+            image_file_paths=image_file_paths,
+            image_base64_strings=image_base64_strings,
+        )
 
         if len(self.request_body.messages) <= 1:
             message = (
@@ -143,6 +138,58 @@ class LlmConnector(BaseConnector):
 
         return response_intel_object
 
+    def _update_request_body_options(
+            self,
+            tools: list[ToolType] | None,
+            tool_choice: str | dict | None,
+            message_history: MessageHistory | None,
+            replace_message_history: bool,
+            prompt: Prompt | str | None,
+            audio_urls: list[str] | None,
+            audio_file_paths: list[str | Path] | None,
+            audio_base64_strings: list[str] | None,
+            image_urls: list[str] | None,
+            image_file_paths: list[str | Path] | None,
+            image_base64_strings: list[str] | None,
+    ) -> None:
+        if tools is not None:
+            self.request_body.tools = [
+                tool.to_function_dict() for tool in to_tool_instances(tools)
+            ]
+            self.request_body.response_format = None
+            self.request_body.tool_choice = tool_choice
+        else:
+            self.request_body.tools = None
+            self.request_body.tool_choice = None
+
+        if message_history:
+            if replace_message_history:
+                self.request_body.messages = message_history
+            else:
+                self.request_body.messages.extend(message_history.messages)
+
+        if not self.request_body.messages.has_system_message:
+            self._prepend_system_message()
+
+        if prompt is not None:
+            self.request_body.messages.add_message(role='user', text=Prompt(prompt).to_str())
+
+        if audio_urls or audio_file_paths or audio_base64_strings:
+            self.request_body.messages.add_message(
+                role='user',
+                audio_urls=audio_urls,
+                audio_file_paths=audio_file_paths,
+                audio_base64_strings=audio_base64_strings,
+            )
+
+        if image_urls or image_file_paths or image_base64_strings:
+            self.request_body.messages.add_message(
+                role='user',
+                image_urls=image_urls,
+                image_file_paths=image_file_paths,
+                image_base64_strings=image_base64_strings,
+            )
+
     def _reset_prompt_retry_attempt(self):
         self.prompt_retry_attempt = 0
 
@@ -158,6 +205,14 @@ class LlmConnector(BaseConnector):
         recorder_add_llm_response_event(
             message_content=self.response_str, event_id=self.recorder_event_id
         )
+
+        if self.tool_calls:
+            self.request_body.messages.add_message(
+                role='assistant',
+                tool_calls=self.tool_calls,
+            )
+
+            return self._parse_tool_calls_to_intel()
 
         try:
             intel_object = IntelFactory.json_str_to_intel_object(
@@ -185,6 +240,22 @@ class LlmConnector(BaseConnector):
                 retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
                 retry_user_prompt=service_system_validation_error_prompt(error),
             )
+
+    def _parse_tool_calls_to_intel(self) -> LlmToolCallsIntel:
+        tool_calls_intel = LlmToolCallsIntel()
+
+        for tool_call in self.tool_calls or []:
+            tool_calls_intel.append(
+                LlmToolCallIntel(
+                    id=tool_call.get('id'),
+                    name=tool_call['function']['name'],
+                    arguments=tool_call['function'].get('arguments') or '',
+                )
+            )
+
+        recorder_add_tool_call_event(tool_calls_intel, self.recorder_event_id)
+
+        return tool_calls_intel
 
     def retry_request_to_intel(
         self, retry_event_description: str, retry_user_prompt: Prompt | str

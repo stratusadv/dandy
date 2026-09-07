@@ -1,7 +1,6 @@
 from pathlib import Path
 from time import time
 
-from dandy import Prompt, recorder_to_html_file
 from dandy.cli.actions.explain.intelligence.bots.code_explainer_bot import (
     CodeExplainerBot,
 )
@@ -10,6 +9,8 @@ from dandy.cli.actions.explain.intelligence.decoders.files_decoder import (
 )
 from dandy.cli.tui.tui import tui
 from dandy.llm.decoder.exceptions import DecoderNoKeysRecoverableError
+from dandy.llm.prompt.prompt import Prompt
+from dandy.recorder.decorators import recorder_to_html_file
 
 
 @recorder_to_html_file('explain_project_workflow')

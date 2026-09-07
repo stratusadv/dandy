@@ -3,7 +3,7 @@ import hashlib
 from pydantic import BaseModel
 from typing import Any
 
-from dandy import Bot
+from dandy.bot.bot import Bot
 from dandy.cache.exceptions import CacheCriticalError
 from dandy.constants import CACHE_KEY_HASH_LAYER_LIMIT
 

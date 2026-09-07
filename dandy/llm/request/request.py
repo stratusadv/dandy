@@ -8,8 +8,10 @@ class LlmRequestBody(BaseModel):
     model: str
     messages: MessageHistory = Field(default_factory=MessageHistory)
     stream: bool = False
+    tools: list[dict] | None = None
+    tool_choice: str | dict | None = None
 
-    response_format: dict = {
+    response_format: dict | None = {
         'type': 'json_schema',
         'json_schema': {
             'name': 'response_data',
@@ -24,9 +26,14 @@ class LlmRequestBody(BaseModel):
 
     @property
     def estimated_token_count(self) -> int:
-        return self.messages.estimated_token_count + get_estimated_token_count_for_string(
-            str(self.response_format['json_schema']['schema'])
-        )
+        response_format_token_count = 0
+
+        if self.response_format is not None:
+            response_format_token_count = get_estimated_token_count_for_string(
+                str(self.response_format['json_schema']['schema'])
+            )
+
+        return self.messages.estimated_token_count + response_format_token_count
 
     @property
     def json_schema(self) -> dict:
@@ -34,11 +41,15 @@ class LlmRequestBody(BaseModel):
 
     @json_schema.setter
     def json_schema(self, json_schema: dict):
-        self.response_format['json_schema']['schema'] = json_schema
+        if self.response_format is not None:
+            self.response_format['json_schema']['schema'] = json_schema
 
     def model_dump(self, *args, **kwargs) -> dict:
         model_dict = super().model_dump(*args, exclude_none=True, **kwargs)
-        model_dict['messages'] = model_dict.pop('messages')['messages']
+        model_dict['messages'] = [
+            message.model_dump()
+            for message in self.messages.messages
+        ]
 
         return model_dict
 

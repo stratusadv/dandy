@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Literal
 
-from dandy import BaseIntel
 from dandy.file.utils import write_to_file
+from dandy.intel.intel import BaseIntel
 
 
 class SourceCodeIntel(BaseIntel):

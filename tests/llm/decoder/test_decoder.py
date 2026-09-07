@@ -12,6 +12,7 @@ from dandy.llm.decoder.exceptions import (
 from tests.llm.decoder.intelligence.decoders import (
     FunDecoderBot,
 )
+from tests.consts import live_llm_test
 from tests.nines.decorators import nines_testing
 
 
@@ -26,9 +27,11 @@ class TestDecoder(TestCase):
                 }
             )
 
+    @live_llm_test
     def test_decoder(self):
-        values = FunDecoderBot().process(
-            'I enjoy seeing my dog every day and think animals are really cool. Give me two choices of things to do!',
+        values = FunDecoderBot(llm_temperature=0.0).process(
+            'I enjoy seeing my dog every day and think animals are really cool, '
+            'and I would be glad to get a free puppy. Give me two choices of things to do!',
             2
         )
 
@@ -36,6 +39,7 @@ class TestDecoder(TestCase):
         self.assertIn(391, values)
         self.assertIn(782, values)
 
+    @live_llm_test
     @nines_testing()
     def test_big_user_decoder(self):
         fake = Faker()

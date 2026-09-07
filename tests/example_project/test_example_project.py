@@ -2,10 +2,12 @@ import logging
 from unittest import TestCase
 
 from dandy import Recorder
+from tests.consts import live_llm_test
 from tests.example_project.book.workflow import create_book
 
 
 class TestExampleProject(TestCase):
+    @live_llm_test
     def test_book_generation(self):
         dandy_book = None
 

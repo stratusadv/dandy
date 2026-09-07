@@ -2,8 +2,10 @@ from unittest import TestCase
 
 from tests.bot.intelligence.bots import TestingBot, OtherBot
 from tests.bot.intelligence.intel import HappyIntel, SadIntel
+from tests.consts import live_llm_test
 
 
+@live_llm_test
 class TestLlmMixin(TestCase):
     def test_processor_with_mixin(self):
         testing_bot = TestingBot()

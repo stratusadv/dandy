@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from dandy import Bot
+from tests.consts import live_llm_test
 
 CATS_KWARGS = {
     'keys_description': 'Cats',
@@ -21,6 +22,7 @@ DOGS_KWARGS = {
 }
 
 
+@live_llm_test
 class TestProcessorInstances(TestCase):
     def test_processor_instances(self):
         new_bot = Bot()

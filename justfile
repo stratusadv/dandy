@@ -4,6 +4,7 @@ set dotenv-load
 set dotenv-filename := "development.env"
 
 export PYTHONPATH := if os() == "linux" { env_var_or_default("PYTHONPATH_APPEND", "") + ":." } else { env_var_or_default("PYTHONPATH_APPEND", "") + ";." }
+export DANDY_SETTINGS_MODULE := env_var_or_default("DANDY_SETTINGS_MODULE", "tests.dandy_settings")
 PYTHON := if os() == "linux" { ".venv/bin/python" } else { ".venv/Scripts/python.exe" }
 
 default:
@@ -12,6 +13,7 @@ python *ARGS:
     {{ PYTHON }} {{ ARGS }}
 opencode:
     ./.venv/Scripts/activate.bat; if ($?) { opencode . }
+# test recipes run hermetically; live-LLM tests skip unless AI_API_KEY is a real key (see tests/consts.py)
 test:
     {{ PYTHON }} -m pytest .
 test-app app:

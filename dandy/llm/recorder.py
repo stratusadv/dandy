@@ -25,7 +25,11 @@ def recorder_add_llm_failure_event(
             attributes=[
                 EventAttribute(
                     key='Error',
-                    value=pydantic_validation_error_to_str(error) if isinstance(error, ValidationError) else str(error),
+                    value=(
+                        pydantic_validation_error_to_str(error)
+                        if isinstance(error, ValidationError)
+                        else str(error)
+                    ),
                 )
             ]
         )
@@ -83,7 +87,7 @@ def recorder_add_llm_request_event(
             *event_attributes,
             EventAttribute(
                 key='JSON Schema',
-                value=json.dumps(request_body.json_schema, indent=4),
+                value=json.dumps(request_body.json_schema, indent=4) if request_body.response_format is not None else 'None',
                 is_dropdown=True,
             )
         ]

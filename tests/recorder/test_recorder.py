@@ -8,6 +8,7 @@ from dandy.recorder.decorators import recorder_to_html_file, recorder_to_json_fi
     recorder_to_markdown_file
 from dandy.recorder.exceptions import RecorderCriticalError
 from dandy.recorder.recorder import Recorder
+from tests.consts import live_llm_test
 
 RENDERER_AND_EXTENSIONS = (
     ('html', '.html'),
@@ -39,6 +40,7 @@ class TestRecorder(TestCase):
             if Path(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension)).is_file():
                 Path(RECORDING_OUTPUT_FILE_PATH.with_suffix(extension)).unlink()
 
+    @live_llm_test
     def test_recorder(self):
 
         Recorder.start_recording(RECORDING_NAME)
@@ -49,6 +51,7 @@ class TestRecorder(TestCase):
 
         self.assertTrue(Recorder.to_html_str(RECORDING_NAME) != '')
 
+    @live_llm_test
     def test_record_to_html_file_decorator(self):
         @recorder_to_html_file(RECORDING_NAME)
         def html_function():
@@ -59,6 +62,7 @@ class TestRecorder(TestCase):
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.html'), 'r') as f:
             self.assertTrue(f.read() != '')
 
+    @live_llm_test
     def test_record_to_json_file_decorator(self):
         @recorder_to_json_file(RECORDING_NAME)
         def json_function():
@@ -69,6 +73,7 @@ class TestRecorder(TestCase):
         with open(RECORDING_OUTPUT_FILE_PATH.with_suffix('.json'), 'r') as f:
             self.assertTrue(f.read() != '')
 
+    @live_llm_test
     def test_record_to_md_file_decorator(self):
         @recorder_to_markdown_file(RECORDING_NAME)
         def markdown_function():
@@ -85,6 +90,7 @@ class TestRecorder(TestCase):
 
         self.assertTrue(Recorder.to_html_str(RECORDING_NAME) != '')
 
+    @live_llm_test
     def test_recording_to_str(self):
         Recorder.start_recording(RECORDING_NAME)
 
@@ -97,6 +103,7 @@ class TestRecorder(TestCase):
             self.assertTrue(render_method(RECORDING_NAME) != '')
             self.assertTrue(render_method(RECORDING_NAME) is not None)
 
+    @live_llm_test
     def test_recorder_to_file_with_emoji(self):
         Recorder.start_recording(RECORDING_NAME)
 

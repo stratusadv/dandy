@@ -29,11 +29,7 @@ class VowelRemovalDiligence(BaseDiligence):
                     stripped_text = cls.remove_vowels(llm_connector.request_body.messages[i].content[j].text)
                     llm_connector.request_body.messages[i].content[j].text = stripped_text
 
-        llm_connector.request_body.messages.add_message(
-            role='system',
-            text='Assume Vowels',
-            prepend=True,
-        )
+        cls._prepend_system_instruction(llm_connector, 'Assume Vowels')
 
     @staticmethod
     def remove_vowels(text: str) -> str:
