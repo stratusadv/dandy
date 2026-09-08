@@ -83,7 +83,11 @@ def main() -> None:
 
         arg_term = Terminal()
 
-        print(arg_term.bold_blue('\n\U0001F3A9 Dandy'))
+        print()
+
+        tui.printer.grey_divider()
+
+        print(arg_term.bold_blue('\U0001F3A9 Dandy'))
 
         tui.printer.blue_divider()
 
@@ -95,6 +99,7 @@ def main() -> None:
         cli.run()
 
     tui.printer.grey_divider()
+
     print()
 
 if __name__ == '__main__':

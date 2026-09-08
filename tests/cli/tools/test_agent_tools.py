@@ -4,12 +4,7 @@ from unittest import TestCase, mock
 
 from dandy.cli.tools.command_tool import RunCommandTool
 from dandy.cli.tools.git_tools import GitDiffTool, GitStatusTool
-from dandy.cli.tools.intel import (
-    GitDiffIntel,
-    GitStatusIntel,
-    RunCommandIntel,
-    SearchFilesIntel,
-)
+from dandy.cli.tools.intel import GitDiffIntel, GitStatusIntel, RunCommandIntel, SearchFilesIntel
 from dandy.cli.tools.search_tools import SearchFilesTool
 from dandy.cli.session import session
 
@@ -26,17 +21,13 @@ class TestSearchFilesTool(TestCase):
         self.temp_directory_context.cleanup()
 
     def test_search_plain_text_is_case_insensitive(self) -> None:
-        Path(self.temp_directory_path, 'alpha.py').write_text(
-            'def hello_world():\n    pass\n'
-        )
+        Path(self.temp_directory_path, 'alpha.py').write_text('def hello_world():\n    pass\n')
         Path(self.temp_directory_path, 'nested').mkdir()
         Path(self.temp_directory_path, 'nested', 'beta.txt').write_text(
             'nothing here\nHELLO WORLD up here\n'
         )
 
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='hello')
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='hello'))
 
         self.assertIn('alpha.py:1: def hello_world():', result)
         self.assertIn('nested/beta.txt:2: HELLO WORLD up here', result)
@@ -46,9 +37,7 @@ class TestSearchFilesTool(TestCase):
             'value_1 = 1\nvalue_12 = 2\nother = 3\n'
         )
 
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query=r'value_\d+', use_regex=True)
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query=r'value_\d+', use_regex=True))
 
         self.assertIn('sample.py:1: value_1 = 1', result)
         self.assertIn('sample.py:2: value_12 = 2', result)
@@ -63,9 +52,7 @@ class TestSearchFilesTool(TestCase):
         Path(self.temp_directory_path, '.venv', 'package.py').write_text('needle too\n')
         Path(self.temp_directory_path, 'real.py').write_text('needle match\n')
 
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='needle')
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='needle'))
 
         self.assertIn('real.py:1: needle match', result)
         self.assertNotIn('.git', result)
@@ -73,32 +60,24 @@ class TestSearchFilesTool(TestCase):
         self.assertNotIn('.venv', result)
 
     def test_search_no_matches(self) -> None:
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='does not exist')
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='does not exist'))
 
         self.assertIn('No matches found', result)
 
     def test_search_invalid_regex_returns_error(self) -> None:
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='(', use_regex=True)
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='(', use_regex=True))
 
         self.assertIn('invalid regex', result)
 
     def test_search_path_must_be_a_directory(self) -> None:
         Path(self.temp_directory_path, 'file.txt').write_text('needle\n')
 
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='needle', path='file.txt')
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='needle', path='file.txt'))
 
         self.assertIn('is not a directory', result)
 
     def test_search_outside_project_is_blocked(self) -> None:
-        result = SearchFilesTool().handle(
-            SearchFilesIntel(query='needle', path='../outside')
-        )
+        result = SearchFilesTool().handle(SearchFilesIntel(query='needle', path='../outside'))
 
         self.assertIn('outside the project', result)
 
@@ -117,37 +96,26 @@ class TestRunCommandTool(TestCase):
     @mock.patch('dandy.cli.tools.command_tool.tui.get_user_input')
     @mock.patch('dandy.cli.tools.command_tool.run_subprocess')
     def test_run_command_runs_when_approved(
-        self,
-        mock_run_subprocess: mock.MagicMock,
-        mock_get_user_input: mock.MagicMock,
+        self, mock_run_subprocess: mock.MagicMock, mock_get_user_input: mock.MagicMock
     ) -> None:
         mock_get_user_input.return_value = 'y'
         mock_run_subprocess.return_value = 'Exit code: 0\ncommand output'
 
-        result = RunCommandTool().handle(
-            RunCommandIntel(command='ls -la')
-        )
+        result = RunCommandTool().handle(RunCommandIntel(command='ls -la'))
 
         self.assertEqual(result, 'Exit code: 0\ncommand output')
         mock_run_subprocess.assert_called_once_with(
-            command='ls -la',
-            cwd=session.project_base_path,
-            timeout_seconds=30,
-            use_shell=True,
+            command='ls -la', cwd=session.project_base_path, timeout_seconds=30, use_shell=True
         )
 
     @mock.patch('dandy.cli.tools.command_tool.tui.get_user_input')
     @mock.patch('dandy.cli.tools.command_tool.run_subprocess')
     def test_run_command_is_denied_without_approval(
-        self,
-        mock_run_subprocess: mock.MagicMock,
-        mock_get_user_input: mock.MagicMock,
+        self, mock_run_subprocess: mock.MagicMock, mock_get_user_input: mock.MagicMock
     ) -> None:
         mock_get_user_input.return_value = 'n'
 
-        result = RunCommandTool().handle(
-            RunCommandIntel(command='rm -rf /')
-        )
+        result = RunCommandTool().handle(RunCommandIntel(command='rm -rf /'))
 
         self.assertIn('not approved', result)
         mock_run_subprocess.assert_not_called()
@@ -165,9 +133,7 @@ class TestGitTools(TestCase):
         self.temp_directory_context.cleanup()
 
     @mock.patch('dandy.cli.tools.git_tools.run_subprocess')
-    def test_git_status_runs_short_status(
-        self, mock_run_subprocess: mock.MagicMock
-    ) -> None:
+    def test_git_status_runs_short_status(self, mock_run_subprocess: mock.MagicMock) -> None:
         mock_run_subprocess.return_value = ' M file.py'
 
         result = GitStatusTool().handle(GitStatusIntel())
@@ -181,9 +147,7 @@ class TestGitTools(TestCase):
         )
 
     @mock.patch('dandy.cli.tools.git_tools.run_subprocess')
-    def test_git_diff_whole_repository(
-        self, mock_run_subprocess: mock.MagicMock
-    ) -> None:
+    def test_git_diff_whole_repository(self, mock_run_subprocess: mock.MagicMock) -> None:
         mock_run_subprocess.return_value = 'diff output'
 
         result = GitDiffTool().handle(GitDiffIntel())
@@ -197,9 +161,7 @@ class TestGitTools(TestCase):
         )
 
     @mock.patch('dandy.cli.tools.git_tools.run_subprocess')
-    def test_git_diff_with_path(
-        self, mock_run_subprocess: mock.MagicMock
-    ) -> None:
+    def test_git_diff_with_path(self, mock_run_subprocess: mock.MagicMock) -> None:
         Path(self.temp_directory_path, 'file.py').write_text('x = 1\n')
 
         GitDiffTool().handle(GitDiffIntel(path='file.py'))

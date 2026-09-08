@@ -8,10 +8,11 @@ from dandy.llm.request.request import LlmRequestBody
 
 _DEFAULT_TRANSFER_KEYS = ['HOST', 'PORT', 'API_KEY']
 
-# The share of the context window reserved for the model's output. The other
-# half (0.75) is the agent's compaction target in dandy/cli/agent/coding_agent.py.
+# The share of the context window reserved for the model's output. The agent's
+# compaction target (0.70 in coding_agent) and a 0.10 error margin take up the
+# rest of the window, so input plus output stays under CONTEXT_SIZE.
 
-LLM_OUTPUT_TOKEN_RATIO = 0.25
+LLM_OUTPUT_TOKEN_RATIO = 0.20
 
 _CONFIGS_NAME = 'LLM_CONFIGS'
 

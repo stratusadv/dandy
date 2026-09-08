@@ -48,7 +48,7 @@ class TestCodingAgentMultiTurn(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        self.agent = CodingAgent()
+        self.agent = CodingAgent(run_planning=False)
 
     def tearDown(self) -> None:
         session.project_base_path = self.original_project_base_path
@@ -234,7 +234,7 @@ class TestCodingAgentCompaction(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        self.agent = CodingAgent()
+        self.agent = CodingAgent(run_planning=False)
 
     def tearDown(self) -> None:
         session.project_base_path = self.original_project_base_path
@@ -243,10 +243,10 @@ class TestCodingAgentCompaction(TestCase):
     def test_compaction_target_is_a_ratio_of_max_context(self) -> None:
         self.agent.max_context_tokens = 65_536
 
-        self.assertEqual(self.agent._compaction_target_token_count(), 49_152)
+        self.assertEqual(self.agent._compaction_target_token_count(), 45_875)
 
         self.agent.max_context_tokens = 1000
-        self.assertEqual(self.agent._compaction_target_token_count(), 750)
+        self.assertEqual(self.agent._compaction_target_token_count(), 700)
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_agent_compacts_history_before_sending(self, mock_post_request: mock.MagicMock) -> None:
@@ -300,3 +300,60 @@ class TestCodingAgentCompaction(TestCase):
     def test_agent_context_size_falls_back_when_absent(self) -> None:
         with mock.patch.object(settings, 'LLM_CONFIGS', {'DEFAULT': {'MODEL': 'x'}}):
             self.assertEqual(self.agent._resolve_context_size(), AGENT_MAX_CONTEXT_TOKENS_DEFAULT)
+
+
+def user_message_text(request_intel: HttpResponseIntel, index: int = 1) -> str:
+    messages = request_intel.json_data['messages']
+    return ''.join(part.get('text') or '' for part in messages[index]['content'])
+
+
+class TestCodingAgentPlanning(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.temp_directory_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.temp_directory_path
+
+        self.agent = CodingAgent(run_planning=True)
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_chat_creates_plan_and_feeds_it_to_coding_bot(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            content_response('{"text": "Step 1: read the code, Step 2: edit it."}'),
+            content_response('{"text": "Done."}'),
+        ]
+
+        progress_calls: list[str] = []
+
+        result = self.agent.chat('Add a feature', progress_callback=progress_calls.append)
+
+        self.assertEqual(result.text, 'Done.')
+        self.assertEqual(mock_post_request.call_count, 2)
+        self.assertTrue(any(call == 'Planning...' for call in progress_calls))
+
+        coding_request_intel = mock_post_request.call_args_list[1].kwargs['request_intel']
+        coding_user_text = user_message_text(coding_request_intel)
+        self.assertIn('Add a feature', coding_user_text)
+        self.assertIn('Implementation Plan', coding_user_text)
+        self.assertIn('Step 1: read the code, Step 2: edit it.', coding_user_text)
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_chat_skips_planning_when_disabled(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "Done."}')]
+
+        self.agent.run_planning = False
+
+        result = self.agent.chat('Add a feature')
+
+        self.assertEqual(result.text, 'Done.')
+        self.assertEqual(mock_post_request.call_count, 1)
+
+        coding_user_text = user_message_text(mock_post_request.call_args.kwargs['request_intel'])
+        self.assertIn('Add a feature', coding_user_text)
+        self.assertNotIn('Implementation Plan', coding_user_text)

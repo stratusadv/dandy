@@ -1,14 +1,16 @@
 from typing import Callable
 
 from dandy.cli.agent.bots.coding_bot import CodingBot
+from dandy.cli.agent.bots.planning_bot import PlanningBot
 from dandy.cli.tools import AGENT_TOOLS
 from dandy.conf import settings
 from dandy.intel.intel import DefaultIntel
+from dandy.llm.prompt.prompt import Prompt
 from dandy.llm.request.message import MessageHistory
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 AGENT_MAX_CONTEXT_TOKENS_DEFAULT = 65536
-AGENT_COMPACTION_TARGET_RATIO = 0.75
+AGENT_COMPACTION_TARGET_RATIO = 0.70
 
 
 def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
@@ -72,7 +74,9 @@ def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | 
 class CodingAgent:
     """Multi-turn coding agent that keeps the conversation across chat calls."""
 
-    def __init__(self) -> None:
+    def __init__(self, run_planning: bool = True) -> None:
+        self.run_planning = run_planning
+        self.planning_bot = PlanningBot()
         self.bot = CodingBot()
         self.history = MessageHistory()
         self.max_context_tokens = self._resolve_context_size()
@@ -107,12 +111,42 @@ class CodingAgent:
             user_input=user_input, progress_callback=progress_callback
         )
 
+        plan_intel = self._create_plan(user_input, progress_callback)
+        prompt: Prompt | str = user_input
+
+        if plan_intel is not None:
+            prompt = (
+                Prompt()
+                .text(user_input)
+                .line_break()
+                .heading('Implementation Plan')
+                .line_break()
+                .intel(plan_intel)
+            )
+
         return self.bot.llm.tools.prompt_to_intel(
-            prompt=user_input,
+            prompt=prompt,
             tools=AGENT_TOOLS,
             intel_class=DefaultIntel,
             message_history=self.history,
             replace_message_history=True,
+            progress_callback=progress_callback,
+            max_tool_iterations=100,
+        )
+
+    def _create_plan(
+        self, user_input: str, progress_callback: Callable[[str], None] | None = None
+    ) -> DefaultIntel | None:
+        if not self.run_planning:
+            return None
+
+        if progress_callback is not None:
+            progress_callback('Planning...')
+
+        return self.planning_bot.llm.tools.prompt_to_intel(
+            prompt=user_input,
+            tools=AGENT_TOOLS,
+            intel_class=DefaultIntel,
             progress_callback=progress_callback,
         )
 
@@ -137,3 +171,5 @@ class CodingAgent:
 
     def clear(self) -> None:
         self.history = MessageHistory()
+        self.planning_bot.reset()
+        self.bot.reset()

@@ -2,7 +2,7 @@ import random
 import sys
 import threading
 from time import perf_counter, sleep, time
-from typing import Callable
+from typing import Callable, TypeVar
 
 from blessed import Terminal
 
@@ -13,6 +13,8 @@ from dandy.cli.tui.tools import wrap_text_with_indentation
 from dandy.cli.utils import get_cli_llm_config
 from dandy.constants import __VERSION__
 from dandy.llm.config import LlmConfig
+
+T = TypeVar('T')
 
 
 class _TaskProgress:
@@ -108,8 +110,8 @@ class Printer:
         )
 
     def run_timed_task(
-        self, action_name: str, task: str, work: Callable[[Callable[[str], None]], object]
-    ) -> object:
+        self, action_name: str, task: str, work: Callable[[Callable[[str], None]], T]
+    ) -> T:
         """Run `work(update_label)` while animating the current step's '...'.
 
         Prints a task header line, then one line per step label pushed through
@@ -129,13 +131,14 @@ class Printer:
         )
 
         progress = _TaskProgress(self.term)
-        result_holder = {}
+        result_holder: dict[str, T] = {}
+        error_holder: list[Exception] = []
 
         def runner() -> None:
             try:
                 result_holder['value'] = work(progress.update)
             except Exception as error:
-                result_holder['error'] = error
+                error_holder.append(error)
 
         thread = threading.Thread(target=runner, daemon=True)
         thread.start()
@@ -165,8 +168,8 @@ class Printer:
         if rendered_label is not None:
             print(progress.completed_frame(rendered_label, perf_counter() - label_start_time))
 
-        if 'error' in result_holder:
-            raise result_holder['error']
+        if error_holder:
+            raise error_holder[0]
 
         self.indented_event(
             text=f'{self.term.bold_green}Done in {perf_counter() - start_time:.1f}s', indent=2

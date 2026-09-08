@@ -16,6 +16,11 @@ class RunCommandTool(BaseTool):
     intel_class = RunCommandIntel
 
     def handle(self, arguments: RunCommandIntel) -> str:
+        response = tui.get_user_input(question=f'Run command "{arguments.command}"?')
+
+        if response is None or str(response).lower().strip() not in {'y', 'yes'}:
+            return 'Command was not approved.'
+
         return run_subprocess(
             command=arguments.command,
             cwd=session.project_base_path,
