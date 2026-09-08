@@ -5,10 +5,7 @@ _COMMAND_OUTPUT_CHARACTER_LIMIT = 8000
 
 
 def run_subprocess(
-    command: list[str] | str,
-    cwd: Path,
-    timeout_seconds: int,
-    use_shell: bool = False,
+    command: list[str] | str, cwd: Path, timeout_seconds: int, use_shell: bool = False
 ) -> str:
     try:
         completed = subprocess.run(

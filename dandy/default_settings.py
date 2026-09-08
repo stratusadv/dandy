@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
 
-AGENT_DEFAULT_PLAN_TIME_LIMIT_SECONDS: int | None = 600
-AGENT_DEFAULT_PLAN_TASK_COUNT_LIMIT: int | None = 100
+from dandy.constants import DANDY_LOCAL_DIRECTORY_NAME
 
 ALLOW_RECORDING_TO_FILE: bool = False
 
 BASE_PATH: Path | str = Path.cwd()
 
 CACHE_MEMORY_LIMIT: int = 1000
-CACHE_SQLITE_DATABASE_PATH: Path | str = BASE_PATH
+CACHE_SQLITE_DATABASE_PATH: Path | str = Path(BASE_PATH, DANDY_LOCAL_DIRECTORY_NAME)
 CACHE_SQLITE_LIMIT: int = 10000
 
 DEBUG: bool = False

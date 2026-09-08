@@ -1,5 +1,5 @@
 from dandy.bot.bot import Bot
-from dandy.cli.tools import AGENT_TOOLS
+from dandy.cli.intelligence.tools import AGENT_TOOLS
 from dandy.cli.utils import get_cli_llm_config
 from dandy.intel.intel import DefaultIntel
 from dandy.llm.prompt.prompt import Prompt

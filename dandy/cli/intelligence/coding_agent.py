@@ -1,74 +1,16 @@
 from typing import Callable
 
-from dandy.cli.agent.bots.coding_bot import CodingBot
-from dandy.cli.agent.bots.planning_bot import PlanningBot
-from dandy.cli.tools import AGENT_TOOLS
+from dandy.cli.intelligence.bots.coding_bot import CodingBot
+from dandy.cli.intelligence.bots.planning_bot import PlanningBot
+from dandy.cli.intelligence.tools import AGENT_TOOLS
 from dandy.conf import settings
 from dandy.intel.intel import DefaultIntel
 from dandy.llm.prompt.prompt import Prompt
-from dandy.llm.request.message import MessageHistory
+from dandy.llm.request.message import MessageHistory, compact_message_history
 from dandy.llm.tokens.utils import get_estimated_token_count_for_string
 
 AGENT_MAX_CONTEXT_TOKENS_DEFAULT = 65536
 AGENT_COMPACTION_TARGET_RATIO = 0.70
-
-
-def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
-    """Trim ``history`` until its estimated token count fits the budget.
-
-    The system message and the newest message are always kept. Tool-use rounds
-    (an assistant tool-call declaration plus its results) are dropped oldest
-    first because they consume the most tokens, then oldest plain exchanges.
-
-    Does not raise when the history cannot be brought under budget, it simply
-    drops everything droppable.
-    """
-    per_message_token_counts = [message.estimated_token_count for message in history.messages]
-    total_token_count = sum(per_message_token_counts)
-
-    while total_token_count > max_context_tokens:
-        start_index, end_index = _oldest_droppable_range(history)
-
-        if start_index is None or end_index is None:
-            return
-
-        total_token_count -= sum(per_message_token_counts[start_index:end_index])
-
-        del per_message_token_counts[start_index:end_index]
-        del history.messages[start_index:end_index]
-
-
-def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | None]:
-    messages = history.messages
-
-    if len(messages) < 2:
-        return None, None
-
-    last_index = len(messages) - 1
-
-    for index in range(1, last_index):
-        message = messages[index]
-
-        if message.role != 'assistant' or not message.tool_calls:
-            continue
-
-        end_index = index + 1
-
-        while end_index < len(messages) and messages[end_index].role == 'tool':
-            end_index += 1
-
-        return index, end_index
-
-    for index in range(1, last_index):
-        message = messages[index]
-
-        if message.role == 'user':
-            return index, index + 1
-
-        if message.role == 'assistant' and not message.tool_calls:
-            return index, index + 1
-
-    return None, None
 
 
 class CodingAgent:
@@ -105,13 +47,16 @@ class CodingAgent:
         return AGENT_MAX_CONTEXT_TOKENS_DEFAULT
 
     def chat(
-        self, user_input: str, progress_callback: Callable[[str], None] | None = None
+        self,
+        user_input: str,
+        progress_callback: Callable[[str], None] | None = None,
+        verbose_callback: Callable[[str], None] | None = None,
     ) -> DefaultIntel:
         self._compact_history_for_next_message(
             user_input=user_input, progress_callback=progress_callback
         )
 
-        plan_intel = self._create_plan(user_input, progress_callback)
+        plan_intel = self._create_plan(user_input, progress_callback, verbose_callback)
         prompt: Prompt | str = user_input
 
         if plan_intel is not None:
@@ -131,23 +76,29 @@ class CodingAgent:
             message_history=self.history,
             replace_message_history=True,
             progress_callback=progress_callback,
-            max_tool_iterations=100,
+            verbose_callback=verbose_callback,
+            max_tool_iterations=None,
         )
 
     def _create_plan(
-        self, user_input: str, progress_callback: Callable[[str], None] | None = None
+        self,
+        user_input: str,
+        progress_callback: Callable[[str], None] | None = None,
+        verbose_callback: Callable[[str], None] | None = None,
     ) -> DefaultIntel | None:
         if not self.run_planning:
             return None
 
         if progress_callback is not None:
-            progress_callback('Planning...')
+            progress_callback('Planning')
 
         return self.planning_bot.llm.tools.prompt_to_intel(
             prompt=user_input,
             tools=AGENT_TOOLS,
             intel_class=DefaultIntel,
             progress_callback=progress_callback,
+            verbose_callback=verbose_callback,
+            max_tool_iterations=None,
         )
 
     def _compaction_target_token_count(self) -> int:

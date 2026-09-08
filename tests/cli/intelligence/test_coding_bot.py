@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
-from dandy.cli.agent.bots.coding_bot import CodingBot
+from dandy.cli.intelligence.bots.coding_bot import CodingBot
 from dandy.cli.session import session
 from dandy.http.intelligence.intel import HttpResponseIntel
 
@@ -19,31 +19,19 @@ def tool_call_response(tool_name: str, arguments: str) -> HttpResponseIntel:
                             {
                                 'id': 'call_1',
                                 'type': 'function',
-                                'function': {
-                                    'name': tool_name,
-                                    'arguments': arguments,
-                                },
+                                'function': {'name': tool_name, 'arguments': arguments},
                             }
                         ],
                     }
                 }
             ]
-        }
+        },
     )
 
 
 def content_response(content: str) -> HttpResponseIntel:
     return HttpResponseIntel(
-        status_code=200,
-        json_data={
-            'choices': [
-                {
-                    'message': {
-                        'content': content,
-                    }
-                }
-            ]
-        }
+        status_code=200, json_data={'choices': [{'message': {'content': content}}]}
     )
 
 
@@ -82,8 +70,7 @@ class TestCodingBotToolLoop(TestCase):
     def test_coding_bot_creates_a_new_file(self, mock_post_request: mock.MagicMock) -> None:
         mock_post_request.side_effect = [
             tool_call_response(
-                'write_file',
-                '{"file_path": "nested/new_file.txt", "content": "brand new file"}',
+                'write_file', '{"file_path": "nested/new_file.txt", "content": "brand new file"}'
             ),
             content_response('{"text": "Created nested/new_file.txt."}'),
         ]
@@ -92,6 +79,5 @@ class TestCodingBotToolLoop(TestCase):
 
         self.assertEqual(result.text, 'Created nested/new_file.txt.')
         self.assertEqual(
-            Path(self.temp_directory_path, 'nested', 'new_file.txt').read_text(),
-            'brand new file',
+            Path(self.temp_directory_path, 'nested', 'new_file.txt').read_text(), 'brand new file'
         )

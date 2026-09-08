@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from dandy.cli.tools import (
+from dandy.cli.intelligence.tools import (
     CODE_EDITING_TOOLS,
     CreateDirectoryTool,
     DeleteFileTool,
@@ -10,14 +10,6 @@ from dandy.cli.tools import (
     ListDirectoryTool,
     ReadFileTool,
     WriteFileTool,
-)
-from dandy.cli.tools.intel import (
-    CreateDirectoryIntel,
-    DeleteFileIntel,
-    EditFileIntel,
-    ListDirectoryIntel,
-    ReadFileIntel,
-    WriteFileIntel,
 )
 from dandy.cli.session import session
 
@@ -51,12 +43,7 @@ class TestCodeEditingTools(TestCase):
         )
 
     def test_write_file_creates_parent_directories(self):
-        result = WriteFileTool().handle(
-            WriteFileIntel(
-                file_path='nested/dir/example.txt',
-                content='hello world',
-            )
-        )
+        result = WriteFileTool().handle(file_path='nested/dir/example.txt', content='hello world')
 
         self.assertTrue(result.startswith('Successfully wrote'))
         self.assertTrue(Path(self.temp_directory_path, 'nested', 'dir', 'example.txt').is_file())
@@ -65,9 +52,7 @@ class TestCodeEditingTools(TestCase):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('first line\nsecond line\nthird line\n')
 
-        result = ReadFileTool().handle(
-            ReadFileIntel(file_path='example.txt')
-        )
+        result = ReadFileTool().handle(file_path='example.txt')
 
         self.assertIn('1 | first line', result)
         self.assertIn('2 | second line', result)
@@ -77,9 +62,7 @@ class TestCodeEditingTools(TestCase):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('1\n2\n3\n4\n5\n')
 
-        result = ReadFileTool().handle(
-            ReadFileIntel(file_path='example.txt', start_line=2, end_line=4)
-        )
+        result = ReadFileTool().handle(file_path='example.txt', start_line=2, end_line=4)
 
         self.assertIn('2 | 2', result)
         self.assertIn('4 | 4', result)
@@ -87,9 +70,7 @@ class TestCodeEditingTools(TestCase):
         self.assertNotIn('5 | 5', result)
 
     def test_read_file_missing_returns_error(self):
-        result = ReadFileTool().handle(
-            ReadFileIntel(file_path='missing.txt')
-        )
+        result = ReadFileTool().handle(file_path='missing.txt')
 
         self.assertIn('does not exist', result)
 
@@ -97,13 +78,7 @@ class TestCodeEditingTools(TestCase):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('foo bar baz')
 
-        result = EditFileTool().handle(
-            EditFileIntel(
-                file_path='example.txt',
-                old_string='foo',
-                new_string='qux',
-            )
-        )
+        result = EditFileTool().handle(file_path='example.txt', old_string='foo', new_string='qux')
 
         self.assertIn('1 replacement', result)
         self.assertEqual(target_path.read_text(), 'qux bar baz')
@@ -113,11 +88,7 @@ class TestCodeEditingTools(TestCase):
         target_path.write_text('foo bar')
 
         result = EditFileTool().handle(
-            EditFileIntel(
-                file_path='example.txt',
-                old_string='missing',
-                new_string='baz',
-            )
+            file_path='example.txt', old_string='missing', new_string='baz'
         )
 
         self.assertIn('was not found', result)
@@ -127,13 +98,7 @@ class TestCodeEditingTools(TestCase):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('foo foo foo')
 
-        result = EditFileTool().handle(
-            EditFileIntel(
-                file_path='example.txt',
-                old_string='foo',
-                new_string='bar',
-            )
-        )
+        result = EditFileTool().handle(file_path='example.txt', old_string='foo', new_string='bar')
 
         self.assertIn('found 3 times', result)
         self.assertEqual(target_path.read_text(), 'foo foo foo')
@@ -143,12 +108,7 @@ class TestCodeEditingTools(TestCase):
         target_path.write_text('foo foo foo')
 
         result = EditFileTool().handle(
-            EditFileIntel(
-                file_path='example.txt',
-                old_string='foo',
-                new_string='bar',
-                replace_all=True,
-            )
+            file_path='example.txt', old_string='foo', new_string='bar', replace_all=True
         )
 
         self.assertIn('3 replacement', result)
@@ -158,17 +118,13 @@ class TestCodeEditingTools(TestCase):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('delete me')
 
-        result = DeleteFileTool().handle(
-            DeleteFileIntel(file_path='example.txt')
-        )
+        result = DeleteFileTool().handle(file_path='example.txt')
 
         self.assertIn('Deleted', result)
         self.assertFalse(target_path.exists())
 
     def test_create_directory(self):
-        result = CreateDirectoryTool().handle(
-            CreateDirectoryIntel(directory_path='nested/dir')
-        )
+        result = CreateDirectoryTool().handle(directory_path='nested/dir')
 
         self.assertIn('Created', result)
         self.assertTrue(Path(self.temp_directory_path, 'nested', 'dir').is_dir())
@@ -178,20 +134,13 @@ class TestCodeEditingTools(TestCase):
         Path(self.temp_directory_path, 'nested').mkdir()
         Path(self.temp_directory_path, 'nested', 'second.txt').write_text('b')
 
-        result = ListDirectoryTool().handle(
-            ListDirectoryIntel(path='', recursive=True)
-        )
+        result = ListDirectoryTool().handle(path='', recursive=True)
 
         self.assertIn('first.txt', result)
         self.assertIn('nested/second.txt', result)
 
     def test_path_traversal_is_blocked(self):
-        result = WriteFileTool().handle(
-            WriteFileIntel(
-                file_path='../outside.txt',
-                content='should not be written',
-            )
-        )
+        result = WriteFileTool().handle(file_path='../outside.txt', content='should not be written')
 
         self.assertIn('outside the project', result)
         self.assertFalse(Path(self.temp_directory_path.parent, 'outside.txt').exists())

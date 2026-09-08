@@ -1,5 +1,8 @@
-from dandy.cli.agent.coding_agent import CodingAgent
+import sys
+
+from dandy.cli.intelligence.coding_agent import CodingAgent
 from dandy.cli.tui.tui import tui
+from dandy.conf import settings
 
 CLI_COMMANDS = ('clear', 'quit')
 
@@ -7,6 +10,17 @@ CLI_COMMANDS = ('clear', 'quit')
 class DandyCli:
     def __init__(self) -> None:
         self.agent = CodingAgent()
+        self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
+
+    @staticmethod
+    def _is_debug_enabled() -> bool:
+        """Whether settings DEBUG enables verbose tracing of the agent loop."""
+        return bool(getattr(settings, 'DEBUG', False))
+
+    @staticmethod
+    def _emit_verbose(message: str) -> None:
+        sys.stdout.write(f'\r   ↳ {message}\n')
+        sys.stdout.flush()
 
     def process_user_input(self, user_input: str) -> bool:
         """Process one user input, returning False to stop the loop."""
@@ -40,7 +54,9 @@ class DandyCli:
             result_intel = tui.printer.run_timed_task(
                 action_name='Coding',
                 task=user_input[:80],
-                work=lambda update: self.agent.chat(user_input, progress_callback=update),
+                work=lambda update: self.agent.chat(
+                    user_input, progress_callback=update, verbose_callback=self.verbose_callback
+                ),
             )
         except Exception as error:
             tui.printer.error(error='Coding agent failed', description=str(error))

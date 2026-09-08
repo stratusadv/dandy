@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
-from dandy.cli.agent.coding_agent import (
+from dandy.cli.intelligence.coding_agent import (
     AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
     CodingAgent,
     compact_message_history,
@@ -116,6 +116,30 @@ class TestCodingAgentMultiTurn(TestCase):
         ]
 
         self.assertTrue(any('Created nested/agent.txt.' in text for text in assistant_texts))
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_agent_does_not_give_up_after_five_tool_rounds(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        responses = [tool_call_response('search_files', '{"query": "needle"}') for _ in range(6)]
+        responses.append(content_response('{"text": "Found it."}'))
+        mock_post_request.side_effect = responses
+
+        result = self.agent.chat('Find needle')
+
+        self.assertEqual(result.text, 'Found it.')
+        self.assertEqual(mock_post_request.call_count, 7)
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_agent_forwards_verbose_details(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "Direct answer."}')]
+
+        verbose_messages = []
+
+        result = self.agent.chat('Say something', verbose_callback=verbose_messages.append)
+
+        self.assertEqual(result.text, 'Direct answer.')
+        self.assertIn('Round 1: model returned a final response', verbose_messages)
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_agent_clear_resets_history(self, mock_post_request: mock.MagicMock) -> None:
@@ -335,7 +359,7 @@ class TestCodingAgentPlanning(TestCase):
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 2)
-        self.assertTrue(any(call == 'Planning...' for call in progress_calls))
+        self.assertTrue(any(call == 'Planning' for call in progress_calls))
 
         coding_request_intel = mock_post_request.call_args_list[1].kwargs['request_intel']
         coding_user_text = user_message_text(coding_request_intel)
@@ -357,3 +381,17 @@ class TestCodingAgentPlanning(TestCase):
         coding_user_text = user_message_text(mock_post_request.call_args.kwargs['request_intel'])
         self.assertIn('Add a feature', coding_user_text)
         self.assertNotIn('Implementation Plan', coding_user_text)
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_planning_does_not_give_up_after_five_tool_rounds(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        responses = [tool_call_response('search_files', '{"query": "needle"}') for _ in range(6)]
+        responses.append(content_response('{"text": "A plan."}'))
+        responses.append(content_response('{"text": "Done."}'))
+        mock_post_request.side_effect = responses
+
+        result = self.agent.chat('Investigate then do it')
+
+        self.assertEqual(result.text, 'Done.')
+        self.assertEqual(mock_post_request.call_count, 8)

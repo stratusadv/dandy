@@ -1,6 +1,6 @@
 import base64
 from pathlib import Path
-from typing import Iterator, List, Literal
+from typing import Iterator, Literal
 
 from pydantic import BaseModel, Field
 
@@ -227,3 +227,61 @@ class MessageHistory(BaseModel):
 
     def prepend(self, message: Message) -> None:
         self.messages.insert(0, message)
+
+
+def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
+    """Trim ``history`` until its estimated token count fits the budget.
+
+    The system message and the newest message are always kept. Tool-use rounds
+    (an assistant tool-call declaration plus its results) are dropped oldest
+    first because they consume the most tokens, then oldest plain exchanges.
+
+    Does not raise when the history cannot be brought under budget, it simply
+    drops everything droppable.
+    """
+    per_message_token_counts = [message.estimated_token_count for message in history.messages]
+    total_token_count = sum(per_message_token_counts)
+
+    while total_token_count > max_context_tokens:
+        start_index, end_index = _oldest_droppable_range(history)
+
+        if start_index is None or end_index is None:
+            return
+
+        total_token_count -= sum(per_message_token_counts[start_index:end_index])
+
+        del per_message_token_counts[start_index:end_index]
+        del history.messages[start_index:end_index]
+
+
+def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | None]:
+    messages = history.messages
+
+    if len(messages) < 2:
+        return None, None
+
+    last_index = len(messages) - 1
+
+    for index in range(1, last_index):
+        message = messages[index]
+
+        if message.role != 'assistant' or not message.tool_calls:
+            continue
+
+        end_index = index + 1
+
+        while end_index < len(messages) and messages[end_index].role == 'tool':
+            end_index += 1
+
+        return index, end_index
+
+    for index in range(1, last_index):
+        message = messages[index]
+
+        if message.role == 'user':
+            return index, index + 1
+
+        if message.role == 'assistant' and not message.tool_calls:
+            return index, index + 1
+
+    return None, None

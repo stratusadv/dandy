@@ -1,11 +1,6 @@
 from dandy.bot.bot import Bot
 from dandy.tool.tool import BaseTool
 
-from tests.llm.tool.intelligence.intel import (
-    WeatherIntel,
-    WeatherUnitsRequiredIntel,
-)
-
 
 class ToolBot(Bot):
     pass
@@ -14,16 +9,21 @@ class ToolBot(Bot):
 class WeatherTool(BaseTool):
     name = 'get_weather'
     description = 'Get the current weather for a location.'
-    intel_class = WeatherIntel
+
+    def handle(self, location: str = '', units: str = 'celsius') -> str:
+        return f'The weather in {location} is {units}.'
 
 
-class MinimalWeatherTool(WeatherTool):
-    include_fields = {'location'}
+class RequiredWeatherTool(BaseTool):
+    name = 'get_weather'
+    description = 'Get the current weather for a location.'
+
+    def handle(self, location: str, units: str = 'celsius') -> str:
+        return f'The weather in {location} is {units}.'
 
 
-class NoUnitsWeatherTool(WeatherTool):
-    exclude_fields = {'units'}
+class NoParametersTool(BaseTool):
+    name = 'no_parameters_tool'
 
-
-class RequiredUnitsWeatherTool(WeatherTool):
-    intel_class = WeatherUnitsRequiredIntel
+    def handle(self) -> str:
+        return 'Done.'

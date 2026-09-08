@@ -68,7 +68,7 @@ The `cache_to_memory` and `cache_to_sqlite` decorators can take `cache_name` and
 
 This allows you to set separate caches and limits for individual methods and functions or group caches strategically.
 
-In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `dandy_cache.db` with a row limit of 9,999,999.
+In the example below all the add functions are cached into a memory cache called `add` which is stored in a sqlite database called `cache.db` inside the `.dandy/` directory with a row limit of 9,999,999.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy import cache_to_sqlite
@@ -88,7 +88,7 @@ You can configure your settings in your `dandy_settings.py` file to better contr
 from dandy.conf import settings
 
 print(f'Cache Memory Limit: {settings.CACHE_MEMORY_LIMIT}') # Amount of items to keep in memory cache
-print(f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}') # Path to sqlite database
+print(f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}') # Path to sqlite database (defaults to .dandy/)
 print(f'Cache SQLite Limit: {settings.CACHE_SQLITE_LIMIT}') # Amount of items to keep in sqlite cache
 ```
 
@@ -154,7 +154,7 @@ print(f'Finished cached in {cached_finish_time:.5f} seconds')
 
 Now that we are comfortable with caching let's take a look at how we can manage the caches.
 
-In the example below we have two caches `add` and `subtract` that are both stored in a sqlite database called `dandy_cache.db`.
+In the example below we have two caches `add` and `subtract` that are both stored in a sqlite database called `cache.db` inside the `.dandy/` directory.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy import SqliteCache, cache_to_sqlite, generate_cache_key

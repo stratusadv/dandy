@@ -1,17 +1,10 @@
 import re
 from pathlib import Path
 
-from dandy.cli.tools.intel import SearchFilesIntel
-from dandy.cli.tools.paths import _resolve_project_path, _to_relative_path
+from dandy.cli.intelligence.tools.paths import _resolve_project_path, _to_relative_path
 from dandy.tool.tool import BaseTool
 
-_EXCLUDED_DIRECTORIES = {
-    '.git',
-    '.dandy',
-    'node_modules',
-    '.venv',
-    '__pycache__',
-}
+_EXCLUDED_DIRECTORIES = {'.git', '.dandy', 'node_modules', '.venv', '__pycache__'}
 
 _MAX_FILE_SIZE_BYTES = 1_000_000
 
@@ -30,21 +23,20 @@ class SearchFilesTool(BaseTool):
         'as a regular expression (also case-insensitive). Hidden directories, '
         'dependency folders, and binary or very large files are skipped.'
     )
-    intel_class = SearchFilesIntel
 
-    def handle(self, arguments: SearchFilesIntel) -> str:
+    def handle(self, query: str, path: str = '', use_regex: bool = False) -> str:
         try:
-            search_path = _resolve_project_path(arguments.path)
+            search_path = _resolve_project_path(path)
 
             if not search_path.is_dir():
-                return f'Error: "{arguments.path or "."}" is not a directory.'
+                return f'Error: "{path or "."}" is not a directory.'
 
-            matches = self._search_files(search_path, arguments)
+            matches = self._search_files(search_path, query, use_regex)
         except Exception as error:
             return f'Error searching files: {error}'
 
         if not matches:
-            return f'No matches found for "{arguments.query}".'
+            return f'No matches found for "{query}".'
 
         output = '\n'.join(matches)
 
@@ -53,17 +45,17 @@ class SearchFilesTool(BaseTool):
 
         return output
 
-    def _search_files(self, search_path: Path, arguments: SearchFilesIntel) -> list[str]:
+    def _search_files(self, search_path: Path, query: str, use_regex: bool) -> list[str]:
         regex = None
 
-        if arguments.use_regex:
+        if use_regex:
             try:
-                regex = re.compile(arguments.query, re.IGNORECASE)
+                regex = re.compile(query, re.IGNORECASE)
             except re.error as error:
                 error_message = f'invalid regex: {error}'
                 raise ValueError(error_message) from error
 
-        search_query = arguments.query.lower()
+        search_query = query.lower()
 
         matches = []
 

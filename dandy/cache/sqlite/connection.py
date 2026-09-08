@@ -9,6 +9,7 @@ class SqliteConnection:
         self.db_path = Path(settings.CACHE_SQLITE_DATABASE_PATH, db_name)
 
     def __enter__(self) -> sqlite3.Connection:
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(self.db_path)
         return self.connection
 

@@ -1,5 +1,6 @@
 import time
 import uuid
+from pathlib import Path
 from time import sleep
 from unittest import TestCase
 
@@ -8,6 +9,9 @@ from typing import Callable
 from dandy.cache.memory.decorators import cache_to_memory
 from dandy.cache.sqlite.decorators import cache_to_sqlite
 from dandy.cache.cache import BaseCache
+from dandy.cache.sqlite.connection import SqliteConnection
+from dandy.conf import settings
+from dandy.constants import DANDY_LOCAL_DIRECTORY_NAME, SQLITE_CACHE_DB_NAME
 from tests.cache.intelligence.caches import CACHE_LIMIT, sql_lite_cache, memory_cache
 from tests.cache.intelligence.intel import ClownIntel, WigIntel, CandyNotIntel
 
@@ -18,6 +22,19 @@ class TestCache(TestCase):
         sql_lite_cache.clear()
         sql_lite_cache.destroy_all()
         memory_cache.destroy_all()
+
+    def test_sqlite_cache_written_to_dandy_directory(self):
+        sql_lite_cache.clear()
+        sql_lite_cache.set('test_key', 'test_value')
+
+        db_path = Path(settings.CACHE_SQLITE_DATABASE_PATH, SQLITE_CACHE_DB_NAME)
+        self.assertEqual(db_path, SqliteConnection(SQLITE_CACHE_DB_NAME).db_path)
+        self.assertTrue(db_path.is_file())
+        self.assertEqual(db_path.parent.name, DANDY_LOCAL_DIRECTORY_NAME)
+        self.assertTrue(db_path.parent.is_dir())
+
+        sql_lite_cache.clear()
+        sql_lite_cache.destroy_all()
 
     def run_test_cache(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()

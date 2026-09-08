@@ -3,26 +3,41 @@ from unittest import TestCase, mock
 from dandy.http.intelligence.intel import HttpResponseIntel
 from dandy.llm.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.llm.tool.intel import LlmToolCallsIntel
-from dandy.tool.exceptions import ToolCriticalError
 from dandy.tool.tool import BaseTool
 
-from tests.llm.tool.intelligence.intel import FinalAnswerIntel, WeatherIntel
+from tests.llm.tool.intelligence.intel import FinalAnswerIntel
 from tests.llm.tool.intelligence.tools import ToolBot, WeatherTool
 
 
 class HandleWeatherTool(BaseTool):
     name = 'get_weather'
     description = 'Get the current weather for a location.'
-    intel_class = WeatherIntel
 
-    def handle(self, weather_intel) -> str:
-        return f'The weather in {weather_intel.location} is sunny.'
+    def handle(self, location: str = '') -> str:
+        return f'The weather in {location} is sunny.'
+
+
+class RecordingWeatherTool(WeatherTool):
+    def handle(self, location: str = '', units: str = 'celsius') -> str:
+        self._received_kwargs.append({'location': location, 'units': units})
+        return f'The weather in {location} is {units}.'
+
+
+class UnexpectedWeatherTool(BaseTool):
+    name = 'get_weather'
+    description = 'Get the current weather for a location.'
+
+    def handle(self, location: str, units: str = 'celsius') -> str:
+        raise AssertionError('handler should not be called on invalid arguments')
+
+
+class BigResultWeatherTool(WeatherTool):
+    def handle(self, location: str = '') -> str:
+        return 'x' * 200_000
 
 
 def tool_call_response(
-    tool_name: str,
-    arguments: str,
-    tool_call_id: str = 'call_1',
+    tool_name: str, arguments: str, tool_call_id: str = 'call_1'
 ) -> HttpResponseIntel:
     return HttpResponseIntel(
         status_code=200,
@@ -35,31 +50,19 @@ def tool_call_response(
                             {
                                 'id': tool_call_id,
                                 'type': 'function',
-                                'function': {
-                                    'name': tool_name,
-                                    'arguments': arguments,
-                                },
+                                'function': {'name': tool_name, 'arguments': arguments},
                             }
                         ],
                     }
                 }
             ]
-        }
+        },
     )
 
 
 def content_response(content: str) -> HttpResponseIntel:
     return HttpResponseIntel(
-        status_code=200,
-        json_data={
-            'choices': [
-                {
-                    'message': {
-                        'content': content,
-                    }
-                }
-            ]
-        }
+        status_code=200, json_data={'choices': [{'message': {'content': content}}]}
     )
 
 
@@ -87,9 +90,9 @@ class TestLlmToolService(TestCase):
 
         received_arguments = []
 
-        def get_weather_handler(weather_intel) -> str:
-            received_arguments.append(weather_intel)
-            return f'The weather in {weather_intel.location} is sunny.'
+        def get_weather_handler(arguments_intel) -> str:
+            received_arguments.append(arguments_intel)
+            return f'The weather in {arguments_intel.location} is sunny.'
 
         bot = ToolBot()
 
@@ -104,7 +107,6 @@ class TestLlmToolService(TestCase):
         self.assertEqual(result.text, 'Sunny and 70 degrees.')
 
         self.assertEqual(len(received_arguments), 1)
-        self.assertTrue(isinstance(received_arguments[0], WeatherIntel))
         self.assertEqual(received_arguments[0].location, 'San Francisco')
 
         first_request_messages = get_request_messages(mock_post_request, 0)
@@ -118,22 +120,17 @@ class TestLlmToolService(TestCase):
         self.assertEqual(second_request_messages[1]['role'], 'user')
         self.assertEqual(second_request_messages[2]['role'], 'assistant')
         self.assertEqual(
-            second_request_messages[2]['tool_calls'][0]['function']['name'],
-            'get_weather',
+            second_request_messages[2]['tool_calls'][0]['function']['name'], 'get_weather'
         )
         self.assertEqual(second_request_messages[3]['role'], 'tool')
         self.assertEqual(
-            second_request_messages[3]['content'],
-            'The weather in San Francisco is sunny.',
+            second_request_messages[3]['content'], 'The weather in San Francisco is sunny.'
         )
 
         first_request = get_request_intel(mock_post_request, 0)
 
         self.assertIn('tools', first_request.json_data)
-        self.assertEqual(
-            first_request.json_data['tools'][0]['function']['name'],
-            'get_weather',
-        )
+        self.assertEqual(first_request.json_data['tools'][0]['function']['name'], 'get_weather')
         self.assertNotIn('response_format', first_request.json_data)
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
@@ -150,21 +147,88 @@ class TestLlmToolService(TestCase):
         bot.llm.tools.prompt_to_intel(
             prompt='What is the weather in San Francisco?',
             intel_class=FinalAnswerIntel,
-            tools=[WeatherTool],
-            tool_functions={'get_weather': HandleWeatherTool().handle},
+            tools=[HandleWeatherTool],
             progress_callback=progress_steps.append,
         )
 
-        self.assertEqual(
-            progress_steps,
-            ['Thinking', 'Running get_weather', 'Thinking'],
+        self.assertEqual(progress_steps, ['Thinking', 'get weather', 'Thinking'])
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_compacts_overgrown_history(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "A"}'),
+            tool_call_response('get_weather', '{"location": "B"}'),
+            tool_call_response('get_weather', '{"location": "C"}'),
+            content_response('{"text": "Done."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather?',
+            intel_class=FinalAnswerIntel,
+            tools=[BigResultWeatherTool],
+            progress_callback=progress_steps.append,
+            max_tool_iterations=None,
         )
+
+        compaction_target = int(bot.llm.config.context_size * 0.70)
+
+        self.assertTrue(
+            any(step.startswith('Compacting conversation history') for step in progress_steps)
+        )
+        self.assertLessEqual(bot.llm.messages.estimated_token_count, compaction_target)
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_verbose_details(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "San Francisco"}'),
+            content_response('{"text": "Sunny and 70 degrees."}'),
+        ]
+
+        verbose_messages = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in San Francisco?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            verbose_callback=verbose_messages.append,
+        )
+
+        self.assertIn('Round 1: model requested 1 tool call(s)', verbose_messages)
+        self.assertIn('  - get_weather args: {"location": "San Francisco"}', verbose_messages)
+        self.assertIn(
+            '  - get_weather result: The weather in San Francisco is sunny.', verbose_messages
+        )
+        self.assertIn('Round 2: model returned a final response', verbose_messages)
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_verbose_reports_give_up(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "San Francisco"}') for _ in range(6)
+        ]
+
+        verbose_messages = []
+
+        bot = ToolBot()
+
+        with self.assertRaises(LlmRecoverableError):
+            bot.llm.tools.prompt_to_intel(
+                prompt='What is the weather in San Francisco?',
+                intel_class=FinalAnswerIntel,
+                tools=[HandleWeatherTool],
+                verbose_callback=verbose_messages.append,
+            )
+
+        self.assertTrue(any(message.startswith('GAVE UP:') for message in verbose_messages))
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_returns_tool_calls_manually(self, mock_post_request):
-        mock_post_request.side_effect = [
-            tool_call_response('get_weather', '{"location": "Paris"}'),
-        ]
+        mock_post_request.side_effect = [tool_call_response('get_weather', '{"location": "Paris"}')]
 
         bot = ToolBot()
 
@@ -180,22 +244,6 @@ class TestLlmToolService(TestCase):
         self.assertEqual(result[0].arguments, '{"location": "Paris"}')
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
-    def test_prompt_to_intel_with_tools_and_missing_tool_function(self, mock_post_request):
-        mock_post_request.side_effect = [
-            tool_call_response('get_weather', '{"location": "Paris"}'),
-        ]
-
-        bot = ToolBot()
-
-        with self.assertRaises(ToolCriticalError):
-            bot.llm.tools.prompt_to_intel(
-                prompt='What is the weather in Paris?',
-                intel_class=FinalAnswerIntel,
-                tools=[WeatherTool],
-                tool_functions={},
-            )
-
-    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_with_tools_and_invalid_arguments(self, mock_post_request):
         mock_post_request.side_effect = [
             tool_call_response('get_weather', '{"not_a_real_field": "Paris"}'),
@@ -204,14 +252,10 @@ class TestLlmToolService(TestCase):
 
         bot = ToolBot()
 
-        def get_weather_handler(weather_intel):
-            raise AssertionError('handler should not be called on invalid arguments')
-
         result = bot.llm.tools.prompt_to_intel(
             prompt='What is the weather in Paris?',
             intel_class=FinalAnswerIntel,
-            tools=[WeatherTool],
-            tool_functions={'get_weather': get_weather_handler},
+            tools=[UnexpectedWeatherTool],
         )
 
         self.assertEqual(result.text, 'I could not get the weather.')
@@ -232,7 +276,7 @@ class TestLlmToolService(TestCase):
 
         bot = ToolBot()
 
-        def get_weather_handler(weather_intel) -> str:
+        def get_weather_handler(arguments_intel) -> str:
             return 'Sunny.'
 
         with self.assertRaises(LlmRecoverableError):
@@ -245,17 +289,40 @@ class TestLlmToolService(TestCase):
             )
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
-    def test_prompt_to_intel_without_tools_keeps_response_format(self, mock_post_request):
+    def test_prompt_to_intel_with_unlimited_iterations(self, mock_post_request):
         mock_post_request.side_effect = [
-            content_response('{"text": "Hello"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            content_response('{"text": "Sunny."}'),
         ]
 
         bot = ToolBot()
 
-        result = bot.llm.prompt_to_intel(
-            prompt='Say hello',
+        def get_weather_handler(arguments_intel) -> str:
+            return 'Sunny.'
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
             intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+            tool_functions={'get_weather': get_weather_handler},
+            max_tool_iterations=None,
         )
+
+        self.assertEqual(mock_post_request.call_count, 7)
+        self.assertEqual(result.text, 'Sunny.')
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_without_tools_keeps_response_format(self, mock_post_request):
+        mock_post_request.side_effect = [content_response('{"text": "Hello"}')]
+
+        bot = ToolBot()
+
+        result = bot.llm.prompt_to_intel(prompt='Say hello', intel_class=FinalAnswerIntel)
 
         self.assertEqual(result.text, 'Hello')
 
@@ -283,16 +350,11 @@ class TestLlmToolService(TestCase):
 
         second_request_messages = get_request_messages(mock_post_request, 1)
 
-        self.assertEqual(
-            second_request_messages[3]['content'],
-            'The weather in Chicago is sunny.',
-        )
+        self.assertEqual(second_request_messages[3]['content'], 'The weather in Chicago is sunny.')
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_with_unknown_tool_name(self, mock_post_request):
-        mock_post_request.side_effect = [
-            tool_call_response('some_other_tool', '{}'),
-        ]
+        mock_post_request.side_effect = [tool_call_response('some_other_tool', '{}')]
 
         bot = ToolBot()
 
@@ -302,3 +364,96 @@ class TestLlmToolService(TestCase):
                 intel_class=FinalAnswerIntel,
                 tools=[WeatherTool],
             )
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_with_handle_kwargs(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Seattle"}'),
+            content_response('{"text": "Rainy and 60 degrees."}'),
+        ]
+
+        received_kwargs = []
+
+        tool = RecordingWeatherTool()
+        tool._received_kwargs = received_kwargs
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Seattle?', intel_class=FinalAnswerIntel, tools=[tool]
+        )
+
+        self.assertEqual(result.text, 'Rainy and 60 degrees.')
+        self.assertEqual(received_kwargs, [{'location': 'Seattle', 'units': 'celsius'}])
+
+        second_request_messages = get_request_messages(mock_post_request, 1)
+
+        self.assertEqual(
+            second_request_messages[3]['content'], 'The weather in Seattle is celsius.'
+        )
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_applies_handle_defaults(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{}'),
+            content_response('{"text": "Done."}'),
+        ]
+
+        received_kwargs = []
+
+        tool = RecordingWeatherTool()
+        tool._received_kwargs = received_kwargs
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather?', intel_class=FinalAnswerIntel, tools=[tool]
+        )
+
+        self.assertEqual(received_kwargs, [{'location': '', 'units': 'celsius'}])
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_with_handle_and_external_handler(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Portland"}'),
+            content_response('{"text": "Cloudy and 55 degrees."}'),
+        ]
+
+        received_arguments = []
+
+        def external_handler(arguments_intel) -> str:
+            received_arguments.append(arguments_intel)
+            return 'External handler ran.'
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Portland?',
+            intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+            tool_functions={'get_weather': external_handler},
+        )
+
+        self.assertEqual(result.text, 'Cloudy and 55 degrees.')
+        self.assertEqual(len(received_arguments), 1)
+        self.assertEqual(received_arguments[0].location, 'Portland')
+
+        second_request_messages = get_request_messages(mock_post_request, 1)
+        self.assertEqual(second_request_messages[3]['content'], 'External handler ran.')
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_includes_handle_derived_schema(self, mock_post_request):
+        mock_post_request.side_effect = [content_response('{"text": "Done."}')]
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather?', intel_class=FinalAnswerIntel, tools=[WeatherTool]
+        )
+
+        request = get_request_intel(mock_post_request, 0)
+
+        tool_schema = request.json_data['tools'][0]['function']['parameters']
+
+        self.assertEqual(set(tool_schema['properties'].keys()), {'location', 'units'})
+        self.assertNotIn('required', tool_schema)

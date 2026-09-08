@@ -5,7 +5,7 @@ ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = bool(int(os.getenv('DEBUG', 0)))
 
 if DEBUG:
     from dandy.core.debug import *
@@ -36,8 +36,8 @@ LLM_CONFIGS = {
 
 CLI_CONFIG = {
     'AUDIO': None,
-    'CODING': 'DEFAULT',
+    'CODING': 'THINKING',
     'SIMPLE': 'DEFAULT',
-    'THINKING': 'DEFAULT',
+    'THINKING': 'THINKING',
     'VISION': None,
 }

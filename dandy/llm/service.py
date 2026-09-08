@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
     from dandy.core.future.future import AsyncFuture
     from dandy.intel.typing import IntelType
+    from dandy.llm.config import LlmConfig
     from dandy.llm.options import LlmOptions
     from dandy.llm.prompt.prompt import Prompt
     from dandy.llm.request.message import MessageHistory
@@ -48,26 +49,30 @@ class LlmService(
         return self._llm_connector.request_body.messages
 
     @property
+    def config(self) -> LlmConfig:
+        return self._llm_connector.llm_config
+
+    @property
     def options(self) -> LlmOptions:
         return self._llm_connector.llm_config.options
 
     def prompt_to_intel(
-            self,
-            prompt: Prompt | str | None = None,
-            intel_class: type[IntelType] | None = None,
-            intel_object: IntelType | None = None,
-            audio_urls: list[str] | None = None,
-            audio_file_paths: list[str | Path] | None = None,
-            audio_base64_strings: list[str] | None = None,
-            image_urls: list[str] | None = None,
-            image_file_paths: list[str | Path] | None = None,
-            image_base64_strings: list[str] | None = None,
-            include_fields: IncEx | None = None,
-            exclude_fields: IncEx | None = None,
-            tools: list[ToolType] | None = None,
-            tool_choice: str | dict | None = None,
-            message_history: MessageHistory | None = None,
-            replace_message_history: bool = False,
+        self,
+        prompt: Prompt | str | None = None,
+        intel_class: type[IntelType] | None = None,
+        intel_object: IntelType | None = None,
+        audio_urls: list[str] | None = None,
+        audio_file_paths: list[str | Path] | None = None,
+        audio_base64_strings: list[str] | None = None,
+        image_urls: list[str] | None = None,
+        image_file_paths: list[str | Path] | None = None,
+        image_base64_strings: list[str] | None = None,
+        include_fields: IncEx | None = None,
+        exclude_fields: IncEx | None = None,
+        tools: list[ToolType] | None = None,
+        tool_choice: str | dict | None = None,
+        message_history: MessageHistory | None = None,
+        replace_message_history: bool = False,
     ) -> IntelType:
         return self._llm_connector.prompt_to_intel(
             prompt=prompt,

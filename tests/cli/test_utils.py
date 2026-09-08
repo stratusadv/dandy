@@ -12,7 +12,7 @@ BASE_PATH = Path(__file__).parent.parent.parent.resolve()
 
 class TestGetCliLlmConfig(TestCase):
     def test_get_cli_llm_config_uses_cli_config(self) -> None:
-        self.assertEqual(get_cli_llm_config('CODING'), 'DEFAULT')
+        self.assertEqual(get_cli_llm_config('CODING'), 'THINKING')
 
     def test_get_cli_llm_config_uses_custom_llm_name(self) -> None:
         with mock.patch.object(settings, 'CLI_CONFIG', {'CODING': 'CODING_MODEL'}):
