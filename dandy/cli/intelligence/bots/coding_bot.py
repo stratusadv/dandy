@@ -39,6 +39,11 @@ class CodingBot(Bot):
                 'current git status." or "Reading the test file to understand it."). This '
                 'narration is shown to the user as your running thoughts.'
             ),
+            (
+                'To perform an action, call the provided tool by name with its '
+                'arguments as a JSON object. Never paste tool arguments or your '
+                'answer as a javascript or JSON code block in your message text.'
+            ),
         ]
     )
 

@@ -33,6 +33,11 @@ class PlanningBot(Bot):
                 'as your running thoughts.'
             ),
             (
+                'To perform an action, call the provided tool by name with its '
+                'arguments as a JSON object. Never paste tool arguments as a '
+                'javascript or JSON code block in your message text.'
+            ),
+            (
                 'When you are done, respond with raw JSON only. Do not wrap the '
                 'JSON in markdown code fences and do not add any other text around it.'
             ),

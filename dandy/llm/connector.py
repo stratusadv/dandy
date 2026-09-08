@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -29,6 +31,30 @@ from dandy.tool.tool import ToolType, to_tool_instances
 
 if TYPE_CHECKING:
     from dandy.llm.diligence.handler import DiligenceHandler
+
+
+def _extract_code_fence_json_body(response_text: str) -> str | None:
+    """Return the body of a single fenced code block when it holds a JSON object.
+
+    Live models sometimes wrap the final JSON answer in a markdown code fence
+    (e.g. ```javascript```). When ``response_text`` contains exactly one fenced
+    block and that block's body parses as JSON, return the body so callers can
+    validate it against the target intel; otherwise return ``None``.
+    """
+    fence_pattern = re.compile(r'(?P<fence>`{3,}|~{3,})[^\n]*\n(?P<body>.*?)(?P=fence)', re.DOTALL)
+    fence_blocks = list(fence_pattern.finditer(response_text))
+
+    if len(fence_blocks) != 1:
+        return None
+
+    body = fence_blocks[0].group('body').strip()
+
+    try:
+        json.loads(body)
+    except ValueError:
+        return None
+
+    return body
 
 
 class LlmConnector(BaseConnector):
@@ -230,6 +256,11 @@ class LlmConnector(BaseConnector):
             raise LlmRecoverableError(message)
 
         except ValidationError as error:
+            fenced_intel_object = self._validate_fenced_json_response()
+
+            if fenced_intel_object is not None:
+                return fenced_intel_object
+
             if self._should_fallback_to_default_text(error):
                 recorder_add_llm_success_event(
                     description='Response was plain text; stored it in DefaultIntel.',
@@ -256,6 +287,43 @@ class LlmConnector(BaseConnector):
             return False
 
         return {entry['type'] for entry in error.errors()} == {'json_invalid'}
+
+    def _validate_fenced_json_response(self) -> IntelType | None:
+        """Validate a JSON answer the model wrapped in a markdown code fence.
+
+        Live models sometimes wrap the required JSON (with or without a short
+        narration line before it) in a fenced block such as ```javascript```.
+        That normally fails ``json_invalid`` and, for ``DefaultIntel``, the raw
+        fenced text is stored -- so the CLI would show the raw block instead of
+        the answer rendered as markdown. Validating the block body here avoids
+        that. Returns ``None`` when there is no single fenced JSON block or the
+        body does not validate, so the caller falls through to the existing
+        fallback/retry handling.
+        """
+        fenced_json = _extract_code_fence_json_body(self.response_str or '')
+
+        if fenced_json is None:
+            return None
+
+        try:
+            intel_object = IntelFactory.json_str_to_intel_object(
+                json_str=fenced_json, intel=self.intel
+            )
+        except ValidationError:
+            return None
+
+        if intel_object is None:
+            return None
+
+        recorder_add_llm_success_event(
+            description='Validated fenced JSON response into intel object.',
+            event_id=self.recorder_event_id,
+            intel=intel_object,
+        )
+
+        self.request_body.messages.add_message(role='assistant', text=fenced_json)
+
+        return intel_object
 
     def _parse_tool_calls_to_intel(self) -> LlmToolCallsIntel:
         tool_calls_intel = LlmToolCallsIntel(summary=(self.response_str or '').strip())
