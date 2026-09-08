@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.subprocess_utils import run_subprocess
 from dandy.cli.session import session
 from dandy.tool.tool import BaseTool
@@ -11,6 +13,9 @@ class RunCommandTool(BaseTool):
         'Use this to install dependencies, run tests, run linters, or build the project. '
         'The command can use shell features such as pipes and environment variables.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        return f'Running "{kwargs["command"]}".'
 
     def handle(self, command: str, timeout_seconds: int = 30) -> str:
         return run_subprocess(

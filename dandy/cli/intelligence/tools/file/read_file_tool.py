@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.paths import _resolve_project_path
 from dandy.file.utils import read_from_file
 from dandy.tool.tool import BaseTool
@@ -11,6 +13,16 @@ class ReadFileTool(BaseTool):
         'Optionally provide start_line and end_line (1-based, inclusive) '
         'to read only part of the file.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        file_path = kwargs['file_path']
+        start_line = kwargs.get('start_line')
+        end_line = kwargs.get('end_line')
+
+        if start_line or end_line:
+            return f'Reading {file_path} lines {start_line or 1}-{end_line or "end"}.'
+
+        return f'Reading {file_path}.'
 
     def handle(
         self, file_path: str, start_line: int | None = None, end_line: int | None = None

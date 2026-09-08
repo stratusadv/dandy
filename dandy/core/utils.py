@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 
 def pascal_to_title_case(pascal_case_string: str) -> str:
-    return ' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', pascal_case_string))
+    return ' '.join(re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z]|$)', pascal_case_string)).title()
 
 
 def generate_forwardable_kwargs_if_not_none(**kwargs) -> dict:

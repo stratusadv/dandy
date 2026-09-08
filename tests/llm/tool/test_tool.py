@@ -1,4 +1,5 @@
 import inspect
+from typing import Any
 from unittest import TestCase
 
 from dandy.llm.request.message import Message, MessageHistory
@@ -15,6 +16,16 @@ class NoHandleTool(BaseTool):
 class MissingNameTool(BaseTool):
     def handle(self) -> str:
         return ''
+
+
+class ActionSentenceTool(BaseTool):
+    name = 'action_sentence_tool'
+
+    def handle(self, path: str = '') -> str:
+        return f'Handled {path}.'
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        return f'Reading {kwargs["path"]}.'
 
 
 class TestBaseTool(TestCase):
@@ -87,6 +98,14 @@ class TestBaseTool(TestCase):
         parameters_intel_class_b = tool.get_parameters_intel_class()
 
         self.assertIs(parameters_intel_class_a, parameters_intel_class_b)
+
+    def test_action_sentence_defaults_to_none(self):
+        self.assertIsNone(WeatherTool().action_sentence(location='Paris'))
+
+    def test_action_sentence_returns_override_sentence(self):
+        tool = ActionSentenceTool()
+
+        self.assertEqual(tool.action_sentence(path='src/foo.py'), 'Reading src/foo.py.')
 
     def test_to_tool_instances_mixes_classes_and_instances(self):
         instances = to_tool_instances([WeatherTool, WeatherTool(), RequiredWeatherTool])

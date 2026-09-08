@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from dandy.cli.intelligence.tools.paths import _resolve_project_path, _to_relative_path
 from dandy.file.utils import get_directory_listing
@@ -12,6 +13,12 @@ class ListDirectoryTool(BaseTool):
         'The path is relative to the project root (empty means the project root). '
         'Set recursive to True to include nested directories.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        path = kwargs.get('path') or '.'
+        recursive = kwargs.get('recursive', False)
+
+        return f'Listing {path}{" recursively" if recursive else ""}.'
 
     def handle(self, path: str = '', recursive: bool = False) -> str:
         try:

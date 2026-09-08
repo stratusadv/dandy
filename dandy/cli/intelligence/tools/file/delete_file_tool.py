@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.paths import _resolve_project_path
 from dandy.file.utils import remove_file
 from dandy.tool.tool import BaseTool
@@ -6,6 +8,9 @@ from dandy.tool.tool import BaseTool
 class DeleteFileTool(BaseTool):
     name = 'delete_file'
     description = 'Delete a file. The path is relative to the project root.'
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        return f'Deleting {kwargs["file_path"]}.'
 
     def handle(self, file_path: str) -> str:
         try:

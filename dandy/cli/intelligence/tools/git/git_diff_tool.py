@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.paths import _resolve_project_path
 from dandy.cli.intelligence.tools.subprocess_utils import run_subprocess
 from dandy.cli.session import session
@@ -11,6 +13,11 @@ class GitDiffTool(BaseTool):
         'The path is relative to the project root (empty means the whole repository). '
         'Returns diffs for tracked files that have been modified but not yet staged.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        path = kwargs.get('path') or ''
+
+        return f'Showing the git diff for {path}.' if path else 'Showing the git diff.'
 
     def handle(self, path: str = '') -> str:
         try:

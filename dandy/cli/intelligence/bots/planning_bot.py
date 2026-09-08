@@ -27,6 +27,12 @@ class PlanningBot(Bot):
             'Order the steps logically so the coding bot can follow them sequentially.',
             'Do not implement anything -- only produce the plan.',
             (
+                'Begin every message that calls a tool with one short, natural sentence '
+                "narrating the step you are about to take (for example 'Scanning the project "
+                "structure to find where things live.'). This narration is shown to the user "
+                'as your running thoughts.'
+            ),
+            (
                 'When you are done, respond with raw JSON only. Do not wrap the '
                 'JSON in markdown code fences and do not add any other text around it.'
             ),

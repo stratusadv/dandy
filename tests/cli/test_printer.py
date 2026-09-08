@@ -5,10 +5,24 @@ from unittest import TestCase, mock
 
 from blessed import Terminal
 
-from dandy.cli.tui.printer import Printer, _TaskProgress
+from dandy.cli.tui.printer import Printer, _StoryProgress, format_verbose_duration
 
 
-class TestPrinterStepTimings(TestCase):
+class TestFormatVerboseDuration(TestCase):
+    def test_seconds_under_a_minute(self) -> None:
+        self.assertEqual(format_verbose_duration(2.0), '2.0 seconds')
+
+    def test_minutes_and_seconds(self) -> None:
+        self.assertEqual(format_verbose_duration(125), '2 minutes and 5 seconds')
+
+    def test_single_minute(self) -> None:
+        self.assertEqual(format_verbose_duration(60), '1 minute')
+
+    def test_hours_minutes_and_seconds(self) -> None:
+        self.assertEqual(format_verbose_duration(3661), '1 hour and 1 minute and 1 second')
+
+
+class TestPrinterStory(TestCase):
     def setUp(self) -> None:
         self.printer = Printer(Terminal())
 
@@ -20,20 +34,27 @@ class TestPrinterStepTimings(TestCase):
         self.mock_print = self.print_patch.start()
         self.addCleanup(self.print_patch.stop)
 
-    def test_completed_frame_shows_duration_in_green(self) -> None:
-        progress = _TaskProgress(Terminal(), step_indent=2)
-        frame = progress.completed_frame('Thinking', 2.3)
+    def test_settled_frame_is_plain_text_without_duration(self) -> None:
+        progress = _StoryProgress(Terminal(), step_indent=2)
+        frame = progress.settled_frame('Reading the test file.')
 
-        self.assertIn('Thinking took 2.3s', frame)
-        self.assertIn(progress.term.green, frame)
+        self.assertIn('Reading the test file.', frame)
+        self.assertNotIn('took', frame)
 
-    def test_run_timed_task_reports_each_step_timing(self) -> None:
+    def test_current_frame_renders_beat_in_blue(self) -> None:
+        progress = _StoryProgress(Terminal(), step_indent=2)
+        frame = progress.frame('Checking the forecast now.', '...')
+
+        self.assertIn('Checking the forecast now.', frame)
+        self.assertIn(progress.term.bold_blue, frame)
+
+    def test_run_timed_task_prints_story_and_completion_sentence(self) -> None:
         release = threading.Event()
 
         def work(update: Callable[[str], None]) -> object:
-            update('Thinking')
-            sleep(0.25)
-            update('Running get_weather')
+            update('Reading the test file to understand it.')
+            sleep(0.2)
+            update('Running the tests to verify my change.')
             release.wait()
             return {'text': 'done'}
 
@@ -43,9 +64,20 @@ class TestPrinterStepTimings(TestCase):
 
         self.assertEqual(result, {'text': 'done'})
 
-        printed_lines = [str(call.args[0]) for call in self.mock_print.call_args_list if call.args]
-        completion_lines = [line for line in printed_lines if ' took ' in line]
+        written = [str(call.args[0]) for call in self.mock_write.call_args_list if call.args]
+        story_lines = [line for line in written if '↳ ' in line and line.endswith('\n')]
 
-        self.assertGreaterEqual(len(completion_lines), 2)
-        self.assertTrue(any('Thinking took ' in line for line in completion_lines))
-        self.assertTrue(any('Running get_weather took ' in line for line in completion_lines))
+        self.assertTrue(
+            any('Reading the test file to understand it.' in line for line in story_lines)
+        )
+        self.assertTrue(
+            any('Running the tests to verify my change.' in line for line in story_lines)
+        )
+
+        printed_lines = [str(call.args[0]) for call in self.mock_print.call_args_list if call.args]
+        completion_lines = [
+            line for line in printed_lines if 'I have completed your request in ' in line
+        ]
+
+        self.assertEqual(len(completion_lines), 1)
+        self.assertTrue(completion_lines[0].endswith('.'))

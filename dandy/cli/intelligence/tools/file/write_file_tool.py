@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.paths import _resolve_project_path
 from dandy.file.utils import write_to_file
 from dandy.tool.tool import BaseTool
@@ -9,6 +11,9 @@ class WriteFileTool(BaseTool):
         'Write content to a file, creating the file and any missing parent directories, '
         'or overwriting an existing file entirely. The path is relative to the project root.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        return f'Writing {kwargs["file_path"]}.'
 
     def handle(self, file_path: str, content: str) -> str:
         try:

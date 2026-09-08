@@ -57,9 +57,6 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
         while True:
             self._compact_history_before_next_round(progress_callback=progress_callback)
 
-            if progress_callback is not None:
-                progress_callback('Thinking')
-
             intel = self.obj.prompt_to_intel(
                 prompt=prompt if iteration_count == 0 else None,
                 intel_class=intel_class,
@@ -92,10 +89,10 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
             if verbose_callback is not None:
                 verbose_callback(f'Round {round_number}: model requested {len(intel)} tool call(s)')
 
-            for tool_call in intel:
-                if progress_callback is not None:
-                    progress_callback(pascal_to_title_case(tool_call.name))
+            if intel.summary and progress_callback is not None:
+                progress_callback(intel.summary)
 
+            for tool_call in intel:
                 if verbose_callback is not None:
                     verbose_callback(
                         f'  - {tool_call.name} args: {_tool_preview(tool_call.arguments)}'
@@ -105,6 +102,7 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
                     tool_call=tool_call,
                     tools_by_name=tools_by_name,
                     tool_functions=tool_functions,
+                    progress_callback=progress_callback,
                     verbose_callback=verbose_callback,
                 )
 
@@ -139,6 +137,7 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
         tool_call: LlmToolCallIntel,
         tools_by_name: dict[str, BaseTool],
         tool_functions: dict[str, ToolHandler],
+        progress_callback: Callable[[str], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
     ) -> None:
         tool = tools_by_name.get(tool_call.name)
@@ -171,8 +170,16 @@ class LlmToolService(BaseService['dandy.llm.tool.mixin.LlmToolServiceMixin']):
             )
             return
 
+        arguments_kwargs = arguments_intel.model_dump()
+        step_sentence = tool.action_sentence(**arguments_kwargs) or pascal_to_title_case(
+            tool_call.name
+        )
+
+        if progress_callback is not None:
+            progress_callback(step_sentence.removesuffix('.'))
+
         if tool_function is None:
-            result = tool.handle(**arguments_intel.model_dump())
+            result = tool.handle(**arguments_kwargs)
         else:
             result = tool_function(arguments_intel)
 

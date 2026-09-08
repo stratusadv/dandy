@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.cli.intelligence.tools.paths import _resolve_project_path
 from dandy.file.utils import read_from_file, write_to_file
 from dandy.tool.tool import BaseTool
@@ -11,6 +13,12 @@ class EditFileTool(BaseTool):
         'Provide the exact old_string (including whitespace) that exists in the file. '
         'Set replace_all to True to replace every occurrence instead of just one.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        file_path = kwargs['file_path']
+        replace_all = kwargs.get('replace_all', False)
+
+        return f'Editing {file_path}{" everywhere" if replace_all else ""}.'
 
     def handle(
         self, file_path: str, old_string: str, new_string: str, replace_all: bool = False

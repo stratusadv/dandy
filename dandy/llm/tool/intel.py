@@ -11,3 +11,4 @@ class LlmToolCallIntel(BaseIntel):
 
 class LlmToolCallsIntel(BaseListIntel[LlmToolCallIntel]):
     calls: list[LlmToolCallIntel] = Field(default_factory=list)
+    summary: str = ''

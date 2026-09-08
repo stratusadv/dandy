@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import TestCase, mock
 
 from dandy.http.intelligence.intel import HttpResponseIntel
@@ -15,6 +16,11 @@ class HandleWeatherTool(BaseTool):
 
     def handle(self, location: str = '') -> str:
         return f'The weather in {location} is sunny.'
+
+
+class ActionSentenceWeatherTool(WeatherTool):
+    def action_sentence(self, **kwargs: Any) -> str:
+        return f'Fetching the weather for {kwargs["location"]}.'
 
 
 class RecordingWeatherTool(WeatherTool):
@@ -37,7 +43,7 @@ class BigResultWeatherTool(WeatherTool):
 
 
 def tool_call_response(
-    tool_name: str, arguments: str, tool_call_id: str = 'call_1'
+    tool_name: str, arguments: str, tool_call_id: str = 'call_1', content: str | None = None
 ) -> HttpResponseIntel:
     return HttpResponseIntel(
         status_code=200,
@@ -45,7 +51,7 @@ def tool_call_response(
             'choices': [
                 {
                     'message': {
-                        'content': None,
+                        'content': content,
                         'tool_calls': [
                             {
                                 'id': tool_call_id,
@@ -151,7 +157,105 @@ class TestLlmToolService(TestCase):
             progress_callback=progress_steps.append,
         )
 
-        self.assertEqual(progress_steps, ['Thinking', 'get weather', 'Thinking'])
+        self.assertEqual(progress_steps, ['Get Weather'])
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_summary_sentences(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'get_weather',
+                '{"location": "San Francisco"}',
+                content='Let me check the current weather.',
+            ),
+            tool_call_response(
+                'get_weather', '{"location": "Paris"}', content='Checking the forecast now.'
+            ),
+            content_response('{"text": "Sunny and 70 degrees."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in San Francisco?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(
+            progress_steps,
+            [
+                'Let me check the current weather.',
+                'Get Weather',
+                'Checking the forecast now.',
+                'Get Weather',
+            ],
+        )
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_tool_action_sentences(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            content_response('{"text": "Sunny in Paris."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[ActionSentenceWeatherTool],
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(progress_steps, ['Fetching the weather for Paris'])
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_summary_and_tool_sentence(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'get_weather', '{"location": "Paris"}', content='Let me check the weather in Paris.'
+            ),
+            content_response('{"text": "Sunny in Paris."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[ActionSentenceWeatherTool],
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(
+            progress_steps, ['Let me check the weather in Paris.', 'Fetching the weather for Paris']
+        )
+
+    @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_captures_summary_on_tool_calls_intel(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'get_weather', '{"location": "Paris"}', content='Fetching the weather data.'
+            )
+        ]
+
+        bot = ToolBot()
+
+        result = bot.llm.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+        )
+
+        self.assertTrue(isinstance(result, LlmToolCallsIntel))
+        self.assertEqual(result.summary, 'Fetching the weather data.')
 
     @mock.patch('dandy.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_compacts_overgrown_history(self, mock_post_request):

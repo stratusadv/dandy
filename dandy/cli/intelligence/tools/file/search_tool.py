@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from typing import Any
 
 from dandy.cli.intelligence.tools.paths import _resolve_project_path, _to_relative_path
 from dandy.tool.tool import BaseTool
@@ -23,6 +24,15 @@ class SearchFilesTool(BaseTool):
         'as a regular expression (also case-insensitive). Hidden directories, '
         'dependency folders, and binary or very large files are skipped.'
     )
+
+    def action_sentence(self, **kwargs: Any) -> str:
+        query = kwargs['query']
+        path = kwargs.get('path') or ''
+
+        if path:
+            return f'Searching for "{query}" in {path}.'
+
+        return f'Searching for "{query}".'
 
     def handle(self, query: str, path: str = '', use_regex: bool = False) -> str:
         try:

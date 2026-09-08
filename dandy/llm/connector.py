@@ -140,23 +140,21 @@ class LlmConnector(BaseConnector):
         return response_intel_object
 
     def _update_request_body_options(
-            self,
-            tools: list[ToolType] | None,
-            tool_choice: str | dict | None,
-            message_history: MessageHistory | None,
-            replace_message_history: bool,
-            prompt: Prompt | str | None,
-            audio_urls: list[str] | None,
-            audio_file_paths: list[str | Path] | None,
-            audio_base64_strings: list[str] | None,
-            image_urls: list[str] | None,
-            image_file_paths: list[str | Path] | None,
-            image_base64_strings: list[str] | None,
+        self,
+        tools: list[ToolType] | None,
+        tool_choice: str | dict | None,
+        message_history: MessageHistory | None,
+        replace_message_history: bool,
+        prompt: Prompt | str | None,
+        audio_urls: list[str] | None,
+        audio_file_paths: list[str | Path] | None,
+        audio_base64_strings: list[str] | None,
+        image_urls: list[str] | None,
+        image_file_paths: list[str | Path] | None,
+        image_base64_strings: list[str] | None,
     ) -> None:
         if tools is not None:
-            self.request_body.tools = [
-                tool.to_function_dict() for tool in to_tool_instances(tools)
-            ]
+            self.request_body.tools = [tool.to_function_dict() for tool in to_tool_instances(tools)]
             self.request_body.response_format = None
             self.request_body.tool_choice = tool_choice
         else:
@@ -208,10 +206,7 @@ class LlmConnector(BaseConnector):
         )
 
         if self.tool_calls:
-            self.request_body.messages.add_message(
-                role='assistant',
-                tool_calls=self.tool_calls,
-            )
+            self.request_body.messages.add_message(role='assistant', tool_calls=self.tool_calls)
 
             return self._parse_tool_calls_to_intel()
 
@@ -263,7 +258,7 @@ class LlmConnector(BaseConnector):
         return {entry['type'] for entry in error.errors()} == {'json_invalid'}
 
     def _parse_tool_calls_to_intel(self) -> LlmToolCallsIntel:
-        tool_calls_intel = LlmToolCallsIntel()
+        tool_calls_intel = LlmToolCallsIntel(summary=(self.response_str or '').strip())
 
         for tool_call in self.tool_calls or []:
             tool_calls_intel.append(

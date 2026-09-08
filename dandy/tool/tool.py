@@ -56,6 +56,17 @@ class BaseTool(ABC):
         message = f'"{self.__class__.__name__}" does not implement a "handle" method.'
         raise NotImplementedError(message)
 
+    def action_sentence(self, **_kwargs: Any) -> str | None:
+        """Optional one-sentence description of what the tool is about to do.
+
+        Subclasses may override this to return a short, present-tense sentence
+        (for example, 'Reading src/foo.py.') so UIs can show the exact action
+        while the tool runs. Validated arguments arrive as keyword arguments,
+        so the sentence can name the specific files, paths, or commands. The
+        default returns None, meaning no per-tool sentence is shown.
+        """
+        return None
+
     def to_function_dict(self) -> dict:
         if not self.name:
             message = (

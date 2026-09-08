@@ -162,3 +162,30 @@ class TestGitTools(TestCase):
 
         self.assertIn('Error running git diff', result)
         self.assertIn('outside the project', result)
+
+
+class TestToolActionSentences(TestCase):
+    def test_search_sentence_names_query_and_path(self) -> None:
+        sentence = SearchFilesTool().action_sentence(query='weather', path='src')
+
+        self.assertEqual(sentence, 'Searching for "weather" in src.')
+
+    def test_search_sentence_defaults_to_project_root(self) -> None:
+        sentence = SearchFilesTool().action_sentence(query='weather')
+
+        self.assertEqual(sentence, 'Searching for "weather".')
+
+    def test_run_command_sentence_names_the_command(self) -> None:
+        sentence = RunCommandTool().action_sentence(command='pytest -q')
+
+        self.assertEqual(sentence, 'Running "pytest -q".')
+
+    def test_git_sentences_describe_the_action(self) -> None:
+        status_sentence = GitStatusTool().action_sentence()
+
+        self.assertEqual(status_sentence, 'Checking the git working tree status.')
+
+        self.assertEqual(GitDiffTool().action_sentence(), 'Showing the git diff.')
+        self.assertEqual(
+            GitDiffTool().action_sentence(path='src/foo.py'), 'Showing the git diff for src/foo.py.'
+        )

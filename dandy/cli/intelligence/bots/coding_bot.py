@@ -33,6 +33,12 @@ class CodingBot(Bot):
                 'To run tests, linters, or other commands use run_command, but only '
                 'when it is actually needed.'
             ),
+            (
+                'Begin every message that calls a tool with one short, natural sentence '
+                'narrating the step you are about to take (for example, "Let me check the '
+                'current git status." or "Reading the test file to understand it."). This '
+                'narration is shown to the user as your running thoughts.'
+            ),
         ]
     )
 

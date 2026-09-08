@@ -10,6 +10,9 @@ class GitStatusTool(BaseTool):
         'Returns one short line per changed, staged, or untracked file.'
     )
 
+    def action_sentence(self) -> str:
+        return 'Checking the git working tree status.'
+
     def handle(self) -> str:
         return run_subprocess(
             command=['git', 'status', '--short'],

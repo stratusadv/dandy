@@ -144,3 +144,20 @@ class TestCodeEditingTools(TestCase):
 
         self.assertIn('outside the project', result)
         self.assertFalse(Path(self.temp_directory_path.parent, 'outside.txt').exists())
+
+    def test_file_tools_provide_action_sentences(self):
+        sentences = [
+            ReadFileTool().action_sentence(file_path='a.txt'),
+            WriteFileTool().action_sentence(file_path='b.txt', content='x'),
+            EditFileTool().action_sentence(
+                file_path='c.txt', old_string='a', new_string='b', replace_all=True
+            ),
+            DeleteFileTool().action_sentence(file_path='d.txt'),
+            CreateDirectoryTool().action_sentence(directory_path='e'),
+            ListDirectoryTool().action_sentence(path='f', recursive=True),
+        ]
+
+        self.assertTrue(all(sentence and sentence.endswith('.') for sentence in sentences))
+        self.assertEqual(sentences[0], 'Reading a.txt.')
+        self.assertEqual(sentences[2], 'Editing c.txt everywhere.')
+        self.assertEqual(sentences[5], 'Listing f recursively.')

@@ -1,7 +1,7 @@
 import random
 import sys
 import threading
-from time import perf_counter, sleep, time
+from time import perf_counter, sleep
 from typing import Callable, TypeVar
 
 from blessed import Terminal
@@ -9,7 +9,7 @@ from blessed import Terminal
 from dandy.cli.processing_phrases import PROCESSING_PHRASES
 from dandy.cli.session import session
 from dandy.cli.tui.ascii import DANDY_ASCII
-from dandy.cli.tui.tools import wrap_text_with_indentation
+from dandy.cli.tui.markdown import MarkdownRenderer
 from dandy.cli.utils import get_cli_llm_config
 from dandy.constants import __VERSION__
 from dandy.llm.config import LlmConfig
@@ -17,48 +17,70 @@ from dandy.llm.config import LlmConfig
 T = TypeVar('T')
 
 
-class _TaskProgress:
-    """Thread-safe holder for the label of the currently running task step.
+def format_verbose_duration(seconds: float) -> str:
+    """Humanize an elapsed duration for the completion sentence."""
+    seconds = max(0.0, seconds)
 
-    The worker thread pushes labels with `update`; the rendering thread reads
-    `current_label` to draw one animated line per label.
+    if seconds < 60:
+        return f'{seconds:.1f} seconds'
+
+    total_seconds = round(seconds)
+    minutes, secs = divmod(total_seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    parts: list[str] = []
+
+    if hours:
+        parts.append(f'{hours} hour{"s" if hours != 1 else ""}')
+
+    if minutes:
+        parts.append(f'{minutes} minute{"s" if minutes != 1 else ""}')
+
+    if secs:
+        parts.append(f'{secs} second{"s" if secs != 1 else ""}')
+
+    return ''.join(parts) if len(parts) == 1 else ' and '.join(parts)
+
+
+class _StoryProgress:
+    """Thread-safe accumulator for the story beats of a running task.
+
+    The worker thread pushes beats (AI summary sentences or fallback labels)
+    with `update`; the rendering thread prints settled beats in black and
+    animates the newest one in blue with trailing dots.
     """
 
     def __init__(self, term: Terminal, step_indent: int = 2) -> None:
         self.term = term
         self.step_indent = step_indent
-        self._label = 'Thinking'
+        self._beats: list[str] = ['Thinking']
         self._lock = threading.Lock()
 
-    def update(self, label: str) -> None:
+    def update(self, beat: str) -> None:
         with self._lock:
-            self._label = label
+            self._beats.append(beat)
 
     @property
-    def current_label(self) -> str:
+    def beats(self) -> list[str]:
         with self._lock:
-            return self._label
+            return list(self._beats)
 
-    def frame(self, label: str, dots: str) -> str:
+    def settled_frame(self, beat: str) -> str:
         indent = ' ' * ((self.step_indent * 2) + 1)
-        prefix = f'{self.term.normal}{indent}↳ '
-        max_label_length = max(1, self.term.width - len(prefix) - 8)
-        short_label = (
-            label if len(label) <= max_label_length else f'{label[: max_label_length - 1]}…'
-        )
-        return f'\r{prefix}{short_label} {dots}{self.term.clear_eol()}'
+        return f'\r{self.term.normal}{indent}↳ {beat}{self.term.clear_eol()}\n'
 
-    def completed_frame(self, label: str, duration: float) -> str:
+    def frame(self, beat: str, dots: str) -> str:
         indent = ' ' * ((self.step_indent * 2) + 1)
-        return (
-            f'\r{indent}↳ {label} {self.term.green}took {duration:.1f}s'
-            f'{self.term.normal}{self.term.clear_eol()}'
-        )
+        prefix = f'{self.term.bold_blue}{indent}↳ '
+        max_beat_length = max(1, self.term.width - len(prefix) - 8)
+        short_beat = beat if len(beat) <= max_beat_length else f'{beat[: max_beat_length - 1]}…'
+        return f'\r{prefix}{short_beat} {dots}{self.term.clear_eol()}'
 
 
 class Printer:
     def __init__(self, terminal: Terminal) -> None:
         self.term = terminal
+        self.markdown_renderer = MarkdownRenderer(terminal)
 
     @staticmethod
     def blank_line():
@@ -112,17 +134,15 @@ class Printer:
     def run_timed_task(
         self, action_name: str, task: str, work: Callable[[Callable[[str], None]], T]
     ) -> T:
-        """Run `work(update_label)` while animating the current step's '...'.
+        """Run `work(update_beat)` while animating a story of AI summary beats.
 
-        Prints a task header line, then one line per step label pushed through
-        `update_label`. The trailing dots alternate while the step is running
-        so it is clear the task is still going on. Rendering happens only on
-        the calling thread (`work` runs on a daemon thread), and any exception
-        raised by `work` is re-raised here. Each step finishes with a green
-        `label took N.Ns` so completed steps are visible before the next one
-        starts. `action_name` and `task` name the header line; `work` receives
-        `update_label` to report each step it is working on and returns the
-        final result.
+        Prints a task header line, then a story: every beat pushed through
+        `update_beat` is appended to the output, with the previous beats
+        settling as plain lines and the most recent beat rendered in blue with
+        animated trailing dots (so it is clear the task is still running). When
+        `work` finishes, a completion sentence reports the total elapsed time.
+        Rendering happens only on the calling thread (`work` runs on a daemon
+        thread), and any exception raised by `work` is re-raised here.
         """
         start_time = perf_counter()
 
@@ -130,7 +150,7 @@ class Printer:
             text=f'{self.term.bold_orange}{action_name}{self.term.normal} "{task}"', indent=1
         )
 
-        progress = _TaskProgress(self.term)
+        progress = _StoryProgress(self.term)
         result_holder: dict[str, T] = {}
         error_holder: list[Exception] = []
 
@@ -143,36 +163,36 @@ class Printer:
         thread = threading.Thread(target=runner, daemon=True)
         thread.start()
 
-        rendered_label = None
-        label_start_time = 0.0
+        settled_count = 0
         dots = 1
 
         while thread.is_alive():
-            label = progress.current_label
+            beats = progress.beats
 
-            if label != rendered_label:
-                if rendered_label is not None:
-                    print(
-                        progress.completed_frame(rendered_label, perf_counter() - label_start_time)
-                    )
-                rendered_label = label
-                label_start_time = perf_counter()
+            if len(beats) > settled_count + 1:
+                for beat in beats[settled_count:-1]:
+                    sys.stdout.write(progress.settled_frame(beat))
+                settled_count = len(beats) - 1
                 dots = 1
 
-            sys.stdout.write(progress.frame(label, '.' * dots))
+            sys.stdout.write(progress.frame(beats[-1], '.' * dots))
             sys.stdout.flush()
 
             dots = (dots % 3) + 1
             sleep(0.12)
 
-        if rendered_label is not None:
-            print(progress.completed_frame(rendered_label, perf_counter() - label_start_time))
+        for beat in progress.beats[settled_count:]:
+            sys.stdout.write(progress.settled_frame(beat))
 
         if error_holder:
             raise error_holder[0]
 
         self.indented_event(
-            text=f'{self.term.bold_green}Done in {perf_counter() - start_time:.1f}s', indent=2
+            text=(
+                f'{self.term.bold_green}I have completed your request in '
+                f'{format_verbose_duration(perf_counter() - start_time)}.'
+            ),
+            indent=2,
         )
 
         return result_holder['value']
@@ -185,9 +205,9 @@ class Printer:
         )
 
     def output(self, output: str):
-        wrapped_output = wrap_text_with_indentation(output, self.term.width)
+        rendered_output = self.markdown_renderer.render(output)
 
-        for line in wrapped_output.splitlines():
+        for line in rendered_output.splitlines():
             sleep(0.02)
             print(line)
 
