@@ -6,7 +6,7 @@ from typing import Callable, TypeVar
 
 from blessed import Terminal
 
-from dandy.cli.processing_phrases import PROCESSING_PHRASES
+from dandy.cli.thinking_phrases import THINKING_PHRASES
 from dandy.cli.session import session
 from dandy.cli.tui.ascii import DANDY_ASCII
 from dandy.cli.tui.markdown import MarkdownRenderer
@@ -53,7 +53,7 @@ class _StoryProgress:
     def __init__(self, term: Terminal, step_indent: int = 2) -> None:
         self.term = term
         self.step_indent = step_indent
-        self._beats: list[str] = ['Thinking']
+        self._beats: list[str] = [random.choice(THINKING_PHRASES)]
         self._lock = threading.Lock()
 
     def update(self, beat: str) -> None:
@@ -114,7 +114,7 @@ class Printer:
         print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
 
     def running_phrase(self, action_name: str):
-        phrase = random.choice(PROCESSING_PHRASES)
+        phrase = random.choice(THINKING_PHRASES)
         self.indented_event(text=f'{self.term.bold_blue}{phrase} in preparation of your request!')
 
     def start_task(self, action_name: str, task: str) -> float:

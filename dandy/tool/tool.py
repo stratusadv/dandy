@@ -1,4 +1,6 @@
+import subprocess
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Callable
 
 from dandy.intel.factory import IntelFactory
@@ -6,6 +8,50 @@ from dandy.intel.intel import BaseIntel
 from dandy.tool.exceptions import ToolCriticalError
 
 ToolHandler = Callable[[BaseIntel | str], str | BaseIntel]
+
+_COMMAND_OUTPUT_CHARACTER_LIMIT = 8000
+
+
+def run_subprocess(
+    command: list[str] | str, cwd: Path, timeout_seconds: int, use_shell: bool = False
+) -> str:
+    """Run a command and return its output, never raising.
+
+    Output is capped to `_COMMAND_OUTPUT_CHARACTER_LIMIT` characters and
+    combined stdout/stderr are prefixed with an exit-code line.
+    """
+
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+            shell=use_shell,
+            check=False,
+        )
+
+    except subprocess.TimeoutExpired:
+        return f'Error: command timed out after {timeout_seconds} seconds.'
+
+    except OSError as error:
+        return f'Error: failed to run command: {error}'
+
+    output = completed.stdout or ''
+    error_output = completed.stderr or ''
+
+    if output and error_output:
+        combined = f'STDOUT:\n{output}\nSTDERR:\n{error_output}'
+    elif error_output:
+        combined = f'STDERR:\n{error_output}'
+    else:
+        combined = output
+
+    if len(combined) > _COMMAND_OUTPUT_CHARACTER_LIMIT:
+        combined = combined[:_COMMAND_OUTPUT_CHARACTER_LIMIT] + '\n... (truncated)'
+
+    return f'Exit code: {completed.returncode}\n{combined}'
 
 
 class BaseTool(ABC):
@@ -28,6 +74,9 @@ class BaseTool(ABC):
 
     name: str = ''
     description: str = ''
+
+    timeout_seconds: int = 30
+    use_shell: bool = False
 
     def __init__(self) -> None:
         self._handle_signature_intel_class: type[BaseIntel] | None = None
@@ -85,6 +134,26 @@ class BaseTool(ABC):
                 'parameters': IntelFactory.intel_to_json_inc_ex_schema(parameters_intel_class),
             },
         }
+
+    @property
+    def working_directory(self) -> Path:
+        """Directory that subprocess commands run in; override per tool."""
+        return Path.cwd()
+
+    def run_subprocess(self, command: list[str] | str, timeout_seconds: int | None = None) -> str:
+        """Run a command in `working_directory` and return its output as a string.
+
+        A convenience around the module-level `run_subprocess` that applies this
+        tool's `working_directory`, `timeout_seconds`, and `use_shell` settings.
+        """
+        resolved_timeout = timeout_seconds if timeout_seconds is not None else self.timeout_seconds
+
+        return run_subprocess(
+            command=command,
+            cwd=self.working_directory,
+            timeout_seconds=resolved_timeout,
+            use_shell=self.use_shell,
+        )
 
 
 ToolType = type[BaseTool] | BaseTool

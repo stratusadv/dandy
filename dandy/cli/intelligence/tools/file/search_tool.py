@@ -2,7 +2,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from dandy.cli.intelligence.tools.paths import _resolve_project_path, _to_relative_path
+from dandy.cli.intelligence.tools.paths import resolve_project_path, to_relative_path
+from dandy.cli.intelligence.tools.tool_errors import tool_error
 from dandy.tool.tool import BaseTool
 
 _EXCLUDED_DIRECTORIES = {'.git', '.dandy', 'node_modules', '.venv', '__pycache__'}
@@ -34,16 +35,14 @@ class SearchFilesTool(BaseTool):
 
         return f'Searching for "{query}".'
 
+    @tool_error('searching files')
     def handle(self, query: str, path: str = '', use_regex: bool = False) -> str:
-        try:
-            search_path = _resolve_project_path(path)
+        search_path = resolve_project_path(path)
 
-            if not search_path.is_dir():
-                return f'Error: "{path or "."}" is not a directory.'
+        if not search_path.is_dir():
+            return f'Error: "{path or "."}" is not a directory.'
 
-            matches = self._search_files(search_path, query, use_regex)
-        except Exception as error:
-            return f'Error searching files: {error}'
+        matches = self._search_files(search_path, query, use_regex)
 
         if not matches:
             return f'No matches found for "{query}".'
@@ -85,7 +84,7 @@ class SearchFilesTool(BaseTool):
                 elif search_query not in line.lower():
                     continue
 
-                relative_path = _to_relative_path(file_path)
+                relative_path = to_relative_path(file_path)
 
                 if len(line) > _MAX_LINE_CHARACTERS:
                     line = line[:_MAX_LINE_CHARACTERS] + '...'

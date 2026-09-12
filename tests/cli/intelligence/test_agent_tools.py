@@ -93,7 +93,7 @@ class TestRunCommandTool(TestCase):
         session.project_base_path = self.original_project_base_path
         self.temp_directory_context.cleanup()
 
-    @mock.patch('dandy.cli.intelligence.tools.command.command_tool.run_subprocess')
+    @mock.patch('dandy.tool.tool.run_subprocess')
     def test_run_command_executes_subprocess(self, mock_run_subprocess: mock.MagicMock) -> None:
         mock_run_subprocess.return_value = 'Exit code: 0\ncommand output'
 
@@ -116,7 +116,7 @@ class TestGitTools(TestCase):
         session.project_base_path = self.original_project_base_path
         self.temp_directory_context.cleanup()
 
-    @mock.patch('dandy.cli.intelligence.tools.git.git_status_tool.run_subprocess')
+    @mock.patch('dandy.tool.tool.run_subprocess')
     def test_git_status_runs_short_status(self, mock_run_subprocess: mock.MagicMock) -> None:
         mock_run_subprocess.return_value = ' M file.py'
 
@@ -130,7 +130,7 @@ class TestGitTools(TestCase):
             use_shell=False,
         )
 
-    @mock.patch('dandy.cli.intelligence.tools.git.git_diff_tool.run_subprocess')
+    @mock.patch('dandy.tool.tool.run_subprocess')
     def test_git_diff_whole_repository(self, mock_run_subprocess: mock.MagicMock) -> None:
         mock_run_subprocess.return_value = 'diff output'
 
@@ -144,7 +144,7 @@ class TestGitTools(TestCase):
             use_shell=False,
         )
 
-    @mock.patch('dandy.cli.intelligence.tools.git.git_diff_tool.run_subprocess')
+    @mock.patch('dandy.tool.tool.run_subprocess')
     def test_git_diff_with_path(self, mock_run_subprocess: mock.MagicMock) -> None:
         Path(self.temp_directory_path, 'file.py').write_text('x = 1\n')
 

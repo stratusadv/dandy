@@ -3,7 +3,7 @@ from pathlib import Path
 from dandy.cli.session import session
 
 
-def _resolve_project_path(relative_path: str) -> Path:
+def resolve_project_path(relative_path: str) -> Path:
     root = session.project_base_path
 
     candidate = Path(relative_path) if relative_path else root
@@ -19,7 +19,7 @@ def _resolve_project_path(relative_path: str) -> Path:
     return resolved
 
 
-def _to_relative_path(path: Path) -> str:
+def to_relative_path(path: Path) -> str:
     root = session.project_base_path.resolve()
 
     if path == root:

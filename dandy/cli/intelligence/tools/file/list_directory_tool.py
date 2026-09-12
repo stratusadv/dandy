@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Any
 
-from dandy.cli.intelligence.tools.paths import _resolve_project_path, _to_relative_path
+from dandy.cli.intelligence.tools.paths import resolve_project_path, to_relative_path
+from dandy.cli.intelligence.tools.tool_errors import tool_error
 from dandy.file.utils import get_directory_listing
 from dandy.tool.tool import BaseTool
 
@@ -20,18 +21,16 @@ class ListDirectoryTool(BaseTool):
 
         return f'Listing {path}{" recursively" if recursive else ""}.'
 
+    @tool_error('listing directory')
     def handle(self, path: str = '', recursive: bool = False) -> str:
-        try:
-            directory_path = _resolve_project_path(path)
+        directory_path = resolve_project_path(path)
 
-            if not directory_path.is_dir():
-                return f'Error: "{path or "."}" is not a directory.'
+        if not directory_path.is_dir():
+            return f'Error: "{path or "."}" is not a directory.'
 
-            items = get_directory_listing(directory_path, max_depth=None if recursive else 1)
+        items = get_directory_listing(directory_path, max_depth=None if recursive else 1)
 
-            relative_items = [_to_relative_path(Path(item)) for item in items]
-        except Exception as error:
-            return f'Error listing directory: {error}'
+        relative_items = [to_relative_path(Path(item)) for item in items]
 
         if not relative_items:
             return f'The directory "{path or "."}" is empty.'
