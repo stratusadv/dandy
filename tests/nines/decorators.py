@@ -2,7 +2,7 @@ import os
 from functools import wraps
 from typing import Callable
 
-from dandy.core.exceptions import DandyError
+from dandy.shared.exceptions import DandyError
 
 
 def nines_testing(nines: int = int(os.getenv("TESTING_NINES", '0'))):

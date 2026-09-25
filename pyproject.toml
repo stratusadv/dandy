@@ -29,9 +29,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+documentation = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]"
+]
 development = [
     "build",
     "Faker",
+    "import-linter",
     "pytest",
     "pytest-cov",
     "ruff",
@@ -41,21 +47,8 @@ development = [
     "wheel"
 ]
 
-documentation = [
-    "mkdocs",
-    "markdown-exec[ansi]",
-    "mkdocstrings-python",
-    "mkdocs-gen-files",
-    "mkdocs-include-markdown-plugin",
-    "mkdocs-literate-nav",
-    "mkdocs-material",
-    "mkdocs-section-index",
-    "mkdocs-table-reader-plugin",
-    "openpyxl"
-]
-
 [project.scripts]
-dandy = "dandy.cli.main:main"
+dandy = "dandy.interfaces.cli.main:main"
 
 [project.urls]
 Homepage = "https://dandysoftware.com"
@@ -72,6 +65,98 @@ requires = [
 
 build-backend = "setuptools.build_meta"
 
+[tool.importlinter]
+root_packages = ["dandy"]
+
+[[tool.importlinter.contracts]]
+name = "Domain layer must not import outer layers"
+type = "forbidden"
+source_modules = ["dandy.domain"]
+forbidden_modules = [
+    "dandy.application",
+    "dandy.infrastructure",
+    "dandy.interfaces",
+]
+
+[[tool.importlinter.contracts]]
+name = "Shared kernel must not import any layer"
+type = "forbidden"
+source_modules = ["dandy.shared"]
+forbidden_modules = [
+    "dandy.domain",
+    "dandy.application",
+    "dandy.infrastructure",
+    "dandy.interfaces",
+]
+
+[[tool.importlinter.contracts]]
+name = "Application layer must not import interface layer"
+type = "forbidden"
+source_modules = ["dandy.application"]
+forbidden_modules = ["dandy.interfaces"]
+
+[[tool.importlinter.contracts]]
+name = "Infrastructure layer must not import application or interface layers"
+type = "forbidden"
+source_modules = ["dandy.infrastructure"]
+forbidden_modules = [
+    "dandy.application",
+    "dandy.interfaces",
+]
+ignore_imports = [
+    # TYPE_CHECKING-only annotations: recorder event builders and the
+    # connector reference the application objects they record or diligence.
+    "dandy.infrastructure.recorder.bot_events -> dandy.application.bot.bot",
+    "dandy.infrastructure.recorder.decoder_events -> dandy.application.llm.decoder.decoder",
+    "dandy.infrastructure.llm.connector -> dandy.application.llm.diligence.handler",
+]
+
+# Documented seams: the service/mixin composition pattern wires application
+# services to their infrastructure adapters (connector, config, futures,
+# recorder event builders). Each edge is listed explicitly so any new
+# application -> infrastructure import fails until reviewed.
+[[tool.importlinter.contracts]]
+name = "Application layer imports infrastructure only at documented seams"
+type = "forbidden"
+source_modules = ["dandy.application"]
+forbidden_modules = ["dandy.infrastructure"]
+ignore_imports = [
+    "dandy.application.bot.bot -> dandy.infrastructure.recorder.bot_events",
+    "dandy.application.bot.bot -> dandy.infrastructure.future.future",
+    "dandy.application.bot.bot -> dandy.infrastructure.future.tools",
+    "dandy.application.bot.bot -> dandy.infrastructure.file.mixin",
+    "dandy.application.bot.bot -> dandy.infrastructure.http.mixin",
+    "dandy.application.llm.mixin -> dandy.infrastructure.llm.config",
+    "dandy.application.llm.service -> dandy.infrastructure.future.future",
+    "dandy.application.llm.service -> dandy.infrastructure.future.tools",
+    "dandy.application.llm.service -> dandy.infrastructure.llm.config",
+    "dandy.application.llm.service -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.tool.service -> dandy.infrastructure.recorder.tool_events",
+    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.recorder.decoder_events",
+    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.recorder.llm_events",
+    "dandy.application.llm.decoder.service -> dandy.infrastructure.future.future",
+    "dandy.application.llm.decoder.service -> dandy.infrastructure.future.tools",
+    "dandy.application.llm.diligence.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.diligence.handler -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.diligence.second_pass.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.diligence.stop_word_removal.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.llm.diligence.vowel_removal.diligence -> dandy.infrastructure.llm.connector",
+]
+
+[[tool.importlinter.contracts]]
+name = "Interface layer imports infrastructure only at documented seams"
+type = "forbidden"
+source_modules = ["dandy.interfaces"]
+forbidden_modules = ["dandy.infrastructure"]
+ignore_imports = [
+    # The welcome banner displays the resolved CODING config's model name.
+    "dandy.interfaces.cli.tui.printer -> dandy.infrastructure.llm.config",
+    # The CLI entry point reaches the LLM adapters transitively through the
+    # agent's documented application -> infrastructure seams.
+    "dandy.interfaces.cli.cli -> dandy.application.agent.coding_agent",
+]
+
 [tool.coverage.run]
 omit = [
     "*/tests/*",
@@ -81,13 +166,16 @@ omit = [
     '*/docs/*'
 ]
 
+[tool.setuptools.packages.find]
+include = ["dandy*"]
+
 [tool.setuptools.package-data]
 dandy = [
     "**/*.html",
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "dandy.constants.__VERSION__" }
+version = { attr = "dandy.shared.constants.__VERSION__" }
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file

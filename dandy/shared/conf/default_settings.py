@@ -1,0 +1,43 @@
+import os
+from pathlib import Path
+
+from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
+
+ALLOW_RECORDING_TO_FILE: bool = False
+
+BASE_PATH: Path | str = Path.cwd()
+
+CACHE_MEMORY_LIMIT: int = 1000
+CACHE_SQLITE_DATABASE_PATH: Path | str = Path(BASE_PATH, DANDY_LOCAL_DIRECTORY_NAME)
+CACHE_SQLITE_LIMIT: int = 10000
+
+DEBUG: bool = False
+
+FUTURES_MAX_WORKERS: int = 10
+
+HTTP_CONNECTION_RETRY_COUNT: int = 4
+HTTP_CONNECTION_TIMEOUT_SECONDS: int | None = 60
+
+LLM_CONFIGS = {
+    'DEFAULT': {
+        'HOST': os.getenv('AI_API_HOST'),
+        'PORT': int(os.getenv('AI_API_POST', 443)),
+        'API_KEY': os.getenv('AI_API_KEY'),
+        'MODEL': os.getenv('AI_API_MODEL'),
+        'CONTEXT_SIZE': 65536,
+        'OPTIONS': {
+            'frequency_penalty': None,
+            'presence_penalty': None,
+            'temperature': None,
+            'top_p': None,
+        },
+    }
+}
+
+CLI_CONFIG = {
+    'AUDIO': None,
+    'CODING': 'DEFAULT',
+    'SIMPLE': 'DEFAULT',
+    'THINKING': 'DEFAULT',
+    'VISION': None,
+}

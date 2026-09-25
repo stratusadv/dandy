@@ -6,6 +6,7 @@ set dotenv-filename := "development.env"
 export PYTHONPATH := if os() == "linux" { env_var_or_default("PYTHONPATH_APPEND", "") + ":." } else { env_var_or_default("PYTHONPATH_APPEND", "") + ";." }
 export DANDY_SETTINGS_MODULE := env_var_or_default("DANDY_SETTINGS_MODULE", "tests.dandy_settings")
 PYTHON := if os() == "linux" { ".venv/bin/python" } else { ".venv/Scripts/python.exe" }
+LINT_IMPORTS := if os() == "linux" { ".venv/bin/lint-imports" } else { ".venv/Scripts/lint-imports.exe" }
 
 default:
     just --list
@@ -30,8 +31,10 @@ venv:
 venv-upgrade:
     uv sync --all-extras --upgrade
 cli:
-    {{ PYTHON }} ./dandy/cli/main.py
+    {{ PYTHON }} ./dandy/interfaces/cli/main.py
+lint-imports:
+    {{ LINT_IMPORTS }}
 docs:
-    mkdocs serve
+    {{ PYTHON }} -m mkdocs serve
 docs-tests:
-    mkdocs build --strict
+    {{ PYTHON }} -m mkdocs build --strict

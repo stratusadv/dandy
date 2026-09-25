@@ -1,22 +1,14 @@
-# Quick Start Dandy!
+# Quick Start
 
-## Installation
+## 1. A settings module
 
-Just like most python packages you can easily install Dandy using pip.
-
-``` bash
-pip install dandy
-```
-
-## Create a Settings File
-
-You can create a `dandy_settings.py` file in the root of your project with the following contents.  
+Dandy has no constructor configuration. It loads one settings module at import time —
+the module named by `DANDY_SETTINGS_MODULE`, defaulting to `dandy_settings` in your
+working directory.
 
 ```python title="dandy_settings.py"
 import os
 from pathlib import Path
-
-ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
@@ -30,22 +22,63 @@ LLM_CONFIGS = {
 }
 ```
 
-## Simple LLM Interaction
+`BASE_PATH` and a `DEFAULT` entry in `LLM_CONFIGS` are the only two things required.
+Everything else falls back to framework defaults — see
+[Configuration](configuration.md).
 
-Once you have Dandy setup and configured, you can easily get started with a simple LLM interaction.
+## 2. A plain call
 
-```python exec="True" source="above" source="material-block"
-
+```python
 from dandy import Bot
 
 response_intel = Bot().process('What is the capital of Canada?')
-
 print(response_intel.text)
-
 ```
 
-## Start Learning
+`Bot().process` returns a `DefaultIntel`; `.text` holds the model's answer.
 
-Wow, that was easy ... we are only beginning to dive into the power of Dandy.
+## 3. A typed call
 
-If you have already got the [setup](../tutorials/setup.md) process complete you can skip right to the [intel tutorial](../tutorials/intel.md) and learn more about how Dandy works.
+The framework's point: make the answer a contract.
+
+```python
+from dandy import BaseIntel, Bot
+
+
+class CapitalIntel(BaseIntel):
+    country: str
+    capital: str
+
+
+intel = Bot().process('What is the capital of Canada?', intel_class=CapitalIntel)
+print(intel.capital)  # 'Ottawa'
+```
+
+If the model returns the wrong shape, Dandy re-prompts it with the validation errors
+(until `prompt_retry_count` is exhausted) rather than handing you an untrusted string.
+
+## 4. A named bot
+
+When the same kind of work repeats, give it a name — a [Bot](../user_guide/bots.md)
+captures the how: endpoint config, role, task, guidelines, and return type.
+
+```python
+from dandy import Bot, Prompt
+
+
+class CapitalBot(Bot):
+    role = Prompt().text('You answer geography questions with one line.')
+    task = 'Return the capital of the requested country.'
+    intel_class = CapitalIntel
+
+
+bot = CapitalBot()
+intel = bot.process('France')
+print(intel.capital)  # 'Paris'
+```
+
+## Next
+
+- [Configuration](configuration.md) — named configs, `CONTEXT_SIZE`, JSON fallback.
+- [Intel](../user_guide/intel.md) — the contract in detail.
+- [The DDD layout](../architecture/layering.md) — where all of this lives.

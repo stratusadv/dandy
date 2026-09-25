@@ -8,7 +8,7 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 DEBUG = bool(int(os.getenv('DEBUG', 0)))
 
 if DEBUG:
-    from dandy.core.debug import *
+    from dandy.shared.debug import *
 
 # These defaults keep the test suite hermetic: hermetic (mocked) tests can build
 # LLM configs without a live endpoint, while live-LLM tests still skip unless a

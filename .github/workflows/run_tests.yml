@@ -37,15 +37,22 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -e .[development,documentation]
+          pip install -e .[development]
 
       - name: Package Tests
         run: |
           python -m unittest discover -v ./tests
 
+      - name: Architecture Tests
+        run: |
+          lint-imports
+
   documentation-testing:
     needs: dandy-testing
     runs-on: ubuntu-latest
+
+    env:
+      DANDY_SETTINGS_MODULE: tests.dandy_settings
 
     steps:
       - uses: actions/checkout@v4
@@ -57,14 +64,14 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -e .[development,documentation]
+          pip install -e .[documentation]
 
-      - name: Documentation Tests
+      - name: Build Documentation
         run: |
-          PYTHONPATH=. mkdocs build --strict
+          PYTHONPATH=. python -m mkdocs build --strict
 
 #  optional-testing:
-#    needs: documentation-testing
+#    needs: dandy-testing
 #    runs-on: ubuntu-latest
 #    continue-on-error: true
 #
@@ -81,7 +88,7 @@ jobs:
 #
 #      - name: Install Dependencies
 #        run: |
-#          pip install -e .[development,documentation]
+#          pip install -e .[development]
 #
 #      - name: Nines Testing
 #        run: |

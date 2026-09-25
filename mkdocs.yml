@@ -1,124 +1,106 @@
 site_name: Dandy AI Framework
+site_description: A Python framework for structured LLM interaction, built on domain-driven design.
 site_url: https://dandysoftware.com
 
 repo_name: stratusadv/dandy
 repo_url: https://github.com/stratusadv/dandy
 
-copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
-
-exclude_docs: |
-  tutorials/prompt_test_document.md
-
-extra_css:
-  - static/css/extra.css
-  - static/css/mkdocstrings.css
-
-extra_javascript:
-  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
-  - static/js/extra.js
-
+copyright: Copyright (c) 2026 Stratus Advanced Technologies and Contributors
 
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - tables
-  - attr_list
+  - toc:
+      permalink: true
 
 nav:
   - Home: index.md
+  - Understanding Dandy:
+      - What is Dandy: introduction/what_is_dandy.md
+      - Design Principles: introduction/principles.md
+  - Domain Model:
+      - Ubiquitous Language: domain_model/glossary.md
+      - Bounded Contexts: domain_model/contexts.md
+      - Tactical Patterns: domain_model/tactical.md
+  - Architecture:
+      - Layering and Dependency Rules: architecture/layering.md
+      - The Service Pattern: architecture/service_pattern.md
+      - Anatomy of an LLM Call: architecture/data_flow.md
+  - Decisions:
+      - Conventions and Index: adr/README.md
+      - "0005: Rebuild the docs site DDD-first": adr/0005-rebuild-docs-ddd-first.md
+      - "0004: Tool handle signature is the schema": adr/0004-tool-handle-signature-as-schema.md
+      - "0003: Hermetic test suite by default": adr/0003-hermetic-tests-by-default.md
+      - "0002: Enforce the layering with import-linter": adr/0002-enforce-layering-with-import-linter.md
+      - "0001: Adopt DDD layering": adr/0001-adopt-ddd-layering.md
   - Getting Started:
-      - What is Dandy: getting_started/introduction.md
-      - Read this First: getting_started/read_this_first.md
+      - Installation: getting_started/installation.md
       - Quick Start: getting_started/quick_start.md
-      - Why Use Dandy: getting_started/why_use_dandy.md
-  - Tutorial:
-      - Tutorial Index: tutorials/index.md
-      - 01. Setup: tutorials/setup.md
-      - 02. Intel: tutorials/intel.md
-      - 03. Prompts: tutorials/prompts.md
-      - 04. Bots: tutorials/bots.md
-      - 05. Recorder: tutorials/recorder.md
-      - 06. Decoders: tutorials/decoders.md
-      - 07. Futures: tutorials/futures.md
-      - 08. Caching: tutorials/caching.md
-      - 09. Agents: tutorials/agents.md
-      - 10. Handling Errors: tutorials/handling_errors.md
-      - 11. Project Structure: tutorials/project_structure.md
-      - 12. Example Project: tutorials/example_project.md
-  - API Reference: reference/
-  - Roadmap:
-      - 2026: roadmap/2026_roadmap.md
-      - 2025: roadmap/2025_roadmap.md
-      - 2024: roadmap/2024_roadmap.md
-      - Legend: roadmap/roadmap_legend.md
+      - Configuration: getting_started/configuration.md
+  - User Guide:
+      - Intel: user_guide/intel.md
+      - Prompts: user_guide/prompts.md
+      - Bots: user_guide/bots.md
+      - Options and Context: user_guide/options_and_context.md
+      - Tool Calling: user_guide/tool_calling.md
+      - Decoders: user_guide/decoders.md
+      - Recording: user_guide/recording.md
+      - Caching: user_guide/caching.md
+      - Futures: user_guide/futures.md
+      - The Coding Agent: user_guide/coding_agent.md
+      - Error Handling: user_guide/error_handling.md
+  - API Reference:
+      - Shared Kernel: reference/shared.md
+      - Domain Layer: reference/domain.md
+      - Application Layer: reference/application.md
+      - Infrastructure Layer: reference/infrastructure.md
+      - Interfaces Layer: reference/interfaces.md
+  - Migration:
+      - 2.x to 3.0: migration/v2_to_v3.md
   - Changelog:
-      - Current (v2): changelog/v2_changelog.md
-      - Archived (v1): changelog/v1_changelog.md
-      - Archived (v0): changelog/v0_changelog.md
-  - About:
-      - Contributors: about/contributors.md
-      - Branding: about/branding.md
-      - Credits: about/credits.md
+      - v3.0.0: changelog/v3.md
 
 plugins:
-  - include-markdown
+  - search
   - mkdocstrings:
       handlers:
         python:
-          inventories:
-            - url: https://docs.python.org/3/objects.inv
-              domains: [py, std]
           options:
-            show_source: true
-            show_if_no_docstring: True
+            show_source: false
+            show_if_no_docstring: true
             docstring_style: sphinx
             docstring_section_style: list
             members_order: source
             merge_init_into_class: true
-            show_root_full_path: true
-            show_root_heading: true
-            show_signature: false
-            show_signature_annotations: false
-            show_symbol_type_heading: true
-  - markdown-exec
-  - search
-  - table-reader
-  - gen-files:
-      scripts:
-        - docs/scripts/generate_api_reference.py
-  - literate-nav:
-      nav_file: SUMMARY.md
-  - section-index
 
 theme:
   name: material
-  custom_dir: docs/templates
   palette:
-  - media: "(prefers-color-scheme: light)"
-    scheme: default
-    toggle:
-      icon: material/lightbulb
-      name: "Switch to dark mode"
-  - media: "(prefers-color-scheme: dark)"
-    scheme: slate
-    toggle:
-      icon: material/lightbulb-outline
-      name: "Switch to system preference"
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/lightbulb
+        name: "Switch to dark mode"
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/lightbulb-outline
+        name: "Switch to system preference"
   features:
     - toc.follow
     - navigation.tabs
     - navigation.footer
     - navigation.sections
   logo: 'static/img/dandy_icon_white_256.png'
-  favicon: 'favicon.png'
-
-watch:
-  - dandy
-  - tests
+  favicon: 'static/img/favicon.png'
