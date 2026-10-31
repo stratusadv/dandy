@@ -6,6 +6,7 @@ __pycache__/
 .cache/
 .claude/
 .crush/
+.hypothesis/
 .opencode/
 .npm/
 .venv*/

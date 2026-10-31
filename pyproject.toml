@@ -37,6 +37,7 @@ documentation = [
 development = [
     "build",
     "Faker",
+    "hypothesis",
     "import-linter",
     "pytest",
     "pytest-cov",

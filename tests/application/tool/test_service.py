@@ -262,13 +262,14 @@ class TestToolService(TestCase):
         mock_post_request.side_effect = [
             tool_call_response('get_weather', '{"location": "A"}'),
             tool_call_response('get_weather', '{"location": "B"}'),
-            tool_call_response('get_weather', '{"location": "C"}'),
             content_response('{"text": "Done."}'),
         ]
 
         progress_steps = []
 
         bot = ToolBot()
+
+        bot.llm.config.context_size = 3000
 
         bot.llm.tools.prompt_to_intel(
             prompt='What is the weather?',
@@ -284,6 +285,30 @@ class TestToolService(TestCase):
             any(step.startswith('Compacting conversation history') for step in progress_steps)
         )
         self.assertLessEqual(bot.llm.messages.estimated_token_count, compaction_target)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_caps_oversized_tool_results(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "A"}'),
+            content_response('{"text": "Done."}'),
+        ]
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather?',
+            intel_class=FinalAnswerIntel,
+            tools=[BigResultWeatherTool],
+        )
+
+        tool_messages = [message for message in bot.llm.messages.messages if message.role == 'tool']
+
+        self.assertEqual(len(tool_messages), 1)
+        self.assertLess(len(tool_messages[0].text_content), 8200)
+        self.assertTrue(tool_messages[0].text_content.startswith('x' * 8000))
+        self.assertTrue(tool_messages[0].text_content.endswith('\n... (truncated)'))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_verbose_details(self, mock_post_request):

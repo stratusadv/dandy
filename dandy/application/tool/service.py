@@ -27,6 +27,13 @@ if TYPE_CHECKING:
 TOOL_LOOP_CONTEXT_DEFAULT = 65536
 TOOL_LOOP_COMPACTION_TARGET_RATIO = 0.70
 
+# Tool results are capped before they enter the conversation so one oversized
+# result (a huge file read, a chatty user tool) can never blow past the model's
+# context window or be silently dropped whole by compaction. The cap mirrors
+# the 8000-character limits on the built-in agent tools.
+
+_TOOL_RESULT_CHARACTER_LIMIT = 8000
+
 
 def _tool_preview(text: str, limit: int = 240) -> str:
     """One-line preview of tool arguments or results for verbose tracing."""
@@ -201,6 +208,9 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             result = tool_function(arguments_intel)
 
         result_text = result if isinstance(result, str) else result.model_dump_json()
+
+        if len(result_text) > _TOOL_RESULT_CHARACTER_LIMIT:
+            result_text = result_text[:_TOOL_RESULT_CHARACTER_LIMIT] + '\n... (truncated)'
 
         if verbose_callback is not None:
             verbose_callback(f'  - {tool_call.name} result: {_tool_preview(result_text)}')

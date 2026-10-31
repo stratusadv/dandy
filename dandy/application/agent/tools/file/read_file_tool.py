@@ -5,6 +5,8 @@ from dandy.application.agent.tools.tool_errors import tool_error
 from dandy.shared.files import read_from_file
 from dandy.domain.tool.tool import BaseTool
 
+_READ_FILE_CHARACTER_LIMIT = 8000
+
 
 class ReadFileTool(BaseTool):
     name = 'read_file'
@@ -12,7 +14,8 @@ class ReadFileTool(BaseTool):
         'Read the contents of a file with line numbers. '
         'The path is relative to the project root. '
         'Optionally provide start_line and end_line (1-based, inclusive) '
-        'to read only part of the file.'
+        'to read only part of the file. '
+        'Long files are returned truncated; page through them with start_line and end_line.'
     )
 
     def action_sentence(self, **kwargs: Any) -> str:
@@ -53,4 +56,18 @@ class ReadFileTool(BaseTool):
             for line_number, line in enumerate(lines[first_line - 1 : last_line], start=first_line)
         ]
 
-        return '\n'.join(numbered_lines)
+        numbered_output = '\n'.join(numbered_lines)
+
+        if len(numbered_output) > _READ_FILE_CHARACTER_LIMIT:
+            kept_output = numbered_output[:_READ_FILE_CHARACTER_LIMIT]
+            newline_position = kept_output.rfind('\n')
+
+            if newline_position > 0:
+                kept_output = kept_output[:newline_position]
+
+            return (
+                kept_output + f'\n... (truncated; the file has {len(lines)} lines, '
+                'use start_line and end_line to read more)'
+            )
+
+        return numbered_output

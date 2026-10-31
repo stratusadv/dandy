@@ -231,9 +231,12 @@ class MessageHistory(BaseModel):
 def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
     """Trim ``history`` until its estimated token count fits the budget.
 
-    The system message and the newest message are always kept. Tool-use rounds
-    (an assistant tool-call declaration plus its results) are dropped oldest
-    first because they consume the most tokens, then oldest plain exchanges.
+    The message in the system slot (position 0) is always kept. The newest
+    message is kept unless it is a ``tool`` result: when the newest message is
+    a tool result, its whole round (the assistant tool-call declaration plus
+    all its results) is dropped, because a tool result without its declaration
+    is invalid on the wire. Tool-use rounds are dropped oldest first because
+    they consume the most tokens, then oldest plain exchanges.
 
     Does not raise when the history cannot be brought under budget, it simply
     drops everything droppable.

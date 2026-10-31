@@ -74,6 +74,28 @@ class TestCodeEditingTools(TestCase):
 
         self.assertIn('does not exist', result)
 
+    def test_read_file_caps_long_output(self) -> None:
+        target_path = Path(self.temp_directory_path, 'big.txt')
+        target_path.write_text('\n'.join(f'line number {i} with padding' for i in range(1, 3001)))
+
+        result = ReadFileTool().handle(file_path='big.txt')
+
+        self.assertLess(len(result), 8200)
+        self.assertIn('1 | line number 1 with padding', result)
+        self.assertIn('... (truncated', result)
+        self.assertIn('3000 lines', result)
+        self.assertIn('start_line and end_line', result)
+        self.assertNotIn('3000 |', result)
+
+    def test_read_file_short_output_is_not_capped(self) -> None:
+        target_path = Path(self.temp_directory_path, 'small.txt')
+        target_path.write_text('one\ntwo\nthree\n')
+
+        result = ReadFileTool().handle(file_path='small.txt')
+
+        self.assertNotIn('truncated', result)
+        self.assertIn('3 | three', result)
+
     def test_edit_file_single_replacement(self):
         target_path = Path(self.temp_directory_path, 'example.txt')
         target_path.write_text('foo bar baz')
@@ -138,6 +160,17 @@ class TestCodeEditingTools(TestCase):
 
         self.assertIn('first.txt', result)
         self.assertIn('nested/second.txt', result)
+
+    def test_list_directory_caps_long_output(self) -> None:
+        for index in range(300):
+            Path(self.temp_directory_path, f'file_number_{index:04d}_with_padding.txt').write_text(
+                'x'
+            )
+
+        result = ListDirectoryTool().handle(path='')
+
+        self.assertLess(len(result), 8200)
+        self.assertIn('... (truncated)', result)
 
     def test_path_traversal_is_blocked(self):
         result = WriteFileTool().handle(file_path='../outside.txt', content='should not be written')

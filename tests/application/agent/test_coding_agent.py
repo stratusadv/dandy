@@ -7,10 +7,12 @@ from dandy.application.agent.coding_agent import (
     CodingAgent,
     compact_message_history,
 )
+from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
 from dandy.shared.settings import settings
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.message.message import MessageHistory
+from dandy.domain.prompt.prompt import Prompt
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 
 
@@ -223,6 +225,38 @@ class TestCompactMessageHistory(TestCase):
 
         self.assertEqual(message_history.messages, original_messages)
 
+    def test_compaction_drops_newest_round_when_newest_is_tool_result(self) -> None:
+        message_history = MessageHistory()
+        message_history.add_message(role='system', text='System rules here.')
+        message_history.add_message(role='user', text='Read the big file ' + ('q' * 200))
+        message_history.add_message(
+            role='assistant',
+            tool_calls=[
+                {
+                    'id': 'call_1',
+                    'type': 'function',
+                    'function': {'name': 'read_file', 'arguments': '{"path": "a.py"}'},
+                }
+            ],
+        )
+        message_history.add_message(
+            role='tool', tool_call_id='call_1', text='Huge file contents ' + ('x' * 4000)
+        )
+
+        compact_message_history(message_history, max_context_tokens=100)
+
+        self.assertEqual([message.role for message in message_history.messages], ['system', 'user'])
+
+    def test_compaction_leaves_oversized_newest_message_in_place(self) -> None:
+        message_history = MessageHistory()
+        message_history.add_message(role='system', text='System rules here.')
+        message_history.add_message(role='user', text='Pasted content ' + ('p' * 100_000))
+        original_messages = list(message_history.messages)
+
+        compact_message_history(message_history, max_context_tokens=100)
+
+        self.assertEqual(message_history.messages, original_messages)
+
 
 class TestCodingAgentCompaction(TestCase):
     def setUp(self) -> None:
@@ -251,7 +285,7 @@ class TestCodingAgentCompaction(TestCase):
             content_response('{"text": "Acknowledged and compacted."}')
         ]
 
-        self.agent.max_context_tokens = 40
+        self.agent.max_context_tokens = 300
 
         for _ in range(50):
             self.agent.history.add_message(
@@ -271,6 +305,67 @@ class TestCodingAgentCompaction(TestCase):
         request_messages = request_intel.json_data['messages']
 
         self.assertLess(len(request_messages), 100)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_agent_raises_when_conversation_cannot_fit_window(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "Should never be sent."}')]
+
+        self.agent.max_context_tokens = 1000
+
+        self.agent.history.add_message(role='system', text='System rules here.')
+        self.agent.history.add_message(role='user', text='A huge pasted payload ' + ('h' * 50_000))
+
+        with self.assertRaises(AgentRecoverableError) as context:
+            self.agent.chat('tiny question')
+
+        self.assertIn('context window', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 0)
+
+    def _build_history_with_tool_rounds(self, round_count: int) -> MessageHistory:
+        message_history = MessageHistory()
+
+        for index in range(round_count):
+            message_history.add_message(role='user', text=f'Question {index} ' + ('u' * 100))
+            message_history.add_message(
+                role='assistant',
+                tool_calls=[
+                    {
+                        'id': f'call_{index}',
+                        'type': 'function',
+                        'function': {'name': 'read_file', 'arguments': '{"path": "a.py"}'},
+                    }
+                ],
+            )
+            message_history.add_message(
+                role='tool', tool_call_id=f'call_{index}', text='File contents ' + ('x' * 300)
+            )
+
+        return message_history
+
+    def test_compaction_counts_the_plan_section_of_the_prompt(self) -> None:
+        self.agent.max_context_tokens = 2000
+
+        raw_prompt = 'Change the greeting'
+        plan_prompt = (
+            Prompt()
+            .text(raw_prompt)
+            .line_break()
+            .heading('Implementation Plan')
+            .line_break()
+            .text('Step one: ' + ('do the thing ' * 100))
+        )
+
+        self.agent.history = self._build_history_with_tool_rounds(12)
+        self.agent._compact_history_for_next_message(prompt=raw_prompt)
+        raw_remaining_count = len(self.agent.history)
+
+        self.agent.history = self._build_history_with_tool_rounds(12)
+        self.agent._compact_history_for_next_message(prompt=plan_prompt)
+        plan_remaining_count = len(self.agent.history)
+
+        self.assertLess(plan_remaining_count, raw_remaining_count)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_does_not_compact_under_budget(self, mock_post_request: mock.MagicMock) -> None:
@@ -368,3 +463,24 @@ class TestCodingAgentPlanning(TestCase):
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 8)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_planning_conversation_starts_fresh_each_chat(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            content_response('{"text": "First plan."}'),
+            content_response('{"text": "First answer."}'),
+            content_response('{"text": "Second plan."}'),
+            content_response('{"text": "Second answer."}'),
+        ]
+
+        self.agent.chat('First request')
+        self.agent.chat('Second request')
+
+        planning_messages = self.agent.planning_bot.llm._llm_connector.request_body.messages
+
+        self.assertEqual(
+            [message.role for message in planning_messages.messages],
+            ['system', 'user', 'assistant'],
+        )

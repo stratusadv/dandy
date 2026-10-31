@@ -6,6 +6,8 @@ from dandy.application.agent.tools.tool_errors import tool_error
 from dandy.shared.files import get_directory_listing
 from dandy.domain.tool.tool import BaseTool
 
+_LISTING_CHARACTER_LIMIT = 8000
+
 
 class ListDirectoryTool(BaseTool):
     name = 'list_directory'
@@ -35,4 +37,15 @@ class ListDirectoryTool(BaseTool):
         if not relative_items:
             return f'The directory "{path or "."}" is empty.'
 
-        return '\n'.join(relative_items)
+        listing_output = '\n'.join(relative_items)
+
+        if len(listing_output) > _LISTING_CHARACTER_LIMIT:
+            kept_output = listing_output[:_LISTING_CHARACTER_LIMIT]
+            newline_position = kept_output.rfind('\n')
+
+            if newline_position > 0:
+                kept_output = kept_output[:newline_position]
+
+            return kept_output + '\n... (truncated)'
+
+        return listing_output

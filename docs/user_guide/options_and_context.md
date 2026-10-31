@@ -79,13 +79,22 @@ overhead for roles, tool-call framing, images (by `detail`), and audio base64.
 `compact_message_history` (domain, `dandy/domain/message/message.py`) is what keeps
 long sessions inside the window. It is called automatically:
 
-- before every LLM call by the coding agent, and
+- before every coding-agent chat (after the planning pass, with the real incoming
+  prompt — plan section included — subtracted from the target), and
 - before every tool round by the tool-calling loop.
 
-The rules: keep the system message and the newest exchange; drop oldest tool-use rounds
+The rules: the message in the system slot is always kept; drop oldest tool-use rounds
 first, then oldest plain exchanges; never leave a `tool` result without its assistant
-tool-call. Compaction reports progress (`Compacting conversation history (...) tokens...`)
+tool-call, so when the newest message is a tool result its whole round is dropped.
+Compaction reports progress (`Compacting conversation history (...) tokens...`)
 through the agent's `progress_callback`.
+
+Tool results are capped at 8000 characters before they enter the conversation — the
+built-in `read_file` and `list_directory` tools cap their own output the same way — so
+a single oversized result can never overflow the window or be dropped whole. If the
+conversation still cannot fit the window after compaction, the coding agent raises
+`AgentRecoverableError` (the CLI shows it instead of an opaque provider 400); clear the
+conversation and retry with a shorter message.
 
 Without any `CONTEXT_SIZE`, compaction falls back to a 65536-token window constant —
 the system still works, it just cannot prove the fit. If you want a bounded output,
