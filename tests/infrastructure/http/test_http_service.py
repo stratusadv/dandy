@@ -8,15 +8,14 @@ from dandy.infrastructure.http.intel import HttpRequestIntel, HttpResponseIntel
 
 class TestHttpService(TestCase):
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_get_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
+    def test_get_calls_connector_with_expected_request(
+        self, mock_request_to_response: mock.MagicMock
+    ):
         http_service_mixin = HttpServiceMixin()
         http_service = HttpService(http_service_mixin)
 
         expected_response = HttpResponseIntel(
-            status_code=200,
-            reason='OK',
-            text='ok',
-            json_data={'ok': True},
+            status_code=200, reason='OK', text='ok', json_data={'ok': True}
         )
 
         def assert_request_and_return(request_intel: HttpRequestIntel):
@@ -46,15 +45,14 @@ class TestHttpService(TestCase):
         mock_request_to_response.assert_called_once()
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_post_calls_connector_with_expected_request(self, mock_request_to_response: mock.MagicMock):
+    def test_post_calls_connector_with_expected_request(
+        self, mock_request_to_response: mock.MagicMock
+    ):
         http_service_mixin = HttpServiceMixin()
         http_service = HttpService(http_service_mixin)
 
         expected_response = HttpResponseIntel(
-            status_code=201,
-            reason='Created',
-            text='created',
-            json_data={'id': 1},
+            status_code=201, reason='Created', text='created', json_data={'id': 1}
         )
 
         def assert_request_and_return(request_intel: HttpRequestIntel):

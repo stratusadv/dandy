@@ -9,17 +9,8 @@ from dandy.infrastructure.recorder.recorder import Recorder
 from dandy.infrastructure.recorder.utils import generate_recorder_event_id
 
 
-def cache_decorator_function(
-        cache: BaseCache,
-        func: Callable,
-        *args,
-        **kwargs,
-) -> Any:
-    cache_key = generate_cache_key(
-        func,
-        *args,
-        **kwargs
-    )
+def cache_decorator_function(cache: BaseCache, func: Callable, *args, **kwargs) -> Any:
+    cache_key = generate_cache_key(func, *args, **kwargs)
 
     cached_value = cache.get(cache_key)
 
@@ -36,12 +27,7 @@ def cache_decorator_function(
                     object_name=pascal_to_title_case(cache.__class__.__qualname__),
                     callable_name='Response',
                     type=EventType.RESPONSE,
-                    attributes=[
-                        EventAttribute(
-                            key='Cached Response',
-                            value=response,
-                        ),
-                    ],
+                    attributes=[EventAttribute(key='Cached Response', value=response)],
                 )
             )
 

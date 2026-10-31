@@ -1,4 +1,3 @@
-
 from unittest import TestCase, mock
 
 from dandy.shared.exceptions import DandyError

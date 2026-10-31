@@ -23,8 +23,7 @@ class TestWrapTextWithIndentation(TestCase):
 
     def test_blank_lines_between_paragraphs_are_kept(self) -> None:
         self.assertEqual(
-            wrap_text_with_indentation('one two\n\nthree four', width=70),
-            'one two\n\nthree four',
+            wrap_text_with_indentation('one two\n\nthree four', width=70), 'one two\n\nthree four'
         )
 
     def test_blank_line_inside_a_paragraph_is_kept(self) -> None:

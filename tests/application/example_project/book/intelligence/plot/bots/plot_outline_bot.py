@@ -15,11 +15,7 @@ class PlotOutlineBot(Bot):
     role = 'Plot Writer'
     task = 'You will be given a book title, overview, world and characters.'
 
-    def process(
-            self,
-            book_intel: BookIntel,
-            chapter_count: int,
-    ) -> PlotPointsIntel:
+    def process(self, book_intel: BookIntel, chapter_count: int) -> PlotPointsIntel:
         self.guidelines = (
             Prompt()
             .text('You will generate a plot using the classic heroes journey plot structure.')
@@ -31,5 +27,5 @@ class PlotOutlineBot(Bot):
         return self.llm.prompt_to_intel(
             prompt=book_intel_prompt(book_intel),
             intel_class=PlotPointsIntel,
-            include_fields={'plot_points': {'outline'}}
+            include_fields={'plot_points': {'outline'}},
         )

@@ -46,7 +46,8 @@ class TestUtils(TestCase):
             check_or_create_settings(cwd_path=BASE_PATH, system_exit_on_import_error=False)
 
         with mock.patch(
-            'dandy.shared.settings.load.get_settings_module_name', return_value=INVALID_SETTINGS_MODULE_NAME
+            'dandy.shared.settings.load.get_settings_module_name',
+            return_value=INVALID_SETTINGS_MODULE_NAME,
         ):
             try:
                 check_or_create_settings(cwd_path=BASE_PATH)

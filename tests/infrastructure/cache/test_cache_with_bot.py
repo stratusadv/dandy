@@ -33,9 +33,7 @@ class TestCacheBot(TestCase):
         cached_money_bag_bot = CachedMoneyBagBot()
 
         _ = cached_money_bag_bot.process(
-            'Put 10 coins in my money bag.',
-            intel_class=MoneyBagIntel,
-            include={'coins'}
+            'Put 10 coins in my money bag.', intel_class=MoneyBagIntel, include={'coins'}
         )
 
         self.assertGreater(time.perf_counter() - start, 0.1)
@@ -43,9 +41,7 @@ class TestCacheBot(TestCase):
         cached_start = time.perf_counter()
 
         money_bag = cached_money_bag_bot.process(
-            'Put 10 coins in my money bag.',
-            intel_class=MoneyBagIntel,
-            include={'coins'}
+            'Put 10 coins in my money bag.', intel_class=MoneyBagIntel, include={'coins'}
         )
 
         self.assertLess(time.perf_counter() - cached_start, 0.1)
@@ -57,4 +53,3 @@ class TestCacheBot(TestCase):
 
     def test_sqlite_cache(self):
         self.run_test_cache_with_bot(sql_lite_cache, cache_to_sqlite)
-

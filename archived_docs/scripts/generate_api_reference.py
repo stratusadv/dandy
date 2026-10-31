@@ -13,13 +13,7 @@ class APIReferenceGenerator:
 
     @property
     def ignored(self) -> set[str]:
-        return {
-            '__pycache__',
-            'migrations',
-            'static',
-            'templates',
-            'tests'
-        }
+        return {'__pycache__', 'migrations', 'static', 'templates', 'tests'}
 
     def _process_module_path(self, path: Path) -> tuple[tuple[str, ...], Path, Path]:
         module = path.relative_to(self.root).with_suffix('')

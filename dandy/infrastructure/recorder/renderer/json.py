@@ -11,16 +11,11 @@ class JsonRecordingRenderer(BaseRecordingRenderer):
     def _render_json_to_str(self) -> str:
         return self.recording.model_dump_json()
 
-    def to_file(
-            self,
-            path: Path | str,
-    ):
+    def to_file(self, path: Path | str):
         Path(path).mkdir(parents=True, exist_ok=True)
 
         with open(
-                Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.json'),
-                'w',
-                encoding='utf-8'
+            Path(path, f'{self.recording.name}{RECORDING_POSTFIX_NAME}.json'), 'w', encoding='utf-8'
         ) as new_file:
             new_file.write(self.to_str())
 

@@ -33,11 +33,7 @@ if TYPE_CHECKING:
 
 
 class Decision:
-    def __init__(
-            self,
-            recorder_event_id: str,
-            llm_service_mixin: LlmServiceMixin,
-    ) -> None:
+    def __init__(self, recorder_event_id: str, llm_service_mixin: LlmServiceMixin) -> None:
         self.recorder_event_id = recorder_event_id
         self._llm_service_mixin = llm_service_mixin
         self.llm_config = self._llm_service_mixin.get_llm_config()
@@ -76,11 +72,11 @@ class Decision:
         return self._keyed_mapping[choice_key][1]
 
     def process(
-            self,
-            prompt: Prompt | str,
-            keys_description: str,
-            keys_values: dict[str, Any],
-            max_return_values: int | None = None,
+        self,
+        prompt: Prompt | str,
+        keys_description: str,
+        keys_values: dict[str, Any],
+        max_return_values: int | None = None,
     ) -> DecisionValuesIntel:
         for key in keys_values:
             if not isinstance(key, str):
@@ -93,33 +89,23 @@ class Decision:
         decision_values_intel = DecisionValuesIntel()
         chosen_mappings = {}
 
-        recorder_add_process_decision_value_event(
-            decision=self,
-            event_id=self.recorder_event_id,
-        )
+        recorder_add_process_decision_value_event(decision=self, event_id=self.recorder_event_id)
 
-        for decision_enum in self._process_decision_prompt_to_intel(
-                prompt, max_return_values
-        ):
+        for decision_enum in self._process_decision_prompt_to_intel(prompt, max_return_values):
             decision_value = self._get_selected_value(decision_enum.value)
 
             decision_values_intel.append(decision_value)
-            chosen_mappings[decision_value] = str(
-                self._get_selected_key(decision_enum.value)
-            )
+            chosen_mappings[decision_value] = str(self._get_selected_key(decision_enum.value))
 
         if chosen_mappings:
             recorder_add_chosen_values_event(
-                chosen_values_keys=chosen_mappings,
-                event_id=self.recorder_event_id,
+                chosen_values_keys=chosen_mappings, event_id=self.recorder_event_id
             )
 
         return decision_values_intel
 
     def _process_decision_prompt_to_intel(
-            self,
-            prompt: Prompt | str,
-            max_return_values: int | None = None,
+        self, prompt: Prompt | str, max_return_values: int | None = None
     ) -> DecisionChoicesIntel:
         if max_return_values is None or max_return_values > 1:
             intel_class = DecisionChoicesIntel[self.as_enum()]
@@ -152,7 +138,6 @@ class Decision:
                     return_keys_intel = self._llm_connector.retry_request_to_intel(
                         retry_event_description='Decision keys intel object came back empty, retrying with no key(s) prompt.',
                         retry_user_prompt=decision_no_choices_error_prompt(),
-
                     )
                 else:
                     raise
@@ -165,9 +150,7 @@ class Decision:
                         retry_event_description='Decision keys intel object came back with to many keys, retrying with to many key(s) prompt.',
                         retry_user_prompt=decision_too_many_choices_error_prompt(
                             returned_count=len(return_keys_intel),
-                            max_count=max_return_values
-                            if max_return_values is not None
-                            else 0,
+                            max_count=max_return_values if max_return_values is not None else 0,
                         ),
                     )
 
@@ -184,7 +167,7 @@ class Decision:
         return return_keys_intel
 
     def _process_return_keys_intel(
-            self, return_keys_intel: DecisionChoicesIntel | DecisionChoiceIntel
+        self, return_keys_intel: DecisionChoicesIntel | DecisionChoiceIntel
     ) -> DecisionChoicesIntel:
         if isinstance(return_keys_intel, DecisionChoiceIntel):
             return_keys_intel = DecisionChoicesIntel[self.as_enum()](
@@ -205,9 +188,9 @@ class Decision:
         )
 
     def _validate_return_keys_intel(
-            self,
-            return_keys_intel: DecisionChoicesIntel | DecisionChoiceIntel,
-            max_return_values: int | None = None,
+        self,
+        return_keys_intel: DecisionChoicesIntel | DecisionChoiceIntel,
+        max_return_values: int | None = None,
     ) -> None:
         if len(return_keys_intel) == 0:
             message = f'No {self.keys_description} found.'
@@ -216,4 +199,3 @@ class Decision:
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
             message = f'Too many {self.keys_description} found.'
             raise DecisionTooManyChoicesRecoverableError(message)
-

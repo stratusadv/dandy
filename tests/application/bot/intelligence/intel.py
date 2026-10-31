@@ -1,4 +1,3 @@
-
 from dandy import BaseIntel
 from dandy.domain.intel.intel import BaseIntel
 

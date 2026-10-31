@@ -6,26 +6,25 @@ from unittest import TestCase
 from dandy.shared.constants import RECORDING_POSTFIX_NAME
 from dandy.application.bot.bot import Bot
 from dandy.domain.intel.intel import BaseIntel
-from dandy.infrastructure.recorder.decorators import recorder_to_html_file, recorder_to_json_file, \
-    recorder_to_markdown_file
+from dandy.infrastructure.recorder.decorators import (
+    recorder_to_html_file,
+    recorder_to_json_file,
+    recorder_to_markdown_file,
+)
 from dandy.infrastructure.recorder.diligence_events import recorder_add_llm_diligence_event
 from dandy.infrastructure.recorder.events import Event, EventType, EventStore, EventAttribute
 from dandy.infrastructure.recorder.exceptions import RecorderCriticalError
 from dandy.infrastructure.recorder.recorder import Recorder
 from tests.consts import live_llm_test
 
-RENDERER_AND_EXTENSIONS = (
-    ('html', '.html'),
-    ('json', '.json'),
-    ('markdown', '.md'),
-)
+RENDERER_AND_EXTENSIONS = (('html', '.html'), ('json', '.json'), ('markdown', '.md'))
 
 RECORDING_NAME = 'test_recorder'
 
 RECORDING_OUTPUT_FILE_PATH = Path(
-    Recorder.get_default_recording_path(),
-    f'{RECORDING_NAME}{RECORDING_POSTFIX_NAME}',
+    Recorder.get_default_recording_path(), f'{RECORDING_NAME}{RECORDING_POSTFIX_NAME}'
 )
+
 
 def get_capital_intel(country: str) -> BaseIntel:
     capital_city_intel = Bot().llm.prompt_to_intel(
@@ -114,7 +113,7 @@ class TestRecorder(TestCase):
         _ = Bot().llm.prompt_to_intel(
             # This another prompt that seems to freeze the LLM indefinitely !!!
             # prompt='How many countries are in the 🌎? please respond with emojis!',
-            prompt='How many countries are in the 🌎? please respond with numbers and emojis!',
+            prompt='How many countries are in the 🌎? please respond with numbers and emojis!'
         )
 
         Recorder.stop_recording(RECORDING_NAME)
@@ -122,15 +121,10 @@ class TestRecorder(TestCase):
         for renderer, extension in RENDERER_AND_EXTENSIONS:
             render_method = getattr(Recorder, f'to_{renderer}_file')
 
-            render_method(
-                RECORDING_NAME,
-                Recorder.get_default_recording_path(),
-            )
+            render_method(RECORDING_NAME, Recorder.get_default_recording_path())
 
             with open(
-                    RECORDING_OUTPUT_FILE_PATH.with_suffix(extension),
-                    'r',
-                    encoding='utf-8'
+                RECORDING_OUTPUT_FILE_PATH.with_suffix(extension), 'r', encoding='utf-8'
             ) as f:
                 self.assertNotEqual(f.read(), '')
 
@@ -154,8 +148,9 @@ class TestRecorderHermetic(TestCase):
         if self.recording_name in Recorder.recordings:
             Recorder.delete_recording(self.recording_name)
 
-    def make_event(self, event_id: str, event_type: EventType = EventType.SUCCESS,
-                   token_usage: int = 0) -> Event:
+    def make_event(
+        self, event_id: str, event_type: EventType = EventType.SUCCESS, token_usage: int = 0
+    ) -> Event:
         return Event(
             id=event_id,
             object_name='HermeticBot',
@@ -187,9 +182,7 @@ class TestRecorderHermetic(TestCase):
         Recorder.add_event(self.make_event('evt-solo'))
 
         if self.recording_name in Recorder.recordings:
-            self.assertEqual(
-                Recorder.get_recording(self.recording_name).event_store.event_count, 0
-            )
+            self.assertEqual(Recorder.get_recording(self.recording_name).event_store.event_count, 0)
 
     def test_diligence_event_builder_records_event(self) -> None:
         Recorder.start_recording(self.recording_name)
@@ -292,14 +285,12 @@ class TestRecorderHermetic(TestCase):
 
     def test_recorder_file_decorator_renders_file_and_cleans_up(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
+
             @recorder_to_html_file(path=Path(temp_dir))
             def decorated_function() -> str:
                 Recorder.add_event(
                     Event(
-                        id='evt-1',
-                        object_name='Decorated',
-                        callable_name='run',
-                        type=EventType.RUN,
+                        id='evt-1', object_name='Decorated', callable_name='run', type=EventType.RUN
                     )
                 )
                 return 'done'

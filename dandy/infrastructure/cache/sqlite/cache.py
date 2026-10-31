@@ -23,7 +23,7 @@ class SqliteCache(BaseCache):
 
             cursor.execute(
                 f'SELECT COUNT(*) FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ?',
-                (self.cache_name,)
+                (self.cache_name,),
             )
 
             return cursor.fetchone()[0]
@@ -33,7 +33,9 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
-            cursor.execute(f'SELECT name FROM sqlite_master WHERE type="table" AND name="{SQLITE_CACHE_TABLE_NAME}";')
+            cursor.execute(
+                f'SELECT name FROM sqlite_master WHERE type="table" AND name="{SQLITE_CACHE_TABLE_NAME}";'
+            )
 
             return cursor.fetchone() is not None
 
@@ -42,14 +44,14 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
-            cursor.execute(f'''
+            cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {SQLITE_CACHE_TABLE_NAME} (
                     key TEXT PRIMARY KEY,
                     value TEXT,
                     cache_name TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            ''')
+            """)
 
             connection.commit()
 
@@ -62,7 +64,7 @@ class SqliteCache(BaseCache):
 
             cursor.execute(
                 f'SELECT value FROM {SQLITE_CACHE_TABLE_NAME} WHERE key = ? AND cache_name = ?',
-                (key, self.cache_name)
+                (key, self.cache_name),
             )
             result = cursor.fetchone()
 
@@ -80,12 +82,12 @@ class SqliteCache(BaseCache):
             try:
                 cursor.execute(
                     f'INSERT INTO {SQLITE_CACHE_TABLE_NAME} (key, value, cache_name) VALUES (?, ?, ?)',
-                    (key, value_string, self.cache_name)
+                    (key, value_string, self.cache_name),
                 )
             except sqlite3.IntegrityError:
                 cursor.execute(
                     f'UPDATE {SQLITE_CACHE_TABLE_NAME} SET value = ? WHERE key = ? AND cache_name = ?',
-                    (value_string, key, self.cache_name)
+                    (value_string, key, self.cache_name),
                 )
 
             connection.commit()
@@ -101,7 +103,7 @@ class SqliteCache(BaseCache):
             if excess_rows >= excess_threshold:
                 cursor.execute(
                     f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE key IN (SELECT key FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ? ORDER BY created_at LIMIT ?)',
-                    (self.cache_name, excess_threshold)
+                    (self.cache_name, excess_threshold),
                 )
 
             connection.commit()
@@ -112,8 +114,7 @@ class SqliteCache(BaseCache):
             with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
                 cursor = connection.cursor()
                 cursor.execute(
-                    f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ?',
-                    (cache_name,)
+                    f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ?', (cache_name,)
                 )
                 connection.commit()
 

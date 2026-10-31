@@ -35,9 +35,7 @@ def file_exists(file_path: Path | str) -> bool:
     return Path(file_path).exists()
 
 
-def get_file_path_or_exception(
-    file_path: str | Path,
-) -> Path:
+def get_file_path_or_exception(file_path: str | Path) -> Path:
     if Path(file_path).is_file():
         return Path(file_path)
 
@@ -48,9 +46,7 @@ def get_file_path_or_exception(
     raise FileCriticalError(message)
 
 
-def get_directory_path_or_exception(
-    dir_path: str | Path,
-) -> Path:
+def get_directory_path_or_exception(dir_path: str | Path) -> Path:
     if Path(dir_path).is_dir():
         return Path(dir_path)
 
@@ -82,9 +78,7 @@ def get_directory_listing(
 
             if path.is_dir() and (max_depth is None or _current_depth < max_depth):
                 items.extend(
-                    get_directory_listing(
-                        path, max_depth, file_extensions, _current_depth + 1
-                    )
+                    get_directory_listing(path, max_depth, file_extensions, _current_depth + 1)
                 )
 
     except PermissionError:

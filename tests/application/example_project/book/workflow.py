@@ -3,9 +3,7 @@ from __future__ import annotations
 import logging
 
 from tests.application.example_project.book.intelligence.bots import BookStartLlmBot
-from tests.application.example_project.book.intelligence.chapter.workflow import (
-    chapters_creation,
-)
+from tests.application.example_project.book.intelligence.chapter.workflow import chapters_creation
 from tests.application.example_project.book.intelligence.character.workflow import (
     characters_creation,
 )
@@ -17,10 +15,7 @@ from tests.application.example_project.book.models import Book, Chapter
 
 
 def create_book(user_input: str, chapter_count: int = 10) -> Book:
-    book_intel = BookIntel(
-        user_input=user_input,
-        theme=BookThemeDecisionBot().process(user_input),
-    )
+    book_intel = BookIntel(user_input=user_input, theme=BookThemeDecisionBot().process(user_input))
 
     logging.info('Working on book title and overview')
     book_intel.start = BookStartLlmBot().process(user_input)
@@ -32,16 +27,10 @@ def create_book(user_input: str, chapter_count: int = 10) -> Book:
     book_intel.world = WorldCreationBot().process(book_intel)
 
     logging.info('Setting up the plot')
-    book_intel.plot = plot_creation(
-        book_intel=book_intel,
-        chapter_count=chapter_count,
-    )
+    book_intel.plot = plot_creation(book_intel=book_intel, chapter_count=chapter_count)
 
     logging.info('Writing the chapters for all to read')
-    book_intel.chapters = chapters_creation(
-        book_intel=book_intel,
-        chapter_count=chapter_count,
-    )
+    book_intel.chapters = chapters_creation(book_intel=book_intel, chapter_count=chapter_count)
 
     new_book = Book(
         title=book_intel.start.title,

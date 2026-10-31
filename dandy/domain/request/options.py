@@ -11,12 +11,7 @@ _VALUES_MIN_MAX = {
     'top_p': (0.0, 1.0),
 }
 
-_VALUES_MIN = {
-    'max_completion_tokens': 1,
-    'max_tokens': 1,
-    'n': 1,
-    'top_logprobs': 0,
-}
+_VALUES_MIN = {'max_completion_tokens': 1, 'max_tokens': 1, 'n': 1, 'top_logprobs': 0}
 
 
 class LlmOptions(BaseModel):

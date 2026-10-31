@@ -120,10 +120,7 @@ class TestTypedKwargs(TestCase):
 
 class TestResolveTypeFromRegistry(TestCase):
     def test_known_string_resolves_to_registered_type(self) -> None:
-        self.assertIs(
-            resolve_type_from_registry('TypedKwargsDict'),
-            TypedKwargsDict,
-        )
+        self.assertIs(resolve_type_from_registry('TypedKwargsDict'), TypedKwargsDict)
 
     def test_unknown_string_falls_back_to_any(self) -> None:
         self.assertIs(resolve_type_from_registry('not-a-registered-type'), Any)

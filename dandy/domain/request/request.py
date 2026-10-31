@@ -13,16 +13,10 @@ class LlmRequestBody(BaseModel):
 
     response_format: dict | None = {
         'type': 'json_schema',
-        'json_schema': {
-            'name': 'response_data',
-            'strict': True,
-            'schema': ...
-        },
+        'json_schema': {'name': 'response_data', 'strict': True, 'schema': ...},
     }
 
-    model_config = ConfigDict(
-        extra='allow'
-    )
+    model_config = ConfigDict(extra='allow')
 
     @property
     def estimated_token_count(self) -> int:
@@ -46,10 +40,7 @@ class LlmRequestBody(BaseModel):
 
     def model_dump(self, *args, **kwargs) -> dict:
         model_dict = super().model_dump(*args, exclude_none=True, **kwargs)
-        model_dict['messages'] = [
-            message.model_dump()
-            for message in self.messages.messages
-        ]
+        model_dict['messages'] = [message.model_dump() for message in self.messages.messages]
 
         return model_dict
 
@@ -64,12 +55,7 @@ class LlmRequestBody(BaseModel):
         for message in model_dict['messages']:
             for content in message['content']:
                 if content['type'] == 'text':
-                    formated_messages.append(
-                        {
-                            'role': message['role'],
-                            'content': content['text'],
-                        }
-                    )
+                    formated_messages.append({'role': message['role'], 'content': content['text']})
                 elif content['type'] == 'image_url':
                     formated_messages.append(
                         {

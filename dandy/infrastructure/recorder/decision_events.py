@@ -13,10 +13,7 @@ if TYPE_CHECKING:
 _EVENT_OBJECT_NAME = 'Decision Service'
 
 
-def recorder_add_process_decision_value_event(
-        decision: Decision,
-        event_id: str,
-) -> None:
+def recorder_add_process_decision_value_event(decision: Decision, event_id: str) -> None:
 
     processed_mapping = {}
     for key, value in decision.keys_values.items():
@@ -34,22 +31,14 @@ def recorder_add_process_decision_value_event(
             callable_name=f'Processing "{decision.keys_description}"',
             type=EventType.OTHER,
             attributes=[
-                EventAttribute(
-                    key='Keys Description',
-                    value=decision.keys_description,
-                ),
-                EventAttribute(
-                    key='Keys Values',
-                    value=json.dumps(processed_mapping, indent=4),
-                ),
-            ]
+                EventAttribute(key='Keys Description', value=decision.keys_description),
+                EventAttribute(key='Keys Values', value=json.dumps(processed_mapping, indent=4)),
+            ],
         )
     )
 
-def recorder_add_chosen_values_event(
-        chosen_values_keys: dict[Any, str],
-        event_id: str,
-) -> None:
+
+def recorder_add_chosen_values_event(chosen_values_keys: dict[Any, str], event_id: str) -> None:
 
     processed_chosen_mappings = {}
     for key, value in chosen_values_keys.items():
@@ -66,9 +55,8 @@ def recorder_add_chosen_values_event(
             type=EventType.OTHER,
             attributes=[
                 EventAttribute(
-                    key='Chosen Values Keys',
-                    value=json.dumps(processed_chosen_mappings, indent=4),
-                ),
-            ]
+                    key='Chosen Values Keys', value=json.dumps(processed_chosen_mappings, indent=4)
+                )
+            ],
         )
     )

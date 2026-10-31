@@ -16,16 +16,12 @@ from dandy import Bot
 bot = Bot()
 
 keys_description = 'Animal Sounds'
-keys_values = {
-    'barking': 'dog',
-    'meowing': 'cat',
-    'quacking': 'duck'
-}
+keys_values = {'barking': 'dog', 'meowing': 'cat', 'quacking': 'duck'}
 
 animal_family = bot.llm.decoder.prompt_to_value(
     prompt='I was out on a walk and heard some barking',
     keys_description=keys_description,
-    keys_values=keys_values
+    keys_values=keys_values,
 )
 
 print(animal_family)
@@ -45,14 +41,14 @@ keys_values = {
     'running': 'Sports',
     'reading': 'Learning',
     'coding': 'Technology',
-    'painting': 'Art'
+    'painting': 'Art',
 }
 
 activities = bot.llm.decoder.prompt_to_values(
     prompt='I like running, reading books, and coding on my computer',
     keys_description=keys_description,
     keys_values=keys_values,
-    max_return_values=3
+    max_return_values=3,
 )
 
 for activity in activities:

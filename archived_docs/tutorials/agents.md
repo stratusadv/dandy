@@ -26,25 +26,23 @@ If you were using Agents in v1.x, you can migrate to v2.0.0 by:
 ```python
 # This no longer works in v2.0.0
 class AssistantAgent(Agent):
-    processors = (
-        IdeaBot,
-        EditorBot,
-    )
+    processors = (IdeaBot, EditorBot)
 ```
 
 **New approach (v2.0.0 with Bot):**
 ```python
 from dandy import Bot, BaseIntel
 
+
 class IdeaBot(Bot):
     def process(self, user_input: str) -> BaseIntel:
         return self.llm.prompt_to_intel(prompt=user_input)
 
+
 class EditorBot(Bot):
     def process(self, content: str) -> BaseIntel:
-        return self.llm.prompt_to_intel(
-            prompt=f"Edit and improve this content: {content}"
-        )
+        return self.llm.prompt_to_intel(prompt=f'Edit and improve this content: {content}')
+
 
 class AssistantBot(Bot):
     def __post_init__(self):

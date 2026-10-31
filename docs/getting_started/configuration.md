@@ -24,7 +24,7 @@ LLM_CONFIGS = {
         'CONTEXT_SIZE': 128000,
     },
     'THINKING': {
-        'MODEL': 'stratus.thinking',
+        'MODEL': 'stratus.thinking'
         # HOST / PORT / API_KEY inherited from DEFAULT
     },
 }

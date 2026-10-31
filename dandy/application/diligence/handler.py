@@ -18,7 +18,9 @@ class DiligenceHandler:
         if not self._diligence_classes_instances:
             return False
 
-        return any(diligence.is_activated for diligence in self._diligence_classes_instances.values())
+        return any(
+            diligence.is_activated for diligence in self._diligence_classes_instances.values()
+        )
 
     def apply(self, llm_connector: LlmConnector) -> None:
         for diligence in self._diligence_classes_instances.values():

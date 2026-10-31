@@ -15,9 +15,7 @@ from dandy import Bot, Prompt
 
 class AssistantBot(Bot):
     def process(self, user_prompt: Prompt | str):
-        default_intel = self.llm.prompt_to_intel(
-            prompt=user_prompt,
-        )
+        default_intel = self.llm.prompt_to_intel(prompt=user_prompt)
 
         return default_intel
 
@@ -45,19 +43,14 @@ class CandyIntel(BaseIntel):
 
 class CandyDesignBot(Bot):
     llm_config = 'THINKING'
-    role = (
-        Prompt()
-        .text('You are a candy design bot.')
-        .line_break()
-    )
-    task = 'Use the request to make a new type of candy' # Any were you can use a Prompt you can also use a string
-    guidelines = (
-        Prompt()
-        .list([
+    role = Prompt().text('You are a candy design bot.').line_break()
+    task = 'Use the request to make a new type of candy'  # Any were you can use a Prompt you can also use a string
+    guidelines = Prompt().list(
+        [
             'Make sure you response is sugar based not chocolate based.',
             'Do not include any chocolate based words or phrases in the response.',
             'Incorporate the theme of the request into the response.',
-        ])
+        ]
     )
     intel_class = CandyIntel
 
@@ -73,14 +66,11 @@ class CandyDesignBot(Bot):
             .prompt(candy_theme)
         )
 
-        return self.llm.prompt_to_intel(
-            prompt=prompt,
-        )
+        return self.llm.prompt_to_intel(prompt=prompt)
 
 
 candy_intel = CandyDesignBot().process(
-    user_prompt='Strawberries and Cookie Dough',
-    candy_theme='Medieval Times'
+    user_prompt='Strawberries and Cookie Dough', candy_theme='Medieval Times'
 )
 
 print(candy_intel)

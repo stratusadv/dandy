@@ -49,12 +49,12 @@ Structured prompting removes ambiguity at the input layer - turning unguided tex
 ```python
 from dandy import Prompt
 
-employee = ... # Data retrieved on the employee
+employee = ...  # Data retrieved on the employee
 
 employee_information_prompt = (
     Prompt()
     .title(employee.name)
-    .lb() # Shorthand for .line_break()
+    .lb()  # Shorthand for .line_break()
     .heading('Work History')
     .lb()
     .text(employee.work_history_overview)
@@ -68,12 +68,11 @@ employee_information_prompt = (
 
 if employee.certificates:
     employee_information_prompt.heading('Certificates')
-    
+
     for certificate in employee.certificates:
         employee_information_prompt.lb()
         employee_information_prompt.sub_heading(certificate.name)
         employee_information_prompt.text(certificate.details)
-
 ```
 
 ### Why it helps:
@@ -92,13 +91,13 @@ By defining LLM responses as strict Python schemas, Intel removes guesswork from
 from typing import Literal
 from dandy import BaseIntel
 
+
 class EmployeeEvaluationIntel(BaseIntel):
     employee_name: str
     primary_skills: list[str]
     secondary_skills: list[str]
     recommended_role: Literal['Junior Developer', 'Intermediate Developer', 'Senior Developer']
     evaluation_notes: str
-    
 ```
 
 ### Why it helps:
@@ -122,18 +121,20 @@ from dandy import Bot, Prompt, BaseIntel
 class EmployeeEvaluationBot(Bot):
     role = 'Employee Evaluator'
     task = 'Read through the provided employee information and classify their skills.'
-    guidelines = Prompt().list([
-        'Use context through out the information to return the top skills.',
-        'Please only identify 3 primary and secondary skills.',
-    ])
+    guidelines = Prompt().list(
+        [
+            'Use context through out the information to return the top skills.',
+            'Please only identify 3 primary and secondary skills.',
+        ]
+    )
     intel_class = EmployeeEvaluationIntel  # From "Intel Development Practice"
 
 
 employee_evaluation_intel = EmployeeEvaluationBot.process(
-    employee_information_prompt)  # From "Prompting with Structure"
+    employee_information_prompt
+)  # From "Prompting with Structure"
 
 print(employee_evaluation_intel.primary_skills[0])  # Prints the first primary skill
-
 ```
 
 ### Why it helps:
@@ -151,19 +152,24 @@ Decoders transform ambiguous LLM outputs into deterministic routing keys — ena
 ```python
 from dandy import Decoder
 
-employee_evaluations_intel = ... # a list of employee evaluation intel from the EmployeeEvaluationBot in "Bots Simplify Interactions"
+employee_evaluations_intel = ...  # a list of employee evaluation intel from the EmployeeEvaluationBot in "Bots Simplify Interactions"
+
 
 class EmployeeAssignmentDecoder(Decoder):
-    mapping_keys_description = "Employee Skill Evaluation"
+    mapping_keys_description = 'Employee Skill Evaluation'
     mapping = {
         str(employee_evaluation_intel.primary_skills): employee_evaluation_intel
         for employee_evaluations_intel in employee_evaluations_intel
     }
 
-values = EmployeeAssignmentDecoder().process('Find me all the employees that would be good for a python data processing project.')
 
-print(values[0].employee_name) # Prints the first employee name in from the employee_evaluation_intel
+values = EmployeeAssignmentDecoder().process(
+    'Find me all the employees that would be good for a python data processing project.'
+)
 
+print(
+    values[0].employee_name
+)  # Prints the first employee name in from the employee_evaluation_intel
 ```
 
 ### Why it helps:
@@ -182,24 +188,27 @@ With a single decorator, caching turns expensive repeated LLM calls into instant
 ```python
 from dandy import Bot, cache_to_sqlite, Prompt
 
+
 class EmployeeEvaluationBot(Bot):
     # Same Configuration as "Bots Simplify Interactions"
 
     @cache_to_sqlite('employee_evaluation', 100)
     def process(self, employee_information_prompt: Prompt):
         # Some custom processing
-        return self.llm.prompt_to_intel(
-            prompt=employee_information_prompt
-        )
+        return self.llm.prompt_to_intel(prompt=employee_information_prompt)
+
 
 # First time we run we will hit our AI server and consume compute (100% token Usage)
 
-employee_evaluation_intel_1 = EmployeeEvaluationBot.process(employee_information_prompt) # From "Prompting with Structure"
+employee_evaluation_intel_1 = EmployeeEvaluationBot.process(
+    employee_information_prompt
+)  # From "Prompting with Structure"
 
 # Second time we run with the same prompt we don't us compute (0% token Usage)
 
-employee_evaluation_intel_2 = EmployeeEvaluationBot.process(employee_information_prompt) # From "Prompting with Structure"
-
+employee_evaluation_intel_2 = EmployeeEvaluationBot.process(
+    employee_information_prompt
+)  # From "Prompting with Structure"
 ```
 
 ### Why it helps:

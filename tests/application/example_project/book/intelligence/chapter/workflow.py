@@ -12,24 +12,21 @@ if TYPE_CHECKING:
 
 def chapters_creation(book_intel: BookIntel, chapter_count: int) -> ChaptersIntel:
     chapters_intel = bots.ChaptersLlmBot().process(
-        book_intel=book_intel,
-        chapter_count=chapter_count,
+        book_intel=book_intel, chapter_count=chapter_count
     )
 
     for i, chapter_intel in enumerate(chapters_intel):
         logging.info(f'Planning Scenes for Chapter {i + 1}')
 
         chapters_intel[i] = bots.SceneLlmBot().process(
-            book_intel=book_intel,
-            chapter_intel=chapter_intel,
+            book_intel=book_intel, chapter_intel=chapter_intel
         )
 
     for i, chapter_intel in enumerate(chapters_intel):
         logging.info(f'Building Chapter {i + 1} Content')
 
         chapters_intel[i] = bots.ChapterContentLlmBot().process(
-            book_intel=book_intel,
-            chapter_intel=chapter_intel,
+            book_intel=book_intel, chapter_intel=chapter_intel
         )
 
     return chapters_intel

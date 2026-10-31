@@ -6,7 +6,5 @@ SIMPLE_JSON_SCHEMA = {
     'weight': 'integer',
     'height': 'float',
     'friends': ['str', 'string'],
-    'cards': {
-        'int': 'str'
-    }
+    'cards': {'int': 'str'},
 }

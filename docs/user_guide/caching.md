@@ -20,9 +20,9 @@ def fetch_thing(name: str) -> str:
     return f'fetched {name}'
 
 
-fetch_thing('bozo')   # computes
-fetch_thing('bozo')   # served from cache
-print(call_count)     # 1
+fetch_thing('bozo')  # computes
+fetch_thing('bozo')  # served from cache
+print(call_count)  # 1
 ```
 
 (Verified: the function body runs once; the second call is a cache hit.)

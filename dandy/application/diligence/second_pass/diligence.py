@@ -18,6 +18,5 @@ class SecondPassRemovalDiligence(BaseDiligence):
     def apply(cls, llm_connector: LlmConnector) -> None:
         llm_connector.request_body.messages.add_message(
             role='user',
-            text='Review our conversation and make sure you answered my request to the best of your ability.'
+            text='Review our conversation and make sure you answered my request to the best of your ability.',
         )
-

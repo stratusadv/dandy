@@ -11,22 +11,13 @@ from dandy.domain.prompt.prompt import Prompt
 class DecisionService(BaseService['dandy.application.decision.mixin.DecisionServiceMixin']):
     def __post_init__(self):
         self.decision = Decision(
-            recorder_event_id=self.obj.recorder_event_id,
-            llm_service_mixin=self.obj.obj,
+            recorder_event_id=self.obj.recorder_event_id, llm_service_mixin=self.obj.obj
         )
 
     def prompt_to_value(
-            self,
-            prompt: Prompt | str,
-            keys_description: Prompt | str,
-            keys_values: dict[str, Any],
+        self, prompt: Prompt | str, keys_description: Prompt | str, keys_values: dict[str, Any]
     ) -> Any:
-        return self.prompt_to_values(
-            prompt,
-            keys_description,
-            keys_values,
-            max_return_values=1
-        )[0]
+        return self.prompt_to_values(prompt, keys_description, keys_values, max_return_values=1)[0]
 
     @property
     def options(self):
@@ -36,17 +27,17 @@ class DecisionService(BaseService['dandy.application.decision.mixin.DecisionServ
         return process_to_future(self.prompt_to_value, **kwargs)
 
     def prompt_to_values(
-            self,
-            prompt: Prompt | str,
-            keys_description: Prompt | str,
-            keys_values: dict[str, Any],
-            max_return_values: int | None = None,
+        self,
+        prompt: Prompt | str,
+        keys_description: Prompt | str,
+        keys_values: dict[str, Any],
+        max_return_values: int | None = None,
     ) -> DecisionValuesIntel:
         return self.decision.process(
             prompt=prompt,
             keys_description=keys_description,
             keys_values=keys_values,
-            max_return_values=max_return_values
+            max_return_values=max_return_values,
         )
 
     def prompt_to_values_future(self, **kwargs) -> AsyncFuture:

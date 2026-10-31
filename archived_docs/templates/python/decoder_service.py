@@ -6,11 +6,7 @@ class AnimalFamilyDecoder(Bot):
         return self.llm.decoder.prompt_to_value(
             prompt=prompt,
             keys_description='book themes',
-            keys_values={
-                'barking': 'dog',
-                'meowing': 'cat',
-                'quacking': 'duck'
-            },
+            keys_values={'barking': 'dog', 'meowing': 'cat', 'quacking': 'duck'},
         )
 
 

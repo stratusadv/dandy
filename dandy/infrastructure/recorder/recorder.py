@@ -2,7 +2,11 @@ from pathlib import Path
 from typing import Type
 
 from dandy.shared.settings import settings
-from dandy.shared.constants import RECORDING_DEFAULT_NAME, RECORDING_OUTPUT_DIRECTORY, DANDY_LOCAL_DIRECTORY_NAME
+from dandy.shared.constants import (
+    RECORDING_DEFAULT_NAME,
+    RECORDING_OUTPUT_DIRECTORY,
+    DANDY_LOCAL_DIRECTORY_NAME,
+)
 from dandy.shared.singleton import Singleton
 from dandy.infrastructure.recorder.events import Event
 from dandy.infrastructure.recorder.exceptions import RecorderCriticalError
@@ -58,9 +62,7 @@ class Recorder(Singleton):
 
     @classmethod
     def is_recording(cls):
-        return any(
-            recording.is_running for recording in cls.recordings.values()
-        )
+        return any(recording.is_running for recording in cls.recordings.values())
 
     @classmethod
     def start_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):
@@ -79,129 +81,75 @@ class Recorder(Singleton):
 
     @classmethod
     def _render(
-            cls,
-            to_file: bool,
-            renderer: str,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str | None = None
+        cls,
+        to_file: bool,
+        renderer: str,
+        recording_name: str = RECORDING_DEFAULT_NAME,
+        path: Path | str | None = None,
     ) -> str | None:
         if path is None:
             path = cls.get_default_recording_path()
 
         if renderer not in cls.renderers:
-            message = f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
+            message = (
+                f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
+            )
             raise RecorderCriticalError(message)
 
         cls.check_recording_is_valid(recording_name)
 
         if to_file:
-            cls.renderers[renderer](
-                recording=cls.recordings[recording_name]
-            ).to_file(path)
+            cls.renderers[renderer](recording=cls.recordings[recording_name]).to_file(path)
         else:
-            return cls.renderers[renderer](
-                recording=cls.recordings[recording_name]
-            ).to_str()
+            return cls.renderers[renderer](recording=cls.recordings[recording_name]).to_str()
 
         return None
 
     @classmethod
-    def to_file(
-            cls,
-            recording_name: str,
-            renderer: str,
-            path: Path | str
-    ):
+    def to_file(cls, recording_name: str, renderer: str, path: Path | str):
         return cls._render(
-            to_file=True,
-            renderer=renderer,
-            recording_name=recording_name,
-            path=path
+            to_file=True, renderer=renderer, recording_name=recording_name, path=path
         )
 
     @classmethod
-    def _to_str(
-            cls,
-            recording_name: str,
-            renderer: str,
-    ) -> str:
-        return cls._render(
-            to_file=False,
-            renderer=renderer,
-            recording_name=recording_name,
-        )
+    def _to_str(cls, recording_name: str, renderer: str) -> str:
+        return cls._render(to_file=False, renderer=renderer, recording_name=recording_name)
 
     @classmethod
     def to_html_file(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str | None = None
+        cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
     ):
         if path is None:
             path = cls.get_default_recording_path()
 
-        cls.to_file(
-            recording_name,
-            'html',
-            path
-        )
+        cls.to_file(recording_name, 'html', path)
 
     @classmethod
-    def to_html_str(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-    ) -> str:
-        return cls._to_str(
-            recording_name,
-            'html',
-        )
+    def to_html_str(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> str:
+        return cls._to_str(recording_name, 'html')
 
     @classmethod
     def to_json_file(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str | None = None
+        cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
     ):
         if path is None:
             path = cls.get_default_recording_path()
 
-        cls.to_file(
-            recording_name,
-            'json',
-            path
-        )
+        cls.to_file(recording_name, 'json', path)
 
     @classmethod
-    def to_json_str(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-    ) -> str:
-        return cls._to_str(
-            recording_name,
-            'json',
-        )
+    def to_json_str(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> str:
+        return cls._to_str(recording_name, 'json')
 
     @classmethod
     def to_markdown_file(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-            path: Path | str | None = None
+        cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
     ):
         if path is None:
             path = cls.get_default_recording_path()
 
-        cls.to_file(
-            recording_name,
-            'markdown',
-            path
-        )
+        cls.to_file(recording_name, 'markdown', path)
 
     @classmethod
-    def to_markdown_str(
-            cls,
-            recording_name: str = RECORDING_DEFAULT_NAME,
-    ) -> str:
-        return cls._to_str(
-            recording_name,
-            'markdown',
-        )
+    def to_markdown_str(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> str:
+        return cls._to_str(recording_name, 'markdown')

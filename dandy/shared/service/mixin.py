@@ -16,7 +16,6 @@ class BaseServiceMixin(ABC):
                 message = f'"{cls.__name__}.{attr}" is not set'
                 raise ServiceCriticalError(message)
 
-
     def _get_service_instance(self, service_class: type[T]) -> T:
         service_instance_attr = f'_{service_class.__name__}_instance'
 
@@ -28,4 +27,3 @@ class BaseServiceMixin(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Cannot use NotImplementedError do to call chain"""
-

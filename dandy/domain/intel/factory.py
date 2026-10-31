@@ -14,10 +14,7 @@ from dandy.domain.intel.intel import BaseIntel
 class IntelFactory:
     @staticmethod
     def _run_for_intel_class_or_object(
-        intel: BaseIntel | Type[BaseIntel],
-        class_func: Callable,
-        object_func: Callable,
-        **kwargs,
+        intel: BaseIntel | Type[BaseIntel], class_func: Callable, object_func: Callable, **kwargs
     ) -> Any:
         if isinstance(intel, BaseIntel):
             return object_func(**kwargs)
@@ -77,25 +74,15 @@ class IntelFactory:
 
         typed_kwargs = get_typed_kwargs_from_callable_signature(callable_)
 
-        return cls.typed_kwargs_to_intel_class(
-            f'{callable_.__name__}Intel',
-            typed_kwargs,
-        )
+        return cls.typed_kwargs_to_intel_class(f'{callable_.__name__}Intel', typed_kwargs)
 
     @classmethod
     def simple_json_schema_to_intel_class(
-        cls,
-        simple_json_schema: dict | str,
-        class_name: str = 'SimpleJsonSchemaIntel',
+        cls, simple_json_schema: dict | str, class_name: str = 'SimpleJsonSchemaIntel'
     ) -> Type[BaseIntel]:
-        typed_kwargs = get_typed_kwargs_from_simple_json_schema(
-            simple_json_schema,
-        )
+        typed_kwargs = get_typed_kwargs_from_simple_json_schema(simple_json_schema)
 
-        return cls.typed_kwargs_to_intel_class(
-            class_name,
-            typed_kwargs,
-        )
+        return cls.typed_kwargs_to_intel_class(class_name, typed_kwargs)
 
     @staticmethod
     def typed_kwargs_to_intel_class(

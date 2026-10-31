@@ -13,6 +13,6 @@ class TestNines(TestCase):
 
         multiply.call_count = 0
 
-        multiply(randint(0,100), randint(0,100))
+        multiply(randint(0, 100), randint(0, 100))
 
         self.assertEqual(multiply.call_count, 1000)

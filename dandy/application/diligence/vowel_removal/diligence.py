@@ -22,11 +22,15 @@ class VowelRemovalDiligence(BaseDiligence):
             if isinstance(llm_connector.request_body.messages[i], list):
                 for k in range(len(llm_connector.request_body.messages[i])):
                     for j in range(len(llm_connector.request_body.messages[i][k].content)):
-                        stripped_text = cls.remove_vowels(llm_connector.request_body.messages[i][k].content[j].text)
+                        stripped_text = cls.remove_vowels(
+                            llm_connector.request_body.messages[i][k].content[j].text
+                        )
                         llm_connector.request_body.messages[i][k].content[j].text = stripped_text
             else:
                 for j in range(len(llm_connector.request_body.messages[i].content)):
-                    stripped_text = cls.remove_vowels(llm_connector.request_body.messages[i].content[j].text)
+                    stripped_text = cls.remove_vowels(
+                        llm_connector.request_body.messages[i].content[j].text
+                    )
                     llm_connector.request_body.messages[i].content[j].text = stripped_text
 
         cls._prepend_system_instruction(llm_connector, 'Assume Vowels')

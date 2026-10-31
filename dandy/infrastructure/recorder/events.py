@@ -45,9 +45,7 @@ class Event(BaseModel):
 
     def calculate_run_time(self, pre_event: Self) -> None:
         self.run_time_seconds = self.start_time - pre_event.start_time
-        self.complete_run_time_seconds = (
-            pre_event.complete_run_time_seconds + self.run_time_seconds
-        )
+        self.complete_run_time_seconds = pre_event.complete_run_time_seconds + self.run_time_seconds
 
     def add_attribute(
         self,

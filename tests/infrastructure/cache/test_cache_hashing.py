@@ -9,6 +9,7 @@ from dandy.infrastructure.cache.key import convert_to_hashable_str, generate_cac
 
 from tests.domain.intel.intelligence.intel import PersonIntel, BagIntel, ThingIntel
 
+
 @dataclass
 class Puppet:
     name: str
@@ -27,23 +28,13 @@ class Mushroom:
 
 
 def mushroom_to_treasure(color: str, puppet: Puppet | None = None):
-    return Treasure(
-        quantity=len(color),
-        quality=4.5,
-        contains_puppet=bool(puppet)
-    )
+    return Treasure(quantity=len(color), quality=4.5, contains_puppet=bool(puppet))
 
 
 class TestCacheHashing(TestCase):
     def setUp(self):
-        self.puppet = Puppet(
-            name='Batman',
-            is_fuzzy=True
-        )
-        self.treasure = Treasure(
-            quantity=456,
-            quality=7.8
-        )
+        self.puppet = Puppet(name='Batman', is_fuzzy=True)
+        self.treasure = Treasure(quantity=456, quality=7.8)
         self.built_ins = [
             1,
             1.0,
@@ -55,7 +46,7 @@ class TestCacheHashing(TestCase):
             [1, 2, 3],
             {'a': 1, 'b': 2},
             (1, 2, 3),
-            {'a', 'b', 'c'}
+            {'a', 'b', 'c'},
         ]
 
     def test_built_ins_hashing(self):
@@ -63,49 +54,31 @@ class TestCacheHashing(TestCase):
         converted_built_ins = []
 
         for built_in in self.built_ins:
-            converted_built_ins.append(
-                convert_to_hashable_str(built_in)
-            )
+            converted_built_ins.append(convert_to_hashable_str(built_in))
 
-        self.assertEqual(
-            len(self.built_ins),
-            len(converted_built_ins),
-        )
+        self.assertEqual(len(self.built_ins), len(converted_built_ins))
 
     def test_data_class_hashing(self):
         converted_puppet = convert_to_hashable_str(self.puppet)
 
-        self.assertEqual(
-            converted_puppet,
-            "{'name': 'Batman', 'is_fuzzy': 'True'}"
-        )
+        self.assertEqual(converted_puppet, "{'name': 'Batman', 'is_fuzzy': 'True'}")
 
     def test_pydantic_model_hashing(self):
         converted_treasure = convert_to_hashable_str(self.treasure)
 
         self.assertEqual(
-            converted_treasure,
-            "{'quantity': 456, 'quality': 7.8, 'contains_puppet': False}"
+            converted_treasure, "{'quantity': 456, 'quality': 7.8, 'contains_puppet': False}"
         )
 
     def test_class_hashing(self):
-        classes = [
-            Mushroom,
-            Treasure,
-            Puppet,
-        ]
+        classes = [Mushroom, Treasure, Puppet]
 
         converted_classes = []
 
         for cls in classes:
-            converted_classes.append(
-                convert_to_hashable_str(cls)
-            )
+            converted_classes.append(convert_to_hashable_str(cls))
 
-        self.assertEqual(
-            len(classes),
-            len(converted_classes)
-        )
+        self.assertEqual(len(classes), len(converted_classes))
 
     def cache_key_performance_test(self) -> float:
         args = (
@@ -128,16 +101,12 @@ class TestCacheHashing(TestCase):
                         stylish=True,
                         pockets=1,
                         things=[
+                            ThingIntel(name='taco', description='a delicious taco'),
                             ThingIntel(
-                                name='taco',
-                                description='a delicious taco'
+                                name='carrot', description='a delicious carrot full of fibre'
                             ),
-                            ThingIntel(
-                                name='carrot',
-                                description='a delicious carrot full of fibre'
-                            )
-                        ]
-                    )
+                        ],
+                    ),
                 ),
             },
             Mushroom,
@@ -145,21 +114,14 @@ class TestCacheHashing(TestCase):
 
         kwargs = {
             'purple_mushrooms': Mushroom('purple'),
-            'some_treasure': Treasure(
-                quantity=123,
-                quality=4.5
-            ),
+            'some_treasure': Treasure(quantity=123, quality=4.5),
             'mushroom_class': Mushroom,
             'built_ins': (built_in for built_in in self.built_ins),
         }
 
         start_time = time.perf_counter()
 
-        _ = generate_cache_key(
-            mushroom_to_treasure,
-            *args,
-            **kwargs,
-        )
+        _ = generate_cache_key(mushroom_to_treasure, *args, **kwargs)
 
         end_time = time.perf_counter()
 
@@ -171,56 +133,34 @@ class TestCacheHashing(TestCase):
         except Exception as e:
             self.fail(f'Failed to generate cache key: {e}')
 
-
     def test_matched_key_generation(self):
-        first_puppet = Puppet(
-            name='Bat Sir',
-            is_fuzzy=True
-        )
+        first_puppet = Puppet(name='Bat Sir', is_fuzzy=True)
 
         first_cache_key = generate_cache_key(
-            mushroom_to_treasure,
-            'aquamarine',
-            puppet=first_puppet,
+            mushroom_to_treasure, 'aquamarine', puppet=first_puppet
         )
 
-        matched_puppet = Puppet(
-            name='Bat Sir',
-            is_fuzzy=True
-        )
+        matched_puppet = Puppet(name='Bat Sir', is_fuzzy=True)
 
         matched_cache_key = generate_cache_key(
-            mushroom_to_treasure,
-            'aquamarine',
-            puppet=matched_puppet,
+            mushroom_to_treasure, 'aquamarine', puppet=matched_puppet
         )
 
-        unmatched_puppet = Puppet(
-            name='Snake Girl',
-            is_fuzzy=True
-        )
+        unmatched_puppet = Puppet(name='Snake Girl', is_fuzzy=True)
 
         unmanaged_cache_key = generate_cache_key(
-            mushroom_to_treasure,
-            'aquamarine',
-            puppet=unmatched_puppet,
+            mushroom_to_treasure, 'aquamarine', puppet=unmatched_puppet
         )
 
         self.assertEqual(first_cache_key, matched_cache_key)
         self.assertNotEqual(first_cache_key, unmanaged_cache_key)
 
-
     def test_hashing_performance(self):
         timing = []
 
         for _ in range(1000):
-            timing.append(
-                self.cache_key_performance_test()
-            )
+            timing.append(self.cache_key_performance_test())
 
         average_time = sum(timing) / len(timing)
 
         self.assertLess(average_time, 0.005)
-
-
-

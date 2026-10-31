@@ -36,15 +36,15 @@ class PlotPointDescriptionBot(Bot):
 
         if previous_plot_point_intels:
             plot_point_prompt.prompt(
-                plot_intel_prompt(PlotPointsIntel(plot_points=previous_plot_point_intels)),
+                plot_intel_prompt(PlotPointsIntel(plot_points=previous_plot_point_intels))
             )
 
             plot_point_prompt.line_break()
 
-        plot_point_prompt.text(label='Current Plot Point Outline to write', text=plot_point_intel.outline)
+        plot_point_prompt.text(
+            label='Current Plot Point Outline to write', text=plot_point_intel.outline
+        )
 
         return self.llm.prompt_to_intel(
-            prompt=plot_point_prompt,
-            intel_object=plot_point_intel,
-            include_fields={'description'},
+            prompt=plot_point_prompt, intel_object=plot_point_intel, include_fields={'description'}
         )

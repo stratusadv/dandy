@@ -47,7 +47,7 @@ Tell the model to produce *less* than the full class:
 intel = bot.process(
     'Capital of Canada?',
     intel_class=CapitalIntel,
-    include_fields={'capital'},   # or exclude_fields={'country'}
+    include_fields={'capital'},  # or exclude_fields={'country'}
 )
 ```
 

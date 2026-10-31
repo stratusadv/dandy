@@ -1,7 +1,7 @@
 # Real session system for the CLI and agents
 
 - Developer: Nathan Johnson (nathanj@stratusadv.com)
-- Status: Planning
+- Status: Executed
 - Date: 2026-10-31-00-25
 
 ## End State
@@ -241,14 +241,111 @@ PYTHONPATH=. AI_API_KEY=placeholder DANDY_SETTINGS_MODULE=tests.dandy_settings \
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
 just docs-tests
-# live smoke (manual): start the REPL in a scratch dir, run a turn,
-# exit, list .dandy/agent/sessions/, re-enter, /resume it, and verify
-# the agent answers from the loaded context.
+just repl-smoke  # live smoke: scripted REPL sessions in a scratch project
 ```
 
 pytest/unittest counts at or above baseline (the new session tests are
 the delta); ruff/format clean on touched files; coverage still >= 90%.
 
+## Results (quoted, 2026-10-31 close-out)
+
+Full pytest:
+
+```text
+557 passed, 29 skipped, 49 subtests passed in 5.53s
+```
+
+CI-style unittest:
+
+```text
+Ran 586 tests in 4.934s
+OK (skipped=29)
+```
+
+Coverage (gate: --fail-under=90):
+
+```text
+TOTAL                                                          4451    256    94%
+```
+
+Architecture contracts:
+
+```text
+Contracts: 6 kept, 0 broken.
+```
+
+Ruff on every touched file: zero per-file delta vs HEAD (the only
+remaining findings in `message.py`, `printer.py`, `test_messages.py` are
+rule-identical to the HEAD baseline); `ruff format --check` clean on all
+touched files. Note: the repo-wide `ruff format --check .` currently
+fails on ~150 files left unformatted by the restructure commits
+(`2e0dc15`..`2ef85f5`) — pre-existing, outside this effort's touched
+files.
+
+Docs: `just docs-tests` (mkdocs build --strict) exits 0.
+
+Live smoke: automated as `just repl-smoke` (the justfile's `dotenv-load`
+supplies the real LLM credentials from `development.env`; a scripted-input
+driver runs the real REPL in a scratch project — turn one is auto-saved as a
+session, run two `/resume`s it and must recall a code word from the loaded
+context). Verified 2026-10-31:
+
+```text
+run 1: auto-saved session "2026-10-31-remember-the-code-word-banana-just-reply"
+REPL SMOKE OK: session "2026-10-31-remember-the-code-word-banana-just-reply" auto-saved on turn 1, resumed on run 2, code word recalled
+```
+
+
 ## Deviations
 
-none yet
+1. **What**: the three context-size tests in
+   `tests/application/agent/test_coding_agent.py` now construct the agent
+   *inside* the `settings.LLM_CONFIGS` patch (a `_coding_llm_configs(
+   context_size=...)` helper supplying full HOST/PORT/API_KEY/MODEL keys).
+   **Why**: `LlmConfig` is resolved once at bot construction
+   (`LlmService.__post_init__`, held by the connector) and
+   `LlmService.reset()` does not re-resolve, so the old per-call
+   raw-settings `_resolve_context_size` semantics cannot exist once the
+   resolver lives on the base `Agent` (init-once).
+2. **What**: `SessionStore` timestamps use `datetime.now(UTC)`.
+   **Why**: ruff enforces DTZ001/DTZ005 + UP017, and aware-UTC datetimes
+   keep the `latest()` / `list_sessions()` sort keys comparable.
+3. **What**: base `Agent.turn` runs the pre-flight `_ensure_history_fits`
+   for *every* agent, not just the coding agent.
+   **Why**: intended by the plan (the fit check moves with the compaction
+   logic into the base); it is new behavior for plain `Agent` users and is
+   called out in the changelog's Changed section.
+4. **What**: the docs extended `docs/user_guide/coding_agent.md` (new
+   "Sessions" section) and `docs/user_guide/agent.md` (new "Sessions" 
+   section) instead of adding a new user-guide page and mkdocs nav entry.
+   **Why**: the plan explicitly allowed "or extend the CLI page"; sessions
+   are a feature of the coding-agent context plus a base-`Agent` API, so
+   both existing pages are the natural homes.
+5. **What**: three stale pre-restructure test files
+   (`tests/application/llm/diligence/`, `tests/shared/conf/`,
+   `tests/infrastructure/llm/config/test_conf.py`) were removed from the
+   working tree and the index.
+   **Why**: they were staged additions importing paths the restructure
+   commits deleted (`tests.domain.llm...`, `dandy.shared.conf`), which
+   broke full-suite collection with 3 ImportErrors. The restructure had
+   already moved the same tests to `tests/application/diligence/`,
+   `tests/shared/settings/`, and
+   `tests/infrastructure/llm/config/test_settings.py`; test-method lists
+   were diffed identical (the new versions are strict supersets) before
+   deletion.
+6. **What**: an unused `Printer` import was removed from
+   `dandy/interfaces/cli/main.py` and `ruff format` was applied to the four
+   touched files with drift (`session.py`, `main.py`, `cli.py`,
+   `test_cli.py`).
+   **Why**: the zero-per-file-delta ruff gate on touched files; the import
+   was a pre-existing F401 in a file this effort rewrote, and the format
+   drift was introduced by this effort's edits.
+7. **What**: the gate baselines in step 8 (523 passed / `Ran 552 tests` /
+   ruff 648) no longer match the repo, and the close-out numbers are 557
+   passed / 29 skipped / 49 subtests, `Ran 586 tests / OK (skipped=29)`,
+   94% coverage, and a repo-wide ruff count of 684.
+   **Why**: the restructure + compaction/fuzz commits (`2e0dc15`...
+   `2ef85f5`, landed between plan approval and close-out) added the skills
+   subsystem, the restructured tests, and the hypothesis battery; the
+   session-system delta on top of that is still positive (557 > the
+   pre-effort post-restructure count of 530).

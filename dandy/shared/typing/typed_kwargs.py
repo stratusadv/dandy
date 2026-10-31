@@ -8,10 +8,7 @@ from dandy.shared.typing.typing import TypedKwargsDict
 
 
 class TypedKwargs(UserDict):
-    def __init__(
-            self,
-            data: TypedKwargsDict | dict[Any, Any],
-    ):
+    def __init__(self, data: TypedKwargsDict | dict[Any, Any]):
         super().__init__(data)
 
     def __contains__(self, item: Self) -> bool:
@@ -27,14 +24,10 @@ class TypedKwargs(UserDict):
             second_type = item[key][0]
 
             if isinstance(first_type, str):
-                first_type = resolve_type_from_registry(
-                    type_str=first_type
-                )
+                first_type = resolve_type_from_registry(type_str=first_type)
 
             if isinstance(second_type, str):
-                second_type = resolve_type_from_registry(
-                    type_str=second_type
-                )
+                second_type = resolve_type_from_registry(type_str=second_type)
 
             if first_type is not second_type:
                 return False

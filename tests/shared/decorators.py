@@ -13,12 +13,7 @@ def run_llm_configs(llm_configs: list[str] = TESTING_LLM_CONFIGS) -> Callable:
 
             for llm_config in llm_configs:
                 print(f'\nRunning {func.__qualname__} with "{llm_config}" llm config ...')
-                func(
-                    self,
-                    llm_config,
-                    *args,
-                    **kwargs
-                )
+                func(self, llm_config, *args, **kwargs)
 
         return wrapper
 

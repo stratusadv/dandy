@@ -16,8 +16,8 @@ It is also the reason the layer rules need their
 
 ```python
 class LlmServiceMixin(BaseServiceMixin):
-    llm_config: str = 'DEFAULT'          # declared as class attributes...
-    role: Prompt | str = 'Assistant'     # ...because _required_attrs guards
+    llm_config: str = 'DEFAULT'  # declared as class attributes...
+    role: Prompt | str = 'Assistant'  # ...because _required_attrs guards
 
     @property
     def llm(self) -> LlmService:
@@ -47,7 +47,7 @@ the one enforced exception list.
 
 `Bot.reset()` walks the MRO and resets every composed service: `llm`, `http`, `intel`,
 `file`. For the LLM service, reset clears the message history and re-applies options
-from settings — this is what the CLI's `/clear` does.
+from settings — this is what the CLI's `/new` command (via `Agent.clear()`) does.
 
 - Subclasses that override `reset()` must call `super().reset()` — the chain relies on
   it.

@@ -17,8 +17,7 @@ class TestTools(TestCase):
         start = perf_counter()
 
         futures = [
-            process_to_future(sleepy_function, seconds=run_seconds)
-            for _ in range(run_count)
+            process_to_future(sleepy_function, seconds=run_seconds) for _ in range(run_count)
         ]
 
         total_seconds = 0.0

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
-from dandy.application.agent.intel import AgentTurnIntel
+from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.domain.message.message import MessageHistory, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
@@ -44,6 +44,7 @@ class Agent:
         self.intel_class = intel_class or AgentTurnIntel
         self.history = MessageHistory()
         self.max_context_tokens = self._resolve_context_size()
+        self.last_request: str | None = None
 
         if self.skills:
             self.bot.llm.skills.register(self.skills)
@@ -60,11 +61,14 @@ class Agent:
         progress_callback: Callable[[str], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
     ) -> IntelType:
-        """Run one exchange: compact, work through any tool rounds, return the answer.
+        """Run one exchange: prepare, compact, work through any tool rounds, return the answer.
 
         The conversation accumulates in ``self.history`` across turns.
         """
+        self.last_request = self._message_as_str(message)
+        message = self._prepare_message(message, progress_callback, verbose_callback)
         self._compact_history_for_next_message(message, progress_callback)
+        self._ensure_history_fits(message)
 
         return self.bot.llm.tools.prompt_to_intel(
             prompt=message,
@@ -76,6 +80,36 @@ class Agent:
             verbose_callback=verbose_callback,
             max_tool_iterations=None,
         )
+
+    def _prepare_message(
+        self,
+        message: Prompt | str | None,
+        _progress_callback: Callable[[str], None] | None = None,
+        _verbose_callback: Callable[[str], None] | None = None,
+    ) -> Prompt | str | None:
+        """Subclass hook to shape the incoming message before it goes to the bot."""
+        return message
+
+    def _ensure_history_fits(self, message: Prompt | str | None) -> None:
+        """Fail clearly when compaction could not bring the conversation under the window.
+
+        Compaction drops everything it can drop and then gives up without
+        raising; when what remains still exceeds the whole context window no
+        valid request can be built, so callers see this instead of an opaque
+        provider 400.
+        """
+        total_token_count = self.history.estimated_token_count + self._incoming_token_count(message)
+
+        if total_token_count <= self.max_context_tokens:
+            return
+
+        error_message = (
+            f'The conversation ({self.history.estimated_token_count} tokens) plus your '
+            f'message still exceeds the {self.max_context_tokens} token context window '
+            'after dropping everything droppable. Clear the conversation and retry, '
+            'with a shorter message if possible.'
+        )
+        raise AgentRecoverableError(error_message)
 
     def run(
         self,
@@ -123,6 +157,23 @@ class Agent:
     def clear(self) -> None:
         """Reset the conversation history and the bot."""
         self.history = MessageHistory()
+        self.last_request = None
+        self.bot.reset()
+
+    def save_session(self) -> AgentSession:
+        """Snapshot the conversation and LLM context for later loading."""
+        return AgentSession(
+            messages=list(self.history.messages),
+            last_request=self.last_request,
+            model=self.bot.llm.config.model,
+            config=self.bot.llm.config.name,
+            token_count=self.history.estimated_token_count,
+        )
+
+    def load_session(self, session: AgentSession) -> None:
+        """Replace the conversation with a saved snapshot and reset the bot."""
+        self.history = MessageHistory(messages=list(session.messages))
+        self.last_request = session.last_request
         self.bot.reset()
 
     def _has_done_field(self) -> bool:
@@ -133,6 +184,15 @@ class Agent:
             return bool(is_done(result))
 
         return bool(getattr(result, 'done', False))
+
+    def _message_as_str(self, message: Prompt | str | None) -> str | None:
+        if message is None:
+            return None
+
+        if isinstance(message, Prompt):
+            return message.to_str()
+
+        return message
 
     def _incoming_token_count(self, message: Prompt | str | None) -> int:
         if message is None:

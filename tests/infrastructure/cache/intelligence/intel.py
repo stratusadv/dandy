@@ -14,5 +14,3 @@ class ClownIntel(BaseIntel):
 class CandyNotIntel:
     def __init__(self, sweetness: int):
         self.sweetness = sweetness
-
-

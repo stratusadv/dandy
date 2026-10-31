@@ -10,24 +10,17 @@ class TestSnippet(TestCase):
             'Hello World',
             1.0,
             False,
-            [
-                'This',
-                'is',
-                'a',
-                'list',
-            ],
+            ['This', 'is', 'a', 'list'],
             888,
-            (
-                'This',
-                'is',
-                'a',
-                'tuple',
-            )
+            ('This', 'is', 'a', 'tuple'),
         ]
 
     def test_file_snippet(self):
         file_snippet = snippet.FileSnippet(
-            file_path=Path(Path(__file__).parent.parent.parent.resolve(), 'assets/documents/complex_markdown.md')
+            file_path=Path(
+                Path(__file__).parent.parent.parent.resolve(),
+                'assets/documents/complex_markdown.md',
+            )
         )
 
         self.assertFalse('', file_snippet.to_str())
@@ -53,15 +46,11 @@ class TestSnippet(TestCase):
         self.assertEqual(new_snippet.to_str(), f'**{label}**: {text}\n')
 
     def test_ordered_list_snippet(self):
-        snippet.OrderedListSnippet(
-            items=self.items
-        )
+        snippet.OrderedListSnippet(items=self.items)
 
         self.assertTrue(True)
 
     def test_unordered_list_snippet(self):
-        snippet.UnorderedListSnippet(
-            items=self.items
-        )
+        snippet.UnorderedListSnippet(items=self.items)
 
         self.assertTrue(True)

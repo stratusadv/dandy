@@ -101,8 +101,10 @@ Use cases: orchestration of domain objects against the outside world.
 - `tool/` — `ToolService` (the tool-calling loop).
 - `decision/` — `Decision` + `DecisionService`.
 - `diligence/` — diligence handlers.
-- `agent/` — the coding agent: `CodingAgent`, session state, planning/coding bots,
-  agent toolset.
+- `agent/` — the base `Agent` (turns, runs, session save/load) and the CLI's
+  `CodingAgent` child of it, plus `SessionStore` (named conversation files under
+  `.dandy/agent/sessions/`), session state, planning/coding bots, and the agent
+  toolset.
 
 ### `dandy/infrastructure/` — infrastructure
 

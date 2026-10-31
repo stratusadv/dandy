@@ -14,9 +14,7 @@ class Prompt:
     input: Self | str | None = (None,)
     tag: str | None = (None,)
 
-    def __post_init__(
-            self,
-    ):
+    def __post_init__(self):
         self.snippets: list[snippet.BaseSnippet] = []
 
         if isinstance(self.input, Prompt):
@@ -44,11 +42,11 @@ class Prompt:
         return self
 
     def directory_list(
-            self,
-            directory_path: str | Path,
-            max_depth: int | None = None,
-            file_extensions: Sequence[str] | None = None,
-            triple_backtick: bool = False,
+        self,
+        directory_path: str | Path,
+        max_depth: int | None = None,
+        file_extensions: Sequence[str] | None = None,
+        triple_backtick: bool = False,
     ) -> Self:
         self.snippets.append(
             snippet.DirectoryListSnippet(
@@ -81,31 +79,25 @@ class Prompt:
         return get_estimated_token_count_for_string(self.to_str())
 
     def file(
-            self, file_path: str | Path,
-            encoding: str = 'utf-8',
-            triple_backtick: bool = False,
-            triple_backtick_label: str | None = None
+        self,
+        file_path: str | Path,
+        encoding: str = 'utf-8',
+        triple_backtick: bool = False,
+        triple_backtick_label: str | None = None,
     ) -> Self:
         self.snippets.append(
             snippet.FileSnippet(
                 file_path=file_path,
                 encoding=encoding,
                 triple_backtick=triple_backtick,
-                triple_backtick_inner_label=triple_backtick_label
+                triple_backtick_inner_label=triple_backtick_label,
             )
         )
 
         return self
 
-    def heading(
-            self,
-            heading: str,
-    ) -> Self:
-        self.snippets.append(
-            snippet.HeadingSnippet(
-                heading=heading,
-            )
-        )
+    def heading(self, heading: str) -> Self:
+        self.snippets.append(snippet.HeadingSnippet(heading=heading))
 
         return self
 
@@ -123,35 +115,26 @@ class Prompt:
         return self
 
     def intel(self, intel: BaseIntel, triple_backtick: bool = False) -> Self:
-        self.snippets.append(
-            snippet.IntelSnippet(intel=intel, triple_backtick=triple_backtick)
-        )
+        self.snippets.append(snippet.IntelSnippet(intel=intel, triple_backtick=triple_backtick))
 
         return self
 
-    def intel_schema(
-            self, intel_class: type[BaseIntel], triple_backtick: bool = False
-    ) -> Self:
+    def intel_schema(self, intel_class: type[BaseIntel], triple_backtick: bool = False) -> Self:
         self.snippets.append(
-            snippet.IntelSchemaSnippet(
-                intel_class=intel_class, triple_backtick=triple_backtick
-            )
+            snippet.IntelSchemaSnippet(intel_class=intel_class, triple_backtick=triple_backtick)
         )
 
         return self
 
     def module_source(
-            self,
-            module_name: str,
-            triple_backtick: bool = True,
-            language: str = 'python',
+        self, module_name: str, triple_backtick: bool = True, language: str = 'python'
     ) -> Self:
         self.snippets.append(
             snippet.ModuleSourceSnippet(
                 module_name=module_name,
                 triple_backtick=triple_backtick,
                 triple_backtick_inner_label=language,
-                triple_backtick_outer_label=f'module: {module_name}'
+                triple_backtick_outer_label=f'module: {module_name}',
             )
         )
 
@@ -168,9 +151,7 @@ class Prompt:
 
         return self
 
-    def ordered_list(
-            self, items: builtins.list[str], triple_backtick: bool = False
-    ) -> Self:
+    def ordered_list(self, items: builtins.list[str], triple_backtick: bool = False) -> Self:
         self.snippets.append(
             snippet.OrderedListSnippet(items=items, triple_backtick=triple_backtick)
         )
@@ -178,42 +159,28 @@ class Prompt:
         return self
 
     def prompt(self, prompt: Self | str, triple_backtick: bool = False) -> Self:
+        self.snippets.append(snippet.PromptSnippet(prompt=prompt, triple_backtick=triple_backtick))
+
+        return self
+
+    def random_choice(self, choices: builtins.list[str], triple_backtick: bool = False) -> Self:
         self.snippets.append(
-            snippet.PromptSnippet(prompt=prompt, triple_backtick=triple_backtick)
+            snippet.RandomChoiceSnippet(choices=choices, triple_backtick=triple_backtick)
         )
 
         return self
 
-    def random_choice(
-            self, choices: builtins.list[str], triple_backtick: bool = False
-    ) -> Self:
-        self.snippets.append(
-            snippet.RandomChoiceSnippet(
-                choices=choices,
-                triple_backtick=triple_backtick,
-            )
-        )
-
-        return self
-
-    def sub_heading(
-            self,
-            sub_heading: str,
-    ) -> Self:
-        self.snippets.append(
-            snippet.SubHeadingSnippet(
-                sub_heading=sub_heading,
-            )
-        )
+    def sub_heading(self, sub_heading: str) -> Self:
+        self.snippets.append(snippet.SubHeadingSnippet(sub_heading=sub_heading))
 
         return self
 
     def text(
-            self,
-            text: str = '',
-            label: str = '',
-            triple_backtick: bool = False,
-            triple_backtick_label: str | None = None,
+        self,
+        text: str = '',
+        label: str = '',
+        triple_backtick: bool = False,
+        triple_backtick_label: str | None = None,
     ) -> Self:
         self.snippets.append(
             snippet.TextSnippet(
@@ -226,21 +193,12 @@ class Prompt:
 
         return self
 
-    def title(
-            self,
-            title: str,
-    ) -> Self:
-        self.snippets.append(
-            snippet.TitleSnippet(
-                title=title,
-            )
-        )
+    def title(self, title: str) -> Self:
+        self.snippets.append(snippet.TitleSnippet(title=title))
 
         return self
 
-    def unordered_list(
-            self, items: builtins.list[str], triple_backtick: bool = False
-    ) -> Self:
+    def unordered_list(self, items: builtins.list[str], triple_backtick: bool = False) -> Self:
         self.snippets.append(
             snippet.UnorderedListSnippet(items=items, triple_backtick=triple_backtick)
         )
@@ -248,14 +206,11 @@ class Prompt:
         return self
 
     def unordered_random_list(
-            self, items: builtins.list[str], triple_backtick: bool = False
+        self, items: builtins.list[str], triple_backtick: bool = False
     ) -> Self:
 
         self.snippets.append(
-            snippet.UnorderedRandomListSnippet(
-                items=items,
-                triple_backtick=triple_backtick
-            )
+            snippet.UnorderedRandomListSnippet(items=items, triple_backtick=triple_backtick)
         )
 
         return self

@@ -23,4 +23,3 @@ class TestLlmReset(TestCase):
 
         bot.llm.reset_messages()
         self.assertEqual(len(bot.llm.messages), 0)
-

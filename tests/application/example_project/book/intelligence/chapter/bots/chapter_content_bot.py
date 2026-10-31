@@ -23,11 +23,7 @@ class ChapterContentLlmBot(Bot):
         ]
     )
 
-    def process(
-        self,
-        book_intel: BookIntel,
-        chapter_intel: ChapterIntel,
-    ) -> ChapterIntel:
+    def process(self, book_intel: BookIntel, chapter_intel: ChapterIntel) -> ChapterIntel:
         prompt = Prompt()
 
         prompt.prompt(book_intel_prompt(book_intel))
@@ -39,7 +35,5 @@ class ChapterContentLlmBot(Bot):
         prompt.prompt(chapter_intel_overview_prompt(chapter_intel))
 
         return self.llm.prompt_to_intel(
-            prompt=prompt,
-            intel_object=chapter_intel,
-            include_fields={'content'},
+            prompt=prompt, intel_object=chapter_intel, include_fields={'content'}
         )

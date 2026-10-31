@@ -35,9 +35,7 @@ LLM_CONFIGS = {
         'API_KEY': os.getenv('OPENAI_API_KEY'),
         'MODEL': 'gpt-4o-mini',
     },
-    'GPT_4o': {
-        'MODEL': 'gpt-4o',
-    },
+    'GPT_4o': {'MODEL': 'gpt-4o'},
 }
 ```
 
@@ -66,7 +64,7 @@ export DANDY_SETTINGS_MODULE=dandy_settings
 There are more settings you can configure in your project see below for more information.
 
 ```py title="dandy/default_settings.py"
---8<-- "dandy/default_settings.py"
+--8 < --'dandy/default_settings.py'
 ```
 
 

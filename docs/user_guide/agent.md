@@ -19,7 +19,7 @@ come back, the model works again. Dandy names the levels of that loop precisely:
 
 A `run` is made of `turn`s; a `turn` is made of `tool round`s. Interactive use — a
 human feeding one message at a time, like the CLI REPL — is a sequence of `turn`s;
-the [coding agent](coding_agent.md)'s `chat` is one such interactive turn.
+the [coding agent](coding_agent.md)'s `turn` is one such interactive turn.
 
 ## The base class
 
@@ -39,13 +39,16 @@ answer = agent.turn('What is the weather in Austin?')
 answer = agent.turn('And in Dallas?')  # same conversation
 ```
 
-`Agent(bot, tools=None, max_turns=None, intel_class=None)`:
+`Agent(bot, tools=None, skills=None, max_turns=None, intel_class=None)`:
 
 - `bot` — the Bot that performs the work (its role/task/guidelines become the
   system prompt; give it guidelines that say `done` means the *whole request* is
   complete, not just the current turn).
 - `tools` — the tool set every turn may call; `None` means a plain
   conversation, no tools.
+- `skills` — the [skills](skill.md) registered for this agent; active ones put
+  their prompt in the system message and their methods in the tool list from the
+  first request.
 - `intel_class` — the per-turn result model; defaults to `AgentTurnIntel`
   (`text` + `done`).
 - `max_turns` — the `run` budget; `None` (the default) means unbounded.
@@ -88,6 +91,43 @@ print(final.text)
   give-up semantics as the tool loop). With no `done` field and no `is_done`,
   `run` fails fast with `AgentCriticalError` — an agent that cannot tell when it
   is finished should not be running.
+
+## Sessions — save and load the conversation
+
+Every agent can snapshot its conversation and restore it later, so a
+conversation can outlive the process:
+
+```python
+from dandy import Agent
+from dandy.application.agent.session_store import SessionStore
+
+store = SessionStore.for_project(Path('my-project'))  # .dandy/agent/sessions/
+
+store.save('my-task', agent.save_session())  # after any turn
+
+agent.clear()
+agent.load_session(store.load('my-task'))  # the conversation is back
+```
+
+- `save_session()` returns an `AgentSession`: the full message history plus
+  metadata (the last request, the model and config names, an estimated token
+count). `load_session(session)` restores the history into a fresh
+  `MessageHistory` and resets the bot, so the next `turn` continues exactly
+  where the saved conversation left off.
+- `SessionStore` (`dandy/application/agent/session_store.py`) is the file side:
+  one JSON record per named session under a directory (each record pairs the
+  `AgentSession` with a name and created/updated timestamps). `for_project(path)`
+  targets `<path>/.dandy/agent/sessions/` — agent-neutral, so any agent over the
+  same project shares the location. It also gives you `list_sessions()`,
+  `latest()`, `delete(name)`, and `new_name(text)`, which derives a fresh
+  non-colliding `YYYY-MM-DD-<slug>` name from a piece of request text. Unknown
+  names raise `AgentRecoverableError` listing the available sessions; invalid
+  names (empty, `.`/`..`, or containing path separators) raise
+  `AgentCriticalError`.
+
+The [coding agent](coding_agent.md)'s REPL is the built-in consumer: it auto-saves
+after every turn and exposes the store through the `/new`, `/sessions`, `/resume`,
+and `/delete` commands plus the one-shot `--continue` flag.
 
 ## Relationship to Bot and to the coding agent
 

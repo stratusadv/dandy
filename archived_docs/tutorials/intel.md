@@ -9,15 +9,14 @@ Let's go ahead and create a `ClownIntel` class that inherits from the `BaseIntel
 ```python exec="True" source="above" source="material-block" session="intel"
 from dandy import BaseIntel
 
+
 class ClownIntel(BaseIntel):
     clown_name: str
     can_juggle: bool
     real_name: str | None = None
 
-bozo = ClownIntel(
-    clown_name='Bozo', 
-    can_juggle=True
-)
+
+bozo = ClownIntel(clown_name='Bozo', can_juggle=True)
 
 print(bozo.can_juggle)
 ```
@@ -39,8 +38,7 @@ The `process` method of the `LlmBot` will return an `Intel` object based on the 
 from dandy import Bot
 
 new_clown = Bot().process(
-    prompt='Can you please generate me a clown, I am scared of jugglers!',
-    intel_class=ClownIntel
+    prompt='Can you please generate me a clown, I am scared of jugglers!', intel_class=ClownIntel
 )
 
 print(new_clown)
@@ -62,11 +60,13 @@ class ClownsIntel(BaseListIntel):
     clowns: list[ClownIntel]
 
 
-clowns_intel = ClownsIntel(clowns=[
-    ClownIntel(clown_name='Bozo', can_juggle=True),
-    ClownIntel(clown_name='Bimbo', can_juggle=False),
-    ClownIntel(clown_name='Bongo', can_juggle=True),
-])
+clowns_intel = ClownsIntel(
+    clowns=[
+        ClownIntel(clown_name='Bozo', can_juggle=True),
+        ClownIntel(clown_name='Bimbo', can_juggle=False),
+        ClownIntel(clown_name='Bongo', can_juggle=True),
+    ]
+)
 
 clowns_intel.append(ClownIntel(clown_name='Bubba', can_juggle=True))
 
@@ -83,17 +83,16 @@ In the `process` method of the `LlmBot` class we can now include and exclude fie
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
 
+
 class FakeClownBot(Bot):
     def process(self, clown_description: str) -> ClownIntel:
         return self.llm.prompt_to_intel(
-            prompt=clown_description,
-            intel_class=ClownIntel,
-            exclude_fields={'real_name'},
+            prompt=clown_description, intel_class=ClownIntel, exclude_fields={'real_name'}
         )
 
 
 another_clown = FakeClownBot().process(
-    clown_description='I am a big fan of juggling, can you please create me a clown!',
+    clown_description='I am a big fan of juggling, can you please create me a clown!'
 )
 
 print(another_clown)
@@ -103,6 +102,7 @@ You can also get the same result by including both the `can_juggle` and `clown_n
 
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using ClownIntel from earlier
+
 
 class RealClownBot(Bot):
     def process(self, clown_description: str) -> ClownIntel:
@@ -114,7 +114,7 @@ class RealClownBot(Bot):
 
 
 another_clown = RealClownBot().process(
-    clown_description='I am a big fan of juggling, can you please create me a clown!',
+    clown_description='I am a big fan of juggling, can you please create me a clown!'
 )
 
 print(another_clown)
@@ -159,10 +159,7 @@ class PirateIntel(BaseIntel):
     parrot: ParrotIntel | None = None
 
 
-new_pirate = Bot().process(
-    prompt='Can you please generate me a pirate?',
-    intel_class=PirateIntel
-)
+new_pirate = Bot().process(prompt='Can you please generate me a pirate?', intel_class=PirateIntel)
 
 print(new_pirate.hat.color)
 ```
@@ -176,6 +173,7 @@ We do this by creating a more complex `IncEx`/`Dict` object where the keys are t
 ```python exec="True" source="above" source="material-block" session="intel"
 # Using PirateIntel from earlier
 
+
 class AdvancedPirateBot(Bot):
     def process(self, pirate_description: str) -> PirateIntel:
         return self.llm.prompt_to_intel(
@@ -183,11 +181,9 @@ class AdvancedPirateBot(Bot):
             intel_class=PirateIntel,
             exclude_fields={'parrot': True, 'hat': {'name': True}},
         )
-        
 
-new_pirate = AdvancedPirateBot().process(
-    pirate_description='Can you please generate me a pirate?',
-)
+
+new_pirate = AdvancedPirateBot().process(pirate_description='Can you please generate me a pirate?')
 
 print(new_pirate.hat.color)
 ```

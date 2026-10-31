@@ -5,7 +5,4 @@ from tests.application.example_project.book.intelligence.plot.bots.plot_point_de
     PlotPointDescriptionBot,
 )
 
-__all__ = [
-    'PlotOutlineBot',
-    'PlotPointDescriptionBot',
-]
+__all__ = ['PlotOutlineBot', 'PlotPointDescriptionBot']

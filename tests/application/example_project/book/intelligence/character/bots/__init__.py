@@ -2,6 +2,4 @@ from tests.application.example_project.book.intelligence.character.bots.characte
     CharacterGeneratorBot,
 )
 
-__all__ = [
-    'CharacterGeneratorBot',
-]
+__all__ = ['CharacterGeneratorBot']

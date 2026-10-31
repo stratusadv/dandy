@@ -4,12 +4,12 @@ from typing import TextIO
 
 
 def dandy_warning_handler(
-        message: Warning | str,
-        category: type[Warning],
-        filename: str,
-        lineno: int,
-        file: TextIO | None = None,
-        line: str | None = None,
+    message: Warning | str,
+    category: type[Warning],
+    filename: str,
+    lineno: int,
+    file: TextIO | None = None,
+    line: str | None = None,
 ):
     print(f'Warning: {message}')
     print(f'Category: {category.__name__}')

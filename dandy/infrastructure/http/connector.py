@@ -12,10 +12,7 @@ class HttpConnector(BaseConnector):
     @staticmethod
     def request_to_response(request_intel: HttpRequestIntel) -> HttpResponseIntel:
         response_intel: HttpResponseIntel = HttpResponseIntel(
-            status_code=0,
-            reason='Unknown Reasons or Connection Timeouts',
-            text='',
-            json_data={},
+            status_code=0, reason='Unknown Reasons or Connection Timeouts', text='', json_data={}
         )
 
         for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
@@ -35,6 +32,3 @@ class HttpConnector(BaseConnector):
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )
         raise HttpConnectorRecoverableError(message)
-
-
-

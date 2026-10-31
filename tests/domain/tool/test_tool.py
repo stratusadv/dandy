@@ -6,7 +6,11 @@ from dandy.domain.message.message import Message, MessageHistory
 from dandy.domain.tool.exceptions import ToolCriticalError
 from dandy.domain.tool.tool import BaseTool, to_tool_instances
 
-from tests.application.tool.intelligence.tools import NoParametersTool, RequiredWeatherTool, WeatherTool
+from tests.application.tool.intelligence.tools import (
+    NoParametersTool,
+    RequiredWeatherTool,
+    WeatherTool,
+)
 
 
 class NoHandleTool(BaseTool):

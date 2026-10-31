@@ -35,13 +35,11 @@ LLM_CONFIGS = {
 Once you have Dandy setup and configured, you can easily get started with a simple LLM interaction.
 
 ```python exec="True" source="above" source="material-block"
-
 from dandy import Bot
 
 response_intel = Bot().process('What is the capital of Canada?')
 
 print(response_intel.text)
-
 ```
 
 ## Start Learning

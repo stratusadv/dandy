@@ -34,7 +34,7 @@ class NumberDecoderBot(Bot):
                 'medium numbers': 30,
                 'large numbers': 100,
                 'over 9000 numbers': 9002,
-            }
+            },
         )
 
 
@@ -53,7 +53,6 @@ print(number_decoder.process('I really like large numbers'))
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 
 print(f'Finished cached in {cached_finish_time:.5f} seconds')
-
 ```
 
 !!! tip
@@ -73,11 +72,13 @@ In the example below all the add functions are cached into a memory cache called
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy import cache_to_sqlite
 
+
 @cache_to_sqlite(cache_name='add', limit=9_999_999)
 def add(a, b):
     return a + b
 
-print(add(3567, 5434)) # this will cache 1 entry in the sqlite database
+
+print(add(3567, 5434))  # this will cache 1 entry in the sqlite database
 ```
 
 ### dandy_settings.py
@@ -87,9 +88,15 @@ You can configure your settings in your `dandy_settings.py` file to better contr
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy.conf import settings
 
-print(f'Cache Memory Limit: {settings.CACHE_MEMORY_LIMIT}') # Amount of items to keep in memory cache
-print(f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}') # Path to sqlite database (defaults to .dandy/)
-print(f'Cache SQLite Limit: {settings.CACHE_SQLITE_LIMIT}') # Amount of items to keep in sqlite cache
+print(
+    f'Cache Memory Limit: {settings.CACHE_MEMORY_LIMIT}'
+)  # Amount of items to keep in memory cache
+print(
+    f'Cache SQLite Path: {settings.CACHE_SQLITE_DATABASE_PATH}'
+)  # Path to sqlite database (defaults to .dandy/)
+print(
+    f'Cache SQLite Limit: {settings.CACHE_SQLITE_LIMIT}'
+)  # Amount of items to keep in sqlite cache
 ```
 
 !!! warning
@@ -109,16 +116,11 @@ from dandy import MemoryCache, generate_cache_key
 
 
 def do_math(a, b, c):
-    sqlite_cache = MemoryCache(
-        cache_name='more_math',
-        limit=9_999_999
-    )
+    sqlite_cache = MemoryCache(cache_name='more_math', limit=9_999_999)
 
     cache_key = generate_cache_key(do_math, a, b, c)
-    
-    number = sqlite_cache.get(
-        cache_key
-    )
+
+    number = sqlite_cache.get(cache_key)
 
     if number:
         return number
@@ -127,12 +129,10 @@ def do_math(a, b, c):
     for i in range(99_999_999):
         number += a + b + c
 
-    sqlite_cache.set(
-        cache_key,
-        number
-    )
-    
+    sqlite_cache.set(cache_key, number)
+
     return number
+
 
 start_time = perf_counter()
 
@@ -143,11 +143,10 @@ uncached_finish_time = perf_counter() - start_time
 print(f'Finished uncached in {uncached_finish_time:.5f} seconds')
 
 print(do_math(1, 4, 9))
-    
+
 cached_finish_time = perf_counter() - start_time - uncached_finish_time
 
 print(f'Finished cached in {cached_finish_time:.5f} seconds')
-
 ```
 
 ## Complex Caching
@@ -159,13 +158,16 @@ In the example below we have two caches `add` and `subtract` that are both store
 ```python exec="True" source="above" source="material-block" result="markdown" session="caching"
 from dandy import SqliteCache, cache_to_sqlite, generate_cache_key
 
+
 @cache_to_sqlite(cache_name='add', limit=100)
 def add(a, b):
     return a + b
-    
+
+
 @cache_to_sqlite(cache_name='subtract', limit=100)
 def subtract(a, b):
     return a - b
+
 
 add_number = add(3, 5)
 subtract_number = subtract(6, 7)
@@ -197,6 +199,5 @@ print(f'>>> {sqlite_subtract_cache.get(subtract_hash_key)}')
 SqliteCache.destroy_all()
 
 print('Sqlite database is deleted')
-
 ```
     

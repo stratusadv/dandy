@@ -2,7 +2,7 @@ from unittest import TestCase, mock
 
 from dandy.application.agent.agent import Agent
 from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
-from dandy.application.agent.intel import AgentTurnIntel
+from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from tests.application.tool.intelligence.tools import ToolBot, WeatherTool
 from dandy.domain.intel.intel import DefaultIntel
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
@@ -102,6 +102,73 @@ class TestAgentTurn(TestCase):
             _message_text(message) for message in post_clear_messages if message['role'] == 'user'
         ]
         self.assertFalse(any('Austin' in text for text in user_texts))
+
+    def test_turn_raises_when_history_and_message_exceed_window(self) -> None:
+        self.agent.max_context_tokens = 1
+
+        with self.assertRaises(AgentRecoverableError):
+            self.agent.turn('This message is far too big for the window.')
+
+        self.assertEqual(len(self.agent.history), 0)
+
+
+class TestAgentSession(TestCase):
+    def setUp(self) -> None:
+        self.agent = Agent(ToolBot(), tools=[WeatherTool()])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_save_session_captures_context(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
+
+        self.agent.turn('What is the weather in Austin?')
+
+        session = self.agent.save_session()
+
+        self.assertEqual(session.last_request, 'What is the weather in Austin?')
+        self.assertEqual(
+            [message.role for message in session.messages], ['system', 'user', 'assistant']
+        )
+        self.assertGreater(session.token_count, 0)
+        self.assertIsNotNone(session.model)
+        self.assertIsNotNone(session.config)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_save_load_round_trip_keeps_conversation(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "It is sunny.", "done": true}'),
+            content_response('{"text": "Loaded answer.", "done": true}'),
+        ]
+
+        self.agent.turn('What is the weather in Austin?')
+        session = AgentSession.model_validate_json(self.agent.save_session().model_dump_json())
+
+        fresh_agent = Agent(ToolBot(), tools=[WeatherTool()])
+        fresh_agent.load_session(session)
+        result = fresh_agent.turn('And in Dallas?')
+
+        self.assertEqual(result.text, 'Loaded answer.')
+        self.assertEqual(fresh_agent.last_request, 'And in Dallas?')
+
+        resumed_messages = _request_messages_for_call(mock_post_request, 2)
+        user_texts = [
+            _message_text(message) for message in resumed_messages if message['role'] == 'user'
+        ]
+        self.assertTrue(any('Austin' in text for text in user_texts))
+        self.assertTrue(any('Dallas' in text for text in user_texts))
+        self.assertIn('tool', [message['role'] for message in resumed_messages])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_clear_forgets_session_metadata(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
+
+        self.agent.turn('What is the weather in Austin?')
+        self.agent.clear()
+
+        self.assertIsNone(self.agent.last_request)
+        self.assertEqual(len(self.agent.history), 0)
 
 
 class TestAgentRun(TestCase):

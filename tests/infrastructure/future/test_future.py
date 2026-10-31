@@ -16,10 +16,7 @@ class StoryIntel(BaseIntel):
 
 class PirateStoryBot(Bot):
     def process(self, message):
-        return self.llm.prompt_to_intel(
-            prompt=message,
-            intel_class=StoryIntel,
-        )
+        return self.llm.prompt_to_intel(prompt=message, intel_class=StoryIntel)
 
 
 TEST_FUTURE_SLEEP_TIME = 0.3
@@ -55,7 +52,7 @@ class TestFuture(TestCase):
     @live_llm_test
     def test_bot_future(self):
         response_future = PirateStoryBot().process_to_future(
-            'Write a quick poem about pirates enjoying a day at the beach.',
+            'Write a quick poem about pirates enjoying a day at the beach.'
         )
 
         self.assertTrue(len(response_future.result.text) > 0)
@@ -88,7 +85,7 @@ class TestFuture(TestCase):
             self.assertNotEqual(
                 result1.sentence,
                 result2.sentence,
-                f"Sentences should not match: {result1.sentence} == {result2.sentence}"
+                f'Sentences should not match: {result1.sentence} == {result2.sentence}',
             )
 
     def test_future_cancel(self):

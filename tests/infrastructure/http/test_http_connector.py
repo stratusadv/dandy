@@ -15,9 +15,7 @@ class TestHttpConnector(TestCase):
     def make_request_intel(self) -> HttpRequestIntel:
         return HttpRequestIntel(method='POST', url='https://example.com/v1/test')
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_returns_200_response_on_first_attempt(self, mock_to_response: mock.MagicMock) -> None:
         mock_to_response.return_value = response(200)
 
@@ -26,9 +24,7 @@ class TestHttpConnector(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(mock_to_response.call_count, 1)
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_returns_201_response_on_first_attempt(self, mock_to_response: mock.MagicMock) -> None:
         mock_to_response.return_value = response(201)
 
@@ -37,9 +33,7 @@ class TestHttpConnector(TestCase):
         self.assertEqual(result.status_code, 201)
         self.assertEqual(mock_to_response.call_count, 1)
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_retries_timeouts_then_succeeds(self, mock_to_response: mock.MagicMock) -> None:
         mock_to_response.side_effect = [
             requests.exceptions.Timeout(),
@@ -52,9 +46,7 @@ class TestHttpConnector(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(mock_to_response.call_count, 3)
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_retries_non_2xx_then_succeeds(self, mock_to_response: mock.MagicMock) -> None:
         mock_to_response.side_effect = [response(500), response(503), response(200)]
 
@@ -63,9 +55,7 @@ class TestHttpConnector(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(mock_to_response.call_count, 3)
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_timeout_exhaustion_raises_recoverable_error(
         self, mock_to_response: mock.MagicMock
     ) -> None:
@@ -78,9 +68,7 @@ class TestHttpConnector(TestCase):
         self.assertIn('after 4 attempts', str(context.exception))
         self.assertIn('status code 0', str(context.exception))
 
-    @mock.patch(
-        'dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel'
-    )
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_non_2xx_exhaustion_error_includes_response_details(
         self, mock_to_response: mock.MagicMock
     ) -> None:

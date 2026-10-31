@@ -23,10 +23,7 @@ if TYPE_CHECKING:
 
 
 def list_to_str(
-        items: List,
-        ordered: bool = False,
-        indent: int = 0,
-        ordered_number_prefix: str = ''
+    items: List, ordered: bool = False, indent: int = 0, ordered_number_prefix: str = ''
 ) -> str:
     output_str = ''
     ordered_correction = 1
@@ -36,7 +33,12 @@ def list_to_str(
 
         if isinstance(item, (list, tuple, set)):
             ordered_correction -= 1
-            output_str += list_to_str(items=item, ordered=ordered, indent=indent + 1, ordered_number_prefix=f'{ordered_number_prefix}{i + ordered_correction}.')
+            output_str += list_to_str(
+                items=item,
+                ordered=ordered,
+                indent=indent + 1,
+                ordered_number_prefix=f'{ordered_number_prefix}{i + ordered_correction}.',
+            )
         else:
             if ordered:
                 output_str += f'{ordered_number_prefix}{i + ordered_correction}. '
@@ -85,7 +87,7 @@ class ArraySnippet(BaseSnippet):
     items: list[str]
 
     def _to_str(self) -> str:
-        return '[\n'+',\n'.join(f'"{item}"' for item in self.items) + '\n]\n'
+        return '[\n' + ',\n'.join(f'"{item}"' for item in self.items) + '\n]\n'
 
 
 @dataclass(kw_only=True)
@@ -110,15 +112,11 @@ class DirectoryListSnippet(BaseSnippet):
     file_extensions: Sequence[str] | None = None
 
     def _to_str(self) -> str:
-        dir_path = get_directory_path_or_exception(
-            dir_path=self.directory_path,
-        )
+        dir_path = get_directory_path_or_exception(dir_path=self.directory_path)
 
         return UnorderedListSnippet(
-            items = get_directory_listing(
-                dir_path=dir_path,
-                max_depth=self.max_depth,
-                file_extensions=self.file_extensions,
+            items=get_directory_listing(
+                dir_path=dir_path, max_depth=self.max_depth, file_extensions=self.file_extensions
             )
         ).to_str()
 
@@ -136,9 +134,7 @@ class FileSnippet(BaseSnippet):
     encoding: str = 'utf-8'
 
     def _to_str(self) -> str:
-        self.file_path = get_file_path_or_exception(
-            file_path=self.file_path,
-        )
+        self.file_path = get_file_path_or_exception(file_path=self.file_path)
 
         return read_from_file(self.file_path, encoding=self.encoding) + '\n'
 
@@ -178,9 +174,7 @@ class ModuleSourceSnippet(BaseSnippet):
     module_name: str
 
     def _to_str(self) -> str:
-        source = inspect.getsource(
-            importlib.import_module(self.module_name)
-        )
+        source = inspect.getsource(importlib.import_module(self.module_name))
 
         return f'\n{source}\n'
 
@@ -195,9 +189,7 @@ class ObjectSourceSnippet(BaseSnippet):
 
         module = importlib.import_module(module_name)
 
-        source = inspect.getsource(
-            getattr(module, object_name)
-        )
+        source = inspect.getsource(getattr(module, object_name))
 
         return f'\n{source}\n'
 
@@ -219,6 +211,7 @@ class PromptSnippet(BaseSnippet):
             return f'{self.prompt}\n'
 
         return f'{self.prompt.to_str()}\n'
+
 
 @dataclass(kw_only=True)
 class RandomChoiceSnippet(BaseSnippet):
@@ -268,4 +261,3 @@ class UnorderedRandomListSnippet(UnorderedListSnippet):
     def _to_str(self) -> str:
         shuffle(self.items)
         return super()._to_str()
-

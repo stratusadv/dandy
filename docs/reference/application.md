@@ -133,8 +133,9 @@ model's output (see the [Bots](../user_guide/bots.md) page).
 ## Agent
 
 The stateful, loop-ready base class for agentic use cases: one `turn` per exchange
-over a persistent history, and a `run` that drives turns until the request is
-complete. Documented in [Agent](../user_guide/agent.md).
+over a persistent history, a `run` that drives turns until the request is
+complete, and `save_session` / `load_session` for persisting the conversation.
+Documented in [Agent](../user_guide/agent.md).
 
 ::: dandy.application.agent.agent.Agent
     options:
@@ -142,8 +143,25 @@ complete. Documented in [Agent](../user_guide/agent.md).
             - turn
             - run
             - clear
+            - save_session
+            - load_session
 
 ::: dandy.application.agent.intel.AgentTurnIntel
+
+::: dandy.application.agent.intel.AgentSession
+
+::: dandy.application.agent.intel.SessionRecord
+
+::: dandy.application.agent.session_store.SessionStore
+    options:
+        members:
+            - for_project
+            - save
+            - load
+            - delete
+            - latest
+            - list_sessions
+            - new_name
 
 ::: dandy.application.agent.exceptions.AgentCriticalError
 
@@ -151,14 +169,14 @@ complete. Documented in [Agent](../user_guide/agent.md).
 
 ## The coding agent
 
-The framework's own agentic use case: a planning bot plus a coding bot over a persistent
-history, with tools, planning, and context-window compaction. The CLI is a thin
-interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
+The framework's own agentic use case: a child of `Agent` that adds a planning bot
+whose plan is folded into each turn's prompt, over a persistent history with
+tools and context-window compaction. The CLI is a thin interface on top of it; see
+[The Coding Agent](../user_guide/coding_agent.md).
 
 ::: dandy.application.agent.coding_agent.CodingAgent
     options:
         members:
-            - chat
             - clear
 
 ::: dandy.application.agent.session.DandyCliSession

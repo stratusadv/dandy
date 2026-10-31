@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from dandy.shared.singleton import Singleton
 
+
 class TestSingleton(TestCase):
     def test_singleton(self):
         class PersonSingleton(Singleton):

@@ -8,6 +8,7 @@ from blessed import Terminal
 
 from dandy.interfaces.cli.thinking_phrases import THINKING_PHRASES
 from dandy.application.agent.session import session
+from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
 from dandy.shared.settings.load import get_cli_llm_config
@@ -77,6 +78,18 @@ class _StoryProgress:
         return f'\r{prefix}{short_beat} {dots}{self.term.clear_eol()}'
 
 
+def session_banner_line(store: SessionStore) -> str:
+    """The welcome banner line summarizing the project's saved sessions."""
+    latest_name = store.latest()
+
+    if latest_name is None:
+        return 'none yet - the first turn is saved automatically'
+
+    session_count = len(store.list_sessions())
+
+    return f'{session_count} saved, latest: {latest_name} - resume it with /resume {latest_name}'
+
+
 class Printer:
     def __init__(self, terminal: Terminal) -> None:
         self.term = terminal
@@ -112,6 +125,10 @@ class Printer:
             self.term.bold_blue('Model        : ') + LlmConfig(get_cli_llm_config('CODING')).model
         )
         print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
+        print(
+            self.term.bold_blue('Sessions     : ')
+            + session_banner_line(SessionStore.for_project(session.project_base_path))
+        )
 
     def running_phrase(self, action_name: str):
         phrase = random.choice(THINKING_PHRASES)

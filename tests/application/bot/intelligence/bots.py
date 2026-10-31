@@ -11,12 +11,12 @@ class MoneyBagBot(Bot):
     intel_class = MoneyBagIntel
 
     def process(
-            self,
-            user_input: str,
-            intel_class: type[MoneyBagIntel] | None = None,
-            intel_object: MoneyBagIntel | None = None,
-            include: IncEx | None = None,
-            exclude: IncEx | None = None,
+        self,
+        user_input: str,
+        intel_class: type[MoneyBagIntel] | None = None,
+        intel_object: MoneyBagIntel | None = None,
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
     ) -> MoneyBagIntel:
         return self.llm.prompt_to_intel(
             prompt=Prompt(user_input),
@@ -28,12 +28,12 @@ class MoneyBagBot(Bot):
 
 
 class ParrotBot(Bot):
-    role = "Parrot Assistant"
-    task = "Say the sentence the user provided back to them like a parrot along with a happiness level to match the sentence."
+    role = 'Parrot Assistant'
+    task = 'Say the sentence the user provided back to them like a parrot along with a happiness level to match the sentence.'
     intel_class = HappyIntel
 
 
 class OtherBot(Bot):
-    role = "Cockatiel Assistant"
-    task = "Say the sentence the user provided back to them like a cockatiel along with a sadness level to match the sentence."
+    role = 'Cockatiel Assistant'
+    task = 'Say the sentence the user provided back to them like a cockatiel along with a sadness level to match the sentence.'
     intel_class = SadIntel

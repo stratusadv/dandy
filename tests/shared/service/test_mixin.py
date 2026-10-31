@@ -40,6 +40,7 @@ class TestBaseServiceMixin(TestCase):
 
     def test_required_attrs_raise_service_critical_error_when_none(self) -> None:
         with self.assertRaises(ServiceCriticalError) as context:
+
             class BadMixinUser(BaseServiceMixin):
                 _required_attrs = ('llm_config',)
                 llm_config = None

@@ -12,10 +12,7 @@ from dandy.infrastructure.recorder.recorder import Recorder
 _EVENT_OBJECT_NAME = 'LLM Service'
 
 
-def recorder_add_llm_failure_event(
-        error: Exception,
-        event_id: str
-):
+def recorder_add_llm_failure_event(error: Exception, event_id: str):
     Recorder.add_event(
         Event(
             id=event_id,
@@ -31,15 +28,13 @@ def recorder_add_llm_failure_event(
                         else str(error)
                     ),
                 )
-            ]
+            ],
         )
     )
 
 
 def recorder_add_llm_retry_event(
-        description: str,
-        event_id: str,
-        remaining_attempts: int | None = None
+    description: str, event_id: str, remaining_attempts: int | None = None
 ):
     Recorder.add_event(
         Event(
@@ -50,32 +45,22 @@ def recorder_add_llm_retry_event(
             attributes=[
                 EventAttribute(
                     key='Reason',
-                    value=f'{description}\nRemaining Attempts: {remaining_attempts}' if remaining_attempts is not None else description,
+                    value=f'{description}\nRemaining Attempts: {remaining_attempts}'
+                    if remaining_attempts is not None
+                    else description,
                 )
-            ]
+            ],
         )
     )
 
 
-def recorder_add_llm_request_event(
-        request_body: LlmRequestBody,
-        event_id: str
-):
-    skip_attributes = (
-        'stream',
-        'response_format',
-        'messages',
-    )
+def recorder_add_llm_request_event(request_body: LlmRequestBody, event_id: str):
+    skip_attributes = ('stream', 'response_format', 'messages')
     event_attributes = []
 
     for key, value in request_body.model_dump().items():
         if key not in skip_attributes:
-            event_attributes.append(
-                EventAttribute(
-                    key=key,
-                    value=str(value)
-                )
-            )
+            event_attributes.append(EventAttribute(key=key, value=str(value)))
 
     llm_request_event = Event(
         id=event_id,
@@ -87,27 +72,24 @@ def recorder_add_llm_request_event(
             *event_attributes,
             EventAttribute(
                 key='JSON Schema',
-                value=json.dumps(request_body.json_schema, indent=4) if request_body.response_format is not None else 'None',
+                value=json.dumps(request_body.json_schema, indent=4)
+                if request_body.response_format is not None
+                else 'None',
                 is_dropdown=True,
-            )
-        ]
+            ),
+        ],
     )
 
     for message in request_body.messages:
         for message_content in message.content:
             llm_request_event.add_attribute(
-                key=message.role,
-                value=str(message_content.text),
-                is_card=True,
+                key=message.role, value=str(message_content.text), is_card=True
             )
 
     Recorder.add_event(llm_request_event)
 
 
-def recorder_add_llm_response_event(
-        message_content: str,
-        event_id: str
-):
+def recorder_add_llm_response_event(message_content: str, event_id: str):
     Recorder.add_event(
         Event(
             id=event_id,
@@ -115,22 +97,12 @@ def recorder_add_llm_response_event(
             callable_name='Response',
             type=EventType.RESPONSE,
             token_usage=get_estimated_token_count_for_string(message_content),
-            attributes=[
-                EventAttribute(
-                    key='LLM Response',
-                    value=message_content,
-                    is_card=True,
-                )
-            ]
+            attributes=[EventAttribute(key='LLM Response', value=message_content, is_card=True)],
         )
     )
 
 
-def recorder_add_llm_success_event(
-        description: str,
-        event_id: str,
-        intel: BaseIntel | None = None
-):
+def recorder_add_llm_success_event(description: str, event_id: str, intel: BaseIntel | None = None):
     intel_json = None
 
     if intel:
@@ -143,15 +115,12 @@ def recorder_add_llm_success_event(
             callable_name='Success',
             type=EventType.SUCCESS,
             attributes=[
-                EventAttribute(
-                    key='Status',
-                    value=description,
-                ),
+                EventAttribute(key='Status', value=description),
                 EventAttribute(
                     key=intel.__class__.__name__ if intel_json else 'Result',
                     value=intel_json or 'None',
-                    is_card=True
+                    is_card=True,
                 ),
-            ]
+            ],
         )
     )

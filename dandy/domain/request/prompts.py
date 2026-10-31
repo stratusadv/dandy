@@ -38,7 +38,7 @@ def service_system_prompt(
     prompt.line_break()
     prompt.list(
         [
-            'Do not add any styling, formatting, explanations, reasoning, or extra text to your response unless specified by your role, task, guidelines, or by the user\'s request.',
+            "Do not add any styling, formatting, explanations, reasoning, or extra text to your response unless specified by your role, task, guidelines, or by the user's request.",
             'Your response must be valid JSON reflecting the provided JSON schema.',
         ]
     )
@@ -52,9 +52,7 @@ def service_system_validation_error_prompt(error: ValidationError) -> Prompt:
         .text(
             'The JSON in the response you provided was not valid based on the JSON schema that was provided.'
         )
-        .text(
-            'Here is the validation error provided by Pydantic when it tried to parse the JSON:'
-        )
+        .text('Here is the validation error provided by Pydantic when it tried to parse the JSON:')
         .text(f'{pydantic_validation_error_to_str(error)}', triple_backtick=True)
         .text(
             'Please review your response and provide valid JSON in your next response, '

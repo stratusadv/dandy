@@ -5,13 +5,8 @@ from faker import Faker
 from dandy import Recorder
 from dandy.application.bot.bot import Bot
 from dandy.infrastructure.http.intel import HttpResponseIntel
-from dandy.domain.decision.exceptions import (
-    DecisionCriticalError,
-    DecisionRecoverableError,
-)
-from tests.domain.decision.intelligence.decisions import (
-    FunDecisionBot,
-)
+from dandy.domain.decision.exceptions import DecisionCriticalError, DecisionRecoverableError
+from tests.domain.decision.intelligence.decisions import FunDecisionBot
 from tests.consts import live_llm_test
 from tests.nines.decorators import nines_testing
 
@@ -22,9 +17,7 @@ class TestDecision(TestCase):
             _ = Bot().llm.decision.prompt_to_values(
                 prompt='I would like to see a single cat.',
                 keys_description='Numbers to a String',
-                keys_values={
-                    123: 'this decision mapping value is invalid as it needs string keys'
-                }
+                keys_values={123: 'this decision mapping value is invalid as it needs string keys'},
             )
 
     @live_llm_test
@@ -32,7 +25,7 @@ class TestDecision(TestCase):
         values = FunDecisionBot(llm_temperature=0.0).process(
             'I enjoy seeing my dog every day and think animals are really cool, '
             'and I would be glad to get a free puppy. Give me two choices of things to do!',
-            2
+            2,
         )
 
         self.assertEqual(2, len(values))
@@ -58,56 +51,34 @@ class TestDecision(TestCase):
 
         values = Bot().llm.decision.prompt_to_values(
             prompt=f'I am looking for {name}',
-            keys_description= 'Employee First and Last Names',
-            keys_values=user_dictionary
+            keys_description='Employee First and Last Names',
+            keys_values=user_dictionary,
         )
 
         Recorder.stop_recording('test_big_user_decision')
         Recorder.to_html_file('test_big_user_decision')
 
-        self.assertEqual(
-            name,
-            {val: key for key, val in user_dictionary.items()}[values[0]]
-        )
+        self.assertEqual(name, {val: key for key, val in user_dictionary.items()}[values[0]])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_no_keys_decision_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
-            status_code=200,
-            json_data={
-                'choices': [
-                    {
-                        'message': {
-                            'content': '{"keys": []}',
-                        }
-                    }
-                ]
-            },
+            status_code=200, json_data={'choices': [{'message': {'content': '{"keys": []}'}}]}
         )
 
         with self.assertRaises(DecisionRecoverableError):
             value = FunDecisionBot().process(
-                'I really like my pet dog and hope to get another one',
-                2
+                'I really like my pet dog and hope to get another one', 2
             )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_to_many_keys_decision_retry(self, mock_post_request: mock.MagicMock):
         mock_post_request.return_value = HttpResponseIntel(
             status_code=200,
-            json_data={
-                'choices': [
-                    {
-                        'message': {
-                            'content': '{"keys": ["1", "2", "3", "4"]}',
-                        }
-                    }
-                ]
-            },
+            json_data={'choices': [{'message': {'content': '{"keys": ["1", "2", "3", "4"]}'}}]},
         )
 
         with self.assertRaises(DecisionRecoverableError):
             value = FunDecisionBot().process(
-                'I really like my pet dog and hope to get another one',
-                2
+                'I really like my pet dog and hope to get another one', 2
             )

@@ -47,15 +47,15 @@ class TestCache(TestCase):
 
         start = time.perf_counter()
 
-        clown = create_clown(name="Happy Fred", juggles=True, wig_color="red")
+        clown = create_clown(name='Happy Fred', juggles=True, wig_color='red')
 
         self.assertGreater(time.perf_counter() - start, 0.05)
 
         cached_start = time.perf_counter()
 
-        _ = create_clown(name="Happy Fred", juggles=True, wig_color="red")
-        cached_clown = create_clown(name="Happy Fred", juggles=True, wig_color="red")
-        _ = create_clown(name="Happy Fred", juggles=True, wig_color="red")
+        _ = create_clown(name='Happy Fred', juggles=True, wig_color='red')
+        cached_clown = create_clown(name='Happy Fred', juggles=True, wig_color='red')
+        _ = create_clown(name='Happy Fred', juggles=True, wig_color='red')
 
         self.assertLess(time.perf_counter() - cached_start, 0.1)
 
@@ -107,4 +107,3 @@ class TestCache(TestCase):
 
     def test_sqlite_complex_object_cache(self):
         self.run_complex_object_cache(sql_lite_cache, cache_to_sqlite)
-

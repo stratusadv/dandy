@@ -18,16 +18,12 @@ class SceneLlmBot(Bot):
     task = 'You are a scene planning bot. You will be given information on a book that is being written.'
     guidelines = Prompt().list(
         [
-            'For the current chapter you will create all the required scenes needed to cover the plot points in the chapter.',
+            'For the current chapter you will create all the required scenes needed to cover the plot points in the chapter.'
         ]
     )
 
     @cache_to_sqlite('example')
-    def process(
-        self,
-        book_intel: BookIntel,
-        chapter_intel: ChapterIntel,
-    ) -> ChapterIntel:
+    def process(self, book_intel: BookIntel, chapter_intel: ChapterIntel) -> ChapterIntel:
         prompt = Prompt()
 
         prompt.prompt(book_intel_prompt(book_intel))

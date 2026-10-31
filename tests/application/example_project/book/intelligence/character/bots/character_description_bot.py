@@ -16,13 +16,15 @@ if TYPE_CHECKING:
 
 class CharacterGeneratorBot(Bot):
     role = 'Character Generator'
-    task = 'You are a character generating bot, please create a character based on the provided input.'
+    task = (
+        'You are a character generating bot, please create a character based on the provided input.'
+    )
 
     def process(
-            self,
-            book_intel: BookIntel,
-            character_type: CharacterType,
-            characters_intel: CharactersIntel | None = None,
+        self,
+        book_intel: BookIntel,
+        character_type: CharacterType,
+        characters_intel: CharactersIntel | None = None,
     ) -> CharacterIntel:
         prompt = Prompt()
 
@@ -44,7 +46,4 @@ class CharacterGeneratorBot(Bot):
         prompt.sub_heading('New Character Type')
         prompt.text(character_type.value)
 
-        return self.llm.prompt_to_intel(
-            prompt=prompt,
-            intel_class=CharacterIntel,
-        )
+        return self.llm.prompt_to_intel(prompt=prompt, intel_class=CharacterIntel)

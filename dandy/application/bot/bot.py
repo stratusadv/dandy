@@ -11,23 +11,11 @@ from dandy.application.llm.mixin import LlmServiceMixin
 from dandy.domain.prompt.prompt import Prompt
 
 
-class Bot(
-    FileServiceMixin,
-    LlmServiceMixin,
-    HttpServiceMixin,
-    IntelServiceMixin,
-):
+class Bot(FileServiceMixin, LlmServiceMixin, HttpServiceMixin, IntelServiceMixin):
     def __init__(
-        self,
-        llm_config: str | None = None,
-        llm_temperature: float | None = None,
-        **kwargs,
+        self, llm_config: str | None = None, llm_temperature: float | None = None, **kwargs
     ) -> None:
-        super().__init__(
-            llm_config=llm_config,
-            llm_temperature=llm_temperature,
-            **kwargs,
-        )
+        super().__init__(llm_config=llm_config, llm_temperature=llm_temperature, **kwargs)
 
         self.recorder_event_id = ''
         self._recorder_called = None
@@ -46,11 +34,7 @@ class Bot(
             def __getattribute__(self: Self, name: str) -> Any:  # noqa: N807
                 attr = super().__getattribute__(name)
 
-                if (
-                    name == 'process'
-                    and callable(attr)
-                    and not hasattr(attr, '_wrapped')
-                ):
+                if name == 'process' and callable(attr) and not hasattr(attr, '_wrapped'):
                     wrapped = record_process_wrapper(self, attr)
                     setattr(wrapped, '_wrapped', True)
 
@@ -67,11 +51,7 @@ class Bot(
     def get_description(cls) -> str | None:
         pass
 
-    def process(
-        self,
-        *args,
-        **kwargs,
-    ) -> Any:
+    def process(self, *args, **kwargs) -> Any:
         if len(args) >= 1 and isinstance(args[0], Prompt | str):
             kwargs['prompt'] = args[0]
 

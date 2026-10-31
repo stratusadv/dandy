@@ -2,16 +2,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
-from dandy.application.agent.coding_agent import (
-    AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
-    CodingAgent,
-    compact_message_history,
-)
+from dandy.application.agent.agent import AGENT_MAX_CONTEXT_TOKENS_DEFAULT
+from dandy.application.agent.coding_agent import CodingAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
 from dandy.shared.settings import settings
 from dandy.infrastructure.http.intel import HttpResponseIntel
-from dandy.domain.message.message import MessageHistory
+from dandy.domain.message.message import MessageHistory, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 
@@ -50,8 +47,8 @@ class TestCodingAgentMultiTurn(TestCase):
             content_response('{"text": "Updated the file to say goodbye."}'),
         ]
 
-        first_result = self.agent.chat('Create nested/agent.txt with the text hello agent')
-        second_result = self.agent.chat('Change the greeting in nested/agent.txt to goodbye agent')
+        first_result = self.agent.turn('Create nested/agent.txt with the text hello agent')
+        second_result = self.agent.turn('Change the greeting in nested/agent.txt to goodbye agent')
 
         self.assertEqual(first_result.text, 'Created nested/agent.txt.')
         self.assertEqual(second_result.text, 'Updated the file to say goodbye.')
@@ -100,7 +97,7 @@ class TestCodingAgentMultiTurn(TestCase):
         responses.append(content_response('{"text": "Found it."}'))
         mock_post_request.side_effect = responses
 
-        result = self.agent.chat('Find needle')
+        result = self.agent.turn('Find needle')
 
         self.assertEqual(result.text, 'Found it.')
         self.assertEqual(mock_post_request.call_count, 7)
@@ -111,7 +108,7 @@ class TestCodingAgentMultiTurn(TestCase):
 
         verbose_messages = []
 
-        result = self.agent.chat('Say something', verbose_callback=verbose_messages.append)
+        result = self.agent.turn('Say something', verbose_callback=verbose_messages.append)
 
         self.assertEqual(result.text, 'Direct answer.')
         self.assertIn('Round 1: model returned a final response', verbose_messages)
@@ -124,8 +121,8 @@ class TestCodingAgentMultiTurn(TestCase):
             content_response('{"text": "Third answer after clear."}'),
         ]
 
-        self.agent.chat('First question')
-        self.agent.chat('Second question before clear')
+        self.agent.turn('First question')
+        self.agent.turn('Second question before clear')
 
         self.assertGreater(len(self.agent.history), 0)
 
@@ -133,7 +130,7 @@ class TestCodingAgentMultiTurn(TestCase):
 
         self.assertEqual(len(self.agent.history), 0)
 
-        cleared_result = self.agent.chat('Fresh question after clear')
+        cleared_result = self.agent.turn('Fresh question after clear')
 
         self.assertEqual(cleared_result.text, 'Third answer after clear.')
 
@@ -297,7 +294,7 @@ class TestCodingAgentCompaction(TestCase):
 
         progress_calls: list[str] = []
 
-        self.agent.chat('continue', progress_callback=progress_calls.append)
+        self.agent.turn('continue', progress_callback=progress_calls.append)
 
         self.assertIn('Compacting conversation history', ' '.join(progress_calls))
 
@@ -318,7 +315,7 @@ class TestCodingAgentCompaction(TestCase):
         self.agent.history.add_message(role='user', text='A huge pasted payload ' + ('h' * 50_000))
 
         with self.assertRaises(AgentRecoverableError) as context:
-            self.agent.chat('tiny question')
+            self.agent.turn('tiny question')
 
         self.assertIn('context window', str(context.exception))
         self.assertEqual(mock_post_request.call_count, 0)
@@ -358,11 +355,11 @@ class TestCodingAgentCompaction(TestCase):
         )
 
         self.agent.history = self._build_history_with_tool_rounds(12)
-        self.agent._compact_history_for_next_message(prompt=raw_prompt)
+        self.agent._compact_history_for_next_message(message=raw_prompt)
         raw_remaining_count = len(self.agent.history)
 
         self.agent.history = self._build_history_with_tool_rounds(12)
-        self.agent._compact_history_for_next_message(prompt=plan_prompt)
+        self.agent._compact_history_for_next_message(message=plan_prompt)
         plan_remaining_count = len(self.agent.history)
 
         self.assertLess(plan_remaining_count, raw_remaining_count)
@@ -375,23 +372,38 @@ class TestCodingAgentCompaction(TestCase):
 
         progress_calls: list[str] = []
 
-        self.agent.chat('short question', progress_callback=progress_calls.append)
+        self.agent.turn('short question', progress_callback=progress_calls.append)
 
         self.assertFalse(any('Compacting conversation history' in call for call in progress_calls))
 
-    def test_agent_resolves_context_size_from_settings(self) -> None:
+    def test_agent_resolves_context_size_from_coding_config(self) -> None:
         self.assertEqual(self.agent.max_context_tokens, 65_536)
 
-        self.agent.bot.llm_config = 'THINKING'
-        self.assertEqual(self.agent._resolve_context_size(), 65_536)
-
     def test_agent_context_size_accepts_string_values(self) -> None:
-        with mock.patch.object(settings, 'LLM_CONFIGS', {'DEFAULT': {'CONTEXT_SIZE': '8000'}}):
-            self.assertEqual(self.agent._resolve_context_size(), 8000)
+        with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size='8000')):
+            agent = CodingAgent(run_planning=False)
+
+        self.assertEqual(agent.max_context_tokens, 8000)
 
     def test_agent_context_size_falls_back_when_absent(self) -> None:
-        with mock.patch.object(settings, 'LLM_CONFIGS', {'DEFAULT': {'MODEL': 'x'}}):
-            self.assertEqual(self.agent._resolve_context_size(), AGENT_MAX_CONTEXT_TOKENS_DEFAULT)
+        with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size=None)):
+            agent = CodingAgent(run_planning=False)
+
+        self.assertEqual(agent.max_context_tokens, AGENT_MAX_CONTEXT_TOKENS_DEFAULT)
+
+
+def _coding_llm_configs(context_size: int | str | None) -> dict:
+    default_config = {
+        'HOST': 'https://api.openai.com',
+        'PORT': 443,
+        'API_KEY': 'test-key',
+        'MODEL': 'gpt-test',
+    }
+
+    if context_size is not None:
+        default_config['CONTEXT_SIZE'] = context_size
+
+    return {'DEFAULT': default_config, 'THINKING': {'MODEL': 'gpt-test'}}
 
 
 def user_message_text(request_intel: HttpResponseIntel, index: int = 1) -> str:
@@ -413,7 +425,7 @@ class TestCodingAgentPlanning(TestCase):
         self.temp_directory_context.cleanup()
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_chat_creates_plan_and_feeds_it_to_coding_bot(
+    def test_turn_creates_plan_and_feeds_it_to_coding_bot(
         self, mock_post_request: mock.MagicMock
     ) -> None:
         mock_post_request.side_effect = [
@@ -423,7 +435,7 @@ class TestCodingAgentPlanning(TestCase):
 
         progress_calls: list[str] = []
 
-        result = self.agent.chat('Add a feature', progress_callback=progress_calls.append)
+        result = self.agent.turn('Add a feature', progress_callback=progress_calls.append)
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 2)
@@ -436,12 +448,12 @@ class TestCodingAgentPlanning(TestCase):
         self.assertIn('Step 1: read the code, Step 2: edit it.', coding_user_text)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_chat_skips_planning_when_disabled(self, mock_post_request: mock.MagicMock) -> None:
+    def test_turn_skips_planning_when_disabled(self, mock_post_request: mock.MagicMock) -> None:
         mock_post_request.side_effect = [content_response('{"text": "Done."}')]
 
         self.agent.run_planning = False
 
-        result = self.agent.chat('Add a feature')
+        result = self.agent.turn('Add a feature')
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 1)
@@ -459,13 +471,13 @@ class TestCodingAgentPlanning(TestCase):
         responses.append(content_response('{"text": "Done."}'))
         mock_post_request.side_effect = responses
 
-        result = self.agent.chat('Investigate then do it')
+        result = self.agent.turn('Investigate then do it')
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 8)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_planning_conversation_starts_fresh_each_chat(
+    def test_planning_conversation_starts_fresh_each_turn(
         self, mock_post_request: mock.MagicMock
     ) -> None:
         mock_post_request.side_effect = [
@@ -475,8 +487,8 @@ class TestCodingAgentPlanning(TestCase):
             content_response('{"text": "Second answer."}'),
         ]
 
-        self.agent.chat('First request')
-        self.agent.chat('Second request')
+        self.agent.turn('First request')
+        self.agent.turn('Second request')
 
         planning_messages = self.agent.planning_bot.llm._llm_connector.request_body.messages
 

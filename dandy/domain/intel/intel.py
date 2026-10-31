@@ -2,16 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from types import UnionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Iterator,
-    Self,
-    TypeVar,
-    Union,
-    get_origin,
-)
+from typing import TYPE_CHECKING, Any, Generic, Iterator, Self, TypeVar, Union, get_origin
 
 from pydantic import BaseModel, PrivateAttr
 from pydantic.main import IncEx, create_model
@@ -28,17 +19,10 @@ if TYPE_CHECKING:
 class BaseIntel(BaseModel, ABC):
     @classmethod
     def create_from_file(cls, file_path: Path | str) -> Self:
-        return cls.model_validate_json(
-            json_data=read_from_file(
-                file_path=file_path
-            )
-        )
+        return cls.model_validate_json(json_data=read_from_file(file_path=file_path))
 
     @classmethod
-    def _get_field_default_value_from_field_info(
-        cls,
-        field_info: Any,
-    ) -> Any:
+    def _get_field_default_value_from_field_info(cls, field_info: Any) -> Any:
         field_default_value = field_info.default_factory or field_info.default
 
         if isinstance(field_default_value, type):
@@ -73,17 +57,10 @@ class BaseIntel(BaseModel, ABC):
         include_dict = cls._inc_ex_to_dict(include)
         exclude_dict = cls._inc_ex_to_dict(exclude)
 
-        cls._validate_inc_ex_dict_or_error(
-            include_dict,
-            exclude_dict,
-        )
+        cls._validate_inc_ex_dict_or_error(include_dict, exclude_dict)
 
         cls._validate_inc_ex_value_or_error(
-            include,
-            include_dict,
-            exclude,
-            exclude_dict,
-            intel_object,
+            include, include_dict, exclude, exclude_dict, intel_object
         )
 
         processed_fields = {}
@@ -94,9 +71,7 @@ class BaseIntel(BaseModel, ABC):
 
             field_annotation = FieldAnnotation(field_info.annotation, field_name)
 
-            field_default_value = cls._get_field_default_value_from_field_info(
-                field_info
-            )
+            field_default_value = cls._get_field_default_value_from_field_info(field_info)
 
             field_annotation_type = False
 
@@ -110,8 +85,7 @@ class BaseIntel(BaseModel, ABC):
                     sub_model: type[BaseIntel] = field_annotation.first_inner
 
                     new_sub_model = sub_model.model_inc_ex_class_copy(
-                        include=include_value,
-                        exclude=exclude_value,
+                        include=include_value, exclude=exclude_value
                     )
 
                     field_annotation_type = (
@@ -127,29 +101,19 @@ class BaseIntel(BaseModel, ABC):
                         else field_annotation_origin[field_annotation.first_inner]
                     )
 
-            elif (include_value and exclude is None) or (
-                exclude_value is None and include is None
-            ):
+            elif (include_value and exclude is None) or (exclude_value is None and include is None):
                 field_annotation_type = field_annotation.base
 
             if field_annotation_type:
-                processed_fields[field_name] = (
-                    field_annotation_type,
-                    field_default_value,
-                )
+                processed_fields[field_name] = (field_annotation_type, field_default_value)
 
         return create_model(cls.__name__, **processed_fields, __base__=BaseIntel)
 
     @classmethod
     def model_json_inc_ex_schema(
-        cls,
-        include: IncEx | None = None,
-        exclude: IncEx | None = None,
+        cls, include: IncEx | None = None, exclude: IncEx | None = None
     ) -> dict:
-        return cls.model_inc_ex_class_copy(
-            include=include,
-            exclude=exclude,
-        ).model_json_schema()
+        return cls.model_inc_ex_class_copy(include=include, exclude=exclude).model_json_schema()
 
     def model_object_json_inc_ex_schema(
         self, include: IncEx | None = None, exclude: IncEx | None = None
@@ -159,9 +123,7 @@ class BaseIntel(BaseModel, ABC):
         ).model_json_schema()
 
     def model_validate_and_copy(self, update: dict) -> Self:
-        return self.model_validate(
-            obj=self.model_copy(update=update).model_dump(warnings=False),
-        )
+        return self.model_validate(obj=self.model_copy(update=update).model_dump(warnings=False))
 
     def model_validate_json_and_copy(self, json_data: str) -> Self:
         return self.model_validate_and_copy(update=from_json(json_data))
@@ -170,11 +132,7 @@ class BaseIntel(BaseModel, ABC):
         write_to_file(file_path=file_path, content=self.model_dump_json(indent=2))
 
     @classmethod
-    def _validate_inc_ex_dict_or_error(
-        cls,
-        include_dict: dict,
-        exclude_dict: dict,
-    ):
+    def _validate_inc_ex_dict_or_error(cls, include_dict: dict, exclude_dict: dict):
         field_names = set(cls.model_fields.keys())
 
         if include_dict:
@@ -204,9 +162,7 @@ class BaseIntel(BaseModel, ABC):
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
 
-            if not isinstance(include_value, dict) and not isinstance(
-                exclude_value, dict
-            ):
+            if not isinstance(include_value, dict) and not isinstance(exclude_value, dict):
                 if include is None and exclude_value and field_info.is_required():
                     if intel_object is None:
                         message = f'{field_name} is required and cannot be excluded'
@@ -216,11 +172,7 @@ class BaseIntel(BaseModel, ABC):
                         message = f'{field_name} is required and has no value therefore cannot be excluded'
                         raise IntelCriticalError(message)
 
-                if (
-                    exclude is None
-                    and include_value is None
-                    and field_info.is_required()
-                ):
+                if exclude is None and include_value is None and field_info.is_required():
                     if intel_object is None:
                         message = f'{field_name} is required and must be included'
                         raise IntelCriticalError(message)

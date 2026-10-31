@@ -2,9 +2,7 @@ from typing import Any
 
 from dandy.shared.typing.typing import TypedKwargsDict
 
-TYPE_REGISTRY = {
-    'TypedKwargsDict': TypedKwargsDict,
-}
+TYPE_REGISTRY = {'TypedKwargsDict': TypedKwargsDict}
 
 
 def resolve_type_from_registry(type_str: str) -> type:

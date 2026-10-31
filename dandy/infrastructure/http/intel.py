@@ -25,7 +25,7 @@ class HttpResponseIntel(BaseIntel):
             status_code=requests_response.status_code,
             reason=requests_response.reason,
             text=requests_response.text,
-            json_data=json_data
+            json_data=json_data,
         )
 
     @property

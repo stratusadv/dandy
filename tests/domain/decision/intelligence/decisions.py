@@ -12,5 +12,5 @@ class FunDecisionBot(Bot):
                 'Interested in seeing animals': 782,
                 'Looking for something more technical': 927,
             },
-            max_return_values=max_return_values
+            max_return_values=max_return_values,
         )

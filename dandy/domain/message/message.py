@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Iterator, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from dandy.shared.files import encode_file_to_base64, get_file_extension_from_url_string
 from dandy.shared.media import (
@@ -59,6 +59,18 @@ class Message(BaseModel):
     content: list[MessageContent] = Field(default_factory=list)
     tool_call_id: str | None = None
     tool_calls: list[dict] | None = None
+
+    @field_validator('content', mode='before')
+    @classmethod
+    def _coerce_wire_content(cls, value: object) -> object:
+        """Accept the OpenAI wire shape, where tool content is a plain string."""
+        if value is None:
+            return []
+
+        if isinstance(value, str):
+            return [MessageContent(type='text', text=value)]
+
+        return value
 
     @property
     def text_content(self) -> str:

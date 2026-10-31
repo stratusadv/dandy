@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 
 class FileService(BaseService['dandy.infrastructure.file.mixin.FileServiceMixin']):
-
     @staticmethod
     def append(file_path: Path | str, content: str):
         files.append_to_file(file_path, content)
@@ -47,4 +46,3 @@ class FileService(BaseService['dandy.infrastructure.file.mixin.FileServiceMixin'
     @staticmethod
     def write(file_path: Path | str, content: str):
         files.write_to_file(file_path, content)
-

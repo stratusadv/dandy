@@ -22,7 +22,7 @@ def wrap_text_with_indentation(text: str, width: int = 70) -> str:
                 initial_indent=leading_space,
                 subsequent_indent=leading_space,
                 break_long_words=False,
-                break_on_hyphens=False
+                break_on_hyphens=False,
             )
             wrapped_content = wrapper.fill(line.strip())
             wrapped_lines.append(wrapped_content)

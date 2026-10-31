@@ -25,11 +25,7 @@ prompt = (
     .text('I would like you to create me a new type of car.')
     .line_break()
     .heading('Rules')
-    .list([
-        'The car should be fast',
-        'The car should be safe',
-        'The car should be fun to drive',
-    ])
+    .list(['The car should be fast', 'The car should be safe', 'The car should be fun to drive'])
 )
 print(prompt.to_str())
 ```
@@ -41,11 +37,7 @@ This method is the best for creating prompts that are complex or need to have th
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
 from dandy import Prompt
 
-CAR_RULES = [
-    'The car should be fast',
-    'The car should be safe',    
-    'The car should be fun to drive',
-]
+CAR_RULES = ['The car should be fast', 'The car should be safe', 'The car should be fun to drive']
 
 prompt = Prompt()
 prompt.title('Car Generator')
@@ -90,16 +82,15 @@ There is lots of different types of formatting that can be used to create prompt
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
 from dandy import Prompt, BaseIntel
 
+
 class PersonIntel(BaseIntel):
     name: str
     age: int
 
+
 person_intel = PersonIntel(name='John', age=30)
 
-another_prompt = (
-    Prompt()
-    .text('Hello from another prompt')
-)
+another_prompt = Prompt().text('Hello from another prompt')
 
 new_prompt = (
     Prompt()
@@ -139,12 +130,14 @@ Let's make a function that returns a dynamically constructed prompt based on the
 ```python exec="True" source="above" source="material-block" result="markdown" session="prompt"
 from dandy import Prompt
 
+
 def generate_prompt(name: str, age: int) -> Prompt:
     prompt = Prompt()
 
     prompt.text(f'Hello {name} you are {age} years old.')
 
     return prompt
+
 
 prompt = generate_prompt('John', 30)
 

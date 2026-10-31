@@ -28,9 +28,7 @@ def characters_creation(book_intel: BookIntel) -> CharactersIntel:
     for character_type in CHARACTER_TYPES:
         logging.info(f'Adding {character_type} Character')
         characters_intel.append(
-            CharacterGeneratorBot().process(
-                book_intel, character_type, characters_intel
-            )
+            CharacterGeneratorBot().process(book_intel, character_type, characters_intel)
         )
 
     return characters_intel

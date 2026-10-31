@@ -25,20 +25,13 @@ class ImageBreakdownIntel(BaseIntel):
 
 class ImageBreakdownLlmBot(Bot):
     config = 'GEMMA_3_12B_VISION'
-    config_options = LlmOptions(
-        temperature=0.1,
-    )
+    config_options = LlmOptions(temperature=0.1)
 
     def process(
-            self,
-            prompt: Prompt,
-            intel_class: Type[ImageBreakdownIntel],
-            image_files: List[str | Path],
+        self, prompt: Prompt, intel_class: Type[ImageBreakdownIntel], image_files: List[str | Path]
     ) -> ImageBreakdownIntel:
         return self.llm.prompt_to_intel(
-            prompt=prompt,
-            intel_class=intel_class,
-            image_files=image_files,
+            prompt=prompt, intel_class=intel_class, image_files=image_files
         )
 
 

@@ -12,14 +12,13 @@ if TYPE_CHECKING:
 
 def plot_creation(book_intel: BookIntel, chapter_count: int) -> PlotPointsIntel:
     plot_points_intel = bots.PlotOutlineBot().process(
-        book_intel=book_intel,
-        chapter_count=chapter_count,
+        book_intel=book_intel, chapter_count=chapter_count
     )
 
     updated_plot_points_intel = PlotPointsIntel()
 
     for i, plot_point_intel in enumerate(plot_points_intel):
-        logging.info(f'Adding a description for plot point {i+1}')
+        logging.info(f'Adding a description for plot point {i + 1}')
         updated_plot_points_intel.append(
             bots.PlotPointDescriptionBot().process(
                 plot_point_intel=plot_point_intel,

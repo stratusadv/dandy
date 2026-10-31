@@ -57,7 +57,6 @@ print(f'Finished in {perf_counter() - start_time:.3f} seconds')
 Sometimes in more complex situations you might need to cancel a future or set a timeout.
 
 ```python exec="True" source="above" source="material-block" result="markdown" session="futures"
-
 from dandy import Bot
 
 user_likes_scary_animals = True

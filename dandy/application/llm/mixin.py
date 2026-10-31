@@ -19,11 +19,7 @@ class LlmServiceMixin(BaseServiceMixin):
     system_override_prompt: Prompt | str | None = None
     skills: list[SkillType] = []
 
-    _required_attrs: ClassVar[tuple[str, ...]] = (
-        'llm_config',
-        'role',
-        'task',
-    )
+    _required_attrs: ClassVar[tuple[str, ...]] = ('llm_config', 'role', 'task')
 
     def __init__(
         self,

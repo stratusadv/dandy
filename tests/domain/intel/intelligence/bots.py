@@ -3,6 +3,4 @@ from dandy.domain.request.options import LlmOptions
 
 
 class JsonSchemaBot(Bot):
-    llm_options = LlmOptions(
-        temperature=0.0,
-    )
+    llm_options = LlmOptions(temperature=0.0)

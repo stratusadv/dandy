@@ -8,8 +8,7 @@ from dandy.shared.typing.typed_kwargs import TypedKwargs
 
 
 def get_typed_kwargs_from_callable_signature(
-        callable_: Callable,
-        return_defaulted: bool = True,
+    callable_: Callable, return_defaulted: bool = True
 ) -> TypedKwargs:
     signature = inspect.signature(callable_)
 
@@ -29,9 +28,7 @@ def get_typed_kwargs_from_callable_signature(
     return TypedKwargs(typed_kwargs_dict)
 
 
-def get_typed_kwargs_from_simple_json_schema(
-        simple_json_schema: dict | str
-) -> TypedKwargs:
+def get_typed_kwargs_from_simple_json_schema(simple_json_schema: dict | str) -> TypedKwargs:
 
     if isinstance(simple_json_schema, str):
         simple_json_schema = json.loads(simple_json_schema)
@@ -46,19 +43,15 @@ def get_typed_kwargs_from_simple_json_schema(
             if isinstance(type_, dict):
                 for type_1, type_2 in type_.items():
                     typed_kwargs_dict[name] = Dict[
-                        string_to_type_or_error(type_1),
-                        string_to_type_or_error(type_2)
+                        string_to_type_or_error(type_1), string_to_type_or_error(type_2)
                     ]
                     break
 
             if isinstance(type_, list):
                 if len(type_) > 0:
-                    typed_kwargs_dict[name] = List[
-                        string_to_type_or_error(type_[0])
-                    ]
+                    typed_kwargs_dict[name] = List[string_to_type_or_error(type_[0])]
                 else:
                     typed_kwargs_dict[name] = list
-
 
     except KeyError as error:
         message = f'Type {simple_json_schema} is not recognized'

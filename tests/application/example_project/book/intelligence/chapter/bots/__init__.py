@@ -6,8 +6,4 @@ from tests.application.example_project.book.intelligence.chapter.bots.chapters_p
 )
 from tests.application.example_project.book.intelligence.chapter.bots.scene_bot import SceneLlmBot
 
-__all__ = [
-    'ChapterContentLlmBot',
-    'ChaptersLlmBot',
-    'SceneLlmBot',
-]
+__all__ = ['ChapterContentLlmBot', 'ChaptersLlmBot', 'SceneLlmBot']

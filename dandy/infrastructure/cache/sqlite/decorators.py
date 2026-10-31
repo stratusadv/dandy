@@ -7,10 +7,7 @@ from dandy.shared.settings import settings
 from dandy.shared.constants import CACHE_DEFAULT_NAME
 
 
-def cache_to_sqlite(
-        cache_name: str = CACHE_DEFAULT_NAME,
-        limit: int | None = None
-) -> Callable:
+def cache_to_sqlite(cache_name: str = CACHE_DEFAULT_NAME, limit: int | None = None) -> Callable:
     if limit is None:
         limit = settings.CACHE_SQLITE_LIMIT
 
@@ -18,13 +15,7 @@ def cache_to_sqlite(
         @wraps(func)
         def wrapper(*args, **kwargs) -> Callable:
             return cache_decorator_function(
-                SqliteCache(
-                    cache_name=cache_name,
-                    limit=limit,
-                ),
-                func,
-                *args,
-                **kwargs
+                SqliteCache(cache_name=cache_name, limit=limit), func, *args, **kwargs
             )
 
         return wrapper

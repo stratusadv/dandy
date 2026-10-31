@@ -19,7 +19,7 @@ Recorder.start_recording('my_session')
 # ... any Bot.process calls ...
 Recorder.stop_recording('my_session')
 
-Recorder.to_markdown_file('my_session')   # or to_html_file / to_json_file
+Recorder.to_markdown_file('my_session')  # or to_html_file / to_json_file
 ```
 
 Renderings write to `{BASE_PATH}/.dandy/recordings/` and require

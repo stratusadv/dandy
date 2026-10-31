@@ -12,6 +12,7 @@ from dandy.infrastructure.recorder.utils import generate_recorder_event_id, json
 if TYPE_CHECKING:
     from dandy.application.bot.bot import Bot
 
+
 def record_process_wrapper(self: Bot, method: Callable) -> Callable:
     @functools.wraps(method)
     def wrapper(*args, **kwargs) -> Callable:
@@ -26,28 +27,17 @@ def record_process_wrapper(self: Bot, method: Callable) -> Callable:
                     callable_name='Process',
                     type=EventType.RUN,
                     attributes=[
-                        EventAttribute(
-                            key='Module',
-                            value=self.__class__.__module__,
-                        ),
+                        EventAttribute(key='Module', value=self.__class__.__module__),
                         EventAttribute(
                             key='Args',
-                            value=json.dumps(
-                                args,
-                                indent=4,
-                                default=json_default
-                            ),
-                            is_card=True
+                            value=json.dumps(args, indent=4, default=json_default),
+                            is_card=True,
                         ),
                         EventAttribute(
                             key='Kwargs',
-                            value=json.dumps(
-                                kwargs,
-                                indent=4,
-                                default=json_default
-                            ),
-                            is_card=True
-                        )
+                            value=json.dumps(kwargs, indent=4, default=json_default),
+                            is_card=True,
+                        ),
                     ],
                 )
             )
@@ -64,19 +54,12 @@ def record_process_wrapper(self: Bot, method: Callable) -> Callable:
                     callable_name='Process Returned Result',
                     type=EventType.RESULT,
                     attributes=[
-                        EventAttribute(
-                            key='Module',
-                            value=self.__class__.__module__,
-                        ),
+                        EventAttribute(key='Module', value=self.__class__.__module__),
                         EventAttribute(
                             key='Returned Result',
-                            value=json.dumps(
-                                result,
-                                indent=4,
-                                default=json_default
-                            ),
+                            value=json.dumps(result, indent=4, default=json_default),
                             is_card=True,
-                        )
+                        ),
                     ],
                 )
             )
@@ -85,4 +68,3 @@ def record_process_wrapper(self: Bot, method: Callable) -> Callable:
         return result
 
     return wrapper
-

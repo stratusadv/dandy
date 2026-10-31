@@ -16,7 +16,7 @@ def add(a: int, b: int) -> int:
 
 
 future = process_to_future(add, 1, 2)
-print(future.get_result(timeout_seconds=5))   # 3
+print(future.get_result(timeout_seconds=5))  # 3
 ```
 
 (Verified: the callable runs on a worker thread; `get_result` blocks up to the timeout

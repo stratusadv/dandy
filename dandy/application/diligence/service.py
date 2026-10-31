@@ -18,21 +18,15 @@ class DiligenceService(BaseService['dandy.application.diligence.mixin.DiligenceS
 
     @property
     def second_pass(self) -> SecondPassRemovalDiligence:
-        return self.post_handler.get_diligence(
-            SecondPassRemovalDiligence
-        )
+        return self.post_handler.get_diligence(SecondPassRemovalDiligence)
 
     @property
     def stop_word_removal(self) -> StopWordRemovalDiligence:
-        return self.post_handler.get_diligence(
-            StopWordRemovalDiligence
-        )
+        return self.post_handler.get_diligence(StopWordRemovalDiligence)
 
     @property
     def vowel_removal(self) -> VowelRemovalDiligence:
-        return self.pre_handler.get_diligence(
-            VowelRemovalDiligence
-        )
+        return self.pre_handler.get_diligence(VowelRemovalDiligence)
 
     def reset(self):
         self._reset_handlers()

@@ -21,7 +21,6 @@ def book_intel_prompt(book_intel: BookIntel) -> Prompt:
         prompt.line_break()
 
     if book_intel.world:
-
         prompt.heading('World:')
         prompt.sub_heading(f'Name: {book_intel.world.name}')
         prompt.text(label='Description', text=book_intel.world.description)

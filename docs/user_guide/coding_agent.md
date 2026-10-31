@@ -11,14 +11,16 @@ TUI and console script that drive it).
 
 The `dandy` console script is a pure agent REPL: every message you type goes through one
 pipeline, and one-shot mode (`dandy "fix the failing test"`) runs the same pipeline for a
-single turn.
+single turn. One-shot is stateless: it answers the request but creates no session file;
+`dandy --continue "keep going"` runs one request inside the most recently saved session
+and reports which one it used.
 
 ```text
 your message
   │
   ▼
-CodingAgent.chat            (dandy/application/agent/coding_agent.py)
-  │  1. optional planning turn:
+CodingAgent.turn              (dandy/application/agent/coding_agent.py)
+  │  1. optional planning turn (a base-Agent hook):
   │       PlanningBot (THINKING config) writes an Implementation Plan
   │       that is folded into the coding prompt
   │  2. compact the persistent history if it approaches CONTEXT_SIZE
@@ -31,6 +33,10 @@ CodingAgent.chat            (dandy/application/agent/coding_agent.py)
   ▼
 the agent's final answer (rendered as terminal markdown)
 ```
+
+`CodingAgent` is the framework's own child of the base [Agent](agent.md): the planning
+pass is an override of the base `Agent`'s `_prepare_message` hook, so everything else
+(compaction, the fit check, session save/load) comes from the base class unchanged.
 
 Because each turn reuses the persistent `MessageHistory`, the agent remembers the
 conversation; `replace_message_history=True` attaches *your* history object so the
@@ -64,12 +70,33 @@ final answers through a dependency-free `MarkdownRenderer` (headings, lists, cod
 tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 "Running pytest -q").
 
-- `/clear` resets the history; `/quit` / `/exit` stop the loop.
+- `/new [name]` starts a fresh conversation (optionally pre-naming its session file);
+  `/sessions` lists saved sessions; `/resume <name>` loads one and keeps the current
+  agent state; `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
 - Pressing **escape twice** exits.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
 
-## The session
+## Sessions
 
-`DandyCliSession` (`dandy/application/agent/session.py`) is the use case's input state:
-the project base path and the local `.dandy` directory. The CLI builds it from the
-current working directory; a headless driver would do the same.
+The REPL's conversation is persisted automatically: after every turn the agent's
+history is saved under the project at `.dandy/agent/sessions/<name>.json` (the
+agent-neutral `agent/` directory, not `cli/`, so any agent over the same project
+shares the location). The first turn names the session after your request
+(`YYYY-MM-DD-<slug>`, e.g. `2026-10-31-fix-the-login-bug`; collisions get `-2`,
+`-3`, ...), and later turns update the same file. The welcome banner always shows
+a session-status line (how many are saved and how to resume the latest).
+
+A saved session carries the full message history plus metadata: created/updated
+timestamps, the last request, the model and config name, and an estimated token
+count. `/resume <name>` loads the history back into the agent, so the next turn
+continues exactly where that conversation left off; `/delete <name>` removes the
+file. The store is plain JSON per session, so you can inspect or copy session
+files by hand.
+
+Under the hood the persistence is agent-neutral: the base [Agent](agent.md) owns
+`save_session()` / `load_session()`, and `SessionStore`
+(`dandy/application/agent/session_store.py`) reads, writes, lists, and names the
+session files. `DandyCliSession` (`dandy/application/agent/session.py`) is the
+REPL's own input state: just the project base path and the local `.dandy`
+directory — the CLI builds it from the current working directory; a headless
+driver would do the same.

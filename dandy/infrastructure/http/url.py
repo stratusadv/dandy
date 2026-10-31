@@ -31,8 +31,10 @@ class Url(BaseModel):
         initial_path = self.parsed_url.path.removesuffix('/')
 
         if self.path_parameters:
-            return initial_path + '/' + '/'.join(
-                [quote(parameter) for parameter in self.path_parameters]
+            return (
+                initial_path
+                + '/'
+                + '/'.join([quote(parameter) for parameter in self.path_parameters])
             )
 
         return ''

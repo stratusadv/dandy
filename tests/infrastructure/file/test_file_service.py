@@ -21,12 +21,12 @@ class TestFileService(TestCase):
         self.tmpdir_ctx.cleanup()
 
     def test_write_creates_parent_dir_and_writes_string(self):
-        target = self.tmpdir / "nested" / "dir" / "file.txt"
+        target = self.tmpdir / 'nested' / 'dir' / 'file.txt'
 
-        content = "hello world"
+        content = 'hello world'
         self.file_service.write(target, content)
 
-        self.assertTrue(target.exists(), "Expected file to be created")
+        self.assertTrue(target.exists(), 'Expected file to be created')
         read_back = self.file_service.read(target)
         self.assertEqual(read_back, content)
 
@@ -41,22 +41,22 @@ class TestFileService(TestCase):
         self.assertEqual(self.file_service.read(target), 'onetwo')
 
     def test_exists_and_remove_rm(self):
-        target = self.tmpdir / "x" / "y" / "z.txt"
+        target = self.tmpdir / 'x' / 'y' / 'z.txt'
         self.assertFalse(self.file_service.exists(target))
 
-        self.file_service.write(target, "data")
+        self.file_service.write(target, 'data')
         self.assertTrue(self.file_service.exists(target))
 
         FileService.remove(target)
         self.assertFalse(self.file_service.exists(target))
 
-        self.file_service.write(target, "data")
+        self.file_service.write(target, 'data')
         self.assertTrue(self.file_service.exists(target))
         self.file_service.rm(target)
         self.assertFalse(self.file_service.exists(target))
 
     def test_make_directory_and_mkdir_idempotent(self):
-        d = self.tmpdir / "a" / "b" / "c"
+        d = self.tmpdir / 'a' / 'b' / 'c'
         self.assertFalse(d.exists())
         FileService.make_directory(d)
         self.assertTrue(d.exists())
@@ -65,7 +65,7 @@ class TestFileService(TestCase):
         self.assertTrue(d.exists())
 
     def test_read_raises_for_missing_file(self):
-        missing = self.tmpdir / "nope" / "missing.txt"
+        missing = self.tmpdir / 'nope' / 'missing.txt'
         with self.assertRaises(DandyCriticalError):
             FileService.read(missing)
 

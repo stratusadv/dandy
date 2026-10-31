@@ -17,18 +17,12 @@ class TestIntelClassGenerator(TestCase):
         new_intel_class = IntelFactory.callable_signature_to_intel_class(math)
 
         try:
-            _ = new_intel_class(
-                a=1,
-                b='horse'
-            )
+            _ = new_intel_class(a=1, b='horse')
             self.assertTrue(False)
         except ValidationError:
             self.assertTrue(True)
 
-        new_math_args = new_intel_class(
-            a=1,
-            b=2
-        )
+        new_math_args = new_intel_class(a=1, b=2)
 
         self.assertEqual(math(**new_math_args.model_to_kwargs()), 3)
 
@@ -43,32 +37,20 @@ class TestIntelClassGenerator(TestCase):
         new_intel_class = IntelFactory.callable_signature_to_intel_class(chaos_math)
 
         try:
-            _ = new_intel_class(
-                a=1.0,
-                b=1,
-                chaos_list=[
-                    Chaos(x=5, y=5.5),
-                    Chaos(x=10, y='horse')
-                ]
-            )
+            _ = new_intel_class(a=1.0, b=1, chaos_list=[Chaos(x=5, y=5.5), Chaos(x=10, y='horse')])
             self.assertTrue(False)
         except ValidationError:
             self.assertTrue(True)
 
         new_chaos_math_args = new_intel_class(
-            a=1.0,
-            b=2,
-            chaos_list=[
-                Chaos(x=5, y=5.5),
-                Chaos(x=10, y=10.5)
-            ]
+            a=1.0, b=2, chaos_list=[Chaos(x=5, y=5.5), Chaos(x=10, y=10.5)]
         )
 
         self.assertEqual(chaos_math(**new_chaos_math_args.model_to_kwargs()), 34.0)
 
-
     def test_from_class_signature_no_annotations(self):
         with self.assertRaises(TypingCriticalError):
+
             def subtract(a, b: int):
                 return a - b
 
@@ -87,10 +69,7 @@ class TestIntelClassGenerator(TestCase):
             weight=147,
             height=80.5,
             friends=['Sarah', 'Larry', 'Rebecca'],
-            cards={
-                22: 'red',
-                45: 'green'
-            }
+            cards={22: 'red', 45: 'green'},
         )
 
         self.assertEqual(new_intel.first_name, 'Phil')

@@ -15,13 +15,7 @@ class HttpService(BaseService['dandy.infrastructure.http.mixin.HttpServiceMixin'
         cookies: dict | None = None,
     ) -> HttpResponseIntel:
         return self._http_connector.request_to_response(
-            HttpRequestIntel(
-                method='GET',
-                url=url,
-                params=params,
-                headers=headers,
-                cookies=cookies,
-            )
+            HttpRequestIntel(method='GET', url=url, params=params, headers=headers, cookies=cookies)
         )
 
     def post(

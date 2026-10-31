@@ -19,10 +19,7 @@ class WorldCreationBot(Bot):
         ['You will generate a world with enough locations for the characters.']
     )
 
-    def process(
-        self,
-        book_intel: BookIntel,
-    ) -> WorldIntel:
+    def process(self, book_intel: BookIntel) -> WorldIntel:
         prompt = Prompt()
         prompt.title(f'Title: {book_intel.start.title}')
         prompt.heading(f'Overview: {book_intel.start.overview}')
