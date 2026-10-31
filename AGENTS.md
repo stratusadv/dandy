@@ -122,7 +122,7 @@ Convention: tests keep their fakes and fixtures under a nested **`intelligence/`
 
 ### Public API surface
 
-`dandy/__init__.py` (the composition root — the only module allowed to import every layer) re-exports the curated API: `Agent`, `Bot`, `Prompt`, `BaseIntel`, `BaseListIntel`, `BaseSkill`, `Recorder`, `MemoryCache`, `SqliteCache`, `cache_to_memory`, `cache_to_sqlite`, `generate_cache_key`, `process_to_future`, `recorder_to_html_file`/`recorder_to_json_file`/`recorder_to_markdown_file`, and exceptions `DandyError` / `DandyCriticalError` / `DandyRecoverableError`.
+`dandy/__init__.py` (the composition root — the only module allowed to import every layer) re-exports the curated API: `Agent`, `Bot`, `Prompt`, `BaseIntel`, `BaseListIntel`, `BaseSkill`, `BaseTool`, `Decision`, `DefaultIntel`, `LlmOptions`, `MessageHistory`, `Recorder`, `MemoryCache`, `SqliteCache`, `cache_to_memory`, `cache_to_sqlite`, `generate_cache_key`, `process_to_future`, `recorder_to_html_file`/`recorder_to_json_file`/`recorder_to_markdown_file`, and exceptions `DandyError` / `DandyCriticalError` / `DandyRecoverableError`. The same API is also exposed as the `Dandy` namespace class defined in that file (`from dandy import Dandy`, then `Dandy.Bot`, `Dandy.Prompt`, ...) — it must stay a pure re-binding (docstring + class attributes, no methods) because the file must remain a thin re-export layer with no logic.
 
 ### LLM flow
 

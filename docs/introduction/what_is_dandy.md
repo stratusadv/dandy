@@ -42,6 +42,20 @@ schema generation, a system-prompted request, an HTTP adapter call, response val
 and a validation-error retry loop — with every piece living in exactly one layer and
 every layer boundary checked by an import-linter contract.
 
+## One import
+
+The whole public API is also reachable through a single namespace, which makes
+`Dandy.<tab>` in an IDE list everything the library offers:
+
+```python
+from dandy import Dandy
+
+intel = Dandy.Bot().process('What is the capital of Canada?', intel_class=CapitalIntel)
+```
+
+`Dandy.Bot` *is* `dandy.Bot` — the namespace re-exports the public API without
+wrapping anything, so both import styles are interchangeable.
+
 ## Where to read next
 
 - [Design Principles](principles.md) — the small set of commitments the architecture

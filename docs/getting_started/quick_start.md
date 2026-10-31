@@ -35,7 +35,9 @@ response_intel = Bot().process('What is the capital of Canada?')
 print(response_intel.text)
 ```
 
-`Bot().process` returns a `DefaultIntel`; `.text` holds the model's answer.
+`Bot().process` returns a `DefaultIntel`; `.text` holds the model's answer. (The same
+API is also reachable as one namespace: `from dandy import Dandy`, then
+`Dandy.Bot`, `Dandy.Prompt`, ... — see [What is Dandy](../introduction/what_is_dandy.md#one-import).)
 
 ## 3. A typed call
 
