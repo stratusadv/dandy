@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
 from dandy.infrastructure.cache.cache import BaseCache
-from dandy.infrastructure.cache.tools import generate_cache_key
+from dandy.infrastructure.cache.key import generate_cache_key
 from dandy.shared.utils import pascal_to_title_case
 from dandy.domain.intel.intel import BaseIntel
 from dandy.infrastructure.recorder.events import Event, EventAttribute, EventType

@@ -1,9 +1,10 @@
 # Application Layer
 
 The application layer orchestrates: it composes domain objects with infrastructure to
-execute use cases. `Bot` is the entry point; the LLM, tool, decoder, and diligence
-services are the use-case services that hang off it; the coding agent is the framework's
-own in-house use case (the CLI's brain).
+execute use cases. `Bot` is the entry point; the LLM, tool, decision, and diligence
+services are the use-case services that hang off it; `Agent` is the stateful, looped
+generalization of a Bot; the coding agent is the framework's own in-house use case
+(the CLI's brain).
 
 The application layer may depend on the [domain](domain.md) and the
 [shared kernel](shared.md). It is allowed to depend on the [infrastructure layer](infrastructure.md)
@@ -38,6 +39,7 @@ for where this sits in the pipeline.
             - options
             - prompt_to_intel
             - prompt_to_intel_future
+            - append_system_prompt
             - reset
             - reset_messages
 
@@ -48,19 +50,41 @@ for where this sits in the pipeline.
 The [execute-and-loop](../user_guide/tool_calling.md) use case: keeps calling the model,
 running requested tools, and feeding results back until a final answer arrives.
 
-::: dandy.application.llm.tool.service.LlmToolService
+::: dandy.application.tool.service.ToolService
     options:
         members:
             - prompt_to_intel
             - reset
 
-::: dandy.application.llm.tool.mixin.LlmToolServiceMixin
+::: dandy.application.tool.mixin.ToolServiceMixin
 
-## Decoder
+## Skill service
 
-The "pick one of these" use case, documented in [Decoders](../user_guide/decoders.md).
+The [skill](../user_guide/skill.md) registry on the LLM service: holds the bot's skills,
+exposes the active ones' methods as tools, and offers `activate_skill` while any
+passive skill is unactivated. Access via `bot.llm.skills`.
 
-::: dandy.application.llm.decoder.service.DecoderService
+::: dandy.application.skill.service.SkillService
+    options:
+        members:
+            - register
+            - system_prompt_section
+            - active_tools
+            - all_tool_names
+            - activate
+            - reset
+
+::: dandy.application.skill.mixin.SkillServiceMixin
+
+::: dandy.application.skill.tools.SkillMethodTool
+
+::: dandy.application.skill.tools.ActivateSkillTool
+
+## Decision
+
+The "pick one of these" use case, documented in [Decision](../user_guide/decision.md).
+
+::: dandy.application.decision.service.DecisionService
     options:
         members:
             - prompt_to_value
@@ -69,28 +93,28 @@ The "pick one of these" use case, documented in [Decoders](../user_guide/decoder
             - prompt_to_values_future
             - reset
 
-::: dandy.application.llm.decoder.decoder.Decoder
+::: dandy.application.decision.decision.Decision
     options:
         members:
             - __init__
             - as_enum
             - process
 
-::: dandy.application.llm.decoder.mixin.DecoderServiceMixin
+::: dandy.application.decision.mixin.DecisionServiceMixin
 
 ## Diligence
 
 Post-processing passes that can be activated on a service to transform or re-check the
 model's output (see the [Bots](../user_guide/bots.md) page).
 
-::: dandy.application.llm.diligence.diligence.BaseDiligence
+::: dandy.application.diligence.diligence.BaseDiligence
     options:
         members:
             - activate
             - deactivate
             - apply
 
-::: dandy.application.llm.diligence.handler.DiligenceHandler
+::: dandy.application.diligence.handler.DiligenceHandler
     options:
         members:
             - is_activated
@@ -98,13 +122,32 @@ model's output (see the [Bots](../user_guide/bots.md) page).
             - get_diligence
             - requires_new_llm_request
 
-::: dandy.application.llm.diligence.service.DiligenceService
+::: dandy.application.diligence.service.DiligenceService
 
-::: dandy.application.llm.diligence.second_pass.diligence.SecondPassRemovalDiligence
+::: dandy.application.diligence.second_pass.diligence.SecondPassRemovalDiligence
 
-::: dandy.application.llm.diligence.stop_word_removal.diligence.StopWordRemovalDiligence
+::: dandy.application.diligence.stop_word_removal.diligence.StopWordRemovalDiligence
 
-::: dandy.application.llm.diligence.vowel_removal.diligence.VowelRemovalDiligence
+::: dandy.application.diligence.vowel_removal.diligence.VowelRemovalDiligence
+
+## Agent
+
+The stateful, loop-ready base class for agentic use cases: one `turn` per exchange
+over a persistent history, and a `run` that drives turns until the request is
+complete. Documented in [Agent](../user_guide/agent.md).
+
+::: dandy.application.agent.agent.Agent
+    options:
+        members:
+            - turn
+            - run
+            - clear
+
+::: dandy.application.agent.intel.AgentTurnIntel
+
+::: dandy.application.agent.exceptions.AgentCriticalError
+
+::: dandy.application.agent.exceptions.AgentRecoverableError
 
 ## The coding agent
 

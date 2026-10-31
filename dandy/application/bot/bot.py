@@ -3,12 +3,12 @@ from typing import Any, Self
 
 from dandy.infrastructure.recorder.bot_events import record_process_wrapper
 from dandy.infrastructure.future.future import AsyncFuture
-from dandy.infrastructure.future.tools import process_to_future
+from dandy.infrastructure.future.process import process_to_future
 from dandy.infrastructure.file.mixin import FileServiceMixin
 from dandy.infrastructure.http.mixin import HttpServiceMixin
 from dandy.domain.intel.mixin import IntelServiceMixin
 from dandy.application.llm.mixin import LlmServiceMixin
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.prompt.prompt import Prompt
 
 
 class Bot(

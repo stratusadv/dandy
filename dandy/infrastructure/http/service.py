@@ -1,6 +1,6 @@
 from dandy.shared.service.service import BaseService
 from dandy.infrastructure.http.connector import HttpConnector
-from dandy.infrastructure.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
+from dandy.infrastructure.http.intel import HttpResponseIntel, HttpRequestIntel
 
 
 class HttpService(BaseService['dandy.infrastructure.http.mixin.HttpServiceMixin']):

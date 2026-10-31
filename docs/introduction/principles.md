@@ -27,7 +27,7 @@ a code review opinion.
 
 ## 4. The domain language is the code
 
-The public API uses the domain's own words — `Intel`, `Prompt`, `Bot`, `Decoder`,
+The public API uses the domain's own words — `Intel`, `Prompt`, `Bot`, `Decision`,
 `Recording`, `Event`, `Diligence` — and the code's organization mirrors the strategic
 design ([Bounded Contexts](../domain_model/contexts.md)). If a concept in the
 [glossary](../domain_model/glossary.md) does not have a home in the code, or a class does

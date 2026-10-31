@@ -31,7 +31,7 @@ flowchart TB
     subgraph Dandy["the dandy package"]
         Root["__init__.py — composition root (the public API)"]
         Interfaces["interfaces/ — CLI entry point, TUI"]
-        Application["application/ — Bot, the LLM / tool / decoder services, the coding agent"]
+        Application["application/ — Bot, the LLM / tool / decision services, the coding agent"]
         Domain["domain/ — Intel, Prompt, Message, BaseTool"]
         Infra["infrastructure/ — LlmConnector, HTTP, file, cache, recorder, futures"]
         Kernel["shared/ — shared kernel (service / connector ABCs, settings, files, media)"]
@@ -69,7 +69,7 @@ The bottom of the graph. Imports **nothing** from any layer.
 
 - `service/` — `BaseService` / `BaseServiceMixin` / `BaseConnector` ABCs (the service
   pattern, below).
-- `conf/` — `DandySettings` singleton, the `dandy.json` fallback loader,
+- `settings/` — `DandySettings` singleton, the `dandy.json` fallback loader,
   `get_cli_llm_config`.
 - `files.py`, `media.py` — filesystem primitives; base64 media detection.
 - `subprocess.py` — the `run_subprocess` command-execution primitive that
@@ -84,18 +84,23 @@ Pure value objects and policy. Imports only `shared`. No adapters, no endpoints,
 threads.
 
 - `intel/` — `BaseIntel`, `BaseListIntel`, `IntelFactory`, `IntelService`.
-- `tool/` — `BaseTool` and the tool-descriptor machinery.
-- `llm/` — `Prompt` + snippets, token estimation, `Message` / `MessageHistory` /
-  `LlmRequestBody` + `compact_message_history`, `LlmOptions`, decoder and tool-call
-  value objects, and the pure-string prompt templates under `intelligence/`.
+- `tool/` — `BaseTool`, the tool-descriptor machinery, and the tool-call value objects.
+- `prompt/` — `Prompt` + snippets (LLM-agnostic).
+- `tokens/` — dependency-free token estimation.
+- `message/` — `Message` / `MessageHistory` / `compact_message_history`.
+- `request/` — `LlmRequestBody` + `LlmOptions`, LLM exceptions, and the pure-string
+  prompt templates.
+- `decision/` — the decision's intel and exceptions.
 
 ### `dandy/application/` — application
 
 Use cases: orchestration of domain objects against the outside world.
 
 - `bot/` — `Bot`.
-- `llm/` — `LlmService` + mixins, `LlmToolService` (the tool-calling loop), `Decoder`,
-  diligence handlers.
+- `llm/` — `LlmService` + `LlmServiceMixin`.
+- `tool/` — `ToolService` (the tool-calling loop).
+- `decision/` — `Decision` + `DecisionService`.
+- `diligence/` — diligence handlers.
 - `agent/` — the coding agent: `CodingAgent`, session state, planning/coding bots,
   agent toolset.
 
@@ -140,12 +145,12 @@ points**: each permitted cross-layer import is an individual, exact
 today:
 
 - **application → infrastructure (21 edges):** `Bot` composing the file/http mixins,
-  futures, and the recorder wrapper; `LlmService`, `Decoder`, `LlmToolService` reaching
+  futures, and the recorder wrapper; `LlmService`, `Decision`, `ToolService` reaching
   `LlmConnector`, `LlmConfig`, futures, and the recorder `*_events` builders; five
   diligence modules annotating `LlmConnector` (type-checking only).
 - **infrastructure → application (3 edges):** type-checking-only annotations where event
   builders and the connector reference the objects they record or diligence
-  (`bot_events` → `Bot`, `decoder_events` → `Decoder`, `LlmConnector` →
+  (`bot_events` → `Bot`, `decision_events` → `Decision`, `LlmConnector` →
   `DiligenceHandler`).
 - **interfaces → infrastructure (2 edges):** the welcome banner resolving the CODING
   config's model name, and the CLI entry point (which reaches the seams transitively).

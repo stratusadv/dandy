@@ -14,9 +14,9 @@ from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.intel.typing import IntelType
 from dandy.infrastructure.llm.config import LlmConfig
-from dandy.domain.llm.exceptions import LlmCriticalError, LlmRecoverableError
-from dandy.domain.llm.intelligence.prompts import service_system_validation_error_prompt
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.prompts import service_system_validation_error_prompt
+from dandy.domain.prompt.prompt import Prompt
 from dandy.infrastructure.recorder.llm_events import (
     recorder_add_llm_failure_event,
     recorder_add_llm_request_event,
@@ -24,13 +24,13 @@ from dandy.infrastructure.recorder.llm_events import (
     recorder_add_llm_retry_event,
     recorder_add_llm_success_event,
 )
-from dandy.domain.llm.request.message import MessageHistory
-from dandy.domain.llm.tool.intel import LlmToolCallIntel, LlmToolCallsIntel
+from dandy.domain.message.message import MessageHistory
+from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
 from dandy.infrastructure.recorder.tool_events import recorder_add_tool_call_event
 from dandy.domain.tool.tool import ToolType, to_tool_instances
 
 if TYPE_CHECKING:
-    from dandy.application.llm.diligence.handler import DiligenceHandler
+    from dandy.application.diligence.handler import DiligenceHandler
 
 
 def _extract_code_fence_json_body(response_text: str) -> str | None:
@@ -87,7 +87,7 @@ class LlmConnector(BaseConnector):
 
     @property
     def has_retry_attempts_available(self) -> bool:
-        return self.prompt_retry_attempt < self.llm_config.options.prompt_retry_count
+        return self.prompt_retry_attempt < self.llm_config.prompt_retry_count
 
     def _http_request_to_response_str(self) -> None:
         http_connector = HttpConnector()
@@ -325,12 +325,12 @@ class LlmConnector(BaseConnector):
 
         return intel_object
 
-    def _parse_tool_calls_to_intel(self) -> LlmToolCallsIntel:
-        tool_calls_intel = LlmToolCallsIntel(summary=(self.response_str or '').strip())
+    def _parse_tool_calls_to_intel(self) -> ToolCallsIntel:
+        tool_calls_intel = ToolCallsIntel(summary=(self.response_str or '').strip())
 
         for tool_call in self.tool_calls or []:
             tool_calls_intel.append(
-                LlmToolCallIntel(
+                ToolCallIntel(
                     id=tool_call.get('id'),
                     name=tool_call['function']['name'],
                     arguments=tool_call['function'].get('arguments') or '',
@@ -350,8 +350,7 @@ class LlmConnector(BaseConnector):
             recorder_add_llm_retry_event(
                 retry_event_description,
                 self.recorder_event_id,
-                remaining_attempts=self.llm_config.options.prompt_retry_count
-                - self.prompt_retry_attempt,
+                remaining_attempts=self.llm_config.prompt_retry_count - self.prompt_retry_attempt,
             )
 
             self.request_body.messages.add_message(
@@ -360,7 +359,7 @@ class LlmConnector(BaseConnector):
 
             return self._request_to_intel()
 
-        message = f'Failed to get the correct response from the LlmService after {self.llm_config.options.prompt_retry_count} attempts.'
+        message = f'Failed to get the correct response from the LlmService after {self.llm_config.prompt_retry_count} attempts.'
         raise LlmRecoverableError(message)
 
     def _set_intel(

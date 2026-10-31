@@ -1,5 +1,5 @@
 from dandy.application.bot.bot import Bot
-from dandy.domain.llm.options import LlmOptions
+from dandy.domain.request.options import LlmOptions
 
 
 class JsonSchemaBot(Bot):

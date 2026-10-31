@@ -53,13 +53,13 @@ named by `DANDY_SETTINGS_MODULE` (default `dandy_settings`), falls back to a `da
 file, and falls back to the defaults. See [Configuration](../getting_started/configuration.md)
 for the full resolution order.
 
-::: dandy.shared.conf.settings.DandySettings
+::: dandy.shared.settings.settings.DandySettings
     options:
         members:
             - load_user_settings
             - reload_from_os
 
-::: dandy.shared.conf.utils
+::: dandy.shared.settings.load
     options:
         members:
             - get_settings_module_name
@@ -67,7 +67,7 @@ for the full resolution order.
             - find_settings_json_file
             - load_settings_from_json_file
 
-::: dandy.shared.conf.default_settings
+::: dandy.shared.settings.default_settings
 
 ## File utilities
 
@@ -119,7 +119,7 @@ this is what they call.
 
 ::: dandy.shared.typing.typed_kwargs.TypedKwargs
 
-::: dandy.shared.typing.tools
+::: dandy.shared.typing.signature
     options:
         members:
             - get_typed_kwargs_from_callable_signature

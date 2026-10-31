@@ -42,11 +42,12 @@ Your validated Intel
 
 | Step | Layer | Module |
 |---|---|---|
-| Prompt assembly | domain | `dandy/domain/llm/prompt/` |
-| Request body, messages, history | domain | `dandy/domain/llm/request/` |
+| Prompt assembly | domain | `dandy/domain/prompt/` |
+| Messages, history, compaction | domain | `dandy/domain/message/` |
+| Request body (wire shape) | domain | `dandy/domain/request/request.py` |
 | Intel → JSON schema, response → Intel | domain | `dandy/domain/intel/factory.py` |
 | Options, retry policy, diligence orchestration | application | `dandy/application/llm/service.py` |
-| Endpoint config, URL, diligence handlers | application / infrastructure | `dandy/application/llm/diligence/`, `dandy/infrastructure/llm/` |
+| Endpoint config, URL, diligence handlers | application / infrastructure | `dandy/application/diligence/`, `dandy/infrastructure/llm/` |
 | HTTP transport | infrastructure | `dandy/infrastructure/http/` |
 | Events along the way | infrastructure | `dandy/infrastructure/recorder/` |
 
@@ -63,9 +64,10 @@ Your validated Intel
 - **Tools clear strict mode.** Passing `tools` clears `response_format` on the request —
   strict response_format plus non-strict tools is a 400 error on OpenAI. The final answer
   is still validated locally by the Intel retry loop.
-- **Context is bounded by design.** `CONTEXT_SIZE` on the LLM config drives the derived
-  `max_completion_tokens` (20% of the window). Long sessions compact the history to 70%
-  of the window before every call, leaving a 10% margin — so input plus output fits by
-  construction. See [Options and Context](../user_guide/options_and_context.md).
+- **Context is bounded by design.** `CONTEXT_SIZE` on the LLM config is what long
+  sessions compact the history to 70% of, before every call, so the conversation never
+  overflows the provider's window. `max_completion_tokens` is a normal option (set it in
+  the config's `OPTIONS` when you want a bounded output). See
+  [Options and Context](../user_guide/options_and_context.md).
 - **Strict endpoints are respected.** vLLM/litellm reject a second or trailing system
   message, so the connector never adds one where the history already leads with one.

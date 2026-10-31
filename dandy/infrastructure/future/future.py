@@ -5,7 +5,7 @@ import concurrent.futures
 import threading
 from typing import TYPE_CHECKING, Callable, Generic, TypeVar
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.infrastructure.future.exceptions import (
     FutureCriticalError,
     FutureRecoverableError,

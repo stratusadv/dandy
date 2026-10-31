@@ -3,13 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dandy.infrastructure.future.tools import process_to_future
+from dandy.infrastructure.future.process import process_to_future
 from dandy.shared.service.service import BaseService
 from dandy.infrastructure.llm.connector import LlmConnector
-from dandy.application.llm.decoder.mixin import DecoderServiceMixin
-from dandy.application.llm.diligence.mixin import DiligenceServiceMixin
-from dandy.domain.llm.intelligence.prompts import service_system_prompt
-from dandy.application.llm.tool.mixin import LlmToolServiceMixin
+from dandy.application.decision.mixin import DecisionServiceMixin
+from dandy.application.diligence.mixin import DiligenceServiceMixin
+from dandy.domain.request.prompts import service_system_prompt
+from dandy.application.tool.mixin import ToolServiceMixin
+from dandy.application.skill.mixin import SkillServiceMixin
 
 if TYPE_CHECKING:
     from pydantic.main import IncEx
@@ -17,27 +18,37 @@ if TYPE_CHECKING:
     from dandy.infrastructure.future.future import AsyncFuture
     from dandy.domain.intel.typing import IntelType
     from dandy.infrastructure.llm.config import LlmConfig
-    from dandy.domain.llm.options import LlmOptions
-    from dandy.domain.llm.prompt.prompt import Prompt
-    from dandy.domain.llm.request.message import MessageHistory
+    from dandy.domain.request.options import LlmOptions
+    from dandy.domain.prompt.prompt import Prompt
+    from dandy.domain.message.message import MessageHistory
     from dandy.domain.tool.tool import ToolType
 
 
 class LlmService(
     BaseService['dandy.application.llm.mixin.LlmServiceMixin'],
-    DecoderServiceMixin,
+    DecisionServiceMixin,
     DiligenceServiceMixin,
-    LlmToolServiceMixin,
+    ToolServiceMixin,
+    SkillServiceMixin,
 ):
     def __post_init__(self):
+        self.skills.register(self.obj.skills)
+
+        system_prompt = service_system_prompt(
+            role=self.obj.role,
+            task=self.obj.task,
+            guidelines=self.obj.guidelines,
+            system_override_prompt=self.obj.system_override_prompt,
+        ).to_str()
+
+        skill_section = self.skills.system_prompt_section()
+
+        if skill_section:
+            system_prompt = f'{system_prompt}\n\n{skill_section}'
+
         self._llm_connector: LlmConnector = LlmConnector(
             recorder_event_id=self.recorder_event_id,
-            system_prompt=service_system_prompt(
-                role=self.obj.role,
-                task=self.obj.task,
-                guidelines=self.obj.guidelines,
-                system_override_prompt=self.obj.system_override_prompt,
-            ).to_str(),
+            system_prompt=system_prompt,
             llm_config=self.obj.get_llm_config(),
             intel_class=self.obj.intel_class,
             post_diligence_handler=self.diligence.post_handler,
@@ -95,9 +106,22 @@ class LlmService(
     def prompt_to_intel_future(self, **kwargs) -> AsyncFuture:
         return process_to_future(self.prompt_to_intel, **kwargs)
 
+    def append_system_prompt(self, section: str) -> None:
+        """Append a section to the system message for the rest of the conversation.
+
+        Used when skills are registered after the LlmService was built (for
+        example by an Agent wrapping the bot). Must be called before the
+        first request of the conversation.
+        """
+        if section:
+            self._llm_connector.system_prompt_str = (
+                f'{self._llm_connector.system_prompt_str}\n\n{section}'
+            )
+
     def reset(self):
         self._llm_connector.reset()
         self.reset_messages()
+        self.skills.reset()
 
     def reset_messages(self):
         self._llm_connector.request_body.reset_messages()

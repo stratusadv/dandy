@@ -5,7 +5,7 @@ from typing import Any, Self
 
 from pydantic import BaseModel, Field
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 
 
 class EventType(StrEnum):

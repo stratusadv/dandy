@@ -2,11 +2,11 @@ import inspect
 from typing import Any
 from unittest import TestCase
 
-from dandy.domain.llm.request.message import Message, MessageHistory
+from dandy.domain.message.message import Message, MessageHistory
 from dandy.domain.tool.exceptions import ToolCriticalError
 from dandy.domain.tool.tool import BaseTool, to_tool_instances
 
-from tests.application.llm.tool.intelligence.tools import NoParametersTool, RequiredWeatherTool, WeatherTool
+from tests.application.tool.intelligence.tools import NoParametersTool, RequiredWeatherTool, WeatherTool
 
 
 class NoHandleTool(BaseTool):
@@ -111,7 +111,8 @@ class TestBaseTool(TestCase):
         instances = to_tool_instances([WeatherTool, WeatherTool(), RequiredWeatherTool])
 
         self.assertEqual(len(instances), 3)
-        self.assertTrue(all(isinstance(tool, BaseTool) for tool in instances))
+        for tool in instances:
+            self.assertIsInstance(tool, BaseTool)
         self.assertEqual(instances[0].name, 'get_weather')
         self.assertEqual(instances[2].name, 'get_weather')
 

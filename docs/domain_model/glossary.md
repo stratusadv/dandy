@@ -17,7 +17,7 @@ construction, safe to share.
 
 ### Prompt
 
-A structured, composable text object (`dandy/domain/llm/prompt/`) — the system's
+A structured, composable text object (`dandy/domain/prompt/`) — the system's
 outgoing message, built from snippets (headings, lists, embedded files, embedded Intel
 schemata) rather than concatenating strings. A prompt is a [value object](tactical.md#value-objects):
 immutable in use, compared by content.
@@ -28,6 +28,14 @@ A named unit of AI behavior: a use-case object that owns *how* a task is perform
 (role, task statement, guidelines, which endpoint config, which Intel class it returns).
 Bots are how application code asks the domain for work. See
 [Bots](../user_guide/bots.md).
+
+### Agent
+
+A stateful composition of a Bot, designed to be looped: it owns the conversation
+history, a **turn** is one exchange (a message in, work across however many tool
+rounds, a final answer out), and a **run** drives turns until the request is
+complete. An Agent is a use case built *from* Bots — a Bot stays the single-shot
+workhorse. See [Agent](../user_guide/agent.md).
 
 ### Message / MessageHistory
 
@@ -51,11 +59,26 @@ description, and a typed `handle()` whose signature becomes the function schema 
 sees. A *tool call* is the model's request to invoke a tool, and a *tool round* is one
 cycle of the model calling tools and the framework feeding results back.
 
-### Decoder
+### Skill
 
-A use case for **keyed selection**: given a mapping of string keys to values, the model
-returns which key it chose. The Decoder enforces that keys are strings, that exactly the
-right number come back, and re-prompts on empty or over-long answers.
+A `BaseSkill` is a named bundle of instructions (a `prompt`) and typed Python methods
+the model can call. An *active* skill puts its prompt in the system message and its
+methods in the tool list from the first request; a *passive* skill contributes only its
+name and description until the model calls the built-in `activate_skill` tool, at which
+point its prompt enters the conversation as a tool result and its tools join the list.
+A skill is a tool with a payload: the tool carries execution, the skill carries when and
+how to use it. A skill's methods are exposed as tools named `{skill}_{method}`.
+
+### Decision
+
+A **bounded decision**: a use case where, given a declared answer space (a mapping of
+string keys to values — options and their criteria), the model returns the option it
+chose. The industry's decision-model category (the 2026 Decisions APIs: OpenAI, TypeSafe
+Jev, Microsoft Decision-1, Perplexity, Liquid AI) defines it as
+`decision = f(state, question, allowed answers)`. Dandy's Decision enforces that keys
+are strings, that exactly the right number come back, and re-prompts on empty or
+over-long answers; it runs over a standard chat-completions endpoint and does not emit
+probabilities or confidence.
 
 ### Diligence
 
@@ -105,7 +128,12 @@ Terms that invite bugs, and their replacements:
 |---|---|
 | Intel | "DTO", "schema", "response model" |
 | Bot | "client", "agent instance" (a *Bot* is a use case; the *coding agent* is a specific composition of Bots) |
+| Agent | "assistant", "chatbot object" (an Agent is a use case composition of Bots, not a model wrapper) |
+| turn | "step", "round", "iteration" (a *round* is one tool cycle *inside* a turn) |
+| run | "chat" (chat is interactive and human-driven; a run is autonomous and goal-driven), "loop", "process" |
 | Seam | "exception to the rule", "technical debt import" |
 | Diligence | "middleware", "interceptor" |
+| Decision | "decoder", "keyed selection", "classifier", "picker" |
 | Tool | "function calling handler" |
+| Skill | "plugin", "function", "extension" (a skill is a prompt + methods, registered on a Bot or Agent — not loadable code) |
 | Recording / Event | "log", "trace" (a Recording is identity-bearing, queryable, renderable) |

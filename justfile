@@ -12,9 +12,6 @@ default:
     just --list
 python *ARGS:
     {{ PYTHON }} {{ ARGS }}
-opencode:
-    ./.venv/Scripts/activate.bat; if ($?) { opencode . }
-# test recipes run hermetically; live-LLM tests skip unless AI_API_KEY is a real key (see tests/consts.py)
 test:
     {{ PYTHON }} -m pytest .
 test-app app:

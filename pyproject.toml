@@ -107,8 +107,8 @@ ignore_imports = [
     # TYPE_CHECKING-only annotations: recorder event builders and the
     # connector reference the application objects they record or diligence.
     "dandy.infrastructure.recorder.bot_events -> dandy.application.bot.bot",
-    "dandy.infrastructure.recorder.decoder_events -> dandy.application.llm.decoder.decoder",
-    "dandy.infrastructure.llm.connector -> dandy.application.llm.diligence.handler",
+    "dandy.infrastructure.recorder.decision_events -> dandy.application.decision.decision",
+    "dandy.infrastructure.llm.connector -> dandy.application.diligence.handler",
 ]
 
 # Documented seams: the service/mixin composition pattern wires application
@@ -123,25 +123,25 @@ forbidden_modules = ["dandy.infrastructure"]
 ignore_imports = [
     "dandy.application.bot.bot -> dandy.infrastructure.recorder.bot_events",
     "dandy.application.bot.bot -> dandy.infrastructure.future.future",
-    "dandy.application.bot.bot -> dandy.infrastructure.future.tools",
+    "dandy.application.bot.bot -> dandy.infrastructure.future.process",
     "dandy.application.bot.bot -> dandy.infrastructure.file.mixin",
     "dandy.application.bot.bot -> dandy.infrastructure.http.mixin",
     "dandy.application.llm.mixin -> dandy.infrastructure.llm.config",
     "dandy.application.llm.service -> dandy.infrastructure.future.future",
-    "dandy.application.llm.service -> dandy.infrastructure.future.tools",
+    "dandy.application.llm.service -> dandy.infrastructure.future.process",
     "dandy.application.llm.service -> dandy.infrastructure.llm.config",
     "dandy.application.llm.service -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.tool.service -> dandy.infrastructure.recorder.tool_events",
-    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.recorder.decoder_events",
-    "dandy.application.llm.decoder.decoder -> dandy.infrastructure.recorder.llm_events",
-    "dandy.application.llm.decoder.service -> dandy.infrastructure.future.future",
-    "dandy.application.llm.decoder.service -> dandy.infrastructure.future.tools",
-    "dandy.application.llm.diligence.diligence -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.diligence.handler -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.diligence.second_pass.diligence -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.diligence.stop_word_removal.diligence -> dandy.infrastructure.llm.connector",
-    "dandy.application.llm.diligence.vowel_removal.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.tool.service -> dandy.infrastructure.recorder.tool_events",
+    "dandy.application.decision.decision -> dandy.infrastructure.llm.connector",
+    "dandy.application.decision.decision -> dandy.infrastructure.recorder.decision_events",
+    "dandy.application.decision.decision -> dandy.infrastructure.recorder.llm_events",
+    "dandy.application.decision.service -> dandy.infrastructure.future.future",
+    "dandy.application.decision.service -> dandy.infrastructure.future.process",
+    "dandy.application.diligence.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.diligence.handler -> dandy.infrastructure.llm.connector",
+    "dandy.application.diligence.second_pass.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.diligence.stop_word_removal.diligence -> dandy.infrastructure.llm.connector",
+    "dandy.application.diligence.vowel_removal.diligence -> dandy.infrastructure.llm.connector",
 ]
 
 [[tool.importlinter.contracts]]
@@ -165,6 +165,9 @@ omit = [
     '*/example/*',
     '*/docs/*'
 ]
+
+[tool.coverage.report]
+fail_under = 90
 
 [tool.setuptools.packages.find]
 include = ["dandy*"]

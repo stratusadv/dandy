@@ -2,7 +2,7 @@ import sys
 
 from dandy.application.agent.coding_agent import CodingAgent
 from dandy.interfaces.cli.tui.tui import tui
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 
 CLI_COMMANDS = ('clear', 'quit')
 

@@ -24,7 +24,7 @@ inside the framework (anything other than the package root) must update its impo
 - **Configuration.** `DANDY_SETTINGS_MODULE`, the `dandy_settings.py` module, the
   `dandy.json` fallback, `LLM_CONFIGS` with a required `DEFAULT` entry, `CLI_CONFIG`
   task mapping, and `CONTEXT_SIZE` all work exactly as before.
-- **Behavior.** Prompt building, Intel validation and retries, the tool loop, decoder
+- **Behavior.** Prompt building, Intel validation and retries, the tool loop, decision
   retries, the reset chain, recording, caching, futures, and the CLI are unchanged.
   The OpenAI-compatible-endpoint contract is unchanged.
 - **Tests.** The suite is the same suite, reorganized to mirror the new layout.
@@ -36,23 +36,24 @@ inside the framework (anything other than the package root) must update its impo
 | `dandy.intel.intel` (BaseIntel, BaseListIntel, DefaultIntel) | `dandy.domain.intel.intel` |
 | `dandy.intel.factory` (IntelFactory) | `dandy.domain.intel.factory` |
 | `dandy.intel.service` (IntelService) | `dandy.domain.intel.service` |
-| `dandy.intel.typing`, `dandy.intel.field.annotation` | `dandy.domain.intel.typing`, `dandy.domain.intel.field.annotation` |
+| `dandy.intel.typing`, `dandy.intel.field.annotation` | `dandy.domain.intel.typing`, `dandy.domain.intel.annotation` |
 | `dandy.intel.exceptions` | `dandy.domain.intel.exceptions` |
 | `dandy.tool.tool` (BaseTool, run_subprocess) | `dandy.domain.tool.tool` |
 | `dandy.tool.exceptions` | `dandy.domain.tool.exceptions` |
-| `dandy.llm.prompt.*` (Prompt, snippets) | `dandy.domain.llm.prompt.*` |
-| `dandy.llm.request.*` (Message, MessageHistory, LlmRequestBody) | `dandy.domain.llm.request.*` |
-| `dandy.llm.options` (LlmOptions) | `dandy.domain.llm.options` |
-| `dandy.llm.tokens` (token estimation) | `dandy.domain.llm.tokens` |
-| `dandy.llm.exceptions` | `dandy.domain.llm.exceptions` |
-| `dandy.llm.tool.intel` (LlmToolCall(s)Intel) | `dandy.domain.llm.tool.intel` |
-| `dandy.llm.decoder.intel`, `dandy.llm.decoder.exceptions` | `dandy.domain.llm.decoder.*` |
-| `dandy.llm.intelligence.prompts`, `dandy.llm.decoder.intelligence.prompts` | `dandy.domain.llm.intelligence.prompts`, `dandy.domain.llm.decoder.intelligence.prompts` |
+| `dandy.llm.prompt.*` (Prompt, snippets) | `dandy.domain.prompt.*` |
+| `dandy.llm.request.*` (Message, MessageHistory) | `dandy.domain.message.message` |
+| `dandy.llm.request.*` (LlmRequestBody) | `dandy.domain.request.request` |
+| `dandy.llm.options` (LlmOptions) | `dandy.domain.request.options` |
+| `dandy.llm.tokens` (token estimation) | `dandy.domain.tokens` |
+| `dandy.llm.exceptions` | `dandy.domain.request.exceptions` |
+| `dandy.llm.tool.intel` (LlmToolCall(s)Intel) | `dandy.domain.tool.intel` |
+| `dandy.llm.decoder.intel`, `dandy.llm.decoder.exceptions` | `dandy.domain.decision.*` |
+| `dandy.llm.intelligence.prompts`, `dandy.llm.decoder.intelligence.prompts` | `dandy.domain.request.prompts`, `dandy.domain.decision.prompts` |
 | `dandy.bot.*` (Bot) | `dandy.application.bot.*` |
 | `dandy.llm.service`, `dandy.llm.mixin` | `dandy.application.llm.service`, `dandy.application.llm.mixin` |
-| `dandy.llm.tool.service`, `dandy.llm.tool.mixin` | `dandy.application.llm.tool.service`, `dandy.application.llm.tool.mixin` |
-| `dandy.llm.decoder.decoder`, `.../service`, `.../mixin` | `dandy.application.llm.decoder.decoder`, `.../service`, `.../mixin` |
-| `dandy.llm.diligence.*` | `dandy.application.llm.diligence.*` |
+| `dandy.llm.tool.service`, `dandy.llm.tool.mixin` | `dandy.application.tool.service`, `dandy.application.tool.mixin` |
+| `dandy.llm.decoder.decoder`, `.../service`, `.../mixin` | `dandy.application.decision.decision`, `.../service`, `.../mixin` |
+| `dandy.llm.diligence.*` | `dandy.application.diligence.*` |
 | `dandy.cli.intelligence.*` (CodingAgent, bots, prompts) | `dandy.application.agent.*` |
 | `dandy.cli.intelligence.tools.*` (agent tools) | `dandy.application.agent.tools.*` |
 | `dandy.cli.session` | `dandy.application.agent.session` |
@@ -73,8 +74,8 @@ inside the framework (anything other than the package root) must update its impo
 | `dandy.core.debug` | `dandy.shared.debug` |
 | `dandy.core.constants` | `dandy.shared.constants` |
 | `dandy.constants` | `dandy.shared.constants` |
-| `dandy.conf.*` | `dandy.shared.conf.*` |
-| `dandy.default_settings` | `dandy.shared.conf.default_settings` |
+| `dandy.conf.*` | `dandy.shared.settings.*` |
+| `dandy.default_settings` | `dandy.shared.settings.default_settings` |
 | `dandy.cli.*` (REPL, TUI, main) | `dandy.interfaces.cli.*` |
 
 ## How to migrate
@@ -88,13 +89,16 @@ inside the framework (anything other than the package root) must update its impo
    sed -i \
        -e 's/from dandy\.intel\./from dandy.domain.intel./g' \
        -e 's/from dandy\.tool\./from dandy.domain.tool./g' \
-       -e 's/from dandy\.llm\.prompt\./from dandy.domain.llm.prompt./g' \
-       -e 's/from dandy\.llm\.request\./from dandy.domain.llm.request./g' \
-       -e 's/from dandy\.llm\.options import/from dandy.domain.llm.options import/g' \
+       -e 's/from dandy\.llm\.prompt\./from dandy.domain.prompt./g' \
+       -e 's/from dandy\.llm\.request\.message import/from dandy.domain.message.message import/g' \
+       -e 's/from dandy\.llm\.request\.request import/from dandy.domain.request.request import/g' \
+       -e 's/from dandy\.llm\.options import/from dandy.domain.request.options import/g' \
        -e 's/from dandy\.bot\./from dandy.application.bot./g' \
-       -e 's/from dandy\.llm\.decoder\./from dandy.application.llm.decoder./g' \
-       -e 's/from dandy\.llm\.diligence\./from dandy.application.llm.diligence./g' \
-       -e 's/from dandy\.llm\.tool\./from dandy.application.llm.tool./g' \
+       -e 's/from dandy\.llm\.decoder\.(intel|exceptions) import/from dandy.domain.decision.\1 import/g' \
+       -e 's/from dandy\.llm\.decoder\.intelligence\.prompts import/from dandy.domain.decision.prompts import/g' \
+       -e 's/from dandy\.llm\.decoder\./from dandy.application.decision./g' \
+       -e 's/from dandy\.llm\.diligence\./from dandy.application.diligence./g' \
+       -e 's/from dandy\.llm\.tool\./from dandy.application.tool./g' \
        -e 's/from dandy\.llm\.service import/from dandy.application.llm.service import/g' \
        -e 's/from dandy\.llm\.mixin import/from dandy.application.llm.mixin import/g' \
        -e 's/from dandy\.llm\.connector import/from dandy.infrastructure.llm.connector import/g' \
@@ -109,8 +113,8 @@ inside the framework (anything other than the package root) must update its impo
        -e 's/from dandy\.core\.typing\./from dandy.shared.typing./g' \
        -e 's/from dandy\.core\.\(exceptions\|singleton\|utils\|debug\) import/from dandy.shared.\1 import/g' \
        -e 's/from dandy\.constants import/from dandy.shared.constants import/g' \
-       -e 's/from dandy\.conf\./from dandy.shared.conf./g' \
-       -e 's/from dandy import default_settings/from dandy.shared.conf import default_settings/g' \
+       -e 's/from dandy\.conf\./from dandy.shared.settings./g' \
+       -e 's/from dandy import default_settings/from dandy.shared.settings import default_settings/g' \
        $(git grep -l 'from dandy\.' -- '*.py')
    ```
    Then fix the few remaining cases by hand (the table is authoritative).

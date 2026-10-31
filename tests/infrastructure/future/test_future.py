@@ -6,7 +6,7 @@ from dandy.application.bot.bot import Bot
 from dandy.infrastructure.future.future import AsyncFuture
 from dandy.infrastructure.future.exceptions import FutureRecoverableError
 from dandy.domain.intel.intel import BaseIntel
-from tests.application.bot.intelligence.bots import TestingBot, OtherBot
+from tests.application.bot.intelligence.bots import ParrotBot, OtherBot
 from tests.consts import live_llm_test
 
 
@@ -22,7 +22,7 @@ class PirateStoryBot(Bot):
         )
 
 
-TEST_FUTURE_SLEEP_TIME = 5.0
+TEST_FUTURE_SLEEP_TIME = 0.3
 TEST_FUTURE_PROCESS_TIME = TEST_FUTURE_SLEEP_TIME + (TEST_FUTURE_SLEEP_TIME * 0.1)
 
 
@@ -41,8 +41,8 @@ class TestFuture(TestCase):
 
         sleep(TEST_FUTURE_SLEEP_TIME)
 
-        self.assertTrue(squared_future.result == 25)
-        self.assertTrue(another_squared_future.result == 100)
+        self.assertEqual(squared_future.result, 25)
+        self.assertEqual(another_squared_future.result, 100)
 
         self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
@@ -63,17 +63,17 @@ class TestFuture(TestCase):
     @live_llm_test
     def test_bot_race_condition_future(self):
         bot_prompts = [
-            (TestingBot(), 'fedora hats and canes'),
+            (ParrotBot(), 'fedora hats and canes'),
             (OtherBot(), 'I wear a bowler hat and enjoy fighting'),
-            (TestingBot(), 'Ball gowns and Chandeliers'),
+            (ParrotBot(), 'Ball gowns and Chandeliers'),
             (OtherBot(), 'I wear a soldier helmet and I came back from WW2'),
-            (TestingBot(), 'With a clown wig and balloons ha ha'),
+            (ParrotBot(), 'With a clown wig and balloons ha ha'),
             (OtherBot(), 'Steam top Hat and a Monocle at the end of the world'),
-            (TestingBot(), 'Wet boot on my head and I am missing teeth'),
+            (ParrotBot(), 'Wet boot on my head and I am missing teeth'),
             (OtherBot(), 'Spiked hair and some army boots'),
-            (TestingBot(), 'I caught fire and now Fireworks are my Hat'),
+            (ParrotBot(), 'I caught fire and now Fireworks are my Hat'),
             (OtherBot(), 'Graduation cap because I am graduating today'),
-            (TestingBot(), 'Using my shirt as a hat and my belt as shoes'),
+            (ParrotBot(), 'Using my shirt as a hat and my belt as shoes'),
             (OtherBot(), 'I am the hat now ... the universe wears me'),
         ]
 

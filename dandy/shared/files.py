@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Sequence
 from urllib.parse import urlparse
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.exceptions import FileCriticalError, FileRecoverableError
 
 

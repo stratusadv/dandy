@@ -8,37 +8,10 @@ from dandy.application.agent.coding_agent import (
     compact_message_history,
 )
 from dandy.application.agent.session import session
-from dandy.shared.conf import settings
-from dandy.infrastructure.http.intelligence.intel import HttpResponseIntel
-from dandy.domain.llm.request.message import MessageHistory
-
-
-def tool_call_response(tool_name: str, arguments: str) -> HttpResponseIntel:
-    return HttpResponseIntel(
-        status_code=200,
-        json_data={
-            'choices': [
-                {
-                    'message': {
-                        'content': None,
-                        'tool_calls': [
-                            {
-                                'id': 'call_1',
-                                'type': 'function',
-                                'function': {'name': tool_name, 'arguments': arguments},
-                            }
-                        ],
-                    }
-                }
-            ]
-        },
-    )
-
-
-def content_response(content: str) -> HttpResponseIntel:
-    return HttpResponseIntel(
-        status_code=200, json_data={'choices': [{'message': {'content': content}}]}
-    )
+from dandy.shared.settings import settings
+from dandy.infrastructure.http.intel import HttpResponseIntel
+from dandy.domain.message.message import MessageHistory
+from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 
 
 class TestCodingAgentMultiTurn(TestCase):
@@ -115,7 +88,7 @@ class TestCodingAgentMultiTurn(TestCase):
             if message['role'] == 'assistant' and isinstance(message['content'], list)
         ]
 
-        self.assertTrue(any('Created nested/agent.txt.' in text for text in assistant_texts))
+        self.assertIn('Created nested/agent.txt.', ' '.join(assistant_texts))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_does_not_give_up_after_five_tool_rounds(
@@ -292,7 +265,7 @@ class TestCodingAgentCompaction(TestCase):
 
         self.agent.chat('continue', progress_callback=progress_calls.append)
 
-        self.assertTrue(any('Compacting conversation history' in call for call in progress_calls))
+        self.assertIn('Compacting conversation history', ' '.join(progress_calls))
 
         request_intel = mock_post_request.call_args.kwargs['request_intel']
         request_messages = request_intel.json_data['messages']
@@ -359,7 +332,7 @@ class TestCodingAgentPlanning(TestCase):
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 2)
-        self.assertTrue(any(call == 'Planning' for call in progress_calls))
+        self.assertIn('Planning', progress_calls)
 
         coding_request_intel = mock_post_request.call_args_list[1].kwargs['request_intel']
         coding_user_text = user_message_text(coding_request_intel)

@@ -36,7 +36,7 @@ blocking:
 
 - `bot.process_to_future(...)`
 - `bot.llm.prompt_to_intel_future(...)`
-- `bot.llm.decoder.prompt_to_values_future(...)`
+- `bot.llm.decision.prompt_to_values_future(...)`
 
 Fan out several calls and collect them in your own order — the futures do not impose one:
 

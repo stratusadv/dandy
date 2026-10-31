@@ -1,18 +1,12 @@
-from dandy.shared.conf import settings
-from dandy.shared.conf.utils import get_settings_module_name
+from dandy.shared.settings import settings
+from dandy.shared.settings.load import get_settings_module_name
 from dandy.shared.exceptions import DandyError
-from dandy.infrastructure.http.intelligence.intel import HttpResponseIntel, HttpRequestIntel
+from dandy.infrastructure.http.intel import HttpResponseIntel, HttpRequestIntel
 from dandy.infrastructure.http.url import Url
-from dandy.domain.llm.options import LlmOptions
-from dandy.domain.llm.request.request import LlmRequestBody
+from dandy.domain.request.options import LlmOptions
+from dandy.domain.request.request import LlmRequestBody
 
 _DEFAULT_TRANSFER_KEYS = ['HOST', 'PORT', 'API_KEY']
-
-# The share of the context window reserved for the model's output. The agent's
-# compaction target (0.70 in coding_agent) and a 0.10 error margin take up the
-# rest of the window, so input plus output stays under CONTEXT_SIZE.
-
-LLM_OUTPUT_TOKEN_RATIO = 0.20
 
 _CONFIGS_NAME = 'LLM_CONFIGS'
 
@@ -76,9 +70,7 @@ class LlmConfig:
         except (TypeError, ValueError):
             self.context_size = 0
 
-        self.max_completion_tokens = (
-            int(self.context_size * LLM_OUTPUT_TOKEN_RATIO) if self.context_size else None
-        )
+        self.prompt_retry_count = self._settings_values.get('prompt_retry_count', 2)
 
         self.options = LlmOptions()
 
@@ -88,9 +80,6 @@ class LlmConfig:
 
     def generate_request_body(self) -> LlmRequestBody:
         request_body_kwargs = self.options.model_dump(exclude_none=True)
-
-        if self.max_completion_tokens is not None:
-            request_body_kwargs['max_completion_tokens'] = self.max_completion_tokens
 
         return LlmRequestBody(model=self.model, **request_body_kwargs, stream=False)
 

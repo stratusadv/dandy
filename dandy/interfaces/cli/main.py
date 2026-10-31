@@ -64,7 +64,7 @@ def main() -> None:
 
     check_or_create_settings(CWD_PATH)
 
-    from dandy.shared.conf import settings  # noqa: PLC0415
+    from dandy.shared.settings import settings  # noqa: PLC0415
 
     settings.reload_from_os()
 

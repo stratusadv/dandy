@@ -2,7 +2,7 @@ from typing import Any, Callable, Dict, Type
 
 from pydantic.main import IncEx, create_model
 
-from dandy.shared.typing.tools import (
+from dandy.shared.typing.signature import (
     get_typed_kwargs_from_callable_signature,
     get_typed_kwargs_from_simple_json_schema,
 )

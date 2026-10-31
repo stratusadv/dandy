@@ -19,7 +19,7 @@ from pydantic_core import from_json
 
 from dandy.shared.files import read_from_file, write_to_file
 from dandy.domain.intel.exceptions import IntelCriticalError
-from dandy.domain.intel.field.annotation import FieldAnnotation
+from dandy.domain.intel.annotation import FieldAnnotation
 
 if TYPE_CHECKING:
     from pathlib import Path

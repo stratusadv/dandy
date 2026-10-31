@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest import TestCase
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 from dandy.shared.files import remove_file
 from dandy.domain.intel.intel import BaseIntel

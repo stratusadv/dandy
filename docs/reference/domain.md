@@ -45,7 +45,7 @@ everything: a pydantic model describing what the LLM must return.
 
 [Tools](../domain_model/glossary.md#glossary) are the domain's description of a callable
 capability: a name, a description, and a `handle` whose annotated signature becomes the
-OpenAI function schema. The `dandy/llm/tool/` application service is one consumer; tools
+OpenAI function schema. The `dandy/application/tool/` service is one consumer; tools
 are framework-agnostic.
 
 ::: dandy.domain.tool.tool.BaseTool
@@ -70,12 +70,37 @@ are framework-agnostic.
 
 ::: dandy.domain.tool.exceptions.ToolCriticalError
 
+## Skills
+
+[Skills](../domain_model/glossary.md#glossary) bundle a prompt with methods the model can
+call; a passive skill's prompt enters the conversation when the model activates the
+skill. Documented in [Skills](../user_guide/skill.md).
+
+::: dandy.domain.skill.skill.BaseSkill
+    options:
+        members:
+            - name
+            - description
+            - prompt
+            - active
+            - tools
+            - tool_names
+            - get_method
+            - method_description
+
+::: dandy.domain.skill.skill
+    options:
+        members:
+            - to_skill_instances
+
+::: dandy.domain.skill.exceptions.SkillCriticalError
+
 ## Prompts
 
 [Prompts](../domain_model/glossary.md#glossary) are built by appending snippets and
 rendering with `to_str()`. All builder methods return `self` for chaining.
 
-::: dandy.domain.llm.prompt.prompt.Prompt
+::: dandy.domain.prompt.prompt.Prompt
     options:
         members:
             - text
@@ -108,7 +133,7 @@ rendering with `to_str()`. All builder methods return `self` for chaining.
 objects. `MessageHistory` accumulates them between calls; `compact_message_history`
 trims it to fit a context window (see [Options and Context](../user_guide/options_and_context.md)).
 
-::: dandy.domain.llm.request.message.Message
+::: dandy.domain.message.message.Message
     options:
         members:
             - text_content
@@ -122,7 +147,7 @@ trims it to fit a context window (see [Options and Context](../user_guide/option
             - add_content_from_input_audio_file_path
             - add_content_from_input_audio_base64_string
 
-::: dandy.domain.llm.request.message.MessageHistory
+::: dandy.domain.message.message.MessageHistory
     options:
         members:
             - estimated_token_count
@@ -132,27 +157,27 @@ trims it to fit a context window (see [Options and Context](../user_guide/option
             - extend
             - prepend
 
-::: dandy.domain.llm.request.message
+::: dandy.domain.message.message
     options:
         members:
             - compact_message_history
 
-::: dandy.domain.llm.request.request.LlmRequestBody
+::: dandy.domain.request.request.LlmRequestBody
 
 ## Options
 
 [LlmOptions](../user_guide/options_and_context.md) are the tunable knobs for a request
-(temperature, penalties, retry count). `max_completion_tokens` is not an option: it is
-derived from the config's `CONTEXT_SIZE`.
+(temperature, penalties, top_p, seed, and the rest of the OpenAI chat-completion
+parameters).
 
-::: dandy.domain.llm.options.LlmOptions
+::: dandy.domain.request.options.LlmOptions
 
 ## Token estimation
 
 Dependency-free token counting (character-class heuristic plus per-message framing
 costs), used for context-window compaction and for prompt size estimates.
 
-::: dandy.domain.llm.tokens.utils
+::: dandy.domain.tokens.estimate
     options:
         members:
             - get_estimated_token_count_for_string
@@ -160,16 +185,16 @@ costs), used for context-window compaction and for prompt size estimates.
             - get_estimated_token_count_for_audio
             - get_estimated_token_count_for_tool_calls
 
-## Tool-calling and decoder values
+## Tool-calling and decision values
 
-The value objects the tool loop and the decoder produce.
+The value objects the tool loop and the decision produce.
 
-::: dandy.domain.llm.tool.intel
+::: dandy.domain.tool.intel
 
-::: dandy.domain.llm.decoder.intel
+::: dandy.domain.decision.intel
 
-::: dandy.domain.llm.decoder.exceptions
+::: dandy.domain.decision.exceptions
 
 ## Exceptions
 
-::: dandy.domain.llm.exceptions
+::: dandy.domain.request.exceptions

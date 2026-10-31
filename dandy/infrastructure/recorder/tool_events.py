@@ -1,5 +1,5 @@
 from dandy.shared.utils import pascal_to_title_case
-from dandy.domain.llm.tool.intel import LlmToolCallsIntel
+from dandy.domain.tool.intel import ToolCallsIntel
 from dandy.infrastructure.recorder.events import Event, EventAttribute, EventType
 from dandy.infrastructure.recorder.recorder import Recorder
 
@@ -7,7 +7,7 @@ _EVENT_OBJECT_NAME = 'LLM Tool Service'
 
 
 def recorder_add_tool_call_event(
-        tool_calls_intel: LlmToolCallsIntel,
+        tool_calls_intel: ToolCallsIntel,
         event_id: str,
 ):
     for tool_call in tool_calls_intel:

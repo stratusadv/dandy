@@ -37,13 +37,6 @@ nav:
       - Layering and Dependency Rules: architecture/layering.md
       - The Service Pattern: architecture/service_pattern.md
       - Anatomy of an LLM Call: architecture/data_flow.md
-  - Decisions:
-      - Conventions and Index: adr/README.md
-      - "0005: Rebuild the docs site DDD-first": adr/0005-rebuild-docs-ddd-first.md
-      - "0004: Tool handle signature is the schema": adr/0004-tool-handle-signature-as-schema.md
-      - "0003: Hermetic test suite by default": adr/0003-hermetic-tests-by-default.md
-      - "0002: Enforce the layering with import-linter": adr/0002-enforce-layering-with-import-linter.md
-      - "0001: Adopt DDD layering": adr/0001-adopt-ddd-layering.md
   - Getting Started:
       - Installation: getting_started/installation.md
       - Quick Start: getting_started/quick_start.md
@@ -54,10 +47,12 @@ nav:
       - Bots: user_guide/bots.md
       - Options and Context: user_guide/options_and_context.md
       - Tool Calling: user_guide/tool_calling.md
-      - Decoders: user_guide/decoders.md
+      - Skills: user_guide/skill.md
+      - Decision: user_guide/decision.md
       - Recording: user_guide/recording.md
       - Caching: user_guide/caching.md
       - Futures: user_guide/futures.md
+      - Agent: user_guide/agent.md
       - The Coding Agent: user_guide/coding_agent.md
       - Error Handling: user_guide/error_handling.md
   - API Reference:

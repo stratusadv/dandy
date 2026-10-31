@@ -46,7 +46,7 @@ few documented seams.
 
 ::: dandy.infrastructure.http.url.Url
 
-::: dandy.infrastructure.http.intelligence.intel
+::: dandy.infrastructure.http.intel
 
 ::: dandy.infrastructure.http.exceptions
 
@@ -81,7 +81,7 @@ implementations, the key generator, and the decorators.
 
 ::: dandy.infrastructure.cache.sqlite.connection.SqliteConnection
 
-::: dandy.infrastructure.cache.tools
+::: dandy.infrastructure.cache.key
     options:
         members:
             - generate_cache_key
@@ -150,6 +150,6 @@ that runs a callable on the pool.
             - result
             - set_timeout
 
-::: dandy.infrastructure.future.tools.process_to_future
+::: dandy.infrastructure.future.process.process_to_future
 
 ::: dandy.infrastructure.future.exceptions

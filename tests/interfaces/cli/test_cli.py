@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from dandy.interfaces.cli.cli import DandyCli
 from dandy.interfaces.cli.tui.tui import tui
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 
 
 class TestDandyCli(TestCase):

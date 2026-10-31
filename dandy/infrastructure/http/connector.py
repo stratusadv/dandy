@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import requests
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.connector.connector import BaseConnector
 from dandy.infrastructure.http.exceptions import HttpConnectorRecoverableError
-from dandy.infrastructure.http.intelligence.intel import HttpRequestIntel, HttpResponseIntel
+from dandy.infrastructure.http.intel import HttpRequestIntel, HttpResponseIntel
 
 
 class HttpConnector(BaseConnector):

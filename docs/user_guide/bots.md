@@ -80,8 +80,8 @@ A Bot exposes its services through properties, built lazily on first access:
 | Attribute | Service |
 |---|---|
 | `bot.llm` | `LlmService` — prompts, options, history, `reset()` |
-| `bot.llm.tools` | `LlmToolService` — the tool-calling loop |
-| `bot.llm.decoder` | `DecoderService` — keyed selection |
+| `bot.llm.tools` | `ToolService` — the tool-calling loop |
+| `bot.llm.decision` | `DecisionService` — a bounded decision over a declared answer space |
 | `bot.llm.diligence` | `DiligenceService` — toggle quality policies |
 | `bot.file` | `FileService` — disk access |
 | `bot.http` | HTTP connector |

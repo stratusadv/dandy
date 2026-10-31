@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 
 
 class SqliteConnection:

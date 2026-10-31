@@ -63,6 +63,6 @@ Markdown without mutating it. Useful `Recorder` methods:
 ## Where events come from
 
 The per-subsystem event builders live in the recorder adapter next to the things they
-observe: `bot_events.py`, `llm_events.py`, `tool_events.py`, `decoder_events.py`,
+observe: `bot_events.py`, `llm_events.py`, `tool_events.py`, `decision_events.py`,
 `diligence_events.py`. Each is a [documented seam](../architecture/layering.md#documented-seams):
 the application emits, the adapter shapes and stores.

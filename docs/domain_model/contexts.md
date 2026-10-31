@@ -8,7 +8,7 @@ framework models for you* — the same boundaries your application code will fol
 
 | Subdomain | Classification | Why |
 |---|---|---|
-| Structured LLM interaction (Intel, Prompt, messages, options, tool calling, decoders, diligence) | **Core** | This is what Dandy competes on. It is modeled in detail, tested hermetically, and changes with care. |
+| Structured LLM interaction (Intel, Prompt, messages, options, tool calling, decisions, diligence) | **Core** | This is what Dandy competes on. It is modeled in detail, tested hermetically, and changes with care. |
 | Observability (events, recordings, renderers) | **Supporting** | Essential to the product's trust story, but not the differentiator. Modeled, but deliberately simple. |
 | Concurrency (futures) | **Generic** | A commodity capability; the framework ships one small thread-pool primitive and stops. |
 | Persistence (caching, file I/O) | **Generic** | Commodity memoization and disk access. Deliberately dumb: it hashes arguments, it does not understand them. |
@@ -23,7 +23,7 @@ are the invariants of the conversation?*
 
 Language: [Intel](glossary.md#glossary), [Prompt](glossary.md#glossary),
 [Message/MessageHistory](glossary.md#glossary), [options](glossary.md#glossary),
-[tool](glossary.md#glossary), [decoder](glossary.md#glossary),
+[tool](glossary.md#glossary), [decision](glossary.md#glossary),
 [diligence](glossary.md#glossary).
 
 This is the domain layer plus its use cases. Its invariants (validated Intel, one leading

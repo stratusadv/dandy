@@ -1,16 +1,17 @@
 from typing import Callable
 
+from dandy.application.agent.agent import (
+    AGENT_COMPACTION_TARGET_RATIO,
+    AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
+)
 from dandy.application.agent.bots.coding_bot import CodingBot
 from dandy.application.agent.bots.planning_bot import PlanningBot
 from dandy.application.agent.tools import AGENT_TOOLS
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.domain.intel.intel import DefaultIntel
-from dandy.domain.llm.prompt.prompt import Prompt
-from dandy.domain.llm.request.message import MessageHistory, compact_message_history
-from dandy.domain.llm.tokens.utils import get_estimated_token_count_for_string
-
-AGENT_MAX_CONTEXT_TOKENS_DEFAULT = 65536
-AGENT_COMPACTION_TARGET_RATIO = 0.70
+from dandy.domain.prompt.prompt import Prompt
+from dandy.domain.message.message import MessageHistory, compact_message_history
+from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
 
 
 class CodingAgent:

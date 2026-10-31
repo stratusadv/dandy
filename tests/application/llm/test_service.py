@@ -1,9 +1,9 @@
 from unittest import TestCase, mock
 
-from dandy.shared.conf import settings
-from dandy.infrastructure.http.intelligence.intel import HttpResponseIntel
+from dandy.shared.settings import settings
+from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.intel.intel import BaseIntel, DefaultIntel
-from dandy.domain.llm.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.application.bot.bot import Bot
 from tests.consts import live_llm_test
 from tests.shared.decorators import run_llm_configs
@@ -25,7 +25,8 @@ class TestService(TestCase):
             prompt='Hello, World!', intel_class=LlmDefaultIntel
         )
 
-        self.assertTrue(response.text != '' and response.text is not None)
+        self.assertIsInstance(response.text, str)
+        self.assertNotEqual(response.text, '')
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_pydantic_validation_error_retry_process_prompt_to_intel(

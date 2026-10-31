@@ -4,8 +4,8 @@ from pydantic import ValidationError
 
 from dandy.shared.utils import pascal_to_title_case, pydantic_validation_error_to_str
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.llm.request.request import LlmRequestBody
-from dandy.domain.llm.tokens.utils import get_estimated_token_count_for_string
+from dandy.domain.request.request import LlmRequestBody
+from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
 from dandy.infrastructure.recorder.events import Event, EventAttribute, EventType
 from dandy.infrastructure.recorder.recorder import Recorder
 

@@ -32,7 +32,7 @@ class LlmServiceMixin(BaseServiceMixin):
 3. First access to `bot.llm` calls `_get_service_instance(LlmService)`, which
    instantiates the service, stores it on the owner, and runs its `__post_init__` hook.
 4. `bot.llm` (and `.file`, `.http`, `.intel`, and their sub-services like
-   `bot.llm.tools` and `bot.llm.decoder`) always returns the same instance.
+   `bot.llm.tools` and `bot.llm.decision`) always returns the same instance.
 
 ## Why composition instead of injection
 
@@ -51,8 +51,8 @@ from settings — this is what the CLI's `/clear` does.
 
 - Subclasses that override `reset()` must call `super().reset()` — the chain relies on
   it.
-- The **decoder service is deliberately excluded** (`DecoderService.reset()` is a no-op);
-  decoders are stateless between calls.
+- The **decision service is deliberately excluded** (`DecisionService.reset()` is a no-op);
+  decisions are stateless between calls.
 - The exact call graph is pinned by `tests/application/bot/test_reset_chain.py`.
 
 ## Invariants

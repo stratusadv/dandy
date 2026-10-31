@@ -2,9 +2,9 @@ import contextlib
 from pathlib import Path
 from unittest import TestCase, mock
 
-from dandy.shared.conf.utils import get_cli_llm_config
+from dandy.shared.settings.load import get_cli_llm_config
 from dandy.interfaces.cli.utils import check_or_create_settings
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 
 INVALID_SETTINGS_MODULE_NAME = 'tests.invalid_dandy_settings'
 
@@ -38,7 +38,7 @@ class TestUtils(TestCase):
     def test_check_or_create_settings_invalid_settings_module_name(self):
         with (
             mock.patch(
-                'dandy.shared.conf.utils.get_settings_module_name',
+                'dandy.shared.settings.load.get_settings_module_name',
                 return_value=INVALID_SETTINGS_MODULE_NAME,
             ),
             contextlib.suppress(ImportError),
@@ -46,7 +46,7 @@ class TestUtils(TestCase):
             check_or_create_settings(cwd_path=BASE_PATH, system_exit_on_import_error=False)
 
         with mock.patch(
-            'dandy.shared.conf.utils.get_settings_module_name', return_value=INVALID_SETTINGS_MODULE_NAME
+            'dandy.shared.settings.load.get_settings_module_name', return_value=INVALID_SETTINGS_MODULE_NAME
         ):
             try:
                 check_or_create_settings(cwd_path=BASE_PATH)

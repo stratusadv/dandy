@@ -18,12 +18,12 @@ The branch is a **semantic contract**, not a severity label:
 - **Critical** means "this cannot be fixed by waiting or retrying — the code or
   configuration is wrong." Examples: a tool missing its `name`
   (`ToolCriticalError`), a required service attribute unset
-  (`ServiceCriticalError`), a decoder given non-string keys
-  (`DecoderCriticalError`), a `Bot` missing a prompt (`ValueError` from `process`).
+  (`ServiceCriticalError`), a decision given non-string keys
+  (`DecisionCriticalError`), a `Bot` missing a prompt (`ValueError` from `process`).
 - **Recoverable** means "the operation can succeed on a later attempt." Examples: an HTTP
   round trip failing (`HttpConnectorRecoverableError`), a future timing out
-  (`FutureRecoverableError`), a decoder returning too many or no keys
-  (`DecoderToManyKeysRecoverableError` / `DecoderNoKeysRecoverableError`), a tool loop
+  (`FutureRecoverableError`), a decision returning too many or no keys
+  (`DecisionTooManyChoicesRecoverableError` / `DecisionNoChoicesRecoverableError`), a tool loop
   exhausting a finite iteration cap (`LlmRecoverableError`).
 
 ## Subsystem extensions

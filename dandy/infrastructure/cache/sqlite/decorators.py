@@ -3,7 +3,7 @@ from typing import Callable
 
 from dandy.infrastructure.cache.decorators import cache_decorator_function
 from dandy.infrastructure.cache.sqlite.cache import SqliteCache
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.constants import CACHE_DEFAULT_NAME
 
 

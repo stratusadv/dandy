@@ -10,11 +10,11 @@ Identity by value, validated at construction, safe to share.
 | Pattern instance | Class / module | Notes |
 |---|---|---|
 | Intel | `BaseIntel` subclasses — `dandy/domain/intel/` | The primary VO: the contract for an LLM answer. Trimmed copies are created at runtime with `model_inc_ex_class_copy`. |
-| Prompt | `Prompt` — `dandy/domain/llm/prompt/prompt.py` | A builder-as-value-object: chain snippets, `to_str()` renders. |
-| Message | `Message` — `dandy/domain/llm/request/message.py` | One conversation turn in wire form. |
-| Options | `LlmOptions` — `dandy/domain/llm/options.py` | Sampling knobs; range-checked, non-None values only. |
+| Prompt | `Prompt` — `dandy/domain/prompt/prompt.py` | A builder-as-value-object: chain snippets, `to_str()` renders. |
+| Message | `Message` — `dandy/domain/message/message.py` | One conversation turn in wire form. |
+| Options | `LlmOptions` — `dandy/domain/request/options.py` | The OpenAI chat-completion request parameters; range-checked, non-None values only. |
 | Tool descriptor | `BaseTool` — `dandy/domain/tool/tool.py` | Name + description + typed `handle()` signature; the signature *is* the schema. |
-| Tool call | `LlmToolCallIntel` — `dandy/domain/llm/tool/intel.py` | The model's request to invoke a tool (id, name, arguments). |
+| Tool call | `ToolCallIntel` — `dandy/domain/tool/intel.py` | The model's request to invoke a tool (id, name, arguments). |
 | LLM Config | `LlmConfig` — `dandy/infrastructure/llm/config.py` | A VO describing an endpoint. It sits in infrastructure because it is built from the http wire types (`Url`, request/response Intel) it will talk to. |
 | Event / EventAttribute | `dandy/infrastructure/recorder/events.py` | VOs of the observability context. |
 
@@ -24,7 +24,7 @@ Identity-bearing objects with invariants the system must keep true.
 
 ### MessageHistory (aggregate)
 
-`dandy/domain/llm/request/message.py`. The aggregate root of a conversation. Invariants:
+`dandy/domain/message/message.py`. The aggregate root of a conversation. Invariants:
 
 1. At most one system message, and it must lead the history.
 2. No `tool` result message without its preceding assistant `tool_calls` message.
@@ -55,10 +55,10 @@ Stateless logic that belongs to the domain but to no single VO.
 | Service | Where | Does |
 |---|---|---|
 | `IntelFactory` | `dandy/domain/intel/factory.py` | Python type ↔ JSON schema mapping; validates LLM responses into Intel; derives schemas from call signatures (this is how tool parameters get their schema). |
-| Token estimation | `dandy/domain/llm/tokens/utils.py` | A dependency-free, character-class heuristic for token counts — domain policy, not an adapter. |
-| History compaction | `compact_message_history` in `dandy/domain/llm/request/message.py` | Enforces the MessageHistory invariants under space pressure. |
-| `generate_cache_key` | `dandy/infrastructure/cache/tools.py` | The key policy: function identity + layered, depth-capped argument hashing. It detects framework services structurally (by `recorder_event_id`) precisely so it never has to import them. |
-| Diligences | `dandy/application/llm/diligence/` | Named quality policies executed around a request (stop-word removal, vowel removal, second pass). Policy lives here as application because it drives the connector; the *instructions* are domain prompts. |
+| Token estimation | `dandy/domain/tokens/estimate.py` | A dependency-free, character-class heuristic for token counts — domain policy, not an adapter. |
+| History compaction | `compact_message_history` in `dandy/domain/message/message.py` | Enforces the MessageHistory invariants under space pressure. |
+| `generate_cache_key` | `dandy/infrastructure/cache/key.py` | The key policy: function identity + layered, depth-capped argument hashing. It detects framework services structurally (by `recorder_event_id`) precisely so it never has to import them. |
+| Diligences | `dandy/application/diligence/` | Named quality policies executed around a request (stop-word removal, vowel removal, second pass). Policy lives here as application because it drives the connector; the *instructions* are domain prompts. |
 
 ## Domain events
 
@@ -88,10 +88,10 @@ infrastructure.
 
 ## Domain rules that are easy to break
 
-- Decoder keys must be strings (`DecoderCriticalError` otherwise).
+- Decision keys must be strings (`DecisionCriticalError` otherwise).
 - `Bot.process` requires a prompt argument (it forwards `args[0]`).
 - `Bot` subclasses must call `super().__post_init__()` first, and must never override
   `__getattribute__` (the recorder wrapper lives there).
-- `reset()` chains through the MRO; the decoder service is deliberately excluded.
+- `reset()` chains through the MRO; the decision service is deliberately excluded.
 - Strict endpoints reject a second system message — the connector merges diligence
   instructions into the leading system message, never adds one.

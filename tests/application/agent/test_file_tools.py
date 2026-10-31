@@ -157,7 +157,9 @@ class TestCodeEditingTools(TestCase):
             ListDirectoryTool().action_sentence(path='f', recursive=True),
         ]
 
-        self.assertTrue(all(sentence and sentence.endswith('.') for sentence in sentences))
+        for sentence in sentences:
+            self.assertIsInstance(sentence, str)
+            self.assertRegex(sentence, r'\.$')
         self.assertEqual(sentences[0], 'Reading a.txt.')
         self.assertEqual(sentences[2], 'Editing c.txt everywhere.')
         self.assertEqual(sentences[5], 'Listing f recursively.')

@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from dandy.application.bot.bot import Bot
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.llm.options import LlmOptions
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.request.options import LlmOptions
+from dandy.domain.prompt.prompt import Prompt
 
 
 class PersonIntel(BaseIntel):

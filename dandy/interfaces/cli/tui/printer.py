@@ -10,7 +10,7 @@ from dandy.interfaces.cli.thinking_phrases import THINKING_PHRASES
 from dandy.application.agent.session import session
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
-from dandy.shared.conf.utils import get_cli_llm_config
+from dandy.shared.settings.load import get_cli_llm_config
 from dandy.shared.constants import __VERSION__
 from dandy.infrastructure.llm.config import LlmConfig
 

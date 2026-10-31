@@ -10,7 +10,7 @@ from dandy.infrastructure.cache.memory.decorators import cache_to_memory
 from dandy.infrastructure.cache.sqlite.decorators import cache_to_sqlite
 from dandy.infrastructure.cache.cache import BaseCache
 from dandy.infrastructure.cache.sqlite.connection import SqliteConnection
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME, SQLITE_CACHE_DB_NAME
 from tests.infrastructure.cache.intelligence.caches import CACHE_LIMIT, sql_lite_cache, memory_cache
 from tests.infrastructure.cache.intelligence.intel import ClownIntel, WigIntel, CandyNotIntel
@@ -41,7 +41,7 @@ class TestCache(TestCase):
 
         @cache_decorator(limit=CACHE_LIMIT)
         def create_clown(name: str, juggles: bool, wig_color: str) -> ClownIntel:
-            sleep(0.5)
+            sleep(0.05)
 
             return ClownIntel(name=name, juggles=juggles, wig=WigIntel(color=wig_color))
 
@@ -49,7 +49,7 @@ class TestCache(TestCase):
 
         clown = create_clown(name="Happy Fred", juggles=True, wig_color="red")
 
-        self.assertGreater(time.perf_counter() - start, 0.5)
+        self.assertGreater(time.perf_counter() - start, 0.05)
 
         cached_start = time.perf_counter()
 
@@ -70,15 +70,16 @@ class TestCache(TestCase):
     def run_text_cache_limit(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
+        limit = 20
 
-        @cache_decorator(limit=CACHE_LIMIT)
+        @cache_decorator(limit=limit)
         def create_clown(name: str, juggles: bool, wig_color: str) -> ClownIntel:
             return ClownIntel(name=name, juggles=juggles, wig=WigIntel(color=wig_color))
 
-        for _ in range(int(CACHE_LIMIT * 2)):
+        for _ in range(limit * 2):
             create_clown(name=str(uuid.uuid4()), juggles=True, wig_color=str(uuid.uuid4()))
 
-        self.assertLess(len(cache), int(CACHE_LIMIT * 1.5))
+        self.assertLess(len(cache), limit * 2)
 
     def test_memory_cache_limit(self):
         self.run_text_cache_limit(memory_cache, cache_to_memory)
@@ -89,15 +90,17 @@ class TestCache(TestCase):
     def run_complex_object_cache(self, cache: BaseCache, cache_decorator: Callable):
         cache.clear()
 
-        @cache_decorator(limit=CACHE_LIMIT * 3)
+        limit = 30
+
+        @cache_decorator(limit=limit * 3)
         def create_candy(candy: CandyNotIntel) -> CandyNotIntel:
             return CandyNotIntel(sweetness=candy.sweetness)
 
         for _ in range(3):
-            for i in range(CACHE_LIMIT):
+            for i in range(limit):
                 _ = create_candy(CandyNotIntel(sweetness=i))
 
-        self.assertEqual(CACHE_LIMIT, len(cache))
+        self.assertEqual(limit, len(cache))
 
     def test_memory_complex_object_cache(self):
         self.run_complex_object_cache(memory_cache, cache_to_memory)

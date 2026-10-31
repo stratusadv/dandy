@@ -6,7 +6,7 @@ import dotenv
 
 
 def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool = True) -> None:
-    from dandy.shared.conf.utils import find_settings_json_file, get_settings_module_name
+    from dandy.shared.settings.load import find_settings_json_file, get_settings_module_name
 
     settings_module_name = get_settings_module_name()
 
@@ -29,7 +29,7 @@ def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool =
         print(f'Creating "{new_settings_module_file_path}" from the default settings.')
 
         with open(
-            Path(__file__).parent.parent.parent / 'shared' / 'conf' / 'default_settings.py', 'r'
+            Path(__file__).parent.parent.parent / 'shared' / 'settings' / 'default_settings.py', 'r'
         ) as default_settings:
             new_settings_module_path.mkdir(parents=True, exist_ok=True)
 

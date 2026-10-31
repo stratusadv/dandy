@@ -4,9 +4,9 @@ from pathlib import Path
 from unittest import TestCase, mock
 
 from dandy.interfaces.cli.utils import check_or_create_settings
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.exceptions import DandyCriticalError
-from dandy.shared.conf.utils import (
+from dandy.shared.settings.load import (
     find_settings_json_file,
     get_settings_json_candidates,
     load_settings_from_json_file,
@@ -169,7 +169,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
 
             with (
                 mock.patch(
-                    'dandy.shared.conf.settings.get_settings_module_name',
+                    'dandy.shared.settings.settings.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
@@ -198,7 +198,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
 
             with (
                 mock.patch(
-                    'dandy.shared.conf.settings.get_settings_module_name',
+                    'dandy.shared.settings.settings.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
@@ -240,7 +240,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
 
             with (
                 mock.patch(
-                    'dandy.shared.conf.settings.get_settings_module_name',
+                    'dandy.shared.settings.settings.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
@@ -261,7 +261,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
 
             with (
                 mock.patch(
-                    'dandy.shared.conf.settings.get_settings_module_name',
+                    'dandy.shared.settings.settings.get_settings_module_name',
                     return_value='tests.dandy_settings',
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
@@ -277,7 +277,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
 
             with (
                 mock.patch(
-                    'dandy.shared.conf.settings.get_settings_module_name',
+                    'dandy.shared.settings.settings.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
@@ -299,7 +299,7 @@ class TestCheckOrCreateSettingsJson(JsonSettingsTestCase):
             with (
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
                 mock.patch(
-                    'dandy.shared.conf.utils.get_settings_module_name',
+                    'dandy.shared.settings.load.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
             ):
@@ -314,7 +314,7 @@ class TestCheckOrCreateSettingsJson(JsonSettingsTestCase):
             with (
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
                 mock.patch(
-                    'dandy.shared.conf.utils.get_settings_module_name',
+                    'dandy.shared.settings.load.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
             ):

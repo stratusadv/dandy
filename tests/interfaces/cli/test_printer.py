@@ -53,12 +53,12 @@ class TestPrinterStory(TestCase):
 
         def work(update: Callable[[str], None]) -> object:
             update('Reading the test file to understand it.')
-            sleep(0.2)
+            sleep(0.05)
             update('Running the tests to verify my change.')
             release.wait()
             return {'text': 'done'}
 
-        threading.Timer(0.6, release.set).start()
+        threading.Timer(0.15, release.set).start()
 
         result = self.printer.run_timed_task(action_name='Coding', task='fix bug', work=work)
 

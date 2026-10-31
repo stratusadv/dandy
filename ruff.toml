@@ -66,6 +66,7 @@ ignore = [
     "BLE001",
     "C901",
     "COM812",
+    "CPY001",
     "D100",
     "D101",
     "D102",
@@ -112,7 +113,10 @@ ignore = [
 ]
 fixable = ["ALL"]
 unfixable = []
-per-file-ignores = {}
+# The test suite is unittest-style by design (it must run under both pytest and
+# `python -m unittest discover`), so ruff's pytest-style (PT) prescriptions do
+# not apply to it.
+per-file-ignores = { "tests/**" = ["PT"] }
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [format]

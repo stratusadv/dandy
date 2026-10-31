@@ -2,7 +2,7 @@ import base64
 from pathlib import Path
 from unittest import TestCase
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.exceptions import DandyCriticalError
 from dandy.shared.utils import python_obj_to_markdown
 from dandy.shared.files import encode_file_to_base64

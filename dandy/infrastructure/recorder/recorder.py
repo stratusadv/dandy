@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Type
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.constants import RECORDING_DEFAULT_NAME, RECORDING_OUTPUT_DIRECTORY, DANDY_LOCAL_DIRECTORY_NAME
 from dandy.shared.singleton import Singleton
 from dandy.infrastructure.recorder.events import Event

@@ -3,7 +3,7 @@
 **Domain concepts:** [Tool](../domain_model/glossary.md#glossary), tool call, tool round.
 
 **Lives in:** `dandy/domain/tool/` (the `BaseTool` descriptor — pure) and
-`dandy/application/llm/tool/` (the calling loop — a use case).
+`dandy/application/tool/` (the calling loop — a use case).
 
 ## A tool is a class
 
@@ -41,7 +41,7 @@ result = bot.llm.tools.prompt_to_intel(
 )
 ```
 
-`LlmToolService` keeps calling the model; when it requests tools, the framework validates
+`ToolService` keeps calling the model; when it requests tools, the framework validates
 the arguments against the derived schema, calls `tool.handle(**arguments)` with Python
 types (booleans and integers parsed, not left as JSON text), feeds the result back as a
 `role='tool'` message, and loops until the model produces the final Intel.
@@ -72,5 +72,5 @@ raises, so the model always gets a string it can react to. The CLI's
   non-strict tools 400-errors on OpenAI); the final answer is still validated by the
   Intel retry loop.
 - Calling `bot.llm.prompt_to_intel(..., tools=[...])` directly returns
-  `LlmToolCallsIntel` (the raw tool calls) instead of your Intel — the manual path for
+  `ToolCallsIntel` (the raw tool calls) instead of your Intel — the manual path for
   driving the conversation yourself.

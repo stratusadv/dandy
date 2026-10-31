@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from dandy.shared.conf import settings
+from dandy.shared.settings import settings
 from dandy.shared.utils import python_obj_to_markdown
 from tests.application.example_project.book.enums import BookTheme
 

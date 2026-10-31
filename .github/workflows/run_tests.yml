@@ -12,20 +12,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  AI_API_HOST: ${{ secrets.AI_API_HOST }}
-  AI_API_KEY: ${{ secrets.AI_API_KEY }}
-  DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
-  LLM_AUDIO_MODEL: ${{ secrets.LLM_AUDIO_MODEL }}
-  LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
-  LLM_THINKING_MODEL: ${{ secrets.LLM_THINKING_MODEL }}
-  LLM_VISION_MODEL: ${{ secrets.LLM_VISION_MODEL }}
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
-
 jobs:
-  dandy-testing:
+  hermetic:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      PYTHONPATH: .
+      DANDY_SETTINGS_MODULE: tests.dandy_settings
+      AI_API_KEY: placeholder
 
     steps:
       - uses: actions/checkout@v4
@@ -39,19 +34,62 @@ jobs:
         run: |
           pip install -e .[development]
 
-      - name: Package Tests
+      - name: Package Tests (unittest)
         run: |
-          python -m unittest discover -v ./tests
+          python -m unittest discover -v -t . ./tests
+
+      - name: Package Tests (pytest parity)
+        run: |
+          python -m pytest tests -q
+
+      - name: Coverage Gate
+        run: |
+          python -m coverage run -m unittest discover -t . ./tests
+          python -m coverage report --fail-under=90
 
       - name: Architecture Tests
         run: |
           lint-imports
 
+  live-llm:
+    needs: hermetic
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      PYTHONPATH: .
+      AI_API_HOST: ${{ secrets.AI_API_HOST }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+      LLM_AUDIO_MODEL: ${{ secrets.LLM_AUDIO_MODEL }}
+      LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
+      LLM_THINKING_MODEL: ${{ secrets.LLM_THINKING_MODEL }}
+      LLM_VISION_MODEL: ${{ secrets.LLM_VISION_MODEL }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .[development]
+
+      - name: Live LLM Tests
+        run: |
+          python -m unittest discover -v -t . ./tests
+
   documentation-testing:
-    needs: dandy-testing
+    needs: hermetic
     runs-on: ubuntu-latest
 
     env:
+      PYTHONPATH: .
       DANDY_SETTINGS_MODULE: tests.dandy_settings
 
     steps:
@@ -68,28 +106,40 @@ jobs:
 
       - name: Build Documentation
         run: |
-          PYTHONPATH=. python -m mkdocs build --strict
+          python -m mkdocs build --strict
 
-#  optional-testing:
-#    needs: dandy-testing
-#    runs-on: ubuntu-latest
-#    continue-on-error: true
-#
-#    env:
-#      TEST_NINES: '1'
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Set up Python 3.11
-#        uses: actions/setup-python@v6
-#        with:
-#          python-version: 3.11
-#
-#      - name: Install Dependencies
-#        run: |
-#          pip install -e .[development]
-#
-#      - name: Nines Testing
-#        run: |
-#          python -m unittest discover -v ./tests
+  optional-testing:
+    if: github.event_name == 'workflow_dispatch'
+    needs: hermetic
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 30
+
+    env:
+      PYTHONPATH: .
+      DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+      AI_API_HOST: ${{ secrets.AI_API_HOST }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      LLM_AUDIO_MODEL: ${{ secrets.LLM_AUDIO_MODEL }}
+      LLM_DEFAULT_MODEL: ${{ secrets.LLM_DEFAULT_MODEL }}
+      LLM_THINKING_MODEL: ${{ secrets.LLM_THINKING_MODEL }}
+      LLM_VISION_MODEL: ${{ secrets.LLM_VISION_MODEL }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
+      TESTING_NINES: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          pip install -e .[development]
+
+      - name: Nines + Example Project
+        run: |
+          python -m unittest discover -v -t . ./tests

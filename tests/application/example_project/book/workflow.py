@@ -9,7 +9,7 @@ from tests.application.example_project.book.intelligence.chapter.workflow import
 from tests.application.example_project.book.intelligence.character.workflow import (
     characters_creation,
 )
-from tests.application.example_project.book.intelligence.decoders import BookThemeDecoderBot
+from tests.application.example_project.book.intelligence.decisions import BookThemeDecisionBot
 from tests.application.example_project.book.intelligence.intel import BookIntel
 from tests.application.example_project.book.intelligence.plot.workflow import plot_creation
 from tests.application.example_project.book.intelligence.world.bots import WorldCreationBot
@@ -19,7 +19,7 @@ from tests.application.example_project.book.models import Book, Chapter
 def create_book(user_input: str, chapter_count: int = 10) -> Book:
     book_intel = BookIntel(
         user_input=user_input,
-        theme=BookThemeDecoderBot().process(user_input),
+        theme=BookThemeDecisionBot().process(user_input),
     )
 
     logging.info('Working on book title and overview')

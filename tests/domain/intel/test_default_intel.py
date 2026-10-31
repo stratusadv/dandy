@@ -1,16 +1,24 @@
 from unittest import TestCase
 
-from dandy.domain.intel.intel import BaseIntel
+from pydantic import ValidationError
+
+from dandy.domain.intel.intel import BaseIntel, DefaultIntel
 
 
 class TestDefaultIntel(TestCase):
+    def test_default_intel_stores_text(self) -> None:
+        intel = DefaultIntel(text='some plain prose')
 
-    def test_default_intel_text(self):
-        class DefaultLlmIntel(BaseIntel):
-            text: str
+        self.assertEqual(intel.text, 'some plain prose')
 
-        test_text = 'Test Default Intel'
+    def test_default_intel_is_a_base_intel(self) -> None:
+        self.assertIsInstance(DefaultIntel(text='x'), BaseIntel)
 
-        default_intel = DefaultLlmIntel(text=test_text)
+    def test_default_intel_str_returns_text(self) -> None:
+        intel = DefaultIntel(text='hello world')
 
-        self.assertEqual(default_intel.text, test_text)
+        self.assertEqual(str(intel), 'hello world')
+
+    def test_default_intel_requires_text(self) -> None:
+        with self.assertRaises(ValidationError):
+            DefaultIntel()

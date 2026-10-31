@@ -29,9 +29,9 @@ class TestProcessorInstances(TestCase):
 
         new_bot_answer = new_bot.llm.prompt_to_intel('In one lower case word tell me what sound do Cats Make?')
 
-        new_decoder = Bot()
+        new_bot = Bot()
 
-        new_decoder_answer = new_decoder.llm.decoder.prompt_to_values(
+        new_bot_decision = new_bot.llm.decision.prompt_to_values(
             prompt='I would like to see a single cat.',
             **CATS_KWARGS
         )
@@ -40,26 +40,26 @@ class TestProcessorInstances(TestCase):
 
         another_bot_answer = another_bot.llm.prompt_to_intel('In one lower case word tell me what sound do Dogs Make?')
 
-        another_decoder = Bot()
+        another_bot = Bot()
 
-        another_decoder_answer = another_decoder.llm.decoder.prompt_to_values(
+        another_bot_decision = another_bot.llm.decision.prompt_to_values(
             prompt='I would like to see a pair of dogs.',
             **DOGS_KWARGS
         )
 
-        alterative_decoder_answer = another_decoder.llm.decoder.prompt_to_values(
+        alterative_bot_decision = another_bot.llm.decision.prompt_to_values(
             prompt='I would like to see a single of dog.',
             **DOGS_KWARGS
         )
 
-        end_decoder_answer = new_decoder.llm.decoder.prompt_to_values(
+        end_bot_decision = new_bot.llm.decision.prompt_to_values(
             prompt='I would like to see a two cats.',
             **CATS_KWARGS
         )
 
         self.assertIn(new_bot_answer.text, 'meow')
-        self.assertEqual(new_decoder_answer[0], 'meow')
+        self.assertEqual(new_bot_decision[0], 'meow')
         self.assertIn(another_bot_answer.text, ('woof', 'bark'))
-        self.assertEqual(another_decoder_answer[0], 'woof woof')
-        self.assertEqual(alterative_decoder_answer[0], 'woof')
-        self.assertEqual(end_decoder_answer[0], 'meow meow')
+        self.assertEqual(another_bot_decision[0], 'woof woof')
+        self.assertEqual(alterative_bot_decision[0], 'woof')
+        self.assertEqual(end_bot_decision[0], 'meow meow')

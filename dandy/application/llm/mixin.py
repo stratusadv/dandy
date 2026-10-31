@@ -1,9 +1,10 @@
 from typing import ClassVar
 
+from dandy.domain.skill.skill import SkillType
 from dandy.shared.service.mixin import BaseServiceMixin
 from dandy.domain.intel.intel import BaseIntel, DefaultIntel
 from dandy.infrastructure.llm.config import LlmConfig
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.prompt.prompt import Prompt
 from dandy.application.llm.service import LlmService
 
 
@@ -16,6 +17,7 @@ class LlmServiceMixin(BaseServiceMixin):
     )
     guidelines: Prompt | str | None = None
     system_override_prompt: Prompt | str | None = None
+    skills: list[SkillType] = []
 
     _required_attrs: ClassVar[tuple[str, ...]] = (
         'llm_config',

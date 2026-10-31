@@ -1,9 +1,9 @@
 from dandy.application.bot.bot import Bot
 from dandy.application.agent.prompts import planning_guidelines_prompt
 from dandy.application.agent.tools import AGENT_TOOLS
-from dandy.shared.conf.utils import get_cli_llm_config
+from dandy.shared.settings.load import get_cli_llm_config
 from dandy.domain.intel.intel import DefaultIntel
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.prompt.prompt import Prompt
 
 
 class PlanningBot(Bot):

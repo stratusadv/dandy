@@ -1,7 +1,7 @@
 from pydantic.main import IncEx
 
 from dandy.application.bot.bot import Bot
-from dandy.domain.llm.prompt.prompt import Prompt
+from dandy.domain.prompt.prompt import Prompt
 from tests.application.bot.intelligence.intel import HappyIntel, MoneyBagIntel, SadIntel
 
 
@@ -27,7 +27,7 @@ class MoneyBagBot(Bot):
         )
 
 
-class TestingBot(Bot):
+class ParrotBot(Bot):
     role = "Parrot Assistant"
     task = "Say the sentence the user provided back to them like a parrot along with a happiness level to match the sentence."
     intel_class = HappyIntel

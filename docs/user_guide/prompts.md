@@ -3,7 +3,7 @@
 **Domain concept:** [Prompt](../domain_model/glossary.md#glossary) — the structured,
 composable outgoing message.
 
-**Lives in:** `dandy/domain/llm/prompt/` (pure string construction).
+**Lives in:** `dandy/domain/prompt/` (pure string construction).
 
 ## Building
 

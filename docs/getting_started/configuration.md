@@ -1,13 +1,13 @@
 # Configuration
 
 All runtime configuration flows from one place: the **settings module**, loaded once at
-import time by the `DandySettings` singleton (`dandy/shared/conf/settings.py`).
+import time by the `DandySettings` singleton (`dandy/shared/settings/settings.py`).
 
 ## The settings module
 
 The module named by `DANDY_SETTINGS_MODULE` (default: `dandy_settings` in the working
 directory) must define `BASE_PATH`; everything else falls back to
-`dandy/shared/conf/default_settings.py`.
+`dandy/shared/settings/default_settings.py`.
 
 ```python title="dandy_settings.py"
 import os
@@ -37,8 +37,8 @@ DEBUG = False
 | Setting | Required | Meaning |
 |---|---|---|
 | `BASE_PATH` | yes | Project root, as a `Path`. |
-| `LLM_CONFIGS` | yes (`DEFAULT` entry) | Named endpoint configs: `HOST`, `PORT`, `API_KEY`, `MODEL`, optional `CONTEXT_SIZE` and `OPTIONS`. Non-`DEFAULT` entries inherit missing credentials from `DEFAULT`. |
-| `CONTEXT_SIZE` | no | The model's context window in tokens. Drives `max_completion_tokens` (20% of the window) and agent history compaction (70% target). See [Options and Context](../user_guide/options_and_context.md). |
+| `LLM_CONFIGS` | yes (`DEFAULT` entry) | Named endpoint configs: `HOST`, `PORT`, `API_KEY`, `MODEL`, optional `CONTEXT_SIZE`, `OPTIONS` (the OpenAI chat-completion parameters), and `PROMPT_RETRY_COUNT`. Non-`DEFAULT` entries inherit missing credentials from `DEFAULT`. |
+| `CONTEXT_SIZE` | no | The model's context window in tokens. Drives agent history compaction (70% target). See [Options and Context](../user_guide/options_and_context.md). |
 | `CLI_CONFIG` | no | Maps CLI task names to `LLM_CONFIGS` entries (e.g. `CODING`). Used by the `dandy` console script. |
 | `ALLOW_RECORDING_TO_FILE` | no (`False`) | Persist recordings to `{BASE_PATH}/.dandy/recordings/`. |
 | `DEBUG` | no (`False`) | Installs a warning handler that prints full stack traces for LLM retry/validation issues. |
