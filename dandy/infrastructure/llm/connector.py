@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING
 from pydantic import ValidationError
 from pydantic.main import IncEx
 
+from dandy.shared.cancellation import stop_signal
 from dandy.shared.connector.connector import BaseConnector
+from dandy.shared.exceptions import RunStoppedError
 from dandy.infrastructure.http.connector import HttpConnector
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import DefaultIntel
@@ -223,6 +225,9 @@ class LlmConnector(BaseConnector):
         self.request_body = self.llm_config.generate_request_body()
 
     def _request_to_intel(self) -> IntelType:
+        if stop_signal.is_set():
+            raise RunStoppedError('Run stopped by user.')
+
         recorder_add_llm_request_event(self.request_body, self.recorder_event_id)
 
         self._http_request_to_response_str()
@@ -344,6 +349,9 @@ class LlmConnector(BaseConnector):
     def retry_request_to_intel(
         self, retry_event_description: str, retry_user_prompt: Prompt | str
     ) -> IntelType:
+        if stop_signal.is_set():
+            raise RunStoppedError('Run stopped by user.')
+
         if self.has_retry_attempts_available:
             self.prompt_retry_attempt += 1
 

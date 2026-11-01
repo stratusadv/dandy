@@ -37,7 +37,8 @@ USAGE = (
     'agentic loop: every message you type is sent to the coding agent. '
     'Conversations are saved automatically; use /new to start over, '
     '/sessions to list saved conversations, /resume <name> to continue one, '
-    'and /quit to exit. Pressing escape twice also exits the loop.\n'
+    'and /quit to exit. Pressing escape twice stops a running turn; at the '
+    'prompt, pressing escape twice exits the loop.\n'
 )
 
 

@@ -6,6 +6,8 @@ from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.tui import tui
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.settings import settings
 
 CLI_COMMANDS = ('new', 'sessions', 'resume', 'delete', 'quit')
@@ -136,6 +138,8 @@ class DandyCli:
     def process_agent_input(self, user_input: str, save_session: bool = True) -> bool:
         tui.printer.running_phrase('Coding')
 
+        stop_signal.clear()
+
         try:
             result_intel = tui.printer.run_timed_task(
                 action_name='Coding',
@@ -143,7 +147,11 @@ class DandyCli:
                 work=lambda update: self.agent.turn(
                     user_input, progress_callback=update, verbose_callback=self.verbose_callback
                 ),
+                stop_signal=stop_signal,
             )
+        except RunStoppedError:
+            tui.printer.output('Run stopped.')
+            return True
         except Exception as error:
             tui.printer.error(error='Coding agent failed', description=str(error))
             return False

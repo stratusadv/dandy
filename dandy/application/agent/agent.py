@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Callable
 from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 from dandy.domain.message.message import MessageHistory, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.skill.skill import to_skill_instances
@@ -18,6 +20,19 @@ if TYPE_CHECKING:
 
 AGENT_MAX_CONTEXT_TOKENS_DEFAULT = 65536
 AGENT_COMPACTION_TARGET_RATIO = 0.70
+
+# Compaction triggers at this higher share of the window and compacts back
+# down to the target, so a loop whose rounds keep re-adding about what
+# compaction just dropped does not re-compact on every round.
+AGENT_COMPACTION_TRIGGER_RATIO = 0.80
+
+# A turn is capped at this many tool rounds by default: a model that keeps
+# requesting tools without ever giving a final answer must not burn the API
+# budget indefinitely. Two hundred rounds covers a thorough
+# reproduce-then-fix-then-verify workflow while still bounding a model stuck
+# in a degenerate tool-call loop. Pass max_tool_rounds=None to a specific
+# Agent to disable the cap.
+AGENT_MAX_TOOL_ROUNDS_DEFAULT = 200
 
 
 class Agent:
@@ -35,12 +50,14 @@ class Agent:
         tools: list[ToolType] | None = None,
         skills: list[SkillType] | None = None,
         max_turns: int | None = None,
+        max_tool_rounds: int | None = AGENT_MAX_TOOL_ROUNDS_DEFAULT,
         intel_class: type[IntelType] | None = None,
     ) -> None:
         self.bot = bot
         self.tools = tools
         self.skills = to_skill_instances(skills)
         self.max_turns = max_turns
+        self.max_tool_rounds = max_tool_rounds
         self.intel_class = intel_class or AgentTurnIntel
         self.history = MessageHistory()
         self.max_context_tokens = self._resolve_context_size()
@@ -65,6 +82,9 @@ class Agent:
 
         The conversation accumulates in ``self.history`` across turns.
         """
+        if stop_signal.is_set():
+            raise RunStoppedError('Run stopped by user.')
+
         self.last_request = self._message_as_str(message)
         message = self._prepare_message(message, progress_callback, verbose_callback)
         self._compact_history_for_next_message(message, progress_callback)
@@ -78,7 +98,7 @@ class Agent:
             replace_message_history=True,
             progress_callback=progress_callback,
             verbose_callback=verbose_callback,
-            max_tool_iterations=None,
+            max_tool_iterations=self.max_tool_rounds,
         )
 
     def _prepare_message(
@@ -138,6 +158,9 @@ class Agent:
         turn_count = 1
 
         while not self._is_done(result, is_done):
+            if stop_signal.is_set():
+                raise RunStoppedError('Run stopped by user.')
+
             if self.max_turns is not None and turn_count >= self.max_turns:
                 message = (
                     f'Agent gave up after {self.max_turns} turns without the request '
@@ -207,14 +230,22 @@ class Agent:
         """A fraction of the max context, reserving headroom for output."""
         return max(1, int(self.max_context_tokens * AGENT_COMPACTION_TARGET_RATIO))
 
+    def _compaction_trigger_token_count(self) -> int:
+        """The higher fraction at which compaction kicks in, above the target."""
+        return max(
+            self._compaction_target_token_count() + 1,
+            int(self.max_context_tokens * AGENT_COMPACTION_TRIGGER_RATIO),
+        )
+
     def _compact_history_for_next_message(
         self, message: Prompt | str | None, progress_callback: Callable[[str], None] | None = None
     ) -> None:
         incoming_token_count = self._incoming_token_count(message)
         target_token_count = max(1, self._compaction_target_token_count() - incoming_token_count)
+        trigger_token_count = self._compaction_trigger_token_count() - incoming_token_count
         current_token_count = self.history.estimated_token_count
 
-        if current_token_count <= target_token_count:
+        if current_token_count <= trigger_token_count:
             return
 
         if progress_callback is not None:

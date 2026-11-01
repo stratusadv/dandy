@@ -73,7 +73,9 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 - `/new [name]` starts a fresh conversation (optionally pre-naming its session file);
   `/sessions` lists saved sessions; `/resume <name>` loads one and keeps the current
   agent state; `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
-- Pressing **escape twice** exits.
+- Pressing **escape twice** stops a running turn (the agent, tool loop, and
+  any running command are interrupted and the prompt returns); at the prompt,
+  pressing **escape twice** exits the REPL.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
 
 ## Sessions

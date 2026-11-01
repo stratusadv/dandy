@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+inventory.json
+proxy.log
+transcript.log
+transcript.json
+stderr.log
+usage.jsonl
+agent.exit
+final.diff
+final.diff.stat
+check.log
+judge.json
+.pi-sessions/
+.crush-data/

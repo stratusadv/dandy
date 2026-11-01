@@ -1,7 +1,10 @@
 import sys
+import threading
+import time
 from pathlib import Path
 from unittest import TestCase
 
+from dandy.shared.cancellation import StopSignal
 from dandy.shared.subprocess import run_subprocess
 
 CWD = Path.cwd()
@@ -51,3 +54,31 @@ class TestRunSubprocess(TestCase):
         self.assertTrue(output.endswith('\n... (truncated)'))
         body = output[len('Exit code: 0\n') :]
         self.assertLessEqual(len(body), 8000 + len('\n... (truncated)'))
+
+    def test_stop_signal_kills_a_long_running_command(self) -> None:
+        signal = StopSignal()
+        threading.Timer(0.5, signal.set).start()
+
+        started = time.monotonic()
+        output = run_subprocess(
+            [sys.executable, '-c', 'import time; time.sleep(30)'],
+            cwd=CWD,
+            timeout_seconds=60,
+            stop_signal=signal,
+        )
+        elapsed = time.monotonic() - started
+
+        self.assertEqual(output, 'Error: command stopped by user.')
+        self.assertLess(elapsed, 10)
+
+    def test_stop_signal_not_set_runs_to_completion(self) -> None:
+        signal = StopSignal()
+
+        output = run_subprocess(
+            [sys.executable, '-c', 'print("done")'],
+            cwd=CWD,
+            timeout_seconds=10,
+            stop_signal=signal,
+        )
+
+        self.assertEqual(output, 'Exit code: 0\ndone\n')

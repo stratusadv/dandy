@@ -5,6 +5,8 @@ import requests
 from dandy.infrastructure.http.connector import HttpConnector
 from dandy.infrastructure.http.exceptions import HttpConnectorRecoverableError
 from dandy.infrastructure.http.intel import HttpRequestIntel, HttpResponseIntel
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 
 
 def response(status_code: int, reason: str = 'Reason', text: str = 'Body') -> HttpResponseIntel:
@@ -83,6 +85,36 @@ class TestHttpConnector(TestCase):
         self.assertIn('"Server Error"', message)
         self.assertIn('"Bad Day"', message)
         self.assertIn('after 4 attempts', message)
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_stops_when_stop_signal_is_set_before_first_attempt(
+        self, mock_to_response: mock.MagicMock
+    ) -> None:
+        stop_signal.set()
+        self.addCleanup(stop_signal.clear)
+
+        with self.assertRaises(RunStoppedError):
+            HttpConnector.request_to_response(self.make_request_intel())
+
+        self.assertEqual(mock_to_response.call_count, 0)
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_stops_when_stop_signal_is_set_between_attempts(
+        self, mock_to_response: mock.MagicMock
+    ) -> None:
+        def fail_and_set_signal(*args, **kwargs):
+            stop_signal.set()
+            return response(500)
+
+        mock_to_response.side_effect = fail_and_set_signal
+        self.addCleanup(stop_signal.clear)
+
+        with self.assertRaises(RunStoppedError):
+            HttpConnector.request_to_response(self.make_request_intel())
+
+        # The first attempt ran and failed; the stop was noticed before the
+        # second attempt was issued.
+        self.assertEqual(mock_to_response.call_count, 1)
 
 
 class TestHttpResponseIntel(TestCase):

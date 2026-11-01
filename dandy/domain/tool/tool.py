@@ -5,6 +5,7 @@ from typing import Any, Callable
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import BaseIntel
 from dandy.domain.tool.exceptions import ToolCriticalError
+from dandy.shared.cancellation import StopSignal
 from dandy.shared.subprocess import run_subprocess
 
 ToolHandler = Callable[[BaseIntel | str], str | BaseIntel]
@@ -96,11 +97,18 @@ class BaseTool(ABC):
         """Directory that subprocess commands run in; override per tool."""
         return Path.cwd()
 
-    def run_subprocess(self, command: list[str] | str, timeout_seconds: int | None = None) -> str:
+    def run_subprocess(
+        self,
+        command: list[str] | str,
+        timeout_seconds: int | None = None,
+        stop_signal: StopSignal | None = None,
+    ) -> str:
         """Run a command in `working_directory` and return its output as a string.
 
         A convenience around the module-level `run_subprocess` that applies this
         tool's `working_directory`, `timeout_seconds`, and `use_shell` settings.
+        When `stop_signal` is given, the command is killed promptly if the user
+        asks to stop the run.
         """
         resolved_timeout = timeout_seconds if timeout_seconds is not None else self.timeout_seconds
 
@@ -109,6 +117,7 @@ class BaseTool(ABC):
             cwd=self.working_directory,
             timeout_seconds=resolved_timeout,
             use_shell=self.use_shell,
+            stop_signal=stop_signal,
         )
 
 

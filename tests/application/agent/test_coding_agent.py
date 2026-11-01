@@ -2,11 +2,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
-from dandy.application.agent.agent import AGENT_MAX_CONTEXT_TOKENS_DEFAULT
+from dandy.application.agent.agent import (
+    AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
+    AGENT_MAX_TOOL_ROUNDS_DEFAULT,
+)
 from dandy.application.agent.coding_agent import CodingAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
 from dandy.shared.settings import settings
+from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.message.message import MessageHistory, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
@@ -101,6 +105,37 @@ class TestCodingAgentMultiTurn(TestCase):
 
         self.assertEqual(result.text, 'Found it.')
         self.assertEqual(mock_post_request.call_count, 7)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_agent_turn_caps_tool_rounds(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('search_files', '{"query": "needle"}')
+            for _ in range(AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
+        ]
+
+        with self.assertRaises(LlmRecoverableError):
+            self.agent.turn('Find needle')
+
+        self.assertEqual(mock_post_request.call_count, AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_agent_does_not_compact_within_hysteresis_band(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "Within the band."}')]
+
+        self.agent.max_context_tokens = 3000
+
+        while self.agent.history.estimated_token_count < 2200:
+            self.agent.history.add_message(role='user', text='x' * 500)
+
+        progress_calls: list[str] = []
+
+        self.agent.turn('continue', progress_callback=progress_calls.append)
+
+        self.assertFalse(
+            any('Compacting conversation history' in step for step in progress_calls)
+        )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_forwards_verbose_details(self, mock_post_request: mock.MagicMock) -> None:
@@ -272,9 +307,11 @@ class TestCodingAgentCompaction(TestCase):
         self.agent.max_context_tokens = 65_536
 
         self.assertEqual(self.agent._compaction_target_token_count(), 45_875)
+        self.assertEqual(self.agent._compaction_trigger_token_count(), 52_428)
 
         self.agent.max_context_tokens = 1000
         self.assertEqual(self.agent._compaction_target_token_count(), 700)
+        self.assertEqual(self.agent._compaction_trigger_token_count(), 800)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_compacts_history_before_sending(self, mock_post_request: mock.MagicMock) -> None:

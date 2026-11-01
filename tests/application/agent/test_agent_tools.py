@@ -7,6 +7,7 @@ from dandy.application.agent.tools.git.git_diff_tool import GitDiffTool
 from dandy.application.agent.tools.git.git_status_tool import GitStatusTool
 from dandy.application.agent.tools.file.search_tool import SearchFilesTool
 from dandy.application.agent.session import session
+from dandy.shared.cancellation import stop_signal
 
 
 class TestSearchFilesTool(TestCase):
@@ -101,7 +102,11 @@ class TestRunCommandTool(TestCase):
 
         self.assertEqual(result, 'Exit code: 0\ncommand output')
         mock_run_subprocess.assert_called_once_with(
-            command='ls -la', cwd=session.project_base_path, timeout_seconds=30, use_shell=True
+            command='ls -la',
+            cwd=session.project_base_path,
+            timeout_seconds=30,
+            use_shell=True,
+            stop_signal=stop_signal,
         )
 
 
@@ -128,6 +133,7 @@ class TestGitTools(TestCase):
             cwd=session.project_base_path,
             timeout_seconds=10,
             use_shell=False,
+            stop_signal=None,
         )
 
     @mock.patch('dandy.domain.tool.tool.run_subprocess')
@@ -142,6 +148,7 @@ class TestGitTools(TestCase):
             cwd=session.project_base_path,
             timeout_seconds=10,
             use_shell=False,
+            stop_signal=None,
         )
 
     @mock.patch('dandy.domain.tool.tool.run_subprocess')
@@ -155,6 +162,7 @@ class TestGitTools(TestCase):
             cwd=session.project_base_path,
             timeout_seconds=10,
             use_shell=False,
+            stop_signal=None,
         )
 
     def test_git_diff_outside_project_is_blocked(self) -> None:

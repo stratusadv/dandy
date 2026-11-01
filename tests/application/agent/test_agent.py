@@ -5,6 +5,8 @@ from dandy.application.agent.exceptions import AgentCriticalError, AgentRecovera
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from tests.application.tool.intelligence.tools import ToolBot, WeatherTool
 from dandy.domain.intel.intel import DefaultIntel
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 
 
@@ -109,6 +111,17 @@ class TestAgentTurn(TestCase):
         with self.assertRaises(AgentRecoverableError):
             self.agent.turn('This message is far too big for the window.')
 
+        self.assertEqual(len(self.agent.history), 0)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_stops_when_stop_signal_is_set(self, mock_post_request: mock.MagicMock) -> None:
+        stop_signal.set()
+        self.addCleanup(stop_signal.clear)
+
+        with self.assertRaises(RunStoppedError):
+            self.agent.turn('What is the weather in Austin?')
+
+        self.assertEqual(mock_post_request.call_count, 0)
         self.assertEqual(len(self.agent.history), 0)
 
 

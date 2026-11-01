@@ -1,0 +1,8 @@
+[
+  {"sku": "AB-100", "name": "Alder Box", "location": "A1", "count": 12, "unit_price": 19.99},
+  {"sku": "CD-200", "name": "Cedar Crate", "location": "A1", "count": 5, "unit_price": 3.5},
+  {"sku": "EF-300", "name": "Elm Crate", "location": "B2", "count": 7, "unit_price": 100.0},
+  {"sku": "GH-400", "name": "Gumwood Bin", "location": "B2", "count": 3, "unit_price": 8.75},
+  {"sku": "IJ-500", "name": "Iroko Shelf", "location": "C3", "count": 9, "unit_price": 42.1},
+  {"sku": "KL-600", "name": "Larch Panel", "location": "C3", "count": 1, "unit_price": 250.25}
+]

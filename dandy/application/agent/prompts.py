@@ -71,6 +71,10 @@ def coding_guidelines_prompt() -> Prompt:
                     'To run tests, linters, or other commands use run_command, but only '
                     'when it is actually needed.'
                 ),
+                (
+                    'Once the request is complete, stop calling tools and respond with '
+                    'your final answer as plain text, never as a tool call.'
+                ),
             ]
         )
         .prompt(

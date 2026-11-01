@@ -3,6 +3,7 @@ from typing import Any
 
 from dandy.application.agent.session import session
 from dandy.domain.tool.tool import BaseTool
+from dandy.shared.cancellation import stop_signal
 
 
 class RunCommandTool(BaseTool):
@@ -25,4 +26,6 @@ class RunCommandTool(BaseTool):
         return f'Running "{kwargs["command"]}".'
 
     def handle(self, command: str, timeout_seconds: int = 30) -> str:
-        return self.run_subprocess(command=command, timeout_seconds=timeout_seconds)
+        return self.run_subprocess(
+            command=command, timeout_seconds=timeout_seconds, stop_signal=stop_signal
+        )

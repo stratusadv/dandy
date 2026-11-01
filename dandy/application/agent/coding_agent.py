@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from dandy.application.agent.agent import Agent
+from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT, Agent
 from dandy.application.agent.bots.coding_bot import CodingBot
 from dandy.application.agent.bots.planning_bot import PlanningBot
 from dandy.application.agent.tools import AGENT_TOOLS
@@ -58,7 +58,7 @@ class CodingAgent(Agent):
             intel_class=DefaultIntel,
             progress_callback=progress_callback,
             verbose_callback=verbose_callback,
-            max_tool_iterations=None,
+            max_tool_iterations=AGENT_MAX_TOOL_ROUNDS_DEFAULT,
         )
 
     def clear(self) -> None:

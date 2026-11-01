@@ -23,8 +23,9 @@ interactive REPL; `-h` and `-v` are handled before any settings load.
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,
 optionally pre-named), `/sessions` (list saved sessions), `/resume <name>`,
-`/delete <name>`, and `/quit` (or `/exit`); escape twice to exit. The welcome banner
-shows a session-status line.
+`/delete <name>`, and `/quit` (or `/exit`); escape twice stops a running turn
+and, at the prompt, exits the REPL. The welcome banner shows a session-status
+line.
 
 ::: dandy.interfaces.cli.cli.DandyCli
 

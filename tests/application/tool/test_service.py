@@ -5,6 +5,8 @@ from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.tool.intel import ToolCallsIntel
 from dandy.domain.tool.tool import BaseTool
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 
 from tests.application.tool.intelligence.intel import FinalAnswerIntel
 from tests.application.tool.intelligence.tools import ToolBot, WeatherTool
@@ -285,6 +287,33 @@ class TestToolService(TestCase):
             any(step.startswith('Compacting conversation history') for step in progress_steps)
         )
         self.assertLessEqual(bot.llm.messages.estimated_token_count, compaction_target)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_skips_compaction_within_hysteresis_band(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [content_response('{"text": "Within the band."}')]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.config.context_size = 3000
+
+        while bot.llm.messages.estimated_token_count < 2200:
+            bot.llm.messages.add_message(role='user', text='x' * 500)
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather?',
+            intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+            progress_callback=progress_steps.append,
+            max_tool_iterations=None,
+        )
+
+        self.assertFalse(
+            any(step.startswith('Compacting conversation history') for step in progress_steps)
+        )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_caps_oversized_tool_results(
@@ -586,3 +615,45 @@ class TestToolService(TestCase):
 
         self.assertEqual(set(tool_schema['properties'].keys()), {'location', 'units'})
         self.assertNotIn('required', tool_schema)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_stops_when_stop_signal_is_set(self, mock_post_request) -> None:
+        stop_signal.set()
+        self.addCleanup(stop_signal.clear)
+
+        bot = ToolBot()
+
+        with self.assertRaises(RunStoppedError):
+            bot.llm.tools.prompt_to_intel(
+                prompt='What is the weather?',
+                intel_class=FinalAnswerIntel,
+                tools=[WeatherTool],
+            )
+
+        self.assertEqual(mock_post_request.call_count, 0)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_stops_between_tool_rounds(self, mock_post_request) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "San Francisco"}'),
+        ]
+
+        def get_weather_handler(arguments_intel) -> str:
+            stop_signal.set()
+            return 'The weather in San Francisco is sunny.'
+
+        self.addCleanup(stop_signal.clear)
+
+        bot = ToolBot()
+
+        with self.assertRaises(RunStoppedError):
+            bot.llm.tools.prompt_to_intel(
+                prompt='What is the weather in San Francisco?',
+                intel_class=FinalAnswerIntel,
+                tools=[WeatherTool],
+                tool_functions={'get_weather': get_weather_handler},
+            )
+
+        # The first round ran; the second round's checkpoint raised before any
+        # further LLM request.
+        self.assertEqual(mock_post_request.call_count, 1)

@@ -2,6 +2,7 @@ __pycache__/
 .coverage/
 .dandy*/
 .idea/
+.import_linter_cache/
 .junie/
 .cache/
 .claude/
@@ -35,3 +36,4 @@ example_book.md
 
 !dandy/cli/actions/build/
 
+evals/runs/

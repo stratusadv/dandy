@@ -10,6 +10,8 @@ from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.cli import DandyCli
 from dandy.interfaces.cli.tui.printer import session_banner_line
 from dandy.interfaces.cli.tui.tui import tui
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.settings import settings
 
 
@@ -80,6 +82,36 @@ class TestDandyCli(TestCase):
 
         self.assertTrue(should_continue)
         mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    def test_process_user_input_stops_when_run_stopped(
+        self, _mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+    ) -> None:
+        stop_signal.set()
+        self.addCleanup(stop_signal.clear)
+
+        with mock.patch.object(
+            tui.printer, 'run_timed_task', side_effect=RunStoppedError('Run stopped by user.')
+        ):
+            should_continue = self.cli.process_user_input('do something')
+
+        self.assertTrue(should_continue)
+        mock_output.assert_called_once_with('Run stopped.')
+        self.assertFalse(stop_signal.is_set())
+
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    def test_process_user_input_passes_stop_signal_to_run_timed_task(
+        self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
+    ) -> None:
+        mock_turn.return_value = mock.MagicMock(text='answer')
+
+        with mock.patch.object(tui.printer, 'run_timed_task') as mock_run_timed_task:
+            mock_run_timed_task.return_value = mock.MagicMock(text='answer')
+            self.cli.process_user_input('do something')
+
+        self.assertIs(mock_run_timed_task.call_args.kwargs['stop_signal'], stop_signal)
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     @mock.patch.object(tui.printer, 'green_divider')

@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Callable
 
 from pydantic import ValidationError
 
+from dandy.shared.cancellation import stop_signal
+from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.service.service import BaseService
 from dandy.shared.utils import pascal_to_title_case, pydantic_validation_error_to_str
 from dandy.domain.intel.factory import IntelFactory
@@ -26,6 +28,12 @@ if TYPE_CHECKING:
 
 TOOL_LOOP_CONTEXT_DEFAULT = 65536
 TOOL_LOOP_COMPACTION_TARGET_RATIO = 0.70
+
+# Compaction triggers at this higher share of the window and compacts back
+# down to the target, so a loop whose rounds keep re-adding about what
+# compaction just dropped does not re-compact on every round; the band
+# between trigger and target is the headroom a long loop may use.
+TOOL_LOOP_COMPACTION_TRIGGER_RATIO = 0.80
 
 # Tool results are capped before they enter the conversation so one oversized
 # result (a huge file read, a chatty user tool) can never blow past the model's
@@ -62,6 +70,9 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         iteration_count = 0
 
         while True:
+            if stop_signal.is_set():
+                raise RunStoppedError('Run stopped by user.')
+
             self._compact_history_before_next_round(progress_callback=progress_callback)
 
             skill_tools = skill_service.active_tools()
@@ -104,6 +115,9 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                 progress_callback(intel.summary)
 
             for tool_call in intel:
+                if stop_signal.is_set():
+                    raise RunStoppedError('Run stopped by user.')
+
                 if verbose_callback is not None:
                     verbose_callback(
                         f'  - {tool_call.name} args: {_tool_preview(tool_call.arguments)}'
@@ -141,14 +155,19 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         round, which can overflow the provider's context window when the loop is
         unbounded. Uses the resolved config's ``CONTEXT_SIZE`` (a default window
         when unset) and compacts to a fraction of it, keeping the system message
-        and the newest exchange.
+        and the newest exchange. Compaction only triggers once the estimate
+        passes the higher trigger ratio, so a steady state where each round
+        re-adds about what compaction just dropped does not compact every round.
         """
         context_size = getattr(self.obj.config, 'context_size', 0) or TOOL_LOOP_CONTEXT_DEFAULT
         target_token_count = max(1, int(context_size * TOOL_LOOP_COMPACTION_TARGET_RATIO))
+        trigger_token_count = max(
+            target_token_count + 1, int(context_size * TOOL_LOOP_COMPACTION_TRIGGER_RATIO)
+        )
 
         current_token_count = self.obj.messages.estimated_token_count
 
-        if current_token_count <= target_token_count:
+        if current_token_count <= trigger_token_count:
             return
 
         if progress_callback is not None:

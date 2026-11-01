@@ -4,8 +4,11 @@ from typing import Callable
 from unittest import TestCase, mock
 
 from blessed import Terminal
+from blessed.keyboard import Keystroke
 
 from dandy.interfaces.cli.tui.printer import Printer, _StoryProgress, format_verbose_duration
+from dandy.shared.cancellation import StopSignal
+from dandy.shared.exceptions import RunStoppedError
 
 
 class TestFormatVerboseDuration(TestCase):
@@ -81,3 +84,114 @@ class TestPrinterStory(TestCase):
 
         self.assertEqual(len(completion_lines), 1)
         self.assertTrue(completion_lines[0].endswith('.'))
+
+    def test_run_timed_task_propagates_stop_error_from_work(self) -> None:
+        def work(update: Callable[[str], None]) -> object:
+            raise RunStoppedError('Run stopped by user.')
+
+        with self.assertRaises(RunStoppedError):
+            self.printer.run_timed_task(
+                action_name='Coding', task='stop me', work=work, stop_signal=StopSignal()
+            )
+
+    @mock.patch.object(Terminal, 'inkey')
+    def test_run_timed_task_double_escape_sets_stop_signal(
+        self, mock_inkey: mock.MagicMock
+    ) -> None:
+        stop_signal = StopSignal()
+        release = threading.Event()
+
+        def work(update: Callable[[str], None]) -> object:
+            release.wait(5)
+            return 'done'
+
+        escape = Keystroke('\x1b')
+        mock_inkey.side_effect = [escape, escape]
+
+        threading.Timer(0.3, release.set).start()
+
+        result = self.printer.run_timed_task(
+            action_name='Coding', task='stop me', work=work, stop_signal=stop_signal
+        )
+
+        self.assertEqual(result, 'done')
+        self.assertTrue(stop_signal.is_set())
+
+        printed_lines = [str(call.args[0]) for call in self.mock_print.call_args_list if call.args]
+        self.assertTrue(any('Stopping...' in line for line in printed_lines))
+
+    @mock.patch.object(Terminal, 'inkey')
+    def test_run_timed_task_combined_double_escape_sets_stop_signal(
+        self, mock_inkey: mock.MagicMock
+    ) -> None:
+        stop_signal = StopSignal()
+        release = threading.Event()
+
+        def work(update: Callable[[str], None]) -> object:
+            release.wait(5)
+            return 'done'
+
+        # blessed may deliver two quick escapes as one keystroke.
+        mock_inkey.side_effect = [Keystroke('\x1b\x1b')]
+
+        threading.Timer(0.3, release.set).start()
+
+        result = self.printer.run_timed_task(
+            action_name='Coding', task='stop me', work=work, stop_signal=stop_signal
+        )
+
+        self.assertEqual(result, 'done')
+        self.assertTrue(stop_signal.is_set())
+
+    @mock.patch.object(Terminal, 'inkey')
+    def test_run_timed_task_single_escape_does_not_stop(self, mock_inkey: mock.MagicMock) -> None:
+        stop_signal = StopSignal()
+        release = threading.Event()
+
+        def work(update: Callable[[str], None]) -> object:
+            release.wait(5)
+            return 'done'
+
+        mock_inkey.side_effect = [Keystroke('\x1b'), Keystroke('a')]
+
+        threading.Timer(0.3, release.set).start()
+
+        result = self.printer.run_timed_task(
+            action_name='Coding', task='keep going', work=work, stop_signal=stop_signal
+        )
+
+        self.assertEqual(result, 'done')
+        self.assertFalse(stop_signal.is_set())
+
+    @mock.patch.object(Terminal, 'inkey')
+    def test_run_timed_task_without_stop_signal_never_polls_keys(
+        self, mock_inkey: mock.MagicMock
+    ) -> None:
+        release = threading.Event()
+
+        def work(update: Callable[[str], None]) -> object:
+            release.wait(5)
+            return 'done'
+
+        threading.Timer(0.15, release.set).start()
+
+        result = self.printer.run_timed_task(action_name='Coding', task='no stop', work=work)
+
+        self.assertEqual(result, 'done')
+        mock_inkey.assert_not_called()
+
+    @mock.patch.object(Terminal, 'inkey', side_effect=OSError('no tty'))
+    def test_run_timed_task_survives_unreadable_stdin(self, mock_inkey: mock.MagicMock) -> None:
+        release = threading.Event()
+
+        def work(update: Callable[[str], None]) -> object:
+            release.wait(5)
+            return 'done'
+
+        threading.Timer(0.15, release.set).start()
+
+        result = self.printer.run_timed_task(
+            action_name='Coding', task='no tty', work=work, stop_signal=StopSignal()
+        )
+
+        self.assertEqual(result, 'done')

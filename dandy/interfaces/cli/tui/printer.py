@@ -11,6 +11,7 @@ from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
+from dandy.shared.cancellation import StopSignal
 from dandy.shared.settings.load import get_cli_llm_config
 from dandy.shared.constants import __VERSION__
 from dandy.infrastructure.llm.config import LlmConfig
@@ -149,7 +150,11 @@ class Printer:
         )
 
     def run_timed_task(
-        self, action_name: str, task: str, work: Callable[[Callable[[str], None]], T]
+        self,
+        action_name: str,
+        task: str,
+        work: Callable[[Callable[[str], None]], T],
+        stop_signal: StopSignal | None = None,
     ) -> T:
         """Run `work(update_beat)` while animating a story of AI summary beats.
 
@@ -160,6 +165,11 @@ class Printer:
         `work` finishes, a completion sentence reports the total elapsed time.
         Rendering happens only on the calling thread (`work` runs on a daemon
         thread), and any exception raised by `work` is re-raised here.
+
+        While the task runs, keys are polled (in cbreak mode) so the user can
+        press escape twice to stop the run: on the second consecutive escape
+        `stop_signal` is set and a one-line notice is printed. Any other key
+        resets the escape count, matching the prompt's double-escape rule.
         """
         start_time = perf_counter()
 
@@ -182,21 +192,27 @@ class Printer:
 
         settled_count = 0
         dots = 1
+        escape_count = 0
 
-        while thread.is_alive():
-            beats = progress.beats
+        with self.term.cbreak():
+            while thread.is_alive():
+                beats = progress.beats
 
-            if len(beats) > settled_count + 1:
-                for beat in beats[settled_count:-1]:
-                    sys.stdout.write(progress.settled_frame(beat))
-                settled_count = len(beats) - 1
-                dots = 1
+                if len(beats) > settled_count + 1:
+                    for beat in beats[settled_count:-1]:
+                        sys.stdout.write(progress.settled_frame(beat))
+                    settled_count = len(beats) - 1
+                    dots = 1
 
-            sys.stdout.write(progress.frame(beats[-1], '.' * dots))
-            sys.stdout.flush()
+                sys.stdout.write(progress.frame(beats[-1], '.' * dots))
+                sys.stdout.flush()
 
-            dots = (dots % 3) + 1
-            sleep(0.12)
+                dots = (dots % 3) + 1
+
+                if stop_signal is not None:
+                    escape_count = self._poll_for_stop(stop_signal, escape_count)
+
+                sleep(0.12)
 
         for beat in progress.beats[settled_count:]:
             sys.stdout.write(progress.settled_frame(beat))
@@ -213,6 +229,39 @@ class Printer:
         )
 
         return result_holder['value']
+
+    def _poll_for_stop(self, stop_signal: StopSignal, escape_count: int) -> int:
+        """Poll for a double-escape while a task runs; return the new count.
+
+        Reads one key with a zero timeout (so the render loop never blocks on
+        input). Two consecutive escape presses set `stop_signal` and print a
+        notice; any other key resets the count. Returns the updated escape
+        count. Safe on non-TTY stdin: when no key can be read, the count is
+        returned unchanged.
+        """
+        try:
+            key = self.term.inkey(timeout=0)
+        except Exception:
+            return escape_count
+
+        if not key:
+            return escape_count
+
+        key_text = str(key)
+
+        # blessed may deliver two escapes pressed in quick succession as a
+        # single keystroke ('\\x1b\\x1b'), so count every escape byte. Other
+        # sequences (arrows, etc.) contain extra bytes and never count.
+        if key_text and key_text.strip('\x1b') == '':
+            escape_count += key_text.count('\x1b')
+
+            if escape_count >= 2:
+                stop_signal.set()
+                print(f'{self.term.yellow}Stopping...{self.term.normal}', flush=True)
+
+            return escape_count
+
+        return 0
 
     def indented_event(self, text: str, indent: int = 0, end: str = '\n'):
         print(

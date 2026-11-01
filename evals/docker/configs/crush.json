@@ -1,0 +1,33 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "providers": {
+    "stratus": {
+      "api_key": "${AI_API_KEY}",
+      "base_url": "${AI_API_HOST}:443/v1",
+      "discover_models": false,
+      "id": "stratus",
+      "models": [
+        {
+          "capabilities": {
+            "vision": false
+          },
+          "context_window": 48000,
+          "default_max_tokens": 16000,
+          "id": "stratus.turbo",
+          "name": "Turbo",
+          "pricing": {
+            "cache_create": 0.0,
+            "cache_hit": 0.0,
+            "input": 1.0,
+            "output": 5.0
+          },
+          "reasoning": {
+            "thinking": "never"
+          }
+        }
+      ],
+      "name": "Stratus",
+      "type": "openai-compat"
+    }
+  }
+}
