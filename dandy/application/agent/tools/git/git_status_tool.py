@@ -11,14 +11,13 @@ class GitStatusTool(BaseTool):
         'Returns one short line per changed, staged, or untracked file.'
     )
 
+    action_label = 'Checking git status'
+
     timeout_seconds = 10
 
     @property
     def working_directory(self) -> Path:
         return session.project_base_path
-
-    def action_sentence(self) -> str:
-        return 'Checking the git working tree status.'
 
     def handle(self) -> str:
         return self.run_subprocess(command=['git', 'status', '--short'])

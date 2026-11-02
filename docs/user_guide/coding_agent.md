@@ -43,6 +43,26 @@ Because each turn reuses the persistent `MessageHistory`, the agent remembers th
 conversation; `replace_message_history=True` attaches *your* history object so the
 conversation accumulates in it.
 
+## Project instructions (AGENTS.md)
+
+When the project root contains an `AGENTS.md` file, its content is folded into the
+`CodingBot` and `PlanningBot` guidelines as a **Project Instructions** section, so it
+is part of the system message for every turn (and for one-shot mode). The file is read
+at agent construction, and the welcome banner shows a line for it (`found (15.3 KB) -
+loaded into the agent system prompt` or `not found - run /init to create one`).
+
+To create or refresh the file, the CLI has an **init pass**: type `/init` in the REPL
+or run `dandy --init` as a one-shot. The pass runs a dedicated `InitBot`
+(`dandy/application/agent/bots/init_bot.py`) in its own fresh conversation: it explores
+the project with the normal agent tools, reads the manifest, README, task runners, and
+test layout, then writes the complete `AGENTS.md` to the project root. When the file
+already exists, its full current content is inlined into the pass's prompt as the
+starting point (kept claims verified, stale ones corrected), and the result replaces
+the file. When the pass writes the file, the running agent re-reads it and syncs its
+system prompt (the current conversation's system message included), so the new
+instructions apply to the next turn without `/new`. The init pass never touches your
+conversation's history; `dandy --init` exits with code 1 when no file was written.
+
 ## The toolset
 
 `AGENT_TOOLS` is the core's [tool calling](tool_calling.md) machinery pointed at a
@@ -71,9 +91,11 @@ final answers through a dependency-free `MarkdownRenderer` (headings, lists, cod
 tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 "Running pytest -q").
 
-- `/new [name]` starts a fresh conversation (optionally pre-naming its session file);
-  `/sessions` lists saved sessions; `/resume <name>` loads one and keeps the current
-  agent state; `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
+- `/init` creates or refreshes the project `AGENTS.md` (see
+  [Project instructions](#project-instructions-agentsmd)); `/new [name]` starts a
+  fresh conversation (optionally pre-naming its session file); `/sessions` lists
+  saved sessions; `/resume <name>` loads one and keeps the current agent state;
+  `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
 - Pressing **escape twice** stops a running turn (the agent, tool loop, and
   any running command are interrupted and the prompt returns); at the prompt,
   pressing **escape twice** exits the REPL.

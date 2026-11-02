@@ -1,6 +1,11 @@
+import copy
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 from unittest import TestCase, mock
+
+if TYPE_CHECKING:
+    from dandy.domain.tool.beat import StoryBeat
 
 from dandy.application.agent.agent import (
     AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
@@ -35,6 +40,92 @@ class TestCodingAgentMultiTurn(TestCase):
     ) -> list[dict]:
         request_intel = mock_post_request.call_args_list[call_index].kwargs['request_intel']
         return request_intel.json_data['messages']
+
+    def _write_agents_md(self, content: str) -> None:
+        Path(self.temp_directory_path, 'AGENTS.md').write_text(content, encoding='utf-8')
+
+    @staticmethod
+    def _message_text(message: dict) -> str:
+        content = message['content']
+
+        if isinstance(content, str):
+            return content
+
+        return ''.join(part.get('text') or '' for part in content or [])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_system_prompt_includes_the_project_agents_md(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        self._write_agents_md('# Project notes\n\nUse the make smoke command for local checks.')
+        agent = CodingAgent(run_planning=False)
+        mock_post_request.side_effect = [content_response('{"text": "Noted."}')]
+
+        agent.turn('Say noted')
+
+        messages = self._request_messages_for_call(mock_post_request, 0)
+
+        self.assertEqual(messages[0]['role'], 'system')
+        system_text = self._message_text(messages[0])
+
+        self.assertIn('### Project Instructions', system_text)
+        self.assertIn('Use the make smoke command for local checks.', system_text)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_system_prompt_has_no_project_instructions_without_agents_md(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        agent = CodingAgent(run_planning=False)
+        mock_post_request.side_effect = [content_response('{"text": "Noted."}')]
+
+        agent.turn('Say noted')
+
+        messages = self._request_messages_for_call(mock_post_request, 0)
+
+        self.assertNotIn('### Project Instructions', self._message_text(messages[0]))
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_reload_agents_md_syncs_the_running_conversation(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        self._write_agents_md('Rule one: use make smoke.')
+        agent = CodingAgent(run_planning=False)
+
+        responses = iter(
+            [
+                content_response('{"text": "First answer."}'),
+                content_response('{"text": "Second answer."}'),
+            ]
+        )
+        snapshots: list[list[dict]] = []
+
+        def fake_request_to_response(
+            request_intel: HttpResponseIntel = None, **_kwargs
+        ) -> HttpResponseIntel:
+            snapshots.append(copy.deepcopy(request_intel.json_data['messages']))
+            return next(responses)
+
+        mock_post_request.side_effect = fake_request_to_response
+
+        agent.turn('First question')
+
+        self._write_agents_md('Rule two: use make test.')
+        agent.reload_agents_md()
+
+        agent.turn('Second question')
+
+        first_system_text = self._message_text(snapshots[0][0])
+        second_system_text = self._message_text(snapshots[1][0])
+
+        self.assertIn('Rule one: use make smoke.', first_system_text)
+        self.assertIn('Rule two: use make test.', second_system_text)
+        self.assertNotIn('Rule one: use make smoke.', second_system_text)
+
+        second_user_texts = [
+            self._message_text(message) for message in snapshots[1] if message['role'] == 'user'
+        ]
+
+        self.assertTrue(any('First question' in text for text in second_user_texts))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_keeps_conversation_across_turns(self, mock_post_request: mock.MagicMock) -> None:
@@ -129,11 +220,13 @@ class TestCodingAgentMultiTurn(TestCase):
         while self.agent.history.estimated_token_count < 4400:
             self.agent.history.add_message(role='user', text='x' * 500)
 
-        progress_calls: list[str] = []
+        progress_calls: list[StoryBeat] = []
 
         self.agent.turn('continue', progress_callback=progress_calls.append)
 
-        self.assertFalse(any('Compacting conversation history' in step for step in progress_calls))
+        self.assertFalse(
+            any('Compacting conversation history' in step.description for step in progress_calls)
+        )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_forwards_verbose_details(self, mock_post_request: mock.MagicMock) -> None:
@@ -348,11 +441,13 @@ class TestCodingAgentCompaction(TestCase):
                 role='assistant', text='A long assistant response ' + ('z' * 200)
             )
 
-        progress_calls: list[str] = []
+        progress_calls: list[StoryBeat] = []
 
         self.agent.turn('continue', progress_callback=progress_calls.append)
 
-        self.assertIn('Compacting conversation history', ' '.join(progress_calls))
+        self.assertIn(
+            'Compacting conversation history', ' '.join(step.description for step in progress_calls)
+        )
 
         request_intel = mock_post_request.call_args.kwargs['request_intel']
         request_messages = request_intel.json_data['messages']
@@ -426,11 +521,13 @@ class TestCodingAgentCompaction(TestCase):
 
         self.agent.max_context_tokens = 100_000
 
-        progress_calls: list[str] = []
+        progress_calls: list[StoryBeat] = []
 
         self.agent.turn('short question', progress_callback=progress_calls.append)
 
-        self.assertFalse(any('Compacting conversation history' in call for call in progress_calls))
+        self.assertFalse(
+            any('Compacting conversation history' in call.description for call in progress_calls)
+        )
 
     def test_agent_resolves_context_size_from_coding_config(self) -> None:
         self.assertEqual(self.agent.max_context_tokens, 65_536)
@@ -489,13 +586,13 @@ class TestCodingAgentPlanning(TestCase):
             content_response('{"text": "Done."}'),
         ]
 
-        progress_calls: list[str] = []
+        progress_calls: list[StoryBeat] = []
 
         result = self.agent.turn('Add a feature', progress_callback=progress_calls.append)
 
         self.assertEqual(result.text, 'Done.')
         self.assertEqual(mock_post_request.call_count, 2)
-        self.assertIn('Planning', progress_calls)
+        self.assertIn('Planning', [call.description for call in progress_calls])
 
         coding_request_intel = mock_post_request.call_args_list[1].kwargs['request_intel']
         coding_user_text = user_message_text(coding_request_intel)

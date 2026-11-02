@@ -15,16 +15,18 @@ class GitDiffTool(BaseTool):
         'Returns diffs for tracked files that have been modified but not yet staged.'
     )
 
+    action_label = 'Showing git diff'
+
     timeout_seconds = 10
 
     @property
     def working_directory(self) -> Path:
         return session.project_base_path
 
-    def action_sentence(self, **kwargs: Any) -> str:
+    def action_output(self, **kwargs: Any) -> str | None:
         path = kwargs.get('path') or ''
 
-        return f'Showing the git diff for {path}.' if path else 'Showing the git diff.'
+        return f'for {path}' if path else None
 
     @tool_error('running git diff')
     def handle(self, path: str = '') -> str:

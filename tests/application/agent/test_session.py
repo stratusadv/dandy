@@ -23,3 +23,4 @@ class TestDandyCliSession(TestCase):
 
         self.assertEqual(session.project_dandy_path, project_base_path / '.dandy')
         self.assertEqual(session.project_dandy_cli_path, project_base_path / '.dandy' / 'cli')
+        self.assertEqual(session.agents_md_path, project_base_path / 'AGENTS.md')

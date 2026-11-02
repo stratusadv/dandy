@@ -1,6 +1,7 @@
 import random
 import sys
 import threading
+from pathlib import Path
 from time import perf_counter, sleep
 from typing import Callable, TypeVar
 
@@ -11,9 +12,10 @@ from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
+from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
+from dandy.shared.constants import AGENTS_MD_FILE_NAME, __VERSION__
 from dandy.shared.settings.load import get_cli_llm_config
-from dandy.shared.constants import __VERSION__
 from dandy.infrastructure.llm.config import LlmConfig
 
 T = TypeVar('T')
@@ -47,36 +49,78 @@ def format_verbose_duration(seconds: float) -> str:
 class _StoryProgress:
     """Thread-safe accumulator for the story beats of a running task.
 
-    The worker thread pushes beats (AI summary sentences or fallback labels)
-    with `update`; the rendering thread prints settled beats in black and
-    animates the newest one in blue with trailing dots.
+    The worker thread pushes `StoryBeat`s (AI summary sentences, tool action
+    labels with their per-call detail, or plain notices) with `update`; the
+    rendering thread prints settled beats in plain text, the model's narration
+    in bold blue, and tool labels in grey, animating the newest beat with
+    trailing dots. Every line is flush left, prefixed with the beat's ascii
+    character (a bullet when the beat carries none).
     """
 
-    def __init__(self, term: Terminal, step_indent: int = 2) -> None:
+    def __init__(self, term: Terminal) -> None:
         self.term = term
-        self.step_indent = step_indent
-        self._beats: list[str] = [random.choice(THINKING_PHRASES)]
+        self._beats: list[StoryBeat] = [StoryBeat(description=random.choice(THINKING_PHRASES))]
         self._lock = threading.Lock()
 
-    def update(self, beat: str) -> None:
+    def update(self, beat: StoryBeat) -> None:
         with self._lock:
             self._beats.append(beat)
 
     @property
-    def beats(self) -> list[str]:
+    def beats(self) -> list[StoryBeat]:
         with self._lock:
             return list(self._beats)
 
-    def settled_frame(self, beat: str) -> str:
-        indent = ' ' * ((self.step_indent * 2) + 1)
-        return f'\r{self.term.normal}{indent}↳ {beat}{self.term.clear_eol()}\n'
+    @staticmethod
+    def _plain_beat(label: str, description: str) -> str:
+        if not label:
+            return description
 
-    def frame(self, beat: str, dots: str) -> str:
-        indent = ' ' * ((self.step_indent * 2) + 1)
-        prefix = f'{self.term.bold_blue}{indent}↳ '
+        return f'{label} {description}'.rstrip()
+
+    def styled_beat(self, label: str, description: str, kind: str = 'system') -> str:
+        if not label:
+            if kind == 'narration':
+                return f'{self.term.bold_blue}{description}{self.term.normal}'
+
+            return description
+
+        return f'{self.term.bold_grey}{label}{self.term.normal} {description}'.rstrip()
+
+    def settled_frame(self, beat: StoryBeat) -> str:
+        char = beat.ascii_char or '•'
+        beat_text = self.styled_beat(beat.label, beat.description, beat.kind)
+        return f'\r{self.term.normal}{char} {beat_text}{self.term.clear_eol()}\n'
+
+    def frame(self, beat: StoryBeat, dots: str) -> str:
+        prefix = f'{self.term.normal}{beat.ascii_char or "•"} '
+        plain_beat = self._plain_beat(beat.label, beat.description)
         max_beat_length = max(1, self.term.width - len(prefix) - 8)
-        short_beat = beat if len(beat) <= max_beat_length else f'{beat[: max_beat_length - 1]}…'
-        return f'\r{prefix}{short_beat} {dots}{self.term.clear_eol()}'
+
+        if len(plain_beat) > max_beat_length:
+            short_beat = plain_beat[: max_beat_length - 1]
+            label_part = short_beat[: len(beat.label)]
+            description_part = short_beat[len(beat.label) :].lstrip(' ')
+        else:
+            label_part, description_part = beat.label, beat.description
+
+        beat_text = self.styled_beat(label_part, description_part, beat.kind)
+        return f'\r{prefix}{beat_text} {dots}{self.term.clear_eol()}'
+
+
+def agents_md_banner_line(project_base_path: Path) -> str:
+    """The welcome banner line summarizing the project's AGENTS.md."""
+    agents_md_path = Path(project_base_path, AGENTS_MD_FILE_NAME)
+
+    if not agents_md_path.is_file():
+        return 'not found - run /init to create one'
+
+    size_bytes = agents_md_path.stat().st_size
+
+    if size_bytes >= 1024:
+        return f'found ({size_bytes / 1024:.1f} KB) - loaded into the agent system prompt'
+
+    return f'found ({size_bytes} bytes) - loaded into the agent system prompt'
 
 
 def session_banner_line(store: SessionStore) -> str:
@@ -95,10 +139,6 @@ class Printer:
     def __init__(self, terminal: Terminal) -> None:
         self.term = terminal
         self.markdown_renderer = MarkdownRenderer(terminal)
-
-    @staticmethod
-    def blank_line():
-        print(flush=True)
 
     def blue_divider(self):
         print(self.term.bold_blue('─' * self.term.width), flush=True)
@@ -127,44 +167,35 @@ class Printer:
         )
         print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
         print(
+            self.term.bold_blue('AGENTS.md    : ')
+            + agents_md_banner_line(session.project_base_path)
+        )
+        print(
             self.term.bold_blue('Sessions     : ')
             + session_banner_line(SessionStore.for_project(session.project_base_path))
         )
 
-    def running_phrase(self, action_name: str):
+    def running_phrase(self):
         phrase = random.choice(THINKING_PHRASES)
-        self.indented_event(text=f'{self.term.bold_blue}{phrase} in preparation of your request!')
-
-    def start_task(self, action_name: str, task: str) -> float:
-        self.indented_event(
-            text=f'{self.term.bold_orange}{action_name}{self.term.normal} "{task}" ... ',
-            indent=1,
-            end='',
-        )
-
-        return perf_counter()
-
-    def end_task(self, start_time: float, action_name: str = 'done'):
-        print(
-            f'{self.term.green}{action_name} {perf_counter() - start_time:.1f}s{self.term.normal}'
-        )
+        self.event(text=f'{self.term.bold_blue}{phrase} in preparation of your request!')
 
     def run_timed_task(
         self,
         action_name: str,
         task: str,
-        work: Callable[[Callable[[str], None]], T],
+        work: Callable[[Callable[[StoryBeat], None]], T],
         stop_signal: StopSignal | None = None,
     ) -> T:
         """Run `work(update_beat)` while animating a story of AI summary beats.
 
-        Prints a task header line, then a story: every beat pushed through
-        `update_beat` is appended to the output, with the previous beats
-        settling as plain lines and the most recent beat rendered in blue with
-        animated trailing dots (so it is clear the task is still running). When
-        `work` finishes, a completion sentence reports the total elapsed time.
-        Rendering happens only on the calling thread (`work` runs on a daemon
-        thread), and any exception raised by `work` is re-raised here.
+        Prints a task header line, then a story: every `StoryBeat` pushed
+        through `update_beat` is appended to the output, with the previous
+        beats settling as plain lines (a grey label when the beat has one) and
+        the most recent beat rendered with animated trailing dots (so it is
+        clear the task is still running). When `work` finishes, a completion
+        sentence reports the total elapsed time. Rendering happens only on the
+        calling thread (`work` runs on a daemon thread), and any exception
+        raised by `work` is re-raised here.
 
         While the task runs, keys are polled (in cbreak mode) so the user can
         press escape twice to stop the run: on the second consecutive escape
@@ -173,9 +204,7 @@ class Printer:
         """
         start_time = perf_counter()
 
-        self.indented_event(
-            text=f'{self.term.bold_orange}{action_name}{self.term.normal} "{task}"', indent=1
-        )
+        self.event(text=f'{self.term.bold_orange}{action_name}{self.term.normal} "{task}"')
 
         progress = _StoryProgress(self.term)
         result_holder: dict[str, T] = {}
@@ -220,12 +249,11 @@ class Printer:
         if error_holder:
             raise error_holder[0]
 
-        self.indented_event(
+        self.event(
             text=(
                 f'{self.term.bold_green}I have completed your request in '
                 f'{format_verbose_duration(perf_counter() - start_time)}.'
-            ),
-            indent=2,
+            )
         )
 
         return result_holder['value']
@@ -263,12 +291,8 @@ class Printer:
 
         return 0
 
-    def indented_event(self, text: str, indent: int = 0, end: str = '\n'):
-        print(
-            f'{self.term.normal}{" " * ((indent * 2) + 1)}↳ {text}{self.term.normal}',
-            end=end,
-            flush=True,
-        )
+    def event(self, text: str, end: str = '\n'):
+        print(f'{self.term.normal}{text}{self.term.normal}', end=end, flush=True)
 
     def output(self, output: str):
         rendered_output = self.markdown_renderer.render(output)
@@ -278,6 +302,6 @@ class Printer:
             print(line)
 
     def error(self, error: str, description: str):
-        self.indented_event(text=f'{self.term.red}Error: {self.term.normal}{error} !!!')
+        self.event(text=f'{self.term.red}Error: {self.term.normal}{error} !!!')
         self.red_divider()
         print(f'{description}')

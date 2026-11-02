@@ -3,6 +3,7 @@ from unittest import TestCase, mock
 
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallsIntel
 from dandy.domain.tool.tool import BaseTool
 from dandy.shared.cancellation import stop_signal
@@ -20,9 +21,15 @@ class HandleWeatherTool(BaseTool):
         return f'The weather in {location} is sunny.'
 
 
-class ActionSentenceWeatherTool(WeatherTool):
-    def action_sentence(self, **kwargs: Any) -> str:
-        return f'Fetching the weather for {kwargs["location"]}.'
+class ActionOutputWeatherTool(WeatherTool):
+    action_label = 'Fetching the weather'
+
+    def action_output(self, **kwargs: Any) -> str:
+        return f'for {kwargs["location"]}'
+
+
+class AsciiCharWeatherTool(WeatherTool):
+    action_ascii_char = '>'
 
 
 class RecordingWeatherTool(WeatherTool):
@@ -42,6 +49,22 @@ class UnexpectedWeatherTool(BaseTool):
 class BigResultWeatherTool(WeatherTool):
     def handle(self, location: str = '') -> str:
         return 'x' * 200_000
+
+
+class ConstantEchoTool(BaseTool):
+    name = 'echo'
+    description = 'Always returns the same output.'
+
+    def handle(self, command: str = '') -> str:
+        return 'always the same output'
+
+
+class ConstantEchoBTool(BaseTool):
+    name = 'echo_b'
+    description = 'Second tool that returns the same output.'
+
+    def handle(self, command: str = '') -> str:
+        return 'always the same output'
 
 
 def tool_call_response(
@@ -159,7 +182,9 @@ class TestToolService(TestCase):
             progress_callback=progress_steps.append,
         )
 
-        self.assertEqual(progress_steps, ['Get Weather'])
+        self.assertEqual(
+            progress_steps, [StoryBeat(label='Get Weather', description='', ascii_char='•')]
+        )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_summary_sentences(self, mock_post_request):
@@ -189,15 +214,15 @@ class TestToolService(TestCase):
         self.assertEqual(
             progress_steps,
             [
-                'Let me check the current weather.',
-                'Get Weather',
-                'Checking the forecast now.',
-                'Get Weather',
+                StoryBeat(description='Let me check the current weather.', kind='narration'),
+                StoryBeat(label='Get Weather', description='', ascii_char='•'),
+                StoryBeat(description='Checking the forecast now.', kind='narration'),
+                StoryBeat(label='Get Weather', description='', ascii_char='•'),
             ],
         )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_prompt_to_intel_reports_tool_action_sentences(self, mock_post_request):
+    def test_prompt_to_intel_reports_tool_action_label_and_output(self, mock_post_request):
         mock_post_request.side_effect = [
             tool_call_response('get_weather', '{"location": "Paris"}'),
             content_response('{"text": "Sunny in Paris."}'),
@@ -210,11 +235,36 @@ class TestToolService(TestCase):
         bot.llm.tools.prompt_to_intel(
             prompt='What is the weather in Paris?',
             intel_class=FinalAnswerIntel,
-            tools=[ActionSentenceWeatherTool],
+            tools=[ActionOutputWeatherTool],
             progress_callback=progress_steps.append,
         )
 
-        self.assertEqual(progress_steps, ['Fetching the weather for Paris'])
+        self.assertEqual(
+            progress_steps,
+            [StoryBeat(label='Fetching the weather', description='for Paris', ascii_char='•')],
+        )
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_tool_action_ascii_char(self, mock_post_request):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            content_response('{"text": "Sunny in Paris."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[AsciiCharWeatherTool],
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(
+            progress_steps, [StoryBeat(label='Get Weather', description='', ascii_char='>')]
+        )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_summary_and_tool_sentence(self, mock_post_request):
@@ -232,12 +282,16 @@ class TestToolService(TestCase):
         bot.llm.tools.prompt_to_intel(
             prompt='What is the weather in Paris?',
             intel_class=FinalAnswerIntel,
-            tools=[ActionSentenceWeatherTool],
+            tools=[ActionOutputWeatherTool],
             progress_callback=progress_steps.append,
         )
 
         self.assertEqual(
-            progress_steps, ['Let me check the weather in Paris.', 'Fetching the weather for Paris']
+            progress_steps,
+            [
+                StoryBeat(description='Let me check the weather in Paris.', kind='narration'),
+                StoryBeat(label='Fetching the weather', description='for Paris', ascii_char='•'),
+            ],
         )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -284,7 +338,10 @@ class TestToolService(TestCase):
         compaction_target = int(bot.llm.config.context_size * 0.70)
 
         self.assertTrue(
-            any(step.startswith('Compacting conversation history') for step in progress_steps)
+            any(
+                step.description.startswith('Compacting conversation history')
+                for step in progress_steps
+            )
         )
         self.assertLessEqual(bot.llm.messages.estimated_token_count, compaction_target)
 
@@ -312,7 +369,10 @@ class TestToolService(TestCase):
         )
 
         self.assertFalse(
-            any(step.startswith('Compacting conversation history') for step in progress_steps)
+            any(
+                step.description.startswith('Compacting conversation history')
+                for step in progress_steps
+            )
         )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -771,3 +831,133 @@ class TestRepeatedCallGuard(TestCase):
 
         self.assertIn('repeated the identical tool call', str(context.exception))
         self.assertEqual(mock_post_request.call_count, 19)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_retyped_calls_with_formatting_drift_share_a_signature(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # The model re-types the same call with different key order and JSON
+        # spacing; the canonical arguments keep one signature.
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'get_weather', '{"location": "Oslo", "units": "celsius"}', tool_call_id='call_1'
+            ),
+            tool_call_response(
+                'get_weather', '{"units":"celsius","location": "Oslo"}', tool_call_id='call_2'
+            ),
+            tool_call_response(
+                'get_weather', '{"units": "celsius",  "location":"Oslo"}', tool_call_id='call_3'
+            ),
+            content_response('{"text": "Sunny in Oslo."}'),
+        ]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[WeatherTool],
+            max_tool_iterations=5,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 3)
+        self.assertNotIn('Note:', final_request_tool_contents[0])
+        self.assertNotIn('Note:', final_request_tool_contents[1])
+        self.assertIn('Note:', final_request_tool_contents[2])
+        self.assertIn('exact same call', final_request_tool_contents[2])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_retyped_calls_with_same_result_get_a_steering_note(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # The model re-words the command every round; the arguments never match
+        # exactly, but the result does, so the result counter accumulates.
+        mock_post_request.side_effect = [
+            tool_call_response('echo', f'{{"command": "variant {i}"}}', tool_call_id=f'call_{i}')
+            for i in range(1, 4)
+        ] + [content_response('{"text": "done."}')]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Run the echo tool.',
+            intel_class=FinalAnswerIntel,
+            tools=[ConstantEchoTool],
+            max_tool_iterations=5,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 3)
+        self.assertNotIn('Note:', final_request_tool_contents[0])
+        self.assertNotIn('Note:', final_request_tool_contents[1])
+        self.assertIn('Note:', final_request_tool_contents[2])
+        self.assertIn('exact same result', final_request_tool_contents[2])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_retyped_calls_with_same_result_fail_fast(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('echo', f'{{"command": "variant {i}"}}', tool_call_id=f'call_{i}')
+            for i in range(1, 11)
+        ]
+
+        bot = ToolBot()
+
+        with self.assertRaises(LlmRecoverableError) as context:
+            bot.llm.tools.prompt_to_intel(
+                prompt='Run the echo tool.',
+                intel_class=FinalAnswerIntel,
+                tools=[ConstantEchoTool],
+                max_tool_iterations=50,
+            )
+
+        self.assertIn('returned the identical result', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 10)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_result_counter_is_separate_per_tool_name(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # Two tools return the same output; alternating them keeps each tool's
+        # own result count at three, so notes appear but the loop never stops.
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'echo' if index % 2 == 0 else 'echo_b',
+                f'{{"command": "variant {index + 1}"}}',
+                tool_call_id=f'call_{index + 1}',
+            )
+            for index in range(6)
+        ] + [content_response('{"text": "done."}')]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Run both echo tools.',
+            intel_class=FinalAnswerIntel,
+            tools=[ConstantEchoTool, ConstantEchoBTool],
+            max_tool_iterations=10,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+        noted = [content for content in final_request_tool_contents if 'Note:' in content]
+        self.assertEqual(len(noted), 2)

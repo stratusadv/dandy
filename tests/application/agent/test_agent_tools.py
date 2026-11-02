@@ -172,28 +172,26 @@ class TestGitTools(TestCase):
         self.assertIn('outside the project', result)
 
 
-class TestToolActionSentences(TestCase):
-    def test_search_sentence_names_query_and_path(self) -> None:
-        sentence = SearchFilesTool().action_sentence(query='weather', path='src')
+class TestToolActionLabelsAndOutputs(TestCase):
+    def test_search_output_names_query_and_path(self) -> None:
+        tool = SearchFilesTool()
 
-        self.assertEqual(sentence, 'Searching for "weather" in src.')
+        self.assertEqual(tool.action_label, 'Searching')
+        self.assertEqual(tool.action_output(query='weather', path='src'), 'for "weather" in src')
 
-    def test_search_sentence_defaults_to_project_root(self) -> None:
-        sentence = SearchFilesTool().action_sentence(query='weather')
+    def test_search_output_defaults_to_project_root(self) -> None:
+        self.assertEqual(SearchFilesTool().action_output(query='weather'), 'for "weather"')
 
-        self.assertEqual(sentence, 'Searching for "weather".')
+    def test_run_command_output_names_the_command(self) -> None:
+        tool = RunCommandTool()
 
-    def test_run_command_sentence_names_the_command(self) -> None:
-        sentence = RunCommandTool().action_sentence(command='pytest -q')
+        self.assertEqual(tool.action_label, 'Executing')
+        self.assertEqual(tool.action_output(command='pytest -q'), 'pytest -q')
 
-        self.assertEqual(sentence, 'Running "pytest -q".')
+    def test_git_labels_and_outputs_describe_the_action(self) -> None:
+        self.assertEqual(GitStatusTool().action_label, 'Checking git status')
+        self.assertIsNone(GitStatusTool().action_output())
 
-    def test_git_sentences_describe_the_action(self) -> None:
-        status_sentence = GitStatusTool().action_sentence()
-
-        self.assertEqual(status_sentence, 'Checking the git working tree status.')
-
-        self.assertEqual(GitDiffTool().action_sentence(), 'Showing the git diff.')
-        self.assertEqual(
-            GitDiffTool().action_sentence(path='src/foo.py'), 'Showing the git diff for src/foo.py.'
-        )
+        self.assertEqual(GitDiffTool().action_label, 'Showing git diff')
+        self.assertIsNone(GitDiffTool().action_output())
+        self.assertEqual(GitDiffTool().action_output(path='src/foo.py'), 'for src/foo.py')

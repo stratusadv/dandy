@@ -22,6 +22,7 @@ class TestCliMain(TestCase):
         self.assertIn('Usage:', out.getvalue())
         self.assertIn('dandy "<your request>"', out.getvalue())
         self.assertIn('dandy --continue "<request>"', out.getvalue())
+        self.assertIn('dandy --init', out.getvalue())
         mock_check_settings.assert_not_called()
 
     def test_version_prints_version_and_skips_settings(self) -> None:
@@ -188,6 +189,68 @@ class TestCliMain(TestCase):
             exit_code = cli_main.main()
 
         self.assertEqual(exit_code, 1)
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_one_shot_init_runs_the_init_pass(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.run_init.return_value = True
+
+        with mock.patch.object(sys, 'argv', ['dandy', '--init']), redirect_stdout(StringIO()):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 0)
+
+        cli_instance = mock_cli_class.return_value
+        cli_instance.run_init.assert_called_once_with()
+        cli_instance.process_user_input.assert_not_called()
+        cli_instance.continue_latest_session.assert_not_called()
+        cli_instance.run.assert_not_called()
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_one_shot_init_exits_nonzero_when_the_pass_fails(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.run_init.return_value = False
+
+        with mock.patch.object(sys, 'argv', ['dandy', '--init']), redirect_stdout(StringIO()):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 1)
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    def test_one_shot_init_with_a_request_prints_usage(
+        self,
+        mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        with (
+            mock.patch.object(sys, 'argv', ['dandy', '--init', 'do', 'the', 'thing']),
+            redirect_stdout(StringIO()) as out,
+        ):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn('Usage:', out.getvalue())
+        mock_check_settings.assert_not_called()
+        mock_cli_class.assert_not_called()
 
     @mock.patch('dandy.interfaces.cli.cli.DandyCli')
     @mock.patch.object(cli_main, 'session')

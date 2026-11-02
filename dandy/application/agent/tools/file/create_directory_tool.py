@@ -13,8 +13,10 @@ class CreateDirectoryTool(BaseTool):
         'The path is relative to the project root.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
-        return f'Creating directory {kwargs["directory_path"]}.'
+    action_label = 'Creating directory'
+
+    def action_output(self, **kwargs: Any) -> str:
+        return kwargs['directory_path']
 
     @tool_error('creating directory')
     def handle(self, directory_path: str) -> str:

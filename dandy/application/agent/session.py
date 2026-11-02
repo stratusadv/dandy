@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from dandy.shared.constants import CLI_WORKING_DIRECTORY, DANDY_LOCAL_DIRECTORY_NAME
+from dandy.shared.constants import (
+    AGENTS_MD_FILE_NAME,
+    CLI_WORKING_DIRECTORY,
+    DANDY_LOCAL_DIRECTORY_NAME,
+)
 from dandy.domain.intel.intel import BaseIntel
 
 
@@ -17,6 +21,10 @@ class DandyCliSession(BaseIntel):
     @property
     def project_dandy_cli_path(self) -> Path:
         return Path(self.project_dandy_path, CLI_WORKING_DIRECTORY)
+
+    @property
+    def agents_md_path(self) -> Path:
+        return Path(self.project_base_path, AGENTS_MD_FILE_NAME)
 
 
 session = DandyCliSession(project_base_path=Path.cwd())

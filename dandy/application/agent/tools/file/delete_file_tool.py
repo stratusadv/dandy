@@ -10,8 +10,10 @@ class DeleteFileTool(BaseTool):
     name = 'delete_file'
     description = 'Delete a file. The path is relative to the project root.'
 
-    def action_sentence(self, **kwargs: Any) -> str:
-        return f'Deleting {kwargs["file_path"]}.'
+    action_label = 'Deleting'
+
+    def action_output(self, **kwargs: Any) -> str:
+        return kwargs['file_path']
 
     @tool_error('deleting file')
     def handle(self, file_path: str) -> str:

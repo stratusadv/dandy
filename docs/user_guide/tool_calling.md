@@ -28,6 +28,13 @@ class GetWeatherTool(BaseTool):
 - `handle` is abstract: a tool class without an override cannot be instantiated.
 - `tools=[...]` accepts a mix of classes and instances; everything is normalized to
   instances before the wire call.
+- An optional `action_label` class attribute (next to `name` / `description`) and an
+  `action_output(**validated_args)` override let a UI show exactly what the tool is
+  doing while it runs — for example, label `'Reading'` with output
+  `'src/foo.py lines 1-10'`. Without a label, the title-cased tool name is used;
+  without an output override, the label stands alone. An optional
+  `action_ascii_char` class attribute (default `'•'`) sets the character the CLI
+  prefixes the tool's beat lines with.
 
 ## The execute-and-loop
 
@@ -48,19 +55,30 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
 
 - `max_tool_iterations` caps the rounds (default 5; `None` = no cap — the coding agent
   runs uncapped, at the cost of unbounded API spend).
-- The repeated-call guard breaks degenerate loops: every identical call the model
-  makes during the loop (same name, arguments, and result) counts — not just
-  consecutive ones, so oscillating between a few near-identical calls is caught
-  too — and the result fed back to the model carries a steering note from the
-  third occurrence, while the loop raises `LlmRecoverableError` at ten identical
-  calls. A different call or a changed result never accumulates toward the
-  signature, so time-varying commands never trip it.
+- The repeated-call guard breaks degenerate loops with two per-loop counters,
+  neither consecutive-only: a signature counter over (name, canonical arguments,
+  result) — arguments are canonicalized (whitespace runs folded in every string
+  value, sorted-key compact JSON) so re-typed calls with line-wrap, indent, or
+  key-order drift still accumulate — and a result counter over (name, result)
+  pairs that counts across any argument wording, so a reworded call that keeps
+  producing the same output is caught too. The result fed back to the model
+  carries a steering note from the third occurrence, and the loop raises
+  `LlmRecoverableError` at ten. A changed result never accumulates toward either
+  counter, so time-varying commands never trip them.
 - Invalid arguments are fed back to the model as a tool message so it can self-correct.
 - An explicit `tool_functions={'name': handler}` entry wins over the tool's own
   `handle()`; handlers receive the parsed argument Intel and return a string or Intel.
-- A `progress_callback` gets a beat per round (the model's narration sentence, if it
-  wrote one) and a beat per executed tool via the tool's optional
-  `action_sentence(**validated_args)` override.
+- A `progress_callback` (typed `Callable[[StoryBeat], None]`) gets a `StoryBeat`
+  per event: one for the model's narration sentence (when it wrote one, a
+  description-only beat marked `kind='narration'`), and one per executed tool
+  carrying the tool's `action_label` as `label`, its
+  `action_output(**validated_args)` result as `description`, and its
+  `action_ascii_char` as `ascii_char`. Compaction notices are description-only
+  beats too. The split exists so a UI can style the parts independently (the CLI
+  renders every line flush left, each beat prefixed by its `ascii_char` — the
+  tool's character, or a bullet when the beat carries none — with the label in
+  bold grey, the description in plain black, and the model's narration in bold
+  blue).
 - A `verbose_callback` gets one line per event for debugging, including a `GAVE UP` line
   when a finite cap is hit.
 

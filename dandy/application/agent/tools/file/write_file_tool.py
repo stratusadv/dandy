@@ -13,8 +13,10 @@ class WriteFileTool(BaseTool):
         'or overwriting an existing file entirely. The path is relative to the project root.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
-        return f'Writing {kwargs["file_path"]}.'
+    action_label = 'Writing'
+
+    def action_output(self, **kwargs: Any) -> str:
+        return kwargs['file_path']
 
     @tool_error('writing file')
     def handle(self, file_path: str, content: str) -> str:

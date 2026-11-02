@@ -34,6 +34,16 @@ class LlmService(
     def __post_init__(self):
         self.skills.register(self.obj.skills)
 
+        self._llm_connector: LlmConnector = LlmConnector(
+            recorder_event_id=self.recorder_event_id,
+            system_prompt=self.build_system_prompt(),
+            llm_config=self.obj.get_llm_config(),
+            intel_class=self.obj.intel_class,
+            post_diligence_handler=self.diligence.post_handler,
+            pre_diligence_handler=self.diligence.pre_handler,
+        )
+
+    def build_system_prompt(self) -> str:
         system_prompt = service_system_prompt(
             role=self.obj.role,
             task=self.obj.task,
@@ -46,14 +56,7 @@ class LlmService(
         if skill_section:
             system_prompt = f'{system_prompt}\n\n{skill_section}'
 
-        self._llm_connector: LlmConnector = LlmConnector(
-            recorder_event_id=self.recorder_event_id,
-            system_prompt=system_prompt,
-            llm_config=self.obj.get_llm_config(),
-            intel_class=self.obj.intel_class,
-            post_diligence_handler=self.diligence.post_handler,
-            pre_diligence_handler=self.diligence.pre_handler,
-        )
+        return system_prompt
 
     @property
     def messages(self) -> MessageHistory:
@@ -117,6 +120,18 @@ class LlmService(
             self._llm_connector.system_prompt_str = (
                 f'{self._llm_connector.system_prompt_str}\n\n{section}'
             )
+
+    def rebuild_system_prompt(self) -> str:
+        """Rebuild the system message text from the bot's current prompt attributes.
+
+        Used when the bot's prompt content changes mid-conversation (for
+        example when the project's AGENTS.md is regenerated). This only
+        updates the connector; any conversation that already carries a
+        system message keeps its own copy until the caller syncs it.
+        """
+        self._llm_connector.system_prompt_str = self.build_system_prompt()
+
+        return self._llm_connector.system_prompt_str
 
     def reset(self):
         self._llm_connector.reset()

@@ -15,11 +15,13 @@ class EditFileTool(BaseTool):
         'Set replace_all to True to replace every occurrence instead of just one.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
+    action_label = 'Editing'
+
+    def action_output(self, **kwargs: Any) -> str:
         file_path = kwargs['file_path']
         replace_all = kwargs.get('replace_all', False)
 
-        return f'Editing {file_path}{" everywhere" if replace_all else ""}.'
+        return f'{file_path}{" everywhere" if replace_all else ""}'
 
     @tool_error('editing file')
     def handle(

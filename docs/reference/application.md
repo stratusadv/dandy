@@ -171,16 +171,25 @@ Documented in [Agent](../user_guide/agent.md).
 
 The framework's own agentic use case: a child of `Agent` that adds a planning bot
 whose plan is folded into each turn's prompt, over a persistent history with
-tools and context-window compaction. The CLI is a thin interface on top of it; see
-[The Coding Agent](../user_guide/coding_agent.md).
+tools and context-window compaction. It also reads the project's `AGENTS.md` into
+the agent system prompts and runs the `/init` generation pass. The CLI is a thin
+interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
 
 ::: dandy.application.agent.coding_agent.CodingAgent
     options:
         members:
             - clear
+            - reload_agents_md
+            - run_init_pass
 
 ::: dandy.application.agent.session.DandyCliSession
+
+::: dandy.application.agent.agents_md.read_agents_md
+
+::: dandy.application.agent.agents_md.agents_md_section
 
 ::: dandy.application.agent.bots.coding_bot.CodingBot
 
 ::: dandy.application.agent.bots.planning_bot.PlanningBot
+
+::: dandy.application.agent.bots.init_bot.InitBot

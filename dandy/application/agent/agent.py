@@ -11,6 +11,7 @@ from dandy.domain.message.message import MessageHistory, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.skill.skill import to_skill_instances
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
+from dandy.domain.tool.beat import StoryBeat
 
 if TYPE_CHECKING:
     from dandy.application.bot.bot import Bot
@@ -75,7 +76,7 @@ class Agent:
     def turn(
         self,
         message: Prompt | str | None = None,
-        progress_callback: Callable[[str], None] | None = None,
+        progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
     ) -> IntelType:
         """Run one exchange: prepare, compact, work through any tool rounds, return the answer.
@@ -104,7 +105,7 @@ class Agent:
     def _prepare_message(
         self,
         message: Prompt | str | None,
-        _progress_callback: Callable[[str], None] | None = None,
+        _progress_callback: Callable[[StoryBeat], None] | None = None,
         _verbose_callback: Callable[[str], None] | None = None,
     ) -> Prompt | str | None:
         """Subclass hook to shape the incoming message before it goes to the bot."""
@@ -135,7 +136,7 @@ class Agent:
         self,
         request: Prompt | str,
         is_done: Callable[[IntelType], bool] | None = None,
-        progress_callback: Callable[[str], None] | None = None,
+        progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
     ) -> IntelType:
         """Drive turns until the request is complete or the turn budget is exhausted.
@@ -238,7 +239,9 @@ class Agent:
         )
 
     def _compact_history_for_next_message(
-        self, message: Prompt | str | None, progress_callback: Callable[[str], None] | None = None
+        self,
+        message: Prompt | str | None,
+        progress_callback: Callable[[StoryBeat], None] | None = None,
     ) -> None:
         incoming_token_count = self._incoming_token_count(message)
         target_token_count = max(1, self._compaction_target_token_count() - incoming_token_count)
@@ -249,6 +252,7 @@ class Agent:
             return
 
         if progress_callback is not None:
-            progress_callback(f'Compacting conversation history ({current_token_count} tokens)...')
+            description = f'Compacting conversation history ({current_token_count} tokens)...'
+            progress_callback(StoryBeat(description=description))
 
         compact_message_history(history=self.history, max_context_tokens=target_token_count)

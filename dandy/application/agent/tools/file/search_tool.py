@@ -26,14 +26,16 @@ class SearchFilesTool(BaseTool):
         'dependency folders, and binary or very large files are skipped.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
+    action_label = 'Searching'
+
+    def action_output(self, **kwargs: Any) -> str:
         query = kwargs['query']
         path = kwargs.get('path') or ''
 
         if path:
-            return f'Searching for "{query}" in {path}.'
+            return f'for "{query}" in {path}'
 
-        return f'Searching for "{query}".'
+        return f'for "{query}"'
 
     @tool_error('searching files')
     def handle(self, query: str, path: str = '', use_regex: bool = False) -> str:

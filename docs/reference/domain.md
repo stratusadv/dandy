@@ -53,11 +53,13 @@ are framework-agnostic.
         members:
             - name
             - description
+            - action_label
+            - action_ascii_char
             - working_directory
             - timeout_seconds
             - use_shell
             - handle
-            - action_sentence
+            - action_output
             - to_function_dict
             - get_parameters_intel_class
             - run_subprocess
@@ -67,6 +69,8 @@ are framework-agnostic.
         members:
             - run_subprocess
             - to_tool_instances
+
+::: dandy.domain.tool.beat.StoryBeat
 
 ::: dandy.domain.tool.exceptions.ToolCriticalError
 

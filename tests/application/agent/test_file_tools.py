@@ -178,21 +178,37 @@ class TestCodeEditingTools(TestCase):
         self.assertIn('outside the project', result)
         self.assertFalse(Path(self.temp_directory_path.parent, 'outside.txt').exists())
 
-    def test_file_tools_provide_action_sentences(self):
-        sentences = [
-            ReadFileTool().action_sentence(file_path='a.txt'),
-            WriteFileTool().action_sentence(file_path='b.txt', content='x'),
-            EditFileTool().action_sentence(
-                file_path='c.txt', old_string='a', new_string='b', replace_all=True
-            ),
-            DeleteFileTool().action_sentence(file_path='d.txt'),
-            CreateDirectoryTool().action_sentence(directory_path='e'),
-            ListDirectoryTool().action_sentence(path='f', recursive=True),
+    def test_file_tools_provide_action_labels_and_outputs(self):
+        labels = [
+            ReadFileTool().action_label,
+            WriteFileTool().action_label,
+            EditFileTool().action_label,
+            DeleteFileTool().action_label,
+            CreateDirectoryTool().action_label,
+            ListDirectoryTool().action_label,
         ]
 
-        for sentence in sentences:
-            self.assertIsInstance(sentence, str)
-            self.assertRegex(sentence, r'\.$')
-        self.assertEqual(sentences[0], 'Reading a.txt.')
-        self.assertEqual(sentences[2], 'Editing c.txt everywhere.')
-        self.assertEqual(sentences[5], 'Listing f recursively.')
+        for label in labels:
+            self.assertIsInstance(label, str)
+            self.assertTrue(label)
+
+        self.assertEqual(ReadFileTool().action_label, 'Reading')
+        self.assertEqual(ReadFileTool().action_output(file_path='a.txt'), 'a.txt')
+        self.assertEqual(
+            ReadFileTool().action_output(file_path='a.txt', start_line=5, end_line=10),
+            'a.txt lines 5-10',
+        )
+        self.assertEqual(WriteFileTool().action_label, 'Writing')
+        self.assertEqual(WriteFileTool().action_output(file_path='b.txt'), 'b.txt')
+        self.assertEqual(EditFileTool().action_label, 'Editing')
+        self.assertEqual(
+            EditFileTool().action_output(file_path='c.txt', replace_all=True), 'c.txt everywhere'
+        )
+        self.assertEqual(DeleteFileTool().action_label, 'Deleting')
+        self.assertEqual(DeleteFileTool().action_output(file_path='d.txt'), 'd.txt')
+        self.assertEqual(CreateDirectoryTool().action_label, 'Creating directory')
+        self.assertEqual(CreateDirectoryTool().action_output(directory_path='e'), 'e')
+        self.assertEqual(ListDirectoryTool().action_label, 'Listing')
+        self.assertEqual(
+            ListDirectoryTool().action_output(path='f', recursive=True), 'f recursively'
+        )

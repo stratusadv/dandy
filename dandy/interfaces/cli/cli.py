@@ -7,10 +7,11 @@ from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.cancellation import stop_signal
+from dandy.shared.constants import AGENTS_MD_FILE_NAME
 from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.settings import settings
 
-CLI_COMMANDS = ('new', 'sessions', 'resume', 'delete', 'quit')
+CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
 
 class DandyCli:
@@ -49,17 +50,17 @@ class DandyCli:
         command = parts[0][1:].lower()
         argument = parts[1].strip() if len(parts) > 1 else ''
 
-        if command == 'new':
-            return self._process_new(argument)
+        handlers = {
+            'init': (self._process_init, ()),
+            'new': (self._process_new, (argument,)),
+            'sessions': (self._process_sessions, ()),
+            'resume': (self._process_resume, (argument,)),
+            'delete': (self._process_delete, (argument,)),
+        }
 
-        if command == 'sessions':
-            return self._process_sessions()
-
-        if command == 'resume':
-            return self._process_resume(argument)
-
-        if command == 'delete':
-            return self._process_delete(argument)
+        if command in handlers:
+            handler, handler_arguments = handlers[command]
+            return handler(*handler_arguments)
 
         if command in {'exit', 'quit', 'q'}:
             return False
@@ -68,6 +69,11 @@ class DandyCli:
             error='Unknown command',
             description=f'"{command}" is not a valid command. Try {tuple(CLI_COMMANDS)}.',
         )
+        return True
+
+    def _process_init(self) -> bool:
+        self.run_init()
+
         return True
 
     def _process_new(self, name: str) -> bool:
@@ -142,7 +148,7 @@ class DandyCli:
         return True
 
     def process_agent_input(self, user_input: str, save_session: bool = True) -> bool:
-        tui.printer.running_phrase('Coding')
+        tui.printer.running_phrase()
 
         stop_signal.clear()
 
@@ -198,6 +204,45 @@ class DandyCli:
             )
 
         return turn_succeeded
+
+    def run_init(self) -> bool:
+        """Run the AGENTS.md generation pass, returning whether it succeeded.
+
+        Used by the /init command and by one-shot mode; the outcome doubles as
+        the one-shot process exit code.
+        """
+        stop_signal.clear()
+
+        try:
+            summary = tui.printer.run_timed_task(
+                action_name='Init',
+                task=f'{AGENTS_MD_FILE_NAME} for {session.project_base_path}',
+                work=lambda update: self.agent.run_init_pass(
+                    progress_callback=update, verbose_callback=self.verbose_callback
+                ),
+                stop_signal=stop_signal,
+            )
+        except RunStoppedError:
+            tui.printer.output('Run stopped.')
+            return False
+        except Exception as error:
+            tui.printer.error(error='Init failed', description=str(error))
+            return False
+
+        if summary is None:
+            tui.printer.error(
+                error='Init failed', description=f'The agent did not write {AGENTS_MD_FILE_NAME}.'
+            )
+            return False
+
+        tui.printer.green_divider()
+        tui.printer.output(summary)
+        tui.printer.output(
+            f'Wrote {AGENTS_MD_FILE_NAME} ({session.agents_md_path.stat().st_size} bytes); '
+            'it is now part of the agent system prompt.'
+        )
+
+        return True
 
     def _save_session_after_turn(self, user_input: str) -> None:
         if len(self.agent.history) == 0:

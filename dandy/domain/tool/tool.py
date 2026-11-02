@@ -19,6 +19,13 @@ class BaseTool(ABC):
     schema. The validated arguments are passed to handle as keyword arguments,
     so tools need no dedicated Intel class.
 
+    An optional action_label class attribute names the tool's running beat
+    (for example, 'Reading'); without one, the title-cased tool name is used.
+    The optional action_output method builds the per-call detail shown next to
+    the label while the tool runs, from the validated keyword arguments. The
+    optional action_ascii_char class attribute sets the character the CLI
+    prefixes the tool's beat lines with; without one, a bullet is used.
+
     Example:
         class GetWeatherTool(BaseTool):
             name = 'get_weather'
@@ -31,6 +38,8 @@ class BaseTool(ABC):
 
     name: str = ''
     description: str = ''
+    action_label: str = ''
+    action_ascii_char: str = '•'
 
     timeout_seconds: int = 30
     use_shell: bool = False
@@ -62,14 +71,13 @@ class BaseTool(ABC):
         message = f'"{self.__class__.__name__}" does not implement a "handle" method.'
         raise NotImplementedError(message)
 
-    def action_sentence(self, **_kwargs: Any) -> str | None:
-        """Optional one-sentence description of what the tool is about to do.
+    def action_output(self, **_kwargs: Any) -> str | None:
+        """Optional per-call detail shown next to `action_label` while the tool runs.
 
-        Subclasses may override this to return a short, present-tense sentence
-        (for example, 'Reading src/foo.py.') so UIs can show the exact action
-        while the tool runs. Validated arguments arrive as keyword arguments,
-        so the sentence can name the specific files, paths, or commands. The
-        default returns None, meaning no per-tool sentence is shown.
+        Subclasses may override this to return the specifics of the current
+        call (for example, 'src/foo.py lines 1-10') so UIs can show exactly
+        what the tool is doing. Validated arguments arrive as keyword
+        arguments. The default returns None, meaning the label stands alone.
         """
         return None
 

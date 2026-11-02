@@ -30,15 +30,17 @@ USAGE = (
     '  dandy                         Start the interactive assistant (REPL)\n'
     '  dandy "<your request>"        Run one request then exit\n'
     '  dandy --continue "<request>"  Run one request inside the latest saved session\n'
+    '  dandy --init                  Create or refresh the project AGENTS.md then exit\n'
     '  dandy -h, --help              Show this help message\n'
     '  dandy -v, --version           Show the version\n'
     '\n'
     'With no request, dandy starts an interactive session and stays in an '
     'agentic loop: every message you type is sent to the coding agent. '
-    'Conversations are saved automatically; use /new to start over, '
-    '/sessions to list saved conversations, /resume <name> to continue one, '
-    'and /quit to exit. Pressing escape twice stops a running turn; at the '
-    'prompt, pressing escape twice exits the loop.\n'
+    'Conversations are saved automatically; use /init to create or refresh '
+    'the project AGENTS.md, /new to start over, /sessions to list saved '
+    'conversations, /resume <name> to continue one, and /quit to exit. '
+    'Pressing escape twice stops a running turn; at the prompt, pressing '
+    'escape twice exits the loop.\n'
 )
 
 
@@ -60,9 +62,14 @@ def main() -> int:
         return 0
 
     if len(sys.argv) > 1:
-        one_shot_arguments = [arg for arg in sys.argv[1:] if arg != '--continue']
+        is_init_request = '--init' in sys.argv[1:]
+        one_shot_arguments = [arg for arg in sys.argv[1:] if arg not in {'--continue', '--init'}]
 
-        if not one_shot_arguments:
+        if is_init_request and one_shot_arguments:
+            _print_usage()
+            return 0
+
+        if not one_shot_arguments and not is_init_request:
             _print_usage()
             return 0
 
@@ -91,7 +98,9 @@ def main() -> int:
 
         tui.printer.blue_divider()
 
-        if '--continue' in sys.argv[1:]:
+        if is_init_request:
+            exit_code = 0 if cli.run_init() else 1
+        elif '--continue' in sys.argv[1:]:
             exit_code = 0 if cli.continue_latest_session(user_input) else 1
         else:
             cli.process_user_input(user_input=user_input, save_session=False)

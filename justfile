@@ -17,7 +17,7 @@ test:
 test-app app:
     {{ PYTHON }} -m pytest {{ app }}
 test-coverage:
-    {{ PYTHON }} -m pytest . --cov=dandy --cov-report=term-missing --cov-report=html:.converage_html
+    {{ PYTHON }} -m pytest . --cov=dandy --cov-report=term-missing --cov-report=html:.coverage_html
 test-coverage-app app:
     {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing
 test-failed:
@@ -27,8 +27,8 @@ venv:
     uv sync --all-extras --upgrade
 venv-upgrade:
     uv sync --all-extras --upgrade
-cli:
-    {{ PYTHON }} ./dandy/interfaces/cli/main.py
+cli *ARGS:
+    {{ PYTHON }} ./dandy/interfaces/cli/main.py {{ ARGS }}
 # Live smoke test for the REPL session system. Needs the real LLM
 # credentials from development.env (dotenv-load). Drives two REPL
 # sessions with scripted input in a scratch project: turn one is

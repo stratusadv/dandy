@@ -18,15 +18,17 @@ class ReadFileTool(BaseTool):
         'Long files are returned truncated; page through them with start_line and end_line.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
+    action_label = 'Reading'
+
+    def action_output(self, **kwargs: Any) -> str:
         file_path = kwargs['file_path']
         start_line = kwargs.get('start_line')
         end_line = kwargs.get('end_line')
 
         if start_line or end_line:
-            return f'Reading {file_path} lines {start_line or 1}-{end_line or "end"}.'
+            return f'{file_path} lines {start_line or 1}-{end_line or "end"}'
 
-        return f'Reading {file_path}.'
+        return file_path
 
     @tool_error('reading file')
     def handle(

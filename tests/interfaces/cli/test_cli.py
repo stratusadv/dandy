@@ -256,6 +256,44 @@ class TestDandyCli(TestCase):
             description='There are no saved sessions for this project yet.',
         )
 
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.run_init_pass')
+    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'output')
+    def test_init_command_runs_the_pass_and_reports_the_file(
+        self,
+        mock_output: mock.MagicMock,
+        _mock_green_divider: mock.MagicMock,
+        mock_run_init_pass: mock.MagicMock,
+    ) -> None:
+        (self.temp_directory_path / 'AGENTS.md').write_text('# Project', encoding='utf-8')
+        mock_run_init_pass.return_value = 'Covers the project commands.'
+
+        should_continue = self.cli.process_user_input('/init')
+
+        self.assertTrue(should_continue)
+        mock_run_init_pass.assert_called_once()
+        mock_output.assert_any_call('Covers the project commands.')
+
+        final_line = mock_output.call_args_list[-1][0][0]
+
+        self.assertIn('Wrote AGENTS.md', final_line)
+        self.assertIn('now part of the agent system prompt', final_line)
+
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.run_init_pass')
+    @mock.patch.object(tui.printer, 'error')
+    def test_init_command_reports_failure_when_no_file_was_written(
+        self, mock_error: mock.MagicMock, mock_run_init_pass: mock.MagicMock
+    ) -> None:
+        mock_run_init_pass.return_value = None
+
+        should_continue = self.cli.process_user_input('/init')
+
+        self.assertTrue(should_continue)
+        mock_run_init_pass.assert_called_once()
+        mock_error.assert_called_once_with(
+            error='Init failed', description='The agent did not write AGENTS.md.'
+        )
+
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_new_command_starts_fresh_conversation(

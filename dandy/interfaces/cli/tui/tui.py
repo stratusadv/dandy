@@ -25,9 +25,7 @@ class Tui:
     def get_user_input(self, question: str | None = None) -> str | None:
         if question:
             self._input_prefix = self.term.purple('⦿ ')
-            self.printer.indented_event(
-                text=f'{self.term.purple}Question: {self.term.normal}{question}', indent=1
-            )
+            self.printer.event(text=f'{self.term.purple}Question: {self.term.normal}{question}')
             self.printer.purple_divider()
 
         else:

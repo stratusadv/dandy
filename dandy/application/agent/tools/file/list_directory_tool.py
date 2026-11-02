@@ -17,11 +17,13 @@ class ListDirectoryTool(BaseTool):
         'Set recursive to True to include nested directories.'
     )
 
-    def action_sentence(self, **kwargs: Any) -> str:
+    action_label = 'Listing'
+
+    def action_output(self, **kwargs: Any) -> str:
         path = kwargs.get('path') or '.'
         recursive = kwargs.get('recursive', False)
 
-        return f'Listing {path}{" recursively" if recursive else ""}.'
+        return f'{path}{" recursively" if recursive else ""}'
 
     @tool_error('listing directory')
     def handle(self, path: str = '', recursive: bool = False) -> str:

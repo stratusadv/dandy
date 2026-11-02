@@ -15,6 +15,9 @@ class RunCommandTool(BaseTool):
         'The command can use shell features such as pipes and environment variables.'
     )
 
+    action_label = 'Executing'
+    action_ascii_char = '>'
+
     timeout_seconds = 30
     use_shell = True
 
@@ -22,8 +25,8 @@ class RunCommandTool(BaseTool):
     def working_directory(self) -> Path:
         return session.project_base_path
 
-    def action_sentence(self, **kwargs: Any) -> str:
-        return f'Running "{kwargs["command"]}".'
+    def action_output(self, **kwargs: Any) -> str:
+        return f'{kwargs["command"]}'
 
     def handle(self, command: str, timeout_seconds: int = 30) -> str:
         return self.run_subprocess(
