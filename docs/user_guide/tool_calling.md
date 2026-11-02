@@ -78,7 +78,8 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   renders every line flush left, each beat prefixed by its `ascii_char` — the
   tool's character, or a bullet when the beat carries none — with the label in
   bold grey, the description in plain black, and the model's narration in bold
-  blue).
+  blue); the animating frame folds a multi-line beat onto one line, and the
+  settled frame prints it in full.
 - A `verbose_callback` gets one line per event for debugging, including a `GAVE UP` line
   when a finite cap is hit.
 

@@ -128,6 +128,19 @@ class TestPrinterStory(TestCase):
         for frame in (animating_frame, settled_frame):
             self.assertTrue(frame.startswith(f'\r{progress.term.normal}> '))
 
+    def test_multiline_beat_animates_on_a_single_line(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        description = 'pytest -q\nimport blessed\nprint(1)'
+        beat = StoryBeat(label='Executing', description=description, ascii_char='>')
+
+        animating_frame = progress.frame(beat, '...')
+        settled_frame = progress.settled_frame(beat)
+
+        self.assertNotIn('\n', animating_frame)
+        self.assertTrue(animating_frame.startswith(f'\r{progress.term.normal}> '))
+        self.assertIn('pytest -q import blessed print(1)', animating_frame)
+        self.assertIn(description, settled_frame)
+
     def test_event_prints_text_without_prefix(self) -> None:
         self.printer.event('Hello')
 

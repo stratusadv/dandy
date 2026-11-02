@@ -54,7 +54,9 @@ class _StoryProgress:
     rendering thread prints settled beats in plain text, the model's narration
     in bold blue, and tool labels in grey, animating the newest beat with
     trailing dots. Every line is flush left, prefixed with the beat's ascii
-    character (a bullet when the beat carries none).
+    character (a bullet when the beat carries none). The animating frame
+    folds a multi-line beat onto one line so its per-tick redraw stays on a
+    single line; the settled frame prints the beat's text in full.
     """
 
     def __init__(self, term: Terminal) -> None:
@@ -94,7 +96,7 @@ class _StoryProgress:
 
     def frame(self, beat: StoryBeat, dots: str) -> str:
         prefix = f'{self.term.normal}{beat.ascii_char or "•"} '
-        plain_beat = self._plain_beat(beat.label, beat.description)
+        plain_beat = ' '.join(self._plain_beat(beat.label, beat.description).split())
         max_beat_length = max(1, self.term.width - len(prefix) - 8)
 
         if len(plain_beat) > max_beat_length:
@@ -102,7 +104,7 @@ class _StoryProgress:
             label_part = short_beat[: len(beat.label)]
             description_part = short_beat[len(beat.label) :].lstrip(' ')
         else:
-            label_part, description_part = beat.label, beat.description
+            label_part, description_part = beat.label, ' '.join(beat.description.split())
 
         beat_text = self.styled_beat(label_part, description_part, beat.kind)
         return f'\r{prefix}{beat_text} {dots}{self.term.clear_eol()}'
