@@ -16,7 +16,7 @@ class RunCommandTool(BaseTool):
     )
 
     action_label = 'Executing'
-    action_ascii_char = '>'
+    action_ascii_char = '◦'
 
     timeout_seconds = 30
     use_shell = True
