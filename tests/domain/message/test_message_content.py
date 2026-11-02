@@ -11,6 +11,7 @@ from dandy.domain.message.message import (
     compact_message_history,
 )
 from dandy.domain.tokens.estimate import (
+    TOKEN_COUNT_REQUEST_OVERHEAD,
     TOKEN_COUNT_ROLE_OVERHEAD,
     TOKEN_COUNT_TOOL_CALL_ID_OVERHEAD,
     get_estimated_token_count_for_image,
@@ -211,7 +212,9 @@ class TestMessageHistory(TestCase):
         history.add_message(role='system', text='s')
         history.add_message(role='user', text='u')
 
-        expected = sum(message.estimated_token_count for message in history)
+        expected = TOKEN_COUNT_REQUEST_OVERHEAD + sum(
+            message.estimated_token_count for message in history
+        )
         self.assertEqual(history.estimated_token_count, expected)
 
 
@@ -237,12 +240,68 @@ class TestCompactMessageHistory(TestCase):
         self.assertEqual(len(history), original_count)
 
     def test_drops_tool_round_first_then_oldest_exchange(self) -> None:
-        history = self.build_history()
+        history = MessageHistory()
+        history.add_message(role='system', text='system')
+        history.add_message(role='user', text='Original request ' + ('a' * 100))
+        history.add_message(role='assistant', text='Old answer ' + ('a' * 100))
+        history.add_message(role='user', text='Middle request ' + ('a' * 100))
+        history.add_message(
+            role='assistant',
+            tool_calls=[{'id': 'call_1', 'function': {'name': 't', 'arguments': '{}'}}],
+        )
+        history.add_message(role='tool', tool_call_id='call_1', text='a' * 1000)
+        history.add_message(role='assistant', text='Newest answer')
 
-        compact_message_history(history, max_context_tokens=100)
+        compact_message_history(history, max_context_tokens=60)
 
-        roles = [message.role for message in history]
-        self.assertEqual(roles, ['system', 'assistant'])
+        self.assertEqual([message.role for message in history], ['system', 'user', 'assistant'])
+        self.assertIn('Original request', history.messages[1].text_content)
+        self.assertEqual(history.messages[2].text_content, 'Newest answer')
+
+    def test_protects_the_opening_request_exchange(self) -> None:
+        history = MessageHistory()
+        history.add_message(role='system', text='system')
+        history.add_message(role='user', text='Original request ' + ('a' * 1000))
+        history.add_message(role='assistant', text='a' * 1000)
+        history.add_message(role='user', text='a' * 1000)
+        history.add_message(role='assistant', text='a' * 1000)
+        history.add_message(role='user', text='a' * 1000)
+        history.add_message(role='assistant', text='Newest answer')
+
+        compact_message_history(history, max_context_tokens=3000)
+
+        self.assertLessEqual(history.estimated_token_count, 3000)
+        self.assertEqual(history.messages[0].role, 'system')
+        self.assertEqual(history.messages[1].role, 'user')
+        self.assertIn('Original request', history.messages[1].text_content)
+        self.assertEqual(history.messages[-1].text_content, 'Newest answer')
+
+    def test_protects_the_opening_tool_round(self) -> None:
+        history = MessageHistory()
+        history.add_message(role='system', text='system')
+        history.add_message(role='user', text='Read the first file')
+        history.add_message(
+            role='assistant',
+            tool_calls=[{'id': 'call_1', 'function': {'name': 't', 'arguments': '{}'}}],
+        )
+        history.add_message(role='tool', tool_call_id='call_1', text='a' * 1000)
+        history.add_message(role='user', text='a' * 1000)
+        history.add_message(role='assistant', text='a' * 1000)
+        history.add_message(role='assistant', text='Newest answer')
+
+        original_opening = list(history.messages[:4])
+
+        compact_message_history(history, max_context_tokens=300)
+
+        self.assertEqual(
+            [message.role for message in history],
+            ['system', 'user', 'assistant', 'tool', 'assistant'],
+        )
+        for original_message, surviving_message in zip(
+            original_opening, history.messages[:4], strict=True
+        ):
+            self.assertIs(surviving_message, original_message)
+        self.assertEqual(history.messages[-1].text_content, 'Newest answer')
 
     def test_keeps_system_and_newest_when_nothing_else_droppable(self) -> None:
         history = MessageHistory()

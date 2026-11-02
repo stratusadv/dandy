@@ -5,6 +5,7 @@ from dandy.domain.message.message import Message, MessageContent, MessageHistory
 from dandy.domain.tokens.estimate import (
     TOKEN_COUNT_IMAGE_HIGH_DEFAULT,
     TOKEN_COUNT_IMAGE_LOW,
+    TOKEN_COUNT_REQUEST_OVERHEAD,
     TOKEN_COUNT_ROLE_OVERHEAD,
     TOKEN_COUNT_TOOL_CALL_OVERHEAD,
     get_estimated_token_count_for_audio,
@@ -169,7 +170,9 @@ class TestMessageTokenEstimation(TestCase):
         message_history.add_message(role='user', text='What files are here?')
         message_history.add_message(role='assistant', text='Let me look.')
 
-        expected = sum(message.estimated_token_count for message in message_history.messages)
+        expected = TOKEN_COUNT_REQUEST_OVERHEAD + sum(
+            message.estimated_token_count for message in message_history.messages
+        )
 
         self.assertEqual(message_history.estimated_token_count, expected)
 

@@ -71,8 +71,14 @@ LLM_CONFIGS = {
 | `AGENT_COMPACTION_TARGET_RATIO = 0.70` | 70% | what long histories are compacted down to before a call |
 
 Token counts come from a dependency-free character-class heuristic
-(`dandy/domain/tokens/estimate.py`) fitted to BPE tokenizer output, with per-message
+(`dandy/domain/tokens/estimate.py`) fitted to BPE tokenizer output, run through a
+calibration scale fitted against real API prompt-token counts, with per-message
 overhead for roles, tool-call framing, images (by `detail`), and audio base64.
+`MessageHistory.estimated_token_count` adds a per-request overhead on top — the
+framing the per-message sum never sees, chiefly the tool function definitions sent
+alongside the messages — so the history's count approximates the input tokens the
+provider actually bills, and the compaction budgets below are expressed in those
+calibrated units.
 
 ## Compaction
 
@@ -83,7 +89,10 @@ long sessions inside the window. It is called automatically:
   prompt — plan section included — subtracted from the target), and
 - before every tool round by the tool-calling loop.
 
-The rules: the message in the system slot is always kept; drop oldest tool-use rounds
+The rules: the message in the system slot is always kept, and so is the opening
+exchange — the first `user` message is the original request (when that exchange is a
+tool round, its declaration and results are protected along with it, so the kept
+prefix stays valid on the wire); drop oldest tool-use rounds
 first, then oldest plain exchanges; never leave a `tool` result without its assistant
 tool-call, so when the newest message is a tool result its whole round is dropped.
 Compaction reports progress (`Compacting conversation history (...) tokens...`)

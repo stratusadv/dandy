@@ -47,24 +47,24 @@ def _print_usage() -> None:
     print(term.bold_blue('\n Dandy') + term.normal + USAGE)
 
 
-def main() -> None:
+def main() -> int:
     sys.path.append(str(CWD_PATH))
 
     if len(sys.argv) > 1 and sys.argv[1] in {'-h', '--help'}:
         _print_usage()
-        return
+        return 0
 
     if len(sys.argv) > 1 and sys.argv[1] in {'-v', '--version'}:
         arg_term = Terminal()
         print(arg_term.bold_blue(f'\nDandy {__VERSION__}'))
-        return
+        return 0
 
     if len(sys.argv) > 1:
         one_shot_arguments = [arg for arg in sys.argv[1:] if arg != '--continue']
 
         if not one_shot_arguments:
             _print_usage()
-            return
+            return 0
 
     check_or_create_settings(CWD_PATH)
 
@@ -92,16 +92,20 @@ def main() -> None:
         tui.printer.blue_divider()
 
         if '--continue' in sys.argv[1:]:
-            cli.continue_latest_session(user_input)
+            exit_code = 0 if cli.continue_latest_session(user_input) else 1
         else:
             cli.process_user_input(user_input=user_input, save_session=False)
+            exit_code = 0 if cli.last_turn_succeeded else 1
 
     else:
         cli.run()
+        exit_code = 0
 
     tui.printer.grey_divider()
 
     print()
+
+    return exit_code
 
 
 if __name__ == '__main__':

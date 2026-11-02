@@ -9,6 +9,7 @@ from dandy.shared.media import (
     get_image_mime_type_from_base64_string,
 )
 from dandy.domain.tokens.estimate import (
+    TOKEN_COUNT_REQUEST_OVERHEAD,
     TOKEN_COUNT_ROLE_OVERHEAD,
     TOKEN_COUNT_TOOL_CALL_ID_OVERHEAD,
     get_estimated_token_count_for_audio,
@@ -180,7 +181,9 @@ class MessageHistory(BaseModel):
 
     @property
     def estimated_token_count(self) -> int:
-        return sum(message.estimated_token_count for message in self.messages)
+        return TOKEN_COUNT_REQUEST_OVERHEAD + sum(
+            message.estimated_token_count for message in self.messages
+        )
 
     @property
     def has_system_message(self) -> bool:
@@ -243,18 +246,22 @@ class MessageHistory(BaseModel):
 def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
     """Trim ``history`` until its estimated token count fits the budget.
 
-    The message in the system slot (position 0) is always kept. The newest
-    message is kept unless it is a ``tool`` result: when the newest message is
-    a tool result, its whole round (the assistant tool-call declaration plus
-    all its results) is dropped, because a tool result without its declaration
-    is invalid on the wire. Tool-use rounds are dropped oldest first because
-    they consume the most tokens, then oldest plain exchanges.
+    The message in the system slot (position 0) is always kept, as is the
+    opening exchange: the first user message is the original request, and
+    dropping it leaves the model working toward a goal it can no longer see.
+    When the opening exchange is a tool-use round, its assistant declaration
+    and tool results are protected along with it. The newest message is kept
+    unless it is a ``tool`` result: when the newest message is a tool result,
+    its whole round (the assistant tool-call declaration plus all its results)
+    is dropped, because a tool result without its declaration is invalid on
+    the wire. Tool-use rounds are dropped oldest first because they consume
+    the most tokens, then oldest plain exchanges.
 
     Does not raise when the history cannot be brought under budget, it simply
     drops everything droppable.
     """
     per_message_token_counts = [message.estimated_token_count for message in history.messages]
-    total_token_count = sum(per_message_token_counts)
+    total_token_count = TOKEN_COUNT_REQUEST_OVERHEAD + sum(per_message_token_counts)
 
     while total_token_count > max_context_tokens:
         start_index, end_index = _oldest_droppable_range(history)
@@ -268,6 +275,36 @@ def compact_message_history(history: MessageHistory, max_context_tokens: int) ->
         del history.messages[start_index:end_index]
 
 
+def _opening_exchange_end_index(history: MessageHistory) -> int:
+    """Return the index just past the opening exchange, which compaction never drops.
+
+    The first user message is the original request; dropping it leaves the
+    model working on a goal it can no longer see. When that exchange is a
+    tool-use round, the assistant declaration and its tool results are
+    protected as well, so the kept prefix stays valid on the wire.
+    """
+    messages = history.messages
+
+    for index in range(len(messages)):
+        if messages[index].role != 'user':
+            continue
+
+        end_index = index + 1
+
+        if (
+            end_index < len(messages)
+            and messages[end_index].role == 'assistant'
+            and messages[end_index].tool_calls
+        ):
+            end_index += 1
+            while end_index < len(messages) and messages[end_index].role == 'tool':
+                end_index += 1
+
+        return end_index
+
+    return 0
+
+
 def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | None]:
     messages = history.messages
 
@@ -275,8 +312,12 @@ def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | 
         return None, None
 
     last_index = len(messages) - 1
+    opening_end_index = _opening_exchange_end_index(history)
 
-    for index in range(1, last_index):
+    if opening_end_index >= last_index:
+        return None, None
+
+    for index in range(opening_end_index, last_index):
         message = messages[index]
 
         if message.role != 'assistant' or not message.tool_calls:
@@ -289,7 +330,7 @@ def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | 
 
         return index, end_index
 
-    for index in range(1, last_index):
+    for index in range(opening_end_index, last_index):
         message = messages[index]
 
         if message.role == 'user':

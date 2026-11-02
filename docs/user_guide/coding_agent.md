@@ -13,7 +13,8 @@ The `dandy` console script is a pure agent REPL: every message you type goes thr
 pipeline, and one-shot mode (`dandy "fix the failing test"`) runs the same pipeline for a
 single turn. One-shot is stateless: it answers the request but creates no session file;
 `dandy --continue "keep going"` runs one request inside the most recently saved session
-and reports which one it used.
+and reports which one it used. Both exit with code 1 when the agent's turn fails, so a
+script can detect failure; the interactive REPL shows the error and keeps looping.
 
 ```text
 your message

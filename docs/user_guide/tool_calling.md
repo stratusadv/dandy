@@ -48,6 +48,13 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
 
 - `max_tool_iterations` caps the rounds (default 5; `None` = no cap — the coding agent
   runs uncapped, at the cost of unbounded API spend).
+- The repeated-call guard breaks degenerate loops: every identical call the model
+  makes during the loop (same name, arguments, and result) counts — not just
+  consecutive ones, so oscillating between a few near-identical calls is caught
+  too — and the result fed back to the model carries a steering note from the
+  third occurrence, while the loop raises `LlmRecoverableError` at ten identical
+  calls. A different call or a changed result never accumulates toward the
+  signature, so time-varying commands never trip it.
 - Invalid arguments are fed back to the model as a tool message so it can self-correct.
 - An explicit `tool_functions={'name': handler}` entry wins over the tool's own
   `handle()`; handlers receive the parsed argument Intel and return a string or Intel.

@@ -67,6 +67,7 @@ class TestDandyCli(TestCase):
         should_continue = self.cli.process_user_input('hello there')
 
         self.assertTrue(should_continue)
+        self.assertTrue(self.cli.last_turn_succeeded)
         mock_turn.assert_called_once()
         mock_green_divider.assert_called_once_with()
         mock_output.assert_called_once_with('answer')
@@ -81,7 +82,34 @@ class TestDandyCli(TestCase):
         should_continue = self.cli.process_user_input('do something')
 
         self.assertTrue(should_continue)
+        self.assertFalse(self.cli.last_turn_succeeded)
         mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch.object(tui.printer, 'error')
+    def test_last_turn_succeeded_tracks_the_most_recent_turn(
+        self,
+        mock_error: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_green_divider: mock.MagicMock,
+        mock_turn: mock.MagicMock,
+    ) -> None:
+        mock_turn.side_effect = RuntimeError('boom')
+
+        self.cli.process_user_input('first request')
+
+        self.assertFalse(self.cli.last_turn_succeeded)
+        mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+
+        mock_turn.side_effect = None
+        mock_turn.return_value = mock.MagicMock(text='answer')
+
+        self.cli.process_user_input('second request')
+
+        self.assertTrue(self.cli.last_turn_succeeded)
+        mock_output.assert_called_once_with('answer')
 
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')

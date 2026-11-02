@@ -175,11 +175,14 @@ parameters).
 ## Token estimation
 
 Dependency-free token counting (character-class heuristic plus per-message framing
-costs), used for context-window compaction and for prompt size estimates.
+costs, calibrated against real API prompt-token counts), used for context-window
+compaction and for prompt size estimates.
 
 ::: dandy.domain.tokens.estimate
     options:
         members:
+            - TOKEN_COUNT_CALIBRATION_SCALE
+            - TOKEN_COUNT_REQUEST_OVERHEAD
             - get_estimated_token_count_for_string
             - get_estimated_token_count_for_image
             - get_estimated_token_count_for_audio

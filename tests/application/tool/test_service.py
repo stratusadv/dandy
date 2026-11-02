@@ -271,7 +271,7 @@ class TestToolService(TestCase):
 
         bot = ToolBot()
 
-        bot.llm.config.context_size = 3000
+        bot.llm.config.context_size = 7000
 
         bot.llm.tools.prompt_to_intel(
             prompt='What is the weather?',
@@ -298,9 +298,9 @@ class TestToolService(TestCase):
 
         bot = ToolBot()
 
-        bot.llm.config.context_size = 3000
+        bot.llm.config.context_size = 6000
 
-        while bot.llm.messages.estimated_token_count < 2200:
+        while bot.llm.messages.estimated_token_count < 4400:
             bot.llm.messages.add_message(role='user', text='x' * 500)
 
         bot.llm.tools.prompt_to_intel(
@@ -625,9 +625,7 @@ class TestToolService(TestCase):
 
         with self.assertRaises(RunStoppedError):
             bot.llm.tools.prompt_to_intel(
-                prompt='What is the weather?',
-                intel_class=FinalAnswerIntel,
-                tools=[WeatherTool],
+                prompt='What is the weather?', intel_class=FinalAnswerIntel, tools=[WeatherTool]
             )
 
         self.assertEqual(mock_post_request.call_count, 0)
@@ -635,7 +633,7 @@ class TestToolService(TestCase):
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_stops_between_tool_rounds(self, mock_post_request) -> None:
         mock_post_request.side_effect = [
-            tool_call_response('get_weather', '{"location": "San Francisco"}'),
+            tool_call_response('get_weather', '{"location": "San Francisco"}')
         ]
 
         def get_weather_handler(arguments_intel) -> str:
@@ -657,3 +655,119 @@ class TestToolService(TestCase):
         # The first round ran; the second round's checkpoint raised before any
         # further LLM request.
         self.assertEqual(mock_post_request.call_count, 1)
+
+
+class TestRepeatedCallGuard(TestCase):
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_repeated_identical_call_gets_a_steering_note(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_1'),
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_2'),
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_3'),
+            content_response('{"text": "Still sunny."}'),
+        ]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=5,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_messages = get_request_messages(
+            mock_post_request, mock_post_request.call_count - 1
+        )
+        final_request_tool_contents = [
+            message['content'] for message in final_request_messages if message['role'] == 'tool'
+        ]
+
+        self.assertEqual(len(final_request_tool_contents), 3)
+        self.assertEqual(final_request_tool_contents[0], 'The weather in Oslo is sunny.')
+        self.assertEqual(final_request_tool_contents[1], 'The weather in Oslo is sunny.')
+        self.assertIn('Note:', final_request_tool_contents[2])
+        self.assertIn('3 times in this conversation', final_request_tool_contents[2])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_persistently_repeated_call_fails_fast(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id=f'call_{i}')
+            for i in range(1, 11)
+        ]
+
+        bot = ToolBot()
+
+        with self.assertRaises(LlmRecoverableError) as context:
+            bot.llm.tools.prompt_to_intel(
+                prompt='What is the weather in Oslo?',
+                intel_class=FinalAnswerIntel,
+                tools=[HandleWeatherTool],
+                max_tool_iterations=50,
+            )
+
+        self.assertIn('repeated the identical tool call', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 10)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_calls_with_different_arguments_count_separately(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_1'),
+            tool_call_response('get_weather', '{"location": "Tromso"}', tool_call_id='call_2'),
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_3'),
+            content_response('{"text": "Sunny everywhere."}'),
+        ]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Weather in Oslo and Tromso?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=5,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, 3)
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 3)
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_oscillating_repeats_accumulate_across_other_calls(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # Oslo and Tromso alternate, so no two identical calls are consecutive,
+        # but the Oslo call still accumulates toward the stop threshold.
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'get_weather',
+                '{"location": "Oslo"}' if index % 2 == 0 else '{"location": "Tromso"}',
+                tool_call_id=f'call_{index + 1}',
+            )
+            for index in range(19)
+        ]
+
+        bot = ToolBot()
+
+        with self.assertRaises(LlmRecoverableError) as context:
+            bot.llm.tools.prompt_to_intel(
+                prompt='Weather in Oslo and Tromso?',
+                intel_class=FinalAnswerIntel,
+                tools=[HandleWeatherTool],
+                max_tool_iterations=50,
+            )
+
+        self.assertIn('repeated the identical tool call', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 19)

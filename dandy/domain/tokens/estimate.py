@@ -3,6 +3,11 @@
 # characters per token, digits and symbols at 2-1.5 per token, and whitespace
 # costs almost nothing. The previous flat character-per-token rate ignored
 # content type, which under-counted symbol-heavy payloads and over-counted prose.
+#
+# The character-class model below is then run through two calibration terms
+# (see TOKEN_COUNT_CALIBRATION_SCALE and TOKEN_COUNT_REQUEST_OVERHEAD) fitted
+# against real API prompt-token counts, so the estimate tracks what the provider
+# actually bills.
 
 TOKEN_COUNT_FIXED_BASE = 3
 
@@ -11,6 +16,21 @@ TOKEN_COUNT_DIGIT_CHAR_COST = 0.5
 TOKEN_COUNT_SYMBOL_CHAR_COST = 0.67
 TOKEN_COUNT_SPACE_CHAR_COST = 0.02
 TOKEN_COUNT_OTHER_CHAR_COST = 0.5
+
+# Calibration against real provider prompt-token counts (stratus.turbo, via the
+# eval usage proxy, 251 requests across two agentic coding sessions): the
+# character-class model above under-counts the wire token count by about 5.5%.
+# Applied to every string estimate so all content (message text, tool-call
+# ids/names/arguments, prompts, response schemas) is scaled consistently.
+
+TOKEN_COUNT_CALIBRATION_SCALE = 1.055
+
+# Per-request framing the per-message sum never sees, chiefly the tool function
+# definitions sent alongside the messages. Fitted on the size range where
+# compaction actually decides (16k-40k estimated tokens), where
+# real ~= 1.0547 * per-message-estimate + 2632 to within a 5-token mean error.
+
+TOKEN_COUNT_REQUEST_OVERHEAD = 2633
 
 # Chat-template framing: every message carries role markers around its content.
 
@@ -66,7 +86,7 @@ def get_estimated_token_count_for_string(string: str) -> int:
         + (other_count * TOKEN_COUNT_OTHER_CHAR_COST)
     )
 
-    return int(token_count)
+    return int(token_count * TOKEN_COUNT_CALIBRATION_SCALE)
 
 
 def get_estimated_token_count_for_image(detail: str) -> int:

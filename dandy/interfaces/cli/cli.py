@@ -19,6 +19,7 @@ class DandyCli:
         self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
         self.session_store = SessionStore.for_project(session.project_base_path)
         self.active_name: str | None = None
+        self.last_turn_succeeded: bool = True
 
     @staticmethod
     def _is_debug_enabled() -> bool:
@@ -31,11 +32,16 @@ class DandyCli:
         sys.stdout.flush()
 
     def process_user_input(self, user_input: str, save_session: bool = True) -> bool:
-        """Process one user input, returning False to stop the loop."""
+        """Process one user input, returning False to stop the loop.
+
+        The outcome of an agent turn is recorded on ``last_turn_succeeded``;
+        one-shot mode uses it to set the process exit code without changing
+        the REPL behavior of continuing after a failed turn.
+        """
         if user_input.startswith('/'):
             return self.process_command(user_input)
 
-        self.process_agent_input(user_input, save_session=save_session)
+        self.last_turn_succeeded = self.process_agent_input(user_input, save_session=save_session)
         return True
 
     def process_command(self, user_input: str) -> bool:
@@ -164,8 +170,12 @@ class DandyCli:
 
         return True
 
-    def continue_latest_session(self, user_input: str) -> None:
-        """Run one turn inside the project's most recently saved session."""
+    def continue_latest_session(self, user_input: str) -> bool:
+        """Run one turn inside the project's most recently saved session.
+
+        Returns whether the turn succeeded, so one-shot mode can set the
+        process exit code.
+        """
         latest_name = self.session_store.latest()
 
         if latest_name is None:
@@ -173,7 +183,7 @@ class DandyCli:
                 error='No session to continue',
                 description='There are no saved sessions for this project yet.',
             )
-            return
+            return False
 
         self.agent.load_session(self.session_store.load(latest_name))
         self.active_name = latest_name
@@ -186,6 +196,8 @@ class DandyCli:
             tui.printer.output(
                 f'Saved session "{self.active_name}" ({len(self.agent.history)} messages).'
             )
+
+        return turn_succeeded
 
     def _save_session_after_turn(self, user_input: str) -> None:
         if len(self.agent.history) == 0:

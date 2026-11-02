@@ -118,6 +118,80 @@ class TestCliMain(TestCase):
     @mock.patch('dandy.interfaces.cli.cli.DandyCli')
     @mock.patch.object(cli_main, 'session')
     @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_one_shot_mode_exits_zero_when_the_turn_succeeds(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.last_turn_succeeded = True
+
+        with (
+            mock.patch.object(sys, 'argv', ['dandy', 'do', 'the', 'thing']),
+            redirect_stdout(StringIO()),
+        ):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 0)
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_one_shot_mode_exits_nonzero_when_the_turn_fails(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.last_turn_succeeded = False
+
+        with (
+            mock.patch.object(sys, 'argv', ['dandy', 'do', 'the', 'thing']),
+            redirect_stdout(StringIO()),
+        ):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 1)
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_continue_mode_exits_with_the_turn_outcome(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        cli_instance = mock_cli_class.return_value
+        cli_instance.continue_latest_session.return_value = True
+
+        with (
+            mock.patch.object(sys, 'argv', ['dandy', '--continue', 'keep', 'going']),
+            redirect_stdout(StringIO()),
+        ):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 0)
+
+        cli_instance.continue_latest_session.return_value = False
+
+        with (
+            mock.patch.object(sys, 'argv', ['dandy', '--continue', 'keep', 'going']),
+            redirect_stdout(StringIO()),
+        ):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 1)
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
     def test_bare_continue_flag_prints_usage(
         self,
         mock_check_settings: mock.MagicMock,

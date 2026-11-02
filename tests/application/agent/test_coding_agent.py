@@ -109,8 +109,8 @@ class TestCodingAgentMultiTurn(TestCase):
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_turn_caps_tool_rounds(self, mock_post_request: mock.MagicMock) -> None:
         mock_post_request.side_effect = [
-            tool_call_response('search_files', '{"query": "needle"}')
-            for _ in range(AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
+            tool_call_response('search_files', f'{{"query": "needle {index}"}}')
+            for index in range(AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
         ]
 
         with self.assertRaises(LlmRecoverableError):
@@ -124,18 +124,16 @@ class TestCodingAgentMultiTurn(TestCase):
     ) -> None:
         mock_post_request.side_effect = [content_response('{"text": "Within the band."}')]
 
-        self.agent.max_context_tokens = 3000
+        self.agent.max_context_tokens = 6000
 
-        while self.agent.history.estimated_token_count < 2200:
+        while self.agent.history.estimated_token_count < 4400:
             self.agent.history.add_message(role='user', text='x' * 500)
 
         progress_calls: list[str] = []
 
         self.agent.turn('continue', progress_callback=progress_calls.append)
 
-        self.assertFalse(
-            any('Compacting conversation history' in step for step in progress_calls)
-        )
+        self.assertFalse(any('Compacting conversation history' in step for step in progress_calls))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_forwards_verbose_details(self, mock_post_request: mock.MagicMock) -> None:
@@ -217,9 +215,9 @@ class TestCompactMessageHistory(TestCase):
     def test_compaction_brings_history_under_budget(self) -> None:
         message_history = self._build_history()
 
-        compact_message_history(message_history, max_context_tokens=60)
+        compact_message_history(message_history, max_context_tokens=3000)
 
-        self.assertLessEqual(message_history.estimated_token_count, 60)
+        self.assertLessEqual(message_history.estimated_token_count, 3000)
         self.assertGreater(len(message_history), 0)
 
     def test_compaction_keeps_system_and_newest_messages(self) -> None:
@@ -239,8 +237,10 @@ class TestCompactMessageHistory(TestCase):
 
         remaining_text = ' '.join(message.text_content for message in message_history.messages)
 
-        self.assertNotIn('Question number 0', remaining_text)
-        self.assertIn('Question number 4', remaining_text)
+        self.assertIn('Question number 0', remaining_text)
+        self.assertNotIn('Question number 1', remaining_text)
+        self.assertNotIn('Question number 2', remaining_text)
+        self.assertIn('Answer to question 4.', remaining_text)
 
     def test_compaction_never_leaves_dangling_tool_messages(self) -> None:
         message_history = self._build_history()
@@ -260,7 +260,7 @@ class TestCompactMessageHistory(TestCase):
     def test_compaction_drops_newest_round_when_newest_is_tool_result(self) -> None:
         message_history = MessageHistory()
         message_history.add_message(role='system', text='System rules here.')
-        message_history.add_message(role='user', text='Read the big file ' + ('q' * 200))
+        message_history.add_message(role='user', text='Read the first file')
         message_history.add_message(
             role='assistant',
             tool_calls=[
@@ -271,13 +271,32 @@ class TestCompactMessageHistory(TestCase):
                 }
             ],
         )
+        message_history.add_message(role='tool', tool_call_id='call_1', text='First file contents')
+        message_history.add_message(role='user', text='Now read the big file ' + ('q' * 200))
         message_history.add_message(
-            role='tool', tool_call_id='call_1', text='Huge file contents ' + ('x' * 4000)
+            role='assistant',
+            tool_calls=[
+                {
+                    'id': 'call_2',
+                    'type': 'function',
+                    'function': {'name': 'read_file', 'arguments': '{"path": "b.py"}'},
+                }
+            ],
+        )
+        message_history.add_message(
+            role='tool', tool_call_id='call_2', text='Huge file contents ' + ('x' * 4000)
         )
 
-        compact_message_history(message_history, max_context_tokens=100)
+        compact_message_history(message_history, max_context_tokens=40)
 
-        self.assertEqual([message.role for message in message_history.messages], ['system', 'user'])
+        self.assertEqual(
+            [message.role for message in message_history.messages],
+            ['system', 'user', 'assistant', 'tool', 'user'],
+        )
+        self.assertEqual(message_history.messages[1].text_content, 'Read the first file')
+        self.assertTrue(
+            message_history.messages[4].text_content.startswith('Now read the big file')
+        )
 
     def test_compaction_leaves_oversized_newest_message_in_place(self) -> None:
         message_history = MessageHistory()
@@ -319,7 +338,7 @@ class TestCodingAgentCompaction(TestCase):
             content_response('{"text": "Acknowledged and compacted."}')
         ]
 
-        self.agent.max_context_tokens = 300
+        self.agent.max_context_tokens = 3000
 
         for _ in range(50):
             self.agent.history.add_message(
@@ -379,7 +398,7 @@ class TestCodingAgentCompaction(TestCase):
         return message_history
 
     def test_compaction_counts_the_plan_section_of_the_prompt(self) -> None:
-        self.agent.max_context_tokens = 2000
+        self.agent.max_context_tokens = 5000
 
         raw_prompt = 'Change the greeting'
         plan_prompt = (

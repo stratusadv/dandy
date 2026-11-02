@@ -35,6 +35,19 @@ TOOL_LOOP_COMPACTION_TARGET_RATIO = 0.70
 # between trigger and target is the headroom a long loop may use.
 TOOL_LOOP_COMPACTION_TRIGGER_RATIO = 0.80
 
+# A model that keeps issuing the identical tool call (same name, arguments,
+# and result) is not gathering new information, it is re-observing the same
+# state. Every identical call made during the loop accumulates toward the
+# signature (not just consecutive ones, so a model that oscillates between a
+# few near-identical calls is caught too); a different call or a changed
+# result never accumulates, so legitimately time-varying commands do not trip
+# it. From the warning threshold on, the tool result fed back to the model
+# carries a steering note; at the stop threshold the loop fails fast, so a
+# degenerate run costs a bounded number of rounds instead of burning the
+# whole tool-iteration cap.
+REPEATED_CALL_WARNING_THRESHOLD = 3
+REPEATED_CALL_STOP_THRESHOLD = 10
+
 # Tool results are capped before they enter the conversation so one oversized
 # result (a huge file read, a chatty user tool) can never blow past the model's
 # context window or be silently dropped whole by compaction. The cap mirrors
@@ -68,6 +81,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_functions = tool_functions or {}
 
         iteration_count = 0
+        repeated_call_tracker: dict[tuple[str, str, str], int] = {}
 
         while True:
             if stop_signal.is_set():
@@ -129,6 +143,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                     tool_functions=tool_functions,
                     progress_callback=progress_callback,
                     verbose_callback=verbose_callback,
+                    repeated_call_tracker=repeated_call_tracker,
                 )
 
             iteration_count += 1
@@ -180,8 +195,10 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_call: ToolCallIntel,
         tools_by_name: dict[str, BaseTool],
         tool_functions: dict[str, ToolHandler],
+        *,
         progress_callback: Callable[[str], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
+        repeated_call_tracker: dict[tuple[str, str, str], int] | None = None,
     ) -> None:
         tool = tools_by_name.get(tool_call.name)
 
@@ -238,7 +255,60 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             tool_name=tool_call.name, result=result_text, event_id=self.recorder_event_id
         )
 
-        self.obj.messages.add_message(role='tool', tool_call_id=tool_call.id, text=result_text)
+        feedback_text = self._guard_repeated_call(
+            tool_call=tool_call,
+            result_text=result_text,
+            tracker=repeated_call_tracker,
+            verbose_callback=verbose_callback,
+        )
+
+        self.obj.messages.add_message(role='tool', tool_call_id=tool_call.id, text=feedback_text)
+
+    def _guard_repeated_call(
+        self,
+        tool_call: ToolCallIntel,
+        result_text: str,
+        tracker: dict[tuple[str, str, str], int] | None = None,
+        verbose_callback: Callable[[str], None] | None = None,
+    ) -> str:
+        """Break up degenerate repeat loops by steering or failing fast.
+
+        Counts every identical call (same name, arguments, and result) made
+        during this loop, not just consecutive ones: a model that oscillates
+        between a few near-identical calls is re-observing the same state too.
+        A different call or a changed result never accumulates toward the
+        signature, so legitimately time-varying commands do not trip it.
+        """
+        if tracker is None:
+            return result_text
+
+        signature = (tool_call.name, tool_call.arguments.strip(), result_text)
+        repeat_count = int(tracker.get(signature, 0)) + 1
+        tracker[signature] = repeat_count
+
+        if repeat_count >= REPEATED_CALL_STOP_THRESHOLD:
+            message = (
+                f'LLM Tool Service stopped the loop: the model repeated the '
+                f'identical tool call "{tool_call.name}" {repeat_count} times in '
+                'this conversation and the result never changed.'
+            )
+            raise LlmRecoverableError(message)
+
+        if repeat_count >= REPEATED_CALL_WARNING_THRESHOLD:
+            if verbose_callback is not None:
+                verbose_callback(
+                    f'  - {tool_call.name} repeated {repeat_count}x: steering note added'
+                )
+            result_text += (
+                '\n\n[Note: you have now run this exact same call '
+                f'{repeat_count} times in this conversation and received the '
+                'identical result each time. Repeating it again will not change '
+                'anything. Either change your approach (for example, edit the '
+                'code or run a different command) or stop calling tools and give '
+                'your final answer.]'
+            )
+
+        return result_text
 
     def reset(self):
         pass

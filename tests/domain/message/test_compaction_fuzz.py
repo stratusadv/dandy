@@ -115,12 +115,42 @@ class TestCompactMessageHistoryFuzz(TestCase):
 
     @given(history=conversation_history_strategy(), budget=fuzz_budget_strategy())
     @settings(deadline=None)
-    def test_result_fits_the_budget_or_is_stuck_at_two_messages(
+    def test_result_fits_the_budget_or_is_maximally_compacted(
         self, history: MessageHistory, budget: int
     ) -> None:
         compact_message_history(history, budget)
 
         self.assertGreaterEqual(len(history.messages), 1)
 
-        if history.estimated_token_count > budget:
-            self.assertLessEqual(len(history.messages), 2)
+        if history.estimated_token_count <= budget:
+            return
+
+        messages = history.messages
+
+        first_user_index = next(
+            (index for index, message in enumerate(messages) if message.role == 'user'), None
+        )
+
+        if first_user_index is None:
+            opening_end_index = 0
+        else:
+            opening_end_index = first_user_index + 1
+
+            if (
+                opening_end_index < len(messages)
+                and messages[opening_end_index].role == 'assistant'
+                and messages[opening_end_index].tool_calls
+            ):
+                opening_end_index += 1
+
+                while (
+                    opening_end_index < len(messages) and messages[opening_end_index].role == 'tool'
+                ):
+                    opening_end_index += 1
+
+        for message in messages[opening_end_index:-1]:
+            self.assertNotIn(
+                message.role,
+                ('user', 'assistant'),
+                'a droppable message survived compaction while still over budget',
+            )
