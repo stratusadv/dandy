@@ -183,10 +183,17 @@ class TestDandyCli(TestCase):
         self.assertIsNone(self.cli.active_name)
         self.assertEqual(self.cli.session_store.list_sessions(), [])
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_first_turn_auto_saves_a_named_session(
-        self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        _mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
 
@@ -198,10 +205,54 @@ class TestDandyCli(TestCase):
         self.assertEqual(loaded.last_request, 'Fix the login bug')
         self.assertEqual(len(loaded.messages), 2)
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    def test_first_turn_names_the_session_from_the_ai_title(
+        self,
+        mock_turn: mock.MagicMock,
+        _mock_output: mock.MagicMock,
+        mock_naming: mock.MagicMock,
+    ) -> None:
+        mock_naming.return_value = 'Fixing The Broken Login Flow'
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+
+        mock_naming.assert_called_once_with(self.cli.session_naming_bot, 'Fix the login bug')
+        self.assertTrue(self.cli.active_name.endswith('-fixing-the-broken-login-flow'))
+        self.assertTrue(self.cli.session_store._record_path(self.cli.active_name).is_file())
+
+    @mock.patch(
+        'dandy.application.agent.bots.session_naming_bot.SessionNamingBot.process',
+        side_effect=RuntimeError('naming failed'),
+    )
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    def test_failed_naming_falls_back_to_the_request_text(
+        self,
+        mock_turn: mock.MagicMock,
+        _mock_output: mock.MagicMock,
+        _mock_process: mock.MagicMock,
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+
+        self.assertIsNotNone(self.cli.active_name)
+        self.assertTrue(self.cli.active_name.endswith('-fix-the-login-bug'))
+        self.assertTrue(self.cli.session_store._record_path(self.cli.active_name).is_file())
+
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_later_turns_update_the_same_session(
-        self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        _mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
         first_name = self.cli.active_name
@@ -213,23 +264,75 @@ class TestDandyCli(TestCase):
             self.cli.session_store.load(first_name).last_request, 'Now fix the tests too'
         )
 
-    @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
-    def test_stateless_turn_saves_no_session(
-        self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
+    @mock.patch(
+        'dandy.application.agent.coding_agent.CodingAgent.turn', side_effect=RuntimeError('boom')
+    )
+    @mock.patch.object(tui.printer, 'error')
+    def test_crashed_turn_still_saves_a_session(
+        self,
+        mock_error: mock.MagicMock,
+        _mock_turn: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
-        self.cli.agent.history.add_message(role='user', text='hello there')
-        mock_turn.return_value = mock.MagicMock(text='answer')
+        self.cli.agent.last_request = 'Fix the login bug'
+        self.cli.agent.history.add_message(role='user', text='Fix the login bug')
 
-        self.cli.process_user_input('hello there', save_session=False)
+        should_continue = self.cli.process_user_input('Fix the login bug')
 
-        self.assertIsNone(self.cli.active_name)
-        self.assertEqual(self.cli.session_store.list_sessions(), [])
+        self.assertTrue(should_continue)
+        self.assertFalse(self.cli.last_turn_succeeded)
+        mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+        self.assertIsNotNone(self.cli.active_name)
+        loaded = self.cli.session_store.load(self.cli.active_name)
+        self.assertEqual(loaded.last_request, 'Fix the login bug')
+        self.assertEqual(len(loaded.messages), 1)
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch.object(tui.printer, 'output')
+    def test_stopped_turn_still_saves_a_session(
+        self,
+        mock_output: mock.MagicMock,
+        _mock_turn: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
+    ) -> None:
+        stop_signal.set()
+        self.addCleanup(stop_signal.clear)
+
+        self.cli.agent.last_request = 'Fix the login bug'
+        self.cli.agent.history.add_message(role='user', text='Fix the login bug')
+
+        with mock.patch.object(
+            tui.printer, 'run_timed_task', side_effect=RunStoppedError('Run stopped by user.')
+        ):
+            should_continue = self.cli.process_user_input('Fix the login bug')
+
+        self.assertTrue(should_continue)
+        self.assertTrue(self.cli.last_turn_succeeded)
+        mock_output.assert_called_once_with('Run stopped.')
+        self.assertIsNotNone(self.cli.active_name)
+        self.assertEqual(
+            self.cli.session_store.load(self.cli.active_name).last_request, 'Fix the login bug'
+        )
+
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_continue_latest_session_runs_turn_and_resaves(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
         saved_name = self.cli.active_name
@@ -240,10 +343,10 @@ class TestDandyCli(TestCase):
 
         self.assertEqual(self.cli.active_name, saved_name)
         self.assertEqual(mock_turn.call_args[0][0], 'And the database one too')
+        continued_lines = [call.args[0] for call in mock_output.call_args_list]
+        self.assertIn(f'Continuing session "{saved_name}".', continued_lines)
+        self.assertFalse(any(line.startswith('Saved session') for line in continued_lines))
         self.assertEqual(self.cli.session_store.load(saved_name).last_request, 'Fix the login bug')
-        self.assertIn(
-            f'Saved session "{saved_name}" (2 messages).', mock_output.call_args_list[-1][0][0]
-        )
 
     @mock.patch.object(tui.printer, 'error')
     def test_continue_latest_session_without_sessions_reports_error(
@@ -294,10 +397,17 @@ class TestDandyCli(TestCase):
             error='Init failed', description='The agent did not write AGENTS.md.'
         )
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_new_command_starts_fresh_conversation(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
 
@@ -308,10 +418,17 @@ class TestDandyCli(TestCase):
         self.assertEqual(len(self.cli.agent.history), 0)
         self.assertIn('new conversation', mock_output.call_args[0][0])
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_new_command_with_name_pre_names_the_session(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self.cli.process_user_input('/new my work')
 
@@ -322,10 +439,17 @@ class TestDandyCli(TestCase):
 
         self.assertTrue(self.cli.session_store._record_path('my work').is_file())
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_sessions_command_lists_saved_sessions(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
 
@@ -341,10 +465,17 @@ class TestDandyCli(TestCase):
 
         self.assertIn('No sessions', mock_output.call_args[0][0])
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_resume_command_loads_the_session(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
         saved_name = self.cli.active_name
@@ -360,10 +491,17 @@ class TestDandyCli(TestCase):
         self.assertEqual(loaded_session.last_request, 'Fix the login bug')
         self.assertIn('Resumed session', mock_output.call_args[0][0])
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'error')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_resume_unknown_session_lists_available(
-        self, mock_turn: mock.MagicMock, mock_error: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_error: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
         active_name = self.cli.active_name
@@ -381,10 +519,17 @@ class TestDandyCli(TestCase):
 
         mock_error.assert_called_once_with(error='Usage', description='/resume <name>')
 
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     def test_delete_command_removes_and_unbinds_active_session(
-        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock
+        self,
+        mock_turn: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        _mock_naming: mock.MagicMock,
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
         saved_name = self.cli.active_name

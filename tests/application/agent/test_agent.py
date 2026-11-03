@@ -173,6 +173,34 @@ class TestAgentSession(TestCase):
         self.assertTrue(any('Dallas' in text for text in user_texts))
         self.assertIn('tool', [message['role'] for message in resumed_messages])
 
+    def test_save_session_drops_dangling_tool_round(self) -> None:
+        self.agent.last_request = 'What is the weather in Austin?'
+        self.agent.history.add_message(role='system', text='You are a coding agent.')
+        self.agent.history.add_message(role='user', text='What is the weather in Austin?')
+        self.agent.history.add_message(
+            role='assistant',
+            tool_calls=[
+                {
+                    'id': 'call_1',
+                    'type': 'function',
+                    'function': {'name': 'get_weather', 'arguments': '{"location": "Austin"}'},
+                },
+                {
+                    'id': 'call_2',
+                    'type': 'function',
+                    'function': {'name': 'get_time', 'arguments': '{"location": "Austin"}'},
+                },
+            ],
+        )
+        self.agent.history.add_message(role='tool', tool_call_id='call_1', text='Sunny and 80.')
+
+        session = self.agent.save_session()
+
+        self.assertEqual([message.role for message in session.messages], ['system', 'user'])
+        self.assertEqual(
+            [message.role for message in self.agent.history.messages], ['system', 'user']
+        )
+
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_clear_forgets_session_metadata(self, mock_post_request: mock.MagicMock) -> None:
         mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]

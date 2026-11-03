@@ -103,7 +103,7 @@ def main() -> int:
         elif '--continue' in sys.argv[1:]:
             exit_code = 0 if cli.continue_latest_session(user_input) else 1
         else:
-            cli.process_user_input(user_input=user_input, save_session=False)
+            cli.process_user_input(user_input=user_input)
             exit_code = 0 if cli.last_turn_succeeded else 1
 
     else:

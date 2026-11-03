@@ -71,9 +71,7 @@ class TestCliMain(TestCase):
         mock_session.post_init.assert_called_once_with(project_base_path=cli_main.CWD_PATH)
 
         cli_instance = mock_cli_class.return_value
-        cli_instance.process_user_input.assert_called_once_with(
-            user_input='do the thing', save_session=False
-        )
+        cli_instance.process_user_input.assert_called_once_with(user_input='do the thing')
         cli_instance.continue_latest_session.assert_not_called()
         cli_instance.run.assert_not_called()
 

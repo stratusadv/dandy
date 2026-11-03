@@ -89,8 +89,18 @@ class TestPrinterStory(TestCase):
 
         self.assertIn('• Checking the forecast now.', frame)
         self.assertIn('Checking the forecast now.', frame)
-        self.assertNotIn(progress.term.bold_blue, frame)
         self.assertNotIn(progress.term.bold_grey, frame)
+        self.assertIn(f'{progress.term.bold_orange}Evaluating ...{progress.term.normal}', frame)
+
+    def test_animating_frame_renders_bold_orange_evaluating_suffix(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        beat = StoryBeat(description='Checking the forecast now.')
+
+        animating_frame = progress.frame(beat, '..')
+        settled_frame = progress.settled_frame(beat)
+
+        self.assertIn(f'{progress.term.bold_orange}Evaluating ..{progress.term.normal}', animating_frame)
+        self.assertNotIn('Evaluating', settled_frame)
 
     def test_frames_style_label_grey_and_description_plain(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))

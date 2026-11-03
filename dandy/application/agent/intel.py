@@ -28,3 +28,9 @@ class SessionRecord(BaseIntel):
     created_at: datetime
     updated_at: datetime
     session: AgentSession
+
+
+class SessionNameIntel(BaseIntel):
+    """The AI-generated title used to name a new session."""
+
+    name: str

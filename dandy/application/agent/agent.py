@@ -7,7 +7,11 @@ from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
-from dandy.domain.message.message import MessageHistory, compact_message_history
+from dandy.domain.message.message import (
+    MessageHistory,
+    compact_message_history,
+    drop_incomplete_tool_round,
+)
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.skill.skill import to_skill_instances
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
@@ -185,7 +189,15 @@ class Agent:
         self.bot.reset()
 
     def save_session(self) -> AgentSession:
-        """Snapshot the conversation and LLM context for later loading."""
+        """Snapshot the conversation and LLM context for later loading.
+
+        A crash mid tool round can leave the history ending on a tool-call
+        declaration whose results never arrived; that round is invalid on
+        the wire, so it is dropped from the live history before the snapshot
+        and the next turn continues from a well-formed conversation.
+        """
+        drop_incomplete_tool_round(self.history)
+
         return AgentSession(
             messages=list(self.history.messages),
             last_request=self.last_request,

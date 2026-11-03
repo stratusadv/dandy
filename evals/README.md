@@ -20,10 +20,11 @@ evals/
       opencode.sh         # opencode run --format json
       pi.sh               # pi -p --mode json (stratus extension)
       crush.sh            # crush run (auto-executes tools)
-      check.sh            # copy hidden tests in, run unittest, tee check.log
+      check.sh            # copy hidden tests in, export EVAL_TESTING=1, run unittest, tee check.log
   task/
     project/              # agent-visible: buggy stockroom CLI + TASK.md spec
-    hidden_tests/         # 15 unittest cases; mounted only for the checker
+    hidden_tests/         # 15 unittest cases; mounted only for the checker; skipped
+                          # unless the EVAL_TESTING env var is set (the checker exports it)
     solution/             # reference implementation (never given to agents)
   harness/
     common.py             # docker runners, token parsers, cost, prompt
@@ -92,3 +93,13 @@ rejects full-quantity removals, value truncates cents, low-stock uses `<`
 instead of `<=`). The hidden tests (15 cases) fail exactly on the buggy
 behavior (8 failures on the pristine tree) and pass with the reference
 solution; an agent passes only if the hidden suite goes green.
+
+To verify the reference solution without Docker, run the hidden suite in the
+repo — `project/` is overlaid with `solution/` in a temp dir:
+
+```bash
+EVAL_TESTING=1 .venv/bin/python -m pytest evals -q   # 15 passed
+```
+
+Without `EVAL_TESTING` (or with it set to `0`), the hidden tests skip, so a
+plain `pytest .` stays green.

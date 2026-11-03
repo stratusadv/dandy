@@ -52,4 +52,22 @@ class EditFileTool(BaseTool):
 
         write_to_file(resolved_file_path, content.replace(old_string, new_string))
 
-        return f'Applied {occurrence_count} replacement(s) to "{file_path}".'
+        match_start = content.find(old_string)
+        match_end = match_start + len(old_string)
+        start_line = content.count('\n', 0, match_start) + 1
+        end_line = content.count('\n', 0, match_end) + 1
+
+        if match_end > 0 and content[match_end - 1] == '\n':
+            end_line -= 1
+
+        snippet = next((line.strip() for line in old_string.splitlines() if line.strip()), '')[:40]
+
+        if start_line == end_line:
+            location = f'line {start_line}'
+        else:
+            location = f'lines {start_line}-{end_line}'
+
+        return (
+            f'Applied {occurrence_count} replacement(s) to "{file_path}" '
+            f'({location}: "{snippet}").'
+        )

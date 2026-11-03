@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from dandy.application.bot.bot import Bot
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.message.message import Message, MessageHistory
+from dandy.domain.message.message import Message, MessageHistory, drop_incomplete_tool_round
 from tests.consts import live_llm_test
 
 
@@ -56,6 +56,94 @@ class TestMessageWireShape(TestCase):
 
         self.assertEqual(restored_messages[2].tool_calls, history.messages[2].tool_calls)
         self.assertEqual(restored_messages[3].tool_call_id, 'call_1')
+
+
+class TestDropIncompleteToolRound(TestCase):
+    @staticmethod
+    def _tool_call(call_id: str, function_name: str = 'get_weather') -> dict:
+        return {
+            'id': call_id,
+            'type': 'function',
+            'function': {'name': function_name, 'arguments': '{}'},
+        }
+
+    def _history_with_opening_exchange(self) -> MessageHistory:
+        history = MessageHistory()
+        history.add_message(role='system', text='You are helpful.')
+        history.add_message(role='user', text='What is the weather in Austin?')
+        return history
+
+    def test_dangling_declaration_is_dropped(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(role='assistant', tool_calls=[self._tool_call('call_1')])
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 2)
+        self.assertEqual(history.messages[-1].role, 'user')
+
+    def test_partial_round_is_dropped(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(
+            role='assistant', tool_calls=[self._tool_call('call_1'), self._tool_call('call_2')]
+        )
+        history.add_message(role='tool', tool_call_id='call_1', text='Sunny and 80.')
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 2)
+        self.assertEqual(history.messages[-1].role, 'user')
+
+    def test_complete_round_is_kept(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(role='assistant', tool_calls=[self._tool_call('call_1')])
+        history.add_message(role='tool', tool_call_id='call_1', text='Sunny and 80.')
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 4)
+        self.assertEqual(history.messages[-1].role, 'tool')
+
+    def test_earlier_complete_rounds_are_untouched(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(role='assistant', tool_calls=[self._tool_call('call_1')])
+        history.add_message(role='tool', tool_call_id='call_1', text='Sunny and 80.')
+        history.add_message(role='user', text='And in Houston?')
+        history.add_message(
+            role='assistant', tool_calls=[self._tool_call('call_2'), self._tool_call('call_3')]
+        )
+        history.add_message(role='tool', tool_call_id='call_2', text='Hot and 95.')
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 5)
+        self.assertEqual(history.messages[-1].role, 'user')
+
+    def test_trailing_assistant_answer_is_untouched(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(role='assistant', text='It is sunny in Austin.')
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 3)
+        self.assertEqual(history.messages[-1].role, 'assistant')
+
+    def test_trailing_user_message_is_untouched(self) -> None:
+        history = self._history_with_opening_exchange()
+        history.add_message(role='assistant', text='It is sunny in Austin.')
+        history.add_message(role='user', text='Thanks!')
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 4)
+        self.assertEqual(history.messages[-1].role, 'user')
+
+    def test_empty_history_is_a_noop(self) -> None:
+        history = MessageHistory()
+
+        drop_incomplete_tool_round(history)
+
+        self.assertEqual(len(history.messages), 0)
 
 
 class TestMessages(TestCase):

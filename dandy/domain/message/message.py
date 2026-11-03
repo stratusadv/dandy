@@ -275,6 +275,54 @@ def compact_message_history(history: MessageHistory, max_context_tokens: int) ->
         del history.messages[start_index:end_index]
 
 
+def drop_incomplete_tool_round(history: MessageHistory) -> None:
+    """Drop the trailing tool round when its results never all arrived.
+
+    A crash mid round leaves an assistant tool-call declaration followed by
+    fewer tool results than declared calls (possibly none); replaying that
+    round is invalid on the wire, so the whole round is dropped and the
+    conversation ends at the last complete exchange. Complete conversations
+    are untouched.
+    """
+    messages = history.messages
+
+    if not messages:
+        return
+
+    last_index = len(messages) - 1
+    last_message = messages[last_index]
+
+    if last_message.role == 'tool':
+        declaration_index = last_index
+
+        while declaration_index >= 0 and messages[declaration_index].role == 'tool':
+            declaration_index -= 1
+
+        if (
+            declaration_index < 0
+            or messages[declaration_index].role != 'assistant'
+            or not messages[declaration_index].tool_calls
+        ):
+            return
+
+        result_ids = {
+            message.tool_call_id for message in messages[declaration_index + 1 : last_index + 1]
+        }
+    elif last_message.role == 'assistant' and last_message.tool_calls:
+        declaration_index = last_index
+        result_ids = set()
+    else:
+        return
+
+    declaration = messages[declaration_index]
+    declared_ids = {tool_call.get('id') for tool_call in declaration.tool_calls}
+
+    if declared_ids <= result_ids:
+        return
+
+    del history.messages[declaration_index : last_index + 1]
+
+
 def _opening_exchange_end_index(history: MessageHistory) -> int:
     """Return the index just past the opening exchange, which compaction never drops.
 

@@ -3,6 +3,7 @@ set -uo pipefail
 cd /workdir
 rm -rf tests
 cp -r /hidden-tests tests
+export EVAL_TESTING=1
 python3 -m unittest discover -s tests -t . -p 'test_*.py' -v 2>&1 | tee /workdir/check.log
 status=${PIPESTATUS[0]}
 {

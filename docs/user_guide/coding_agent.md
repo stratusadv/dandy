@@ -11,10 +11,13 @@ TUI and console script that drive it).
 
 The `dandy` console script is a pure agent REPL: every message you type goes through one
 pipeline, and one-shot mode (`dandy "fix the failing test"`) runs the same pipeline for a
-single turn. One-shot is stateless: it answers the request but creates no session file;
-`dandy --continue "keep going"` runs one request inside the most recently saved session
-and reports which one it used. Both exit with code 1 when the agent's turn fails, so a
-script can detect failure; the interactive REPL shows the error and keeps looping.
+single turn — the same underlying turn processing and session saving, only a different
+front end (argv in, exit code out). Every turn saves the conversation: one-shot saves a
+new auto-named session, a failed or stopped turn saves too (trimmed at the last complete
+tool round), and `dandy --continue "keep going"` runs one request inside the most recently
+saved session and re-saves it under the same name. Both one-shot forms exit with code 1
+when the agent's turn fails, so a script can detect failure; the interactive REPL shows
+the error and keeps looping.
 
 ```text
 your message

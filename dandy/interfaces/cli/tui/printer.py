@@ -20,6 +20,8 @@ from dandy.infrastructure.llm.config import LlmConfig
 
 T = TypeVar('T')
 
+EVALUATING_LABEL = 'Evaluating'
+
 
 def format_verbose_duration(seconds: float) -> str:
     """Humanize an elapsed duration for the completion sentence."""
@@ -52,9 +54,10 @@ class _StoryProgress:
     The worker thread pushes `StoryBeat`s (AI summary sentences, tool action
     labels with their per-call detail, or plain notices) with `update`; the
     rendering thread prints settled beats in plain text, the model's narration
-    in bold blue, and tool labels in grey, animating the newest beat with
-    trailing dots. Every line is flush left, prefixed with the beat's ascii
-    character (a bullet when the beat carries none). The animating frame
+    in bold blue, and tool labels in grey, animating the newest beat with a
+    bold orange 'Evaluating ...' suffix. Every line is flush left, prefixed with the
+    beat's ascii character (a bullet when the beat carries none). The
+    animating frame
     folds a multi-line beat onto one line so its per-tick redraw stays on a
     single line; the settled frame prints the beat's text in full.
     """
@@ -97,7 +100,7 @@ class _StoryProgress:
     def frame(self, beat: StoryBeat, dots: str) -> str:
         prefix = f'{self.term.normal}{beat.ascii_char or "•"} '
         plain_beat = ' '.join(self._plain_beat(beat.label, beat.description).split())
-        max_beat_length = max(1, self.term.width - len(prefix) - 8)
+        max_beat_length = max(1, self.term.width - len(prefix) - len(f'{EVALUATING_LABEL} ...'))
 
         if len(plain_beat) > max_beat_length:
             short_beat = plain_beat[: max_beat_length - 1]
@@ -107,7 +110,8 @@ class _StoryProgress:
             label_part, description_part = beat.label, ' '.join(beat.description.split())
 
         beat_text = self.styled_beat(label_part, description_part, beat.kind)
-        return f'\r{prefix}{beat_text} {dots}{self.term.clear_eol()}'
+        suffix = f'{self.term.bold_orange}{EVALUATING_LABEL} {dots}{self.term.normal}'
+        return f'\r{prefix}{beat_text} {suffix}{self.term.clear_eol()}'
 
 
 def agents_md_banner_line(project_base_path: Path) -> str:
@@ -193,9 +197,10 @@ class Printer:
         Prints a task header line, then a story: every `StoryBeat` pushed
         through `update_beat` is appended to the output, with the previous
         beats settling as plain lines (a grey label when the beat has one) and
-        the most recent beat rendered with animated trailing dots (so it is
-        clear the task is still running). When `work` finishes, a completion
-        sentence reports the total elapsed time. Rendering happens only on the
+        the most recent beat rendered with a bold orange animated 'Evaluating ...'
+        suffix (so it is clear the task is still running). When `work`
+        finishes, a completion sentence reports the total elapsed time.
+        Rendering happens only on the
         calling thread (`work` runs on a daemon thread), and any exception
         raised by `work` is re-raised here.
 

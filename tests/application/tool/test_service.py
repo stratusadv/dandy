@@ -1,6 +1,11 @@
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 from unittest import TestCase, mock
 
+from dandy.application.agent.session import session
+from dandy.application.agent.tools import EditFileTool
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.tool.beat import StoryBeat
@@ -961,3 +966,85 @@ class TestRepeatedCallGuard(TestCase):
         ]
         noted = [content for content in final_request_tool_contents if 'Note:' in content]
         self.assertEqual(len(noted), 2)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_parallel_edits_to_one_file_do_not_trip_the_result_counter(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # Distinct edits in one round used to share one generic success string,
+        # so the result counter false-positived from the third call on.
+        temp_directory_context = TemporaryDirectory()
+        temp_directory_path = Path(temp_directory_context.name)
+        (temp_directory_path / 'example.py').write_text('first = 1\nsecond = 2\nthird = 3\n')
+        self.addCleanup(temp_directory_context.cleanup)
+
+        original_base_path = session.project_base_path
+        session.project_base_path = temp_directory_path
+
+        def restore_base_path() -> None:
+            session.project_base_path = original_base_path
+
+        self.addCleanup(restore_base_path)
+
+        parallel_edits = HttpResponseIntel(
+            status_code=200,
+            json_data={
+                'choices': [
+                    {
+                        'message': {
+                            'content': None,
+                            'tool_calls': [
+                                {
+                                    'id': f'call_{index}',
+                                    'type': 'function',
+                                    'function': {
+                                        'name': 'edit_file',
+                                        'arguments': json.dumps(
+                                            {
+                                                'file_path': 'example.py',
+                                                'old_string': old_string,
+                                                'new_string': new_string,
+                                            }
+                                        ),
+                                    },
+                                }
+                                for index, (old_string, new_string) in enumerate(
+                                    [
+                                        ('first = 1', 'first = 10'),
+                                        ('second = 2', 'second = 20'),
+                                        ('third = 3', 'third = 30'),
+                                    ],
+                                    start=1,
+                                )
+                            ],
+                        }
+                    }
+                ]
+            },
+        )
+
+        mock_post_request.side_effect = [
+            parallel_edits,
+            content_response('{"text": "All three edits applied."}'),
+        ]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Apply the three edits.',
+            intel_class=FinalAnswerIntel,
+            tools=[EditFileTool],
+            max_tool_iterations=5,
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 3)
+        self.assertEqual(len(set(final_request_tool_contents)), 3)
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)

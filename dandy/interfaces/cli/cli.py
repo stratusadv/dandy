@@ -1,5 +1,6 @@
 import sys
 
+from dandy.application.agent.bots.session_naming_bot import SessionNamingBot
 from dandy.application.agent.coding_agent import CodingAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.intel import SessionRecord
@@ -14,9 +15,22 @@ from dandy.shared.settings import settings
 CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
 
+def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) -> str:
+    try:
+        naming_bot.reset()
+        intel = naming_bot.process(request_text)
+    except Exception:
+        return request_text
+
+    name = intel.name.strip()
+
+    return name if name else request_text
+
+
 class DandyCli:
     def __init__(self) -> None:
         self.agent = CodingAgent()
+        self.session_naming_bot = SessionNamingBot()
         self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
         self.session_store = SessionStore.for_project(session.project_base_path)
         self.active_name: str | None = None
@@ -32,7 +46,7 @@ class DandyCli:
         sys.stdout.write(f'\r   ↳ {message}\n')
         sys.stdout.flush()
 
-    def process_user_input(self, user_input: str, save_session: bool = True) -> bool:
+    def process_user_input(self, user_input: str) -> bool:
         """Process one user input, returning False to stop the loop.
 
         The outcome of an agent turn is recorded on ``last_turn_succeeded``;
@@ -42,7 +56,7 @@ class DandyCli:
         if user_input.startswith('/'):
             return self.process_command(user_input)
 
-        self.last_turn_succeeded = self.process_agent_input(user_input, save_session=save_session)
+        self.last_turn_succeeded = self.process_agent_input(user_input)
         return True
 
     def process_command(self, user_input: str) -> bool:
@@ -147,10 +161,12 @@ class DandyCli:
 
         return True
 
-    def process_agent_input(self, user_input: str, save_session: bool = True) -> bool:
+    def process_agent_input(self, user_input: str) -> bool:
         tui.printer.running_phrase()
 
         stop_signal.clear()
+
+        succeeded = True
 
         try:
             result_intel = tui.printer.run_timed_task(
@@ -163,18 +179,16 @@ class DandyCli:
             )
         except RunStoppedError:
             tui.printer.output('Run stopped.')
-            return True
         except Exception as error:
             tui.printer.error(error='Coding agent failed', description=str(error))
-            return False
-
-        tui.printer.green_divider()
-        tui.printer.output(result_intel.text)
-
-        if save_session:
+            succeeded = False
+        else:
+            tui.printer.green_divider()
+            tui.printer.output(result_intel.text)
+        finally:
             self._save_session_after_turn(user_input)
 
-        return True
+        return succeeded
 
     def continue_latest_session(self, user_input: str) -> bool:
         """Run one turn inside the project's most recently saved session.
@@ -195,15 +209,9 @@ class DandyCli:
         self.active_name = latest_name
         tui.printer.output(f'Continuing session "{latest_name}".')
 
-        turn_succeeded = self.process_agent_input(user_input, save_session=False)
+        self.process_user_input(user_input)
 
-        if turn_succeeded and len(self.agent.history) > 0:
-            self.session_store.save(self.active_name, self.agent.save_session())
-            tui.printer.output(
-                f'Saved session "{self.active_name}" ({len(self.agent.history)} messages).'
-            )
-
-        return turn_succeeded
+        return self.last_turn_succeeded
 
     def run_init(self) -> bool:
         """Run the AGENTS.md generation pass, returning whether it succeeded.
@@ -249,7 +257,9 @@ class DandyCli:
             return
 
         if self.active_name is None:
-            self.active_name = self.session_store.new_name(user_input)
+            self.active_name = self.session_store.new_name(
+                session_name_for_request(self.session_naming_bot, user_input)
+            )
 
         self.session_store.save(self.active_name, self.agent.save_session())
 

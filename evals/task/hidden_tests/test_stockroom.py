@@ -1,3 +1,4 @@
+import atexit
 import json
 import os
 import shutil
@@ -7,8 +8,31 @@ import tempfile
 import unittest
 from pathlib import Path
 
-PROJECT = Path(__file__).resolve().parents[1]
-SEED = PROJECT / 'seed.json'
+TASK = Path(__file__).resolve().parents[1]
+
+
+def _eval_testing_enabled() -> bool:
+    value = os.environ.get('EVAL_TESTING')
+    return value is not None and value not in ('', '0')
+
+
+# In the checker container the task project is copied flat next to the hidden
+# tests (seed.json at TASK/seed.json). In the repo the tests verify the
+# reference solution: the task project overlaid with solution/ in a temp dir.
+if _eval_testing_enabled() and not (TASK / 'seed.json').is_file():
+    PROJECT = Path(tempfile.mkdtemp(prefix='dandy-eval-solution-'))
+    shutil.copytree(TASK / 'project', PROJECT, dirs_exist_ok=True)
+    for solution_file in (TASK / 'solution').rglob('*'):
+        if solution_file.is_file():
+            destination = PROJECT / 'stockroom' / solution_file.relative_to(TASK / 'solution')
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(solution_file, destination)
+    SEED = TASK / 'project' / 'seed.json'
+    sys.path.insert(0, str(PROJECT))
+    atexit.register(shutil.rmtree, PROJECT, ignore_errors=True)
+else:
+    PROJECT = TASK
+    SEED = TASK / 'seed.json'
 
 ENV = {**os.environ, 'PYTHONPATH': str(PROJECT)}
 
@@ -18,6 +42,15 @@ def run_cli(args, file_arg):
     return subprocess.run(cmd, cwd=str(PROJECT), env=ENV, capture_output=True, text=True)
 
 
+# Skipped unless EVAL_TESTING is set to a non-empty, non-'0' value; the
+# checker container exports EVAL_TESTING=1, and in-repo it runs the tests
+# against the reference solution overlay above.
+eval_test = unittest.skipUnless(
+    _eval_testing_enabled(), 'Requires the EVAL_TESTING environment variable.'
+)
+
+
+@eval_test
 class StockroomCliTest(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
@@ -121,6 +154,7 @@ class StockroomCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
 
 
+@eval_test
 class StockroomOpsImportTest(unittest.TestCase):
     def test_low_stock_boundary(self):
         from stockroom.data import Item

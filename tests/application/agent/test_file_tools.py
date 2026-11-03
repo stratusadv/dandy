@@ -103,7 +103,40 @@ class TestCodeEditingTools(TestCase):
         result = EditFileTool().handle(file_path='example.txt', old_string='foo', new_string='qux')
 
         self.assertIn('1 replacement', result)
+        self.assertIn('line 1', result)
+        self.assertIn('"foo"', result)
         self.assertEqual(target_path.read_text(), 'qux bar baz')
+
+    def test_edit_file_multiline_replacement_reports_line_range(self):
+        target_path = Path(self.temp_directory_path, 'example.txt')
+        target_path.write_text('alpha\none two\nthree\nomega\n')
+
+        result = EditFileTool().handle(
+            file_path='example.txt', old_string='one two\nthree', new_string='replaced'
+        )
+
+        self.assertIn('1 replacement', result)
+        self.assertIn('lines 2-3', result)
+        self.assertIn('"one two"', result)
+        self.assertEqual(target_path.read_text(), 'alpha\nreplaced\nomega\n')
+
+    def test_distinct_edits_to_one_file_return_distinct_results(self):
+        target_path = Path(self.temp_directory_path, 'example.txt')
+        target_path.write_text('alpha\nbeta\ngamma\n')
+
+        first = EditFileTool().handle(file_path='example.txt', old_string='alpha', new_string='one')
+        second = EditFileTool().handle(file_path='example.txt', old_string='gamma', new_string='three')
+
+        self.assertNotEqual(first, second)
+
+    def test_repeated_noop_edit_returns_identical_result(self):
+        target_path = Path(self.temp_directory_path, 'example.txt')
+        target_path.write_text('foo bar')
+
+        first = EditFileTool().handle(file_path='example.txt', old_string='foo', new_string='foo')
+        second = EditFileTool().handle(file_path='example.txt', old_string='foo', new_string='foo')
+
+        self.assertEqual(first, second)
 
     def test_edit_file_not_found_returns_error(self):
         target_path = Path(self.temp_directory_path, 'example.txt')
@@ -134,6 +167,8 @@ class TestCodeEditingTools(TestCase):
         )
 
         self.assertIn('3 replacement', result)
+        self.assertIn('line 1', result)
+        self.assertIn('"foo"', result)
         self.assertEqual(target_path.read_text(), 'bar bar bar')
 
     def test_delete_file(self):
