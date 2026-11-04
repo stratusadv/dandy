@@ -10,8 +10,13 @@ class TestLlmConfigContextSize(TestCase):
 
         self.assertEqual(config.context_size, 65536)
 
-    def test_context_size_inherits_from_default(self) -> None:
+    def test_thinking_config_reads_its_own_context_size(self) -> None:
         config = LlmConfig('THINKING')
+
+        self.assertEqual(config.context_size, 262144)
+
+    def test_context_size_inherits_from_default(self) -> None:
+        config = LlmConfig('AUDIO')
 
         self.assertEqual(config.context_size, 65536)
 

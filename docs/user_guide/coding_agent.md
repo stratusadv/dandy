@@ -114,6 +114,10 @@ shares the location). The first turn names the session after your request
 `-3`, ...), and later turns update the same file. The welcome banner always shows
 a session-status line (how many are saved and how to resume the latest).
 
+In a git project, dandy makes sure `.dandy/` is in the project's `.gitignore`
+(adding the entry if it is missing), so saved sessions never show up as
+untracked files in `git status`. Non-git directories are left untouched.
+
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token
 count. `/resume <name>` loads the history back into the agent, so the next turn

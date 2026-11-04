@@ -21,7 +21,7 @@ for env_file_name in env_file_names:
 sys.path.append(str(CWD_PATH))
 
 from dandy.application.agent.session import session  # noqa: E402
-from dandy.interfaces.cli.utils import check_or_create_settings  # noqa: E402
+from dandy.interfaces.cli.utils import check_or_create_settings, ensure_dandy_gitignore  # noqa: E402
 
 
 USAGE = (
@@ -80,6 +80,8 @@ def main() -> int:
     settings.reload_from_os()
 
     session.post_init(project_base_path=CWD_PATH)
+
+    ensure_dandy_gitignore(CWD_PATH)
 
     from dandy.interfaces.cli.cli import DandyCli  # noqa: PLC0415
 

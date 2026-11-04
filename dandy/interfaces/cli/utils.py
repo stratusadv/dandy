@@ -4,6 +4,8 @@ from pathlib import Path
 
 import dotenv
 
+from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
+
 
 def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool = True) -> None:
     from dandy.shared.settings.load import find_settings_json_file, get_settings_module_name
@@ -45,3 +47,31 @@ def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool =
 
         if system_exit_on_import_error:
             sys.exit(0)
+
+
+def ensure_dandy_gitignore(project_base_path: Path) -> None:
+    """Ensure a git project's .gitignore ignores dandy's local state directory.
+
+    The .dandy directory holds per-project state (saved agent sessions,
+    recordings, local settings) that should never be tracked, so a missing
+    .dandy/ entry is appended to the project's .gitignore. Non-git
+    directories are left untouched.
+    """
+    git_dir_path = Path(project_base_path, '.git')
+
+    if not git_dir_path.is_dir() and not git_dir_path.is_file():
+        return
+
+    pattern = f'{DANDY_LOCAL_DIRECTORY_NAME}/'
+    gitignore_path = Path(project_base_path, '.gitignore')
+    existing_text = gitignore_path.read_text() if gitignore_path.is_file() else ''
+    existing_lines = {line.strip() for line in existing_text.splitlines()}
+
+    if pattern in existing_lines or f'/{DANDY_LOCAL_DIRECTORY_NAME}/' in existing_lines:
+        return
+
+    with open(gitignore_path, 'a') as gitignore_file:
+        if existing_text and not existing_text.endswith('\n'):
+            gitignore_file.write('\n')
+
+        gitignore_file.write(f'{pattern}\n')

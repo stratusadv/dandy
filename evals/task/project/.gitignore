@@ -14,3 +14,4 @@ check.log
 judge.json
 .pi-sessions/
 .crush-data/
+.dandy/

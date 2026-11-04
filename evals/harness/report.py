@@ -45,7 +45,7 @@ def render_report(run_root: Path, rows: list[dict], stamp: str) -> None:
         agent_rows = [row for row in rows if row['agent'] == agent]
         if not agent_rows:
             continue
-        passed = sum(1 for row in agent_rows if row['pass'] == 'True')
+        passed = sum(1 for row in agent_rows if str(row['pass']).lower() == 'true')
         walls = [float(row['wall_s']) for row in agent_rows if row.get('wall_s')]
         mean_wall = sum(walls) / len(walls) if walls else 0
         total_cost = sum(float(row['cost_usd'] or 0) for row in agent_rows)

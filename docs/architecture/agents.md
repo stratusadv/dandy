@@ -131,7 +131,10 @@ with a name and created/updated timestamps. `for_project(path)` targets
 `<path>/.dandy/agent/sessions/` — agent-neutral, so any agent over the same project
 shares the location. It also gives `list_sessions()`, `latest()`, `delete(name)`, and
 `new_name(text)`, which derives a fresh non-colliding `YYYY-MM-DD-<slug>` name (40-char
-slug, `-2`/`-3` on collision) from a piece of request text.
+slug, `-2`/`-3` on collision) from a piece of request text. The CLI keeps this state
+out of version control: before any mode it ensures a git project's `.gitignore`
+contains `.dandy/` (`ensure_dandy_gitignore` in `dandy/interfaces/cli/utils.py`),
+appending the entry when missing; non-git directories are untouched.
 
 ## The CodingAgent
 

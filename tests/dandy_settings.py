@@ -34,6 +34,7 @@ LLM_CONFIGS = {
     },
     'THINKING': {
         'MODEL': os.getenv('LLM_THINKING_MODEL', 'gpt-test'),
+        'CONTEXT_SIZE': 262144,
         'OPTIONS': {
             'frequency_penalty': 0.0,
             'max_completion_tokens': 13107,

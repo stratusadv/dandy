@@ -530,7 +530,7 @@ class TestCodingAgentCompaction(TestCase):
         )
 
     def test_agent_resolves_context_size_from_coding_config(self) -> None:
-        self.assertEqual(self.agent.max_context_tokens, 65_536)
+        self.assertEqual(self.agent.max_context_tokens, 262_144)
 
     def test_agent_context_size_accepts_string_values(self) -> None:
         with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size='8000')):

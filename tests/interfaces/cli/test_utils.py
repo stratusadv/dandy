@@ -1,9 +1,11 @@
 import contextlib
+import tempfile
 from pathlib import Path
 from unittest import TestCase, mock
 
+from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 from dandy.shared.settings.load import get_cli_llm_config
-from dandy.interfaces.cli.utils import check_or_create_settings
+from dandy.interfaces.cli.utils import check_or_create_settings, ensure_dandy_gitignore
 from dandy.shared.settings import settings
 
 INVALID_SETTINGS_MODULE_NAME = 'tests.invalid_dandy_settings'
@@ -67,3 +69,83 @@ class TestUtils(TestCase):
 
                 if invalid_settings_path.exists():
                     invalid_settings_path.unlink()
+
+
+class TestEnsureDandyGitignore(TestCase):
+    GITIGNORE_PATTERN = f'{DANDY_LOCAL_DIRECTORY_NAME}/'
+    APPENDED_TEXT = f'*.pyc\n{GITIGNORE_PATTERN}\n'
+
+    def _make_project(
+        self, project_path: Path, *, git: bool = True, gitignore: str | None = None
+    ) -> Path:
+        if git:
+            (project_path / '.git').mkdir()
+
+        if gitignore is not None:
+            (project_path / '.gitignore').write_text(gitignore)
+
+        return project_path
+
+    def _gitignore_text(self, project_path: Path) -> str:
+        return (project_path / '.gitignore').read_text()
+
+    def test_non_git_project_is_untouched(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), git=False)
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertFalse((project_path / '.gitignore').exists())
+
+    def test_git_project_without_gitignore_gets_one(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name))
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), f'{self.GITIGNORE_PATTERN}\n')
+
+    def test_git_project_gitignore_gets_entry_appended(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), gitignore='*.pyc\n')
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), self.APPENDED_TEXT)
+
+    def test_git_project_gitignore_without_trailing_newline(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), gitignore='*.pyc')
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), self.APPENDED_TEXT)
+
+    def test_existing_entry_leaves_gitignore_unchanged(self) -> None:
+        original = f'node_modules/\n{self.GITIGNORE_PATTERN}\n'
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), gitignore=original)
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), original)
+
+    def test_root_anchored_entry_is_recognized(self) -> None:
+        original = '/.dandy/\n'
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), gitignore=original)
+
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), original)
+
+    def test_call_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            project_path = self._make_project(Path(temp_name), gitignore='*.pyc\n')
+
+            ensure_dandy_gitignore(project_path)
+            ensure_dandy_gitignore(project_path)
+
+            self.assertEqual(self._gitignore_text(project_path), self.APPENDED_TEXT)

@@ -37,3 +37,4 @@ example_book.md
 !dandy/cli/actions/build/
 
 evals/runs/
+.dandy/
