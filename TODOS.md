@@ -1,3 +1,2 @@
 - [ ] Compact the first 4 lines into the top part of the run (ask questions)
-- [ ] Dig into the compaction weirdness (why 56000 compaction ETC)
 - [ ] Question Tool

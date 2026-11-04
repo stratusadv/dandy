@@ -22,10 +22,16 @@ class Tui:
     def clear(self):
         print(self.term.clear)
 
-    def get_user_input(self, question: str | None = None) -> str | None:
+    def get_user_input(
+        self, question: str | None = None, choices: list[str] | None = None
+    ) -> str | None:
         if question:
             self._input_prefix = self.term.purple('⦿ ')
             self.printer.event(text=f'{self.term.purple}Question: {self.term.normal}{question}')
+
+            for index, choice in enumerate(choices or [], start=1):
+                self.printer.event(text=f'{self.term.purple}{index}){self.term.normal} {choice}')
+
             self.printer.purple_divider()
 
         else:
@@ -73,7 +79,24 @@ class Tui:
             sys.stdout.flush()
             return None
 
-        return ''.join(self._buffer)
+        text = ''.join(self._buffer)
+
+        if choices:
+            return self._choice_from_text(text, choices)
+
+        return text
+
+    @staticmethod
+    def _choice_from_text(text: str, choices: list[str]) -> str:
+        stripped = text.strip()
+
+        if stripped.isdigit():
+            index = int(stripped)
+
+            if 1 <= index <= len(choices):
+                return choices[index - 1]
+
+        return text
 
     def _process_enter_key(self):
         if self._buffer:

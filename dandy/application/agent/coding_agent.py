@@ -10,6 +10,7 @@ from dandy.application.agent.bots.planning_bot import PlanningBot
 from dandy.application.agent.prompts import init_prompt
 from dandy.application.agent.session import session
 from dandy.application.agent.tools import AGENT_TOOLS
+from dandy.application.agent.tools.question import QuestionHandler, QuestionTool
 from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.message.message import MessageContent
 from dandy.domain.prompt.prompt import Prompt
@@ -19,8 +20,12 @@ from dandy.domain.tool.beat import StoryBeat
 class CodingAgent(Agent):
     """Multi-turn coding agent that keeps the conversation across turns."""
 
-    def __init__(self, run_planning: bool = True) -> None:
-        super().__init__(bot=CodingBot(), tools=AGENT_TOOLS, intel_class=DefaultIntel)
+    def __init__(self, run_planning: bool = True, ask_user: QuestionHandler | None = None) -> None:
+        super().__init__(
+            bot=CodingBot(),
+            tools=[*AGENT_TOOLS, QuestionTool(ask_user=ask_user)],
+            intel_class=DefaultIntel,
+        )
         self.run_planning = run_planning
         self.planning_bot = PlanningBot()
 

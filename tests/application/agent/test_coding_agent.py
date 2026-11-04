@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
@@ -14,6 +15,7 @@ from dandy.application.agent.agent import (
 from dandy.application.agent.coding_agent import CodingAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
+from dandy.application.agent.tools.question import QuestionTool
 from dandy.shared.settings import settings
 from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.infrastructure.http.intel import HttpResponseIntel
@@ -649,3 +651,77 @@ class TestCodingAgentPlanning(TestCase):
             [message.role for message in planning_messages.messages],
             ['system', 'user', 'assistant'],
         )
+
+
+class TestCodingAgentQuestionTool(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.temp_directory_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.temp_directory_path
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    @staticmethod
+    def _question_tools(agent: CodingAgent) -> list[QuestionTool]:
+        return [tool for tool in agent.tools if isinstance(tool, QuestionTool)]
+
+    def test_tools_include_one_question_tool(self) -> None:
+        agent = CodingAgent(run_planning=False)
+
+        self.assertEqual(len(self._question_tools(agent)), 1)
+        self.assertIsNone(self._question_tools(agent)[0].ask_user)
+
+    def test_ask_user_reaches_the_question_tool(self) -> None:
+        def ask_user(question: str, choices: list[str]) -> str:
+            return 'answer'
+
+        agent = CodingAgent(run_planning=False, ask_user=ask_user)
+
+        self.assertIs(self._question_tools(agent)[0].ask_user, ask_user)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_feeds_the_user_answer_back_to_the_model(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        agent = CodingAgent(run_planning=False, ask_user=lambda question, choices: 'blue')
+        mock_post_request.side_effect = [
+            tool_call_response(
+                'question',
+                '{"question": "Which color should the banner be?", "choices": ["red", "blue"]}',
+            ),
+            content_response('{"text": "Made it blue."}'),
+        ]
+
+        result = agent.turn('Make the banner a color I like')
+
+        self.assertEqual(result.text, 'Made it blue.')
+
+        second_call_messages = (
+            mock_post_request.call_args_list[1].kwargs['request_intel'].json_data['messages']
+        )
+        tool_messages = [message for message in second_call_messages if message['role'] == 'tool']
+
+        self.assertEqual(len(tool_messages), 1)
+        self.assertIn('blue', json.dumps(tool_messages))
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_without_ask_user_gets_the_no_user_answer(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        agent = CodingAgent(run_planning=False)
+        mock_post_request.side_effect = [
+            tool_call_response('question', '{"question": "Which color should the banner be?"}'),
+            content_response('{"text": "Assumed blue."}'),
+        ]
+
+        agent.turn('Make the banner a color I like')
+
+        second_call_messages = (
+            mock_post_request.call_args_list[1].kwargs['request_intel'].json_data['messages']
+        )
+        tool_messages = [message for message in second_call_messages if message['role'] == 'tool']
+
+        self.assertIn('No user is available', json.dumps(tool_messages))

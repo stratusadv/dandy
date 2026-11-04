@@ -16,6 +16,7 @@ from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.constants import AGENTS_MD_FILE_NAME, __VERSION__
+from dandy.shared.interaction import QuestionGate
 from dandy.shared.settings.load import get_cli_llm_config
 from dandy.infrastructure.llm.config import LlmConfig
 
@@ -279,6 +280,8 @@ class Printer:
         task: str,
         work: Callable[[Callable[[StoryBeat], None]], T],
         stop_signal: StopSignal | None = None,
+        question_gate: QuestionGate | None = None,
+        question_handler: Callable[[str, list[str]], str | None] | None = None,
     ) -> T:
         """Run `work(update_beat)` while animating a story of AI summary beats.
 
@@ -298,6 +301,13 @@ class Printer:
         press escape twice to stop the run: on the second consecutive escape
         `stop_signal` is set and a one-line notice is printed. Any other key
         resets the escape count, matching the prompt's double-escape rule.
+
+        When a `question_gate` is given, a question the worker parks there
+        pauses the animation: the calling thread (the only one allowed to
+        touch the terminal) calls `question_handler(question, choices)` and
+        delivers its result to the gate. A `None` result means the user
+        stopped the run (the gate then sets the stop signal and answers the
+        worker with a stop sentinel).
         """
         start_time = perf_counter()
 
@@ -320,25 +330,37 @@ class Printer:
         dots = 1
         escape_count = 0
 
-        with self.term.cbreak():
-            while thread.is_alive():
-                beats = progress.beats
+        while True:
+            with self.term.cbreak():
+                while thread.is_alive() and not self._has_pending_question(question_gate):
+                    beats = progress.beats
 
-                if len(beats) > settled_count + 1:
-                    for beat in beats[settled_count:-1]:
-                        sys.stdout.write(progress.settled_frame(beat))
-                    settled_count = len(beats) - 1
-                    dots = 1
+                    if len(beats) > settled_count + 1:
+                        for beat in beats[settled_count:-1]:
+                            sys.stdout.write(progress.settled_frame(beat))
+                        settled_count = len(beats) - 1
+                        dots = 1
 
-                sys.stdout.write(progress.frame(beats[-1], '.' * dots))
-                sys.stdout.flush()
+                    sys.stdout.write(progress.frame(beats[-1], '.' * dots))
+                    sys.stdout.flush()
 
-                dots = (dots % 3) + 1
+                    dots = (dots % 3) + 1
 
-                if stop_signal is not None:
-                    escape_count = self._poll_for_stop(stop_signal, escape_count)
+                    if stop_signal is not None:
+                        escape_count = self._poll_for_stop(stop_signal, escape_count)
 
-                sleep(0.12)
+                    sleep(0.12)
+
+            if not thread.is_alive():
+                break
+
+            pending_question = question_gate.pending
+
+            if pending_question is None or question_handler is None:
+                break
+
+            answer = question_handler(pending_question.question, pending_question.choices)
+            question_gate.deliver(answer)
 
         for beat in progress.beats[settled_count:]:
             sys.stdout.write(progress.settled_frame(beat))
@@ -354,6 +376,10 @@ class Printer:
         )
 
         return result_holder['value']
+
+    @staticmethod
+    def _has_pending_question(question_gate: QuestionGate | None) -> bool:
+        return question_gate is not None and question_gate.pending is not None
 
     def _poll_for_stop(self, stop_signal: StopSignal, escape_count: int) -> int:
         """Poll for a double-escape while a task runs; return the new count.

@@ -19,6 +19,7 @@ from dandy.interfaces.cli.tui.printer import (
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.interaction import QuestionGate
 
 
 class TestFormatVerboseDuration(TestCase):
@@ -101,7 +102,9 @@ class TestPrinterStory(TestCase):
         animating_frame = progress.frame(beat, '..')
         settled_frame = progress.settled_frame(beat)
 
-        self.assertIn(f'{progress.term.bold_orange}Evaluating ..{progress.term.normal}', animating_frame)
+        self.assertIn(
+            f'{progress.term.bold_orange}Evaluating ..{progress.term.normal}', animating_frame
+        )
         self.assertNotIn('Evaluating', settled_frame)
 
     def test_frames_style_label_grey_and_description_plain(self) -> None:
@@ -333,6 +336,57 @@ class TestPrinterStory(TestCase):
 
         self.assertEqual(result, 'done')
 
+    def test_run_timed_task_delivers_a_pending_question_to_the_handler(self) -> None:
+        gate = QuestionGate()
+        prompts: list[tuple[str, list[str]]] = []
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            return {'answer': gate.ask('Which color?', ['red', 'blue'])}
+
+        def question_handler(question: str, choices: list[str]) -> str | None:
+            prompts.append((question, choices))
+            return 'blue'
+
+        result = self.printer.run_timed_task(
+            action_name='Coding',
+            task='pick a color',
+            work=work,
+            question_gate=gate,
+            question_handler=question_handler,
+        )
+
+        self.assertEqual(result, {'answer': 'blue'})
+        self.assertEqual(prompts, [('Which color?', ['red', 'blue'])])
+        self.assertIsNone(gate.pending)
+
+    def test_run_timed_task_a_none_answer_stops_the_run(self) -> None:
+        gate = QuestionGate()
+        stop_signal = StopSignal()
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            gate.ask('Continue?', None, stop_signal)
+
+            if stop_signal.is_set():
+                raise RunStoppedError('Run stopped by user.')
+
+            return 'unreachable'
+
+        def question_handler(question: str, choices: list[str]) -> str | None:
+            return None
+
+        with self.assertRaises(RunStoppedError):
+            self.printer.run_timed_task(
+                action_name='Coding',
+                task='stop me',
+                work=work,
+                stop_signal=stop_signal,
+                question_gate=gate,
+                question_handler=question_handler,
+            )
+
+        self.assertTrue(stop_signal.is_set())
+        self.assertIsNone(gate.pending)
+
 
 class TestStoryProgressHeadingGrouping(TestCase):
     def setUp(self) -> None:
@@ -458,8 +512,7 @@ class TestLinkifyFilePaths(TestCase):
         linked = linkify_file_paths('Reading src/foo.py lines 1-10')
 
         self.assertEqual(
-            linked,
-            f'Reading \x1b]8;;{expected_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\ lines 1-10',
+            linked, f'Reading \x1b]8;;{expected_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\ lines 1-10'
         )
 
     def test_extension_only_word_is_linked(self) -> None:

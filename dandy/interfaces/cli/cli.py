@@ -10,6 +10,7 @@ from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.constants import AGENTS_MD_FILE_NAME
 from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.interaction import question_gate
 from dandy.shared.settings import settings
 
 CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
@@ -38,7 +39,7 @@ def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) ->
 
 class DandyCli:
     def __init__(self) -> None:
-        self.agent = CodingAgent()
+        self.agent = CodingAgent(ask_user=self._ask_user)
         self.session_naming_bot = SessionNamingBot()
         self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
         self.session_store = SessionStore.for_project(session.project_base_path)
@@ -54,6 +55,16 @@ class DandyCli:
     def _emit_verbose(message: str) -> None:
         sys.stdout.write(f'\r   ↳ {message}\n')
         sys.stdout.flush()
+
+    @staticmethod
+    def _ask_user(question: str, choices: list[str]) -> str:
+        """Block the agent until the user answers its question (stop-safe)."""
+        return question_gate.ask(question, choices, stop_signal)
+
+    @staticmethod
+    def _prompt_question(question: str, choices: list[str]) -> str | None:
+        """The UI side of an agent question: one prompt on the main thread."""
+        return tui.get_user_input(question=question, choices=choices)
 
     def process_user_input(self, user_input: str) -> bool:
         """Process one user input, returning False to stop the loop.
@@ -200,6 +211,8 @@ class DandyCli:
                     tool_call_callback=record_tool_call,
                 ),
                 stop_signal=stop_signal,
+                question_gate=question_gate,
+                question_handler=self._prompt_question,
             )
         except RunStoppedError:
             tui.printer.output('Run stopped.')

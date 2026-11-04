@@ -11,6 +11,7 @@ from dandy.application.agent.tools.file import (
     WriteFileTool,
 )
 from dandy.application.agent.tools.git import GIT_TOOLS, GitDiffTool, GitStatusTool
+from dandy.application.agent.tools.question import QUESTION_TOOLS, QuestionHandler, QuestionTool
 from dandy.domain.tool.tool import ToolType
 
 AGENT_TOOLS: list[ToolType] = [*CODE_EDITING_TOOLS, *SEARCH_TOOLS, *COMMAND_TOOLS, *GIT_TOOLS]
@@ -20,6 +21,7 @@ __all__ = [
     'CODE_EDITING_TOOLS',
     'COMMAND_TOOLS',
     'GIT_TOOLS',
+    'QUESTION_TOOLS',
     'SEARCH_TOOLS',
     'CreateDirectoryTool',
     'DeleteFileTool',
@@ -27,6 +29,8 @@ __all__ = [
     'GitDiffTool',
     'GitStatusTool',
     'ListDirectoryTool',
+    'QuestionHandler',
+    'QuestionTool',
     'ReadFileTool',
     'RunCommandTool',
     'SearchFilesTool',

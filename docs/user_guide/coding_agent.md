@@ -75,10 +75,16 @@ project-aware toolset (`dandy/application/agent/tools/`):
   `create_directory`, `list_directory`, plus `search_files` (grep-style, skipping
   `.git`/`.dandy`/`node_modules`/`.venv`/`__pycache__`, capped output).
 - **Commands** — `run_command` (no user confirmation), `git_status`, `git_diff`.
+- **Questions** — `question`, on the coding agent only (the planning and init
+  passes do not ask): the model pauses the turn, shows you a question with
+  optional numbered choices, and waits for your answer (a choice number or
+  free text), which it receives as the tool result.
 
 Every path resolves against the session's `project_base_path` and refuses paths that
 escape it; every `handle()` returns a string and never raises, so the model can always
-react to what went wrong.
+react to what went wrong. A `QuestionTool` without an `ask_user` callback (for example,
+a headless `CodingAgent`) answers its own question with a "no user available, assume
+and proceed" note instead of blocking.
 
 ## Context management
 
@@ -101,7 +107,9 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
   `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
 - Pressing **escape twice** stops a running turn (the agent, tool loop, and
   any running command are interrupted and the prompt returns); at the prompt,
-  pressing **escape twice** exits the REPL.
+  pressing **escape twice** exits the REPL — and the same rule applies while
+  an agent question is on screen: double escape skips the answer and stops
+  the run.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
 
 ## Sessions
