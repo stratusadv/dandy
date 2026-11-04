@@ -130,7 +130,7 @@ count). `load_session(session)` restores the history into a fresh
   targets `<path>/.dandy/agent/sessions/` — agent-neutral, so any agent over the
   same project shares the location. It also gives you `list_sessions()`,
   `latest()`, `delete(name)`, and `new_name(text)`, which derives a fresh
-  non-colliding `YYYY-MM-DD-<slug>` name from a piece of request text. Unknown
+  non-colliding `YYYY-MM-DD-HH-MM-<slug>` name from a piece of request text. Unknown
   names raise `AgentRecoverableError` listing the available sessions; invalid
   names (empty, `.`/`..`, or containing path separators) raise
   `AgentCriticalError`.

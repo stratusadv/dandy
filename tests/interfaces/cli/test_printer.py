@@ -14,8 +14,8 @@ from dandy.interfaces.cli.tui.printer import (
     _StoryProgress,
     agents_md_banner_line,
     format_verbose_duration,
-    linkify_file_paths,
 )
+from dandy.interfaces.cli.tui.text import linkify_file_paths
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.exceptions import RunStoppedError
@@ -710,7 +710,7 @@ class TestLinkifyFilePaths(TestCase):
             self.assertNotIn('\x1b]8', frame)
 
 
-class TestPrinterEditedFiles(TestCase):
+class TestPrinterFileChangeSections(TestCase):
     def setUp(self) -> None:
         self.temp_directory_context = TemporaryDirectory()
         self.project_base_path = Path(self.temp_directory_context.name)
@@ -726,23 +726,66 @@ class TestPrinterEditedFiles(TestCase):
         session.project_base_path = self.original_project_base_path
         self.temp_directory_context.cleanup()
 
-    def test_empty_list_prints_nothing(self) -> None:
-        self.printer.edited_files([])
+    @property
+    def printed_lines(self) -> list[str]:
+        return [call.args[0] if call.args else '' for call in self.mock_print.call_args_list]
+
+    def _expected_link(self, relative_path: str) -> str:
+        expected_uri = (self.project_base_path / relative_path).as_uri()
+        return f'\x1b]8;;{expected_uri}\x1b\\{relative_path}\x1b]8;;\x1b\\'
+
+    def test_all_empty_prints_nothing(self) -> None:
+        self.printer.file_change_sections([], [], [])
 
         self.mock_print.assert_not_called()
 
-    def test_paths_print_as_bulleted_links_under_a_heading(self) -> None:
-        expected_foo_uri = (self.project_base_path / 'src' / 'foo.py').as_uri()
-        expected_bar_uri = (self.project_base_path / 'src' / 'bar.py').as_uri()
+    def test_section_prints_heading_border_bullet_and_link(self) -> None:
+        self.printer.file_change_sections(['src/foo.py'], [], [])
 
-        self.printer.edited_files(['src/foo.py', 'src/bar.py'])
+        lines = self.printed_lines
+        term = self.printer.term
 
-        lines = [call.args[0] for call in self.mock_print.call_args_list]
+        self.assertEqual(len(lines), 4)
+        self.assertEqual(lines[0], '')
+        self.assertEqual(lines[1], f'{term.bold_blue}Added Files{term.normal}')
+        self.assertEqual(lines[2], term.blue('─' * term.width))
+        self.assertEqual(
+            lines[3], f'{term.normal}{term.green}•{term.normal} {self._expected_link("src/foo.py")}'
+        )
 
-        self.assertEqual(len(lines), 3)
-        self.assertIn('Edited files:', lines[0])
-        self.assertIn(self.printer.term.bold_grey, lines[0])
-        self.assertTrue(lines[1].startswith(f'{self.printer.term.normal}• '))
-        self.assertIn(f'\x1b]8;;{expected_foo_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\', lines[1])
-        self.assertTrue(lines[2].startswith(f'{self.printer.term.normal}• '))
-        self.assertIn(f'\x1b]8;;{expected_bar_uri}\x1b\\src/bar.py\x1b]8;;\x1b\\', lines[2])
+    def test_bullets_are_colored_per_action(self) -> None:
+        self.printer.file_change_sections(['src/a.py'], ['src/b.py'], ['src/c.py'])
+
+        lines = self.printed_lines
+        term = self.printer.term
+        bullet_lines = [line for line in lines if '•' in line]
+
+        self.assertEqual(len(bullet_lines), 3)
+        self.assertIn(f'{term.green}•{term.normal}', bullet_lines[0])
+        self.assertIn(f'{term.blue}•{term.normal}', bullet_lines[1])
+        self.assertIn(f'{term.red}•{term.normal}', bullet_lines[2])
+
+    def test_sections_print_in_order_and_skip_empty(self) -> None:
+        self.printer.file_change_sections(['src/a.py'], [], ['src/c.py'])
+
+        lines = self.printed_lines
+        term = self.printer.term
+
+        self.assertEqual(len(lines), 8)
+        self.assertEqual(lines[0], '')
+        self.assertEqual(lines[1], f'{term.bold_blue}Added Files{term.normal}')
+        self.assertEqual(lines[4], '')
+        self.assertEqual(lines[5], f'{term.bold_blue}Removed Files{term.normal}')
+        self.assertNotIn('Modified Files', '\n'.join(lines))
+
+    def test_empty_line_before_each_section(self) -> None:
+        self.printer.file_change_sections(['src/a.py'], ['src/b.py'], ['src/c.py'])
+
+        lines = self.printed_lines
+        term = self.printer.term
+
+        self.assertEqual(len(lines), 12)
+        self.assertEqual(lines[0], '')
+        self.assertEqual(lines[4], '')
+        self.assertEqual(lines[8], '')
+        self.assertIn(f'{term.red}•{term.normal}', lines[11])

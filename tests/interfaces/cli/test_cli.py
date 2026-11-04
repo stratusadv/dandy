@@ -60,7 +60,7 @@ class TestDandyCli(TestCase):
         mock_get_user_input.assert_called_once_with()
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
-    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_process_user_input_sends_plain_text_to_agent(
         self,
@@ -92,7 +92,7 @@ class TestDandyCli(TestCase):
         mock_error.assert_called_once_with(error='Dandy ran into an error', description='boom')
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
-    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     @mock.patch.object(tui.printer, 'error')
     def test_last_turn_succeeded_tracks_the_most_recent_turn(
@@ -148,7 +148,7 @@ class TestDandyCli(TestCase):
         self.assertIs(mock_run_timed_task.call_args.kwargs['stop_signal'], stop_signal)
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
-    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_process_agent_input_passes_verbose_callback_when_debug_is_on(
         self,
@@ -178,8 +178,8 @@ class TestDandyCli(TestCase):
         self.assertIsNone(self.cli.verbose_callback)
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
-    @mock.patch.object(tui.printer, 'green_divider')
-    def test_process_agent_input_prints_edited_files_above_the_answer(
+    @mock.patch.object(tui.printer, 'bold_green_divider')
+    def test_process_agent_input_prints_file_sections_below_the_answer(
         self, _mock_green_divider: mock.MagicMock, mock_turn: mock.MagicMock
     ) -> None:
         def fake_turn(
@@ -197,6 +197,7 @@ class TestDandyCli(TestCase):
             tool_call_callback(
                 'edit_file', {'file_path': 'src/bar.py', 'old_string': 'a', 'new_string': 'b'}
             )
+            tool_call_callback('delete_file', {'file_path': 'src/gone.py'})
             tool_call_callback('read_file', {'file_path': 'src/baz.py', 'start_line': 1})
 
             return mock.MagicMock(text='answer')
@@ -208,12 +209,15 @@ class TestDandyCli(TestCase):
 
         printed = buffer.getvalue()
 
-        self.assertIn('Edited files:', printed)
+        self.assertLess(printed.index('answer'), printed.index('Modified Files'))
+        self.assertLess(printed.index('Modified Files'), printed.index('src/foo.py'))
+        self.assertLess(printed.index('src/foo.py'), printed.index('Removed Files'))
         self.assertEqual(printed.count('\x1b\\src/foo.py\x1b]8;;\x1b\\'), 1)
+        self.assertNotIn('Added Files', printed)
         self.assertIn('src/bar.py', printed)
+        self.assertIn('src/gone.py', printed)
         self.assertNotIn('src/baz.py', printed)
         self.assertIn('\x1b]8;;', printed)
-        self.assertLess(printed.index('Edited files:'), printed.index('answer'))
 
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
@@ -383,7 +387,7 @@ class TestDandyCli(TestCase):
         )
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.run_init_pass')
-    @mock.patch.object(tui.printer, 'green_divider')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_init_command_runs_the_pass_and_reports_the_file(
         self,

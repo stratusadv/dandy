@@ -24,7 +24,10 @@ class BaseTool(ABC):
     The optional action_output method builds the per-call detail shown next to
     the label while the tool runs, from the validated keyword arguments. The
     can_mutate_state class attribute (default False) marks tools that can
-    change state; the CLI renders their beat labels in orange.
+    change state; the CLI renders their beat labels in orange. The
+    emits_story_beat class attribute (default True) controls whether the tool's
+    execution beat is emitted at all; a tool that renders its own story while
+    it runs, like the CLI's question prompt, sets it to False.
 
     Example:
         class GetWeatherTool(BaseTool):
@@ -40,6 +43,7 @@ class BaseTool(ABC):
     description: str = ''
     action_label: str = ''
     can_mutate_state: bool = False
+    emits_story_beat: bool = True
 
     timeout_seconds: int = 30
     use_shell: bool = False

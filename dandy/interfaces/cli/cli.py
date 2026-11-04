@@ -16,13 +16,13 @@ from dandy.shared.settings import settings
 
 CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
-# Tool name to path argument for the tools whose calls count as edited files
-# in the summary the CLI prints above the final answer.
-EDITED_FILE_TOOL_PARAMS = {
-    'write_file': 'file_path',
-    'edit_file': 'file_path',
-    'delete_file': 'file_path',
-    'create_directory': 'directory_path',
+# Tool name to (path argument, action) for the tools whose calls show up in the
+# file sections the CLI prints below the final answer.
+FILE_TOOL_ACTIONS = {
+    'write_file': ('file_path', 'added'),
+    'edit_file': ('file_path', 'modified'),
+    'delete_file': ('file_path', 'removed'),
+    'create_directory': ('directory_path', 'added'),
 }
 
 
@@ -187,18 +187,19 @@ class DandyCli:
         stop_signal.clear()
 
         succeeded = True
-        edited_files: list[str] = []
+        file_actions: dict[str, str] = {}
 
         def record_tool_call(name: str, arguments: dict[str, object]) -> None:
-            param = EDITED_FILE_TOOL_PARAMS.get(name)
+            entry = FILE_TOOL_ACTIONS.get(name)
 
-            if param is None:
+            if entry is None:
                 return
 
+            param, action = entry
             path = arguments.get(param)
 
-            if isinstance(path, str) and path and path not in edited_files:
-                edited_files.append(path)
+            if isinstance(path, str) and path:
+                file_actions[path] = action
 
         try:
             result_intel = tui.printer.run_timed_task(
@@ -220,9 +221,13 @@ class DandyCli:
             tui.printer.error(error='Dandy ran into an error', description=str(error))
             succeeded = False
         else:
-            tui.printer.green_divider()
-            tui.printer.edited_files(edited_files)
+            added_files = [path for path, action in file_actions.items() if action == 'added']
+            modified_files = [path for path, action in file_actions.items() if action == 'modified']
+            removed_files = [path for path, action in file_actions.items() if action == 'removed']
+
+            tui.printer.bold_green_divider()
             tui.printer.output(result_intel.text)
+            tui.printer.file_change_sections(added_files, modified_files, removed_files)
         finally:
             self._save_session_after_turn(user_input)
 
@@ -281,7 +286,7 @@ class DandyCli:
             )
             return False
 
-        tui.printer.green_divider()
+        tui.printer.bold_green_divider()
         tui.printer.output(summary)
         tui.printer.output(
             f'Wrote {AGENTS_MD_FILE_NAME} ({session.agents_md_path.stat().st_size} bytes); '
@@ -313,4 +318,4 @@ class DandyCli:
             if not self.process_user_input(user_input):
                 break
 
-        tui.printer.green_divider()
+        tui.printer.bold_green_divider()

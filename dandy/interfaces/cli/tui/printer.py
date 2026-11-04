@@ -1,5 +1,4 @@
 import random
-import re
 import sys
 import threading
 from pathlib import Path
@@ -13,6 +12,7 @@ from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
+from dandy.interfaces.cli.tui.text import linkify_file_paths
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.constants import AGENTS_MD_FILE_NAME, __VERSION__
@@ -46,47 +46,6 @@ def format_verbose_duration(seconds: float) -> str:
         parts.append(f'{secs} second{"s" if secs != 1 else ""}')
 
     return ''.join(parts) if len(parts) == 1 else ' and '.join(parts)
-
-
-_PATH_WORD_RE = re.compile(r'[A-Za-z0-9._~/-]+')
-_FILE_EXTENSION_RE = re.compile(r'\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$')
-
-
-def _is_path_token(word: str) -> bool:
-    if not _PATH_WORD_RE.fullmatch(word):
-        return False
-
-    if word in ('.', '..') or word.startswith('-'):
-        return False
-
-    return '/' in word or bool(_FILE_EXTENSION_RE.search(word))
-
-
-def linkify_file_paths(description: str) -> str:
-    """Wrap the file paths in a beat's description in clickable OSC 8 links.
-
-    A whitespace-separated word is linked when it uses only path-safe
-    characters, is not a dash flag or `.`/`..`, and either contains a `/` or
-    ends in a dotted extension with a letter (so `src/foo.py` links while
-    `lines`, `1-10`, `-q`, and `1.0.5` do not). Relative paths resolve against
-    the session's project base path. The sequences are raw OSC 8 because
-    blessed's `hyperlink` terminfo capability is unavailable.
-    """
-
-    def linkify(word_match: re.Match[str]) -> str:
-        word = word_match.group(0)
-
-        if not _is_path_token(word):
-            return word
-
-        path = Path(word).expanduser()
-
-        if not path.is_absolute():
-            path = session.project_base_path / path
-
-        return f'\x1b]8;;{path.as_uri()}\x1b\\{word}\x1b]8;;\x1b\\'
-
-    return re.sub(r'\S+', linkify, description)
 
 
 EVALUATING_PHRASE_CHANGE_SECONDS = 3.0
@@ -377,27 +336,27 @@ class Printer:
         self.term = terminal
         self.markdown_renderer = MarkdownRenderer(terminal)
 
-    def blue_divider(self):
+    def bold_blue_divider(self):
         print(self.term.bold_blue('─' * self.term.width), flush=True)
 
+    def blue_divider(self):
+        print(self.term.blue('─' * self.term.width), flush=True)
+
     def purple_divider(self):
-        print(self.term.bold_purple('─' * self.term.width), flush=True)
+        print(self.term.purple('─' * self.term.width), flush=True)
 
-    def divider(self):
+    def bold_grey_divider(self):
         print(self.term.bold_grey('─' * self.term.width), flush=True)
 
-    def grey_divider(self):
-        print(self.term.bold_grey('─' * self.term.width), flush=True)
-
-    def green_divider(self):
+    def bold_green_divider(self):
         print(self.term.bold_green('─' * self.term.width), flush=True)
 
-    def red_divider(self):
+    def bold_red_divider(self):
         print(self.term.bold_red('─' * self.term.width), flush=True)
 
     def welcome(self):
         print(self.term.bold_blue(f'\n{DANDY_ASCII}\n'))
-        self.blue_divider()
+        self.bold_blue_divider()
         print(self.term.bold_blue('Version      : ') + __VERSION__)
         print(
             self.term.bold_blue('Model        : ') + LlmConfig(get_cli_llm_config('CODING')).model
@@ -582,22 +541,38 @@ class Printer:
             sleep(0.02)
             print(line)
 
-    def edited_files(self, paths: list[str]) -> None:
-        """Print the turn's edited-file list above the final answer.
+    def file_change_sections(
+        self, added_files: list[str], modified_files: list[str], removed_files: list[str]
+    ) -> None:
+        """Print the turn's file sections below the final answer.
 
-        A bold grey 'Edited files:' heading followed by one bulleted,
-        clickable file:// link per path; prints nothing when the list is
-        empty.
+        One section per non-empty action, in the order Added Files, Modified
+        Files, Removed Files: a bold blue title, a thin blue bottom border,
+        one line per path with the action-colored bullet (green added, blue
+        modified, red removed) beside a clickable file:// link, and an empty
+        line before each section; prints nothing when every list is empty.
         """
-        if not paths:
-            return
+        sections = (
+            ('Added Files', added_files, self.term.green),
+            ('Modified Files', modified_files, self.term.blue),
+            ('Removed Files', removed_files, self.term.red),
+        )
 
-        print(f'{self.term.bold_grey}Edited files:{self.term.normal}')
+        for title, paths, bullet_style in sections:
+            if not paths:
+                continue
 
-        for path in paths:
-            print(f'{self.term.normal}• {linkify_file_paths(path)}')
+            print()
+            print(f'{self.term.bold_blue}{title}{self.term.normal}')
+            print(self.term.blue('─' * self.term.width))
+
+            for path in paths:
+                print(
+                    f'{self.term.normal}{bullet_style}•{self.term.normal} '
+                    f'{linkify_file_paths(path)}'
+                )
 
     def error(self, error: str, description: str):
         self.event(text=f'\n{self.term.red}Error: {self.term.normal}{error} !!!')
-        self.red_divider()
+        self.bold_red_divider()
         print(f'{description}')

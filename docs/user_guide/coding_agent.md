@@ -108,6 +108,14 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
   an agent question is on screen: double escape skips the answer and stops
   the run.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
+- File paths are clickable: a tool beat's description, the final answer's prose
+  (paragraphs, headings, list items, table cells, blockquotes, and inline code
+  spans), and the file-change sections below the final answer (one
+  `Added Files` / `Modified Files` / `Removed Files` section per non-empty
+  action when file tools ran, each file a clickable link under a bold blue
+  heading with a thin blue border) all render them as OSC 8 `file://` links
+  (resolved against the project root), so clicking one opens the file with the
+  OS default handler. Fenced code blocks are never linked.
 
 ## Sessions
 
@@ -115,7 +123,7 @@ The REPL's conversation is persisted automatically: after every turn the agent's
 history is saved under the project at `.dandy/agent/sessions/<name>.json` (the
 agent-neutral `agent/` directory, not `cli/`, so any agent over the same project
 shares the location). The first turn names the session after your request
-(`YYYY-MM-DD-<slug>`, e.g. `2026-10-31-fix-the-login-bug`; collisions get `-2`,
+(`YYYY-MM-DD-HH-MM-<slug>`, e.g. `2026-10-31-14-05-fix-the-login-bug`; collisions get `-2`,
 `-3`, ...), and later turns update the same file. The welcome banner always shows
 a session-status line (how many are saved and how to resume the latest).
 

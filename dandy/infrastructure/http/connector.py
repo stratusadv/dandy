@@ -16,6 +16,7 @@ class HttpConnector(BaseConnector):
         response_intel: HttpResponseIntel = HttpResponseIntel(
             status_code=0, reason='Unknown Reasons or Connection Timeouts', text='', json_data={}
         )
+        last_error: requests.exceptions.RequestException | None = None
 
         for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
             if stop_signal.is_set():
@@ -27,12 +28,18 @@ class HttpConnector(BaseConnector):
                 if response_intel.status_code in (200, 201):
                     return response_intel
 
-            except requests.exceptions.Timeout:
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as error:
+                last_error = error
                 continue
+
+        reason = response_intel.reason
+
+        if last_error is not None and response_intel.status_code == 0:
+            reason = f'{type(last_error).__name__}: {last_error}'
 
         message = (
             f'HttpConnector request failed with status code {response_intel.status_code} '
-            f'and the following message "{response_intel.reason}" '
+            f'and the following message "{reason}" '
             f'and body text "{response_intel.text}" '
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )

@@ -49,6 +49,30 @@ class TestHttpConnector(TestCase):
         self.assertEqual(mock_to_response.call_count, 3)
 
     @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_retries_connection_errors_then_succeeds(
+        self, mock_to_response: mock.MagicMock
+    ) -> None:
+        mock_to_response.side_effect = [
+            requests.exceptions.ConnectionError('Connection reset by peer'),
+            requests.exceptions.SSLError('certificate verify failed'),
+            response(200),
+        ]
+
+        result = HttpConnector.request_to_response(self.make_request_intel())
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(mock_to_response.call_count, 3)
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_non_network_request_errors_fail_fast(self, mock_to_response: mock.MagicMock) -> None:
+        mock_to_response.side_effect = requests.exceptions.InvalidURL('No host supplied')
+
+        with self.assertRaises(requests.exceptions.InvalidURL):
+            HttpConnector.request_to_response(self.make_request_intel())
+
+        self.assertEqual(mock_to_response.call_count, 1)
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_retries_non_2xx_then_succeeds(self, mock_to_response: mock.MagicMock) -> None:
         mock_to_response.side_effect = [response(500), response(503), response(200)]
 
@@ -69,6 +93,46 @@ class TestHttpConnector(TestCase):
         self.assertEqual(mock_to_response.call_count, 5)
         self.assertIn('after 4 attempts', str(context.exception))
         self.assertIn('status code 0', str(context.exception))
+        self.assertIn('Timeout', str(context.exception))
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_connection_error_exhaustion_reports_the_last_error(
+        self, mock_to_response: mock.MagicMock
+    ) -> None:
+        mock_to_response.side_effect = requests.exceptions.ConnectionError(
+            "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+        )
+
+        with self.assertRaises(HttpConnectorRecoverableError) as context:
+            HttpConnector.request_to_response(self.make_request_intel())
+
+        self.assertEqual(mock_to_response.call_count, 5)
+        message = str(context.exception)
+        self.assertIn('status code 0', message)
+        self.assertIn('ConnectionError', message)
+        self.assertIn('Connection reset by peer', message)
+        self.assertIn('after 4 attempts', message)
+
+    @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
+    def test_late_connection_error_keeps_the_last_response_in_the_error(
+        self, mock_to_response: mock.MagicMock
+    ) -> None:
+        mock_to_response.side_effect = [
+            response(500, reason='Server Error', text='Bad Day'),
+            requests.exceptions.ConnectionError('Connection reset by peer'),
+            requests.exceptions.ConnectionError('Connection reset by peer'),
+            requests.exceptions.ConnectionError('Connection reset by peer'),
+            requests.exceptions.ConnectionError('Connection reset by peer'),
+        ]
+
+        with self.assertRaises(HttpConnectorRecoverableError) as context:
+            HttpConnector.request_to_response(self.make_request_intel())
+
+        self.assertEqual(mock_to_response.call_count, 5)
+        message = str(context.exception)
+        self.assertIn('status code 500', message)
+        self.assertIn('"Server Error"', message)
+        self.assertIn('"Bad Day"', message)
 
     @mock.patch('dandy.infrastructure.http.intel.HttpRequestIntel.to_http_response_intel')
     def test_non_2xx_exhaustion_error_includes_response_details(

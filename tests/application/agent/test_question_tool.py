@@ -53,9 +53,5 @@ class TestQuestionToolHandle(TestCase):
         self.assertEqual(tool.handle('What should I call it?'), 'free text')
         self.assertEqual(seen, [('What should I call it?', [])])
 
-    def test_action_output_is_the_question_text(self) -> None:
-        tool = QuestionTool()
-
-        self.assertEqual(tool.action_output(question='Which color?'), 'Which color?')
-        self.assertIsNone(tool.action_output(question=''))
-        self.assertIsNone(tool.action_output())
+    def test_question_tool_does_not_emit_a_story_beat(self) -> None:
+        self.assertFalse(QuestionTool.emits_story_beat)

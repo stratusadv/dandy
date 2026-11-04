@@ -16,7 +16,7 @@ from dandy.shared.constants import (
 from dandy.shared.files import read_from_file, remove_file, write_to_file
 
 SESSION_NAME_SLUG_CHARACTER_LIMIT = 40
-SESSION_DATE_FORMAT = '%Y-%m-%d'
+SESSION_DATE_FORMAT = '%Y-%m-%d-%H-%M'
 
 
 class SessionStore:

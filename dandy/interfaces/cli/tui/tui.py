@@ -3,7 +3,9 @@ import sys
 from blessed import Terminal
 from blessed.keyboard import Keystroke
 
+from dandy.application.agent.tools.question.question_tool import QuestionTool
 from dandy.interfaces.cli.tui.printer import Printer
+from dandy.interfaces.cli.tui.text import linkify_file_paths
 
 tui_terminal = Terminal()
 
@@ -27,7 +29,12 @@ class Tui:
     ) -> str | None:
         if question:
             self._input_prefix = self.term.purple('⦿ ')
-            self.printer.event(text=f'{self.term.purple}Question: {self.term.normal}{question}')
+            self.printer.event(
+                text=f'\n{self.term.purple}{QuestionTool.action_label}{self.term.normal}'
+            )
+            self.printer.event(
+                text=f'{self.term.purple}↳{self.term.normal} {linkify_file_paths(question)}'
+            )
 
             for index, choice in enumerate(choices or [], start=1):
                 self.printer.event(text=f'{self.term.purple}{index}){self.term.normal} {choice}')
@@ -36,7 +43,7 @@ class Tui:
 
         else:
             self._input_prefix = self.term.bold_blue('⦿ ')
-            self.printer.blue_divider()
+            self.printer.bold_blue_divider()
 
         self._buffer = []
         self._escape_count = 0
@@ -72,7 +79,9 @@ class Tui:
                     self._process_key(key)
 
         if question:
-            self.printer.divider()
+            self.printer.purple_divider()
+        else:
+            self.printer.blue_divider()
 
         if self._escape_exit:
             sys.stdout.write('\n')

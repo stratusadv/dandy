@@ -46,7 +46,7 @@ Verified 2026-11-03, live tree (branch `v3/base`):
   error strings instead of raising (`@tool_error`).
 - `linkify_file_paths` (printer.py:66-90) is module-level, resolves relative
   paths against `session.project_base_path`, and is already importable in
-  tests; `Printer` (printer.py:195+) has `event`/`output`/`green_divider` and
+  tests; `Printer` (printer.py:195+) has `event`/`output`/`bold_green_divider` and
   takes a `Terminal`.
 - Test patterns verified: `tests/application/tool/test_service.py`
   (`mock.patch('...HttpConnector.request_to_response')` +
@@ -56,7 +56,7 @@ Verified 2026-11-03, live tree (branch `v3/base`):
   `tests/application/agent/test_agent.py` (`Agent(ToolBot(), tools=[WeatherTool()])`,
   `WeatherTool.handle(location: str = '', units: str = 'celsius')`);
   `tests/interfaces/cli/test_cli.py` (patches `CodingAgent.turn`,
-  `tui.printer.output`/`green_divider`, `session.project_base_path` →
+  `tui.printer.output`/`bold_green_divider`, `session.project_base_path` →
   TemporaryDirectory); `tests/interfaces/cli/test_printer.py` (mock
   `builtins.print`, `Terminal(force_styling='default')`).
 - `docs/reference/application.md` lists `Agent`/`ToolService` members

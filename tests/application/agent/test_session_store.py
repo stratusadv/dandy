@@ -99,12 +99,12 @@ class TestSessionStore(TestCase):
     def test_new_name_slugifies_request_text(self) -> None:
         name = self.store.new_name('Fix the Login, Bug!')
 
-        self.assertEqual(name, f'{datetime.now(UTC).strftime("%Y-%m-%d")}-fix-the-login-bug')
+        self.assertEqual(name, f'{datetime.now(UTC).strftime("%Y-%m-%d-%H-%M")}-fix-the-login-bug')
 
     def test_new_name_falls_back_for_empty_slug(self) -> None:
         name = self.store.new_name('!!!')
 
-        self.assertEqual(name, f'{datetime.now(UTC).strftime("%Y-%m-%d")}-session')
+        self.assertEqual(name, f'{datetime.now(UTC).strftime("%Y-%m-%d-%H-%M")}-session')
 
     def test_new_name_avoids_collisions(self) -> None:
         base_name = self.store.new_name('Fix the login bug.')

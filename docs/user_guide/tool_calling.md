@@ -35,7 +35,11 @@ class GetWeatherTool(BaseTool):
   without an output override, the label stands alone. The `can_mutate_state`
   class attribute (default `False`) marks tools that can change state; the CLI
   renders their beat labels in bold orange instead of grey, and the fixed `↳`
-  arrow that prefixes each tool beat line is colored like the label.
+  arrow that prefixes each tool beat line is colored like the label. The
+  `emits_story_beat` class attribute (default `True`) suppresses the execution
+  beat entirely for a tool that renders its own story while it runs; the CLI's
+  `question` tool sets it `False` because the interactive prompt that renders
+  while it waits is the display of the action.
 
 ## The execute-and-loop
 
@@ -72,7 +76,8 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
 - A `progress_callback` (typed `Callable[[StoryBeat], None]`) gets a `StoryBeat`
   per event: one for the model's narration sentence (when it wrote one, a
   description-only beat marked `kind='narration'`), and one per executed tool
-  carrying the tool's `action_label` as `label`, its
+  that emits a story beat (a tool sets `emits_story_beat = False` to render its
+  own story instead of a beat), carrying the tool's `action_label` as `label`, its
   `action_output(**validated_args)` result as `description`, and its
   `can_mutate_state` flag as `can_mutate_state`. Compaction notices are description-only
   beats too. The split exists so a UI can style the parts independently (the CLI
@@ -103,8 +108,9 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   per executed tool call with the tool name and its validated keyword arguments — after
   the `handle()` / `tool_function` dispatch, so a call whose arguments fail validation
   never fires it. `Agent.turn` and `Agent.run` accept and forward it; the CLI uses it to
-  collect the paths its file tools touched and print an `Edited files:` block (clickable
-  links) above the final answer.
+  track the paths its file tools touched and the action taken (`write_file` /
+  `create_directory` → added, `edit_file` → modified, `delete_file` → removed) and print
+  file-change sections (clickable links) below the final answer.
 
 ## Subprocess tools
 

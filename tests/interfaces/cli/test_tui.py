@@ -1,5 +1,7 @@
 from unittest import TestCase, mock
 
+from blessed import Terminal
+
 from dandy.interfaces.cli.tui.tui import tui
 
 
@@ -81,7 +83,9 @@ class TestTuiChoices(TestCase):
         self.assertEqual(result, '1')
 
     @mock.patch('sys.stdout.write')
-    def test_choices_are_printed_numbered_under_the_question(self, mock_write) -> None:
+    def test_choices_are_printed_numbered_under_the_question(
+        self, mock_write: mock.MagicMock
+    ) -> None:
         with mock.patch.object(tui.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
             result = tui.get_user_input(question='Which color?', choices=['red', 'blue'])
 
@@ -91,6 +95,79 @@ class TestTuiChoices(TestCase):
             str(call.args[0]) for call in self.mock_print.call_args_list if call.args
         )
 
-        self.assertIn('Question: Which color?', printed)
+        self.assertIn('Which color?', printed)
+        self.assertIn('Asking', printed)
+        self.assertIn('↳', printed)
         self.assertIn('1) red', printed)
         self.assertIn('2) blue', printed)
+        self.assertNotIn('Question: ', printed)
+
+
+class TestTuiQuestionPrompt(TestCase):
+    def setUp(self) -> None:
+        self.term = Terminal(force_styling='default')
+        self.term_patch = mock.patch.object(tui, 'term', self.term)
+        self.term_patch.start()
+        self.addCleanup(self.term_patch.stop)
+
+        self.printer_term_patch = mock.patch.object(tui.printer, 'term', self.term)
+        self.printer_term_patch.start()
+        self.addCleanup(self.printer_term_patch.stop)
+
+        self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
+        self.cbreak_patch.start()
+        self.addCleanup(self.cbreak_patch.stop)
+
+        self.print_patch = mock.patch('builtins.print')
+        self.mock_print = self.print_patch.start()
+        self.addCleanup(self.print_patch.stop)
+
+    def _printed_lines(self) -> list[str]:
+        return [str(call.args[0]) for call in self.mock_print.call_args_list if call.args]
+
+    @mock.patch('sys.stdout.write')
+    def test_question_prints_label_then_arrow_and_question_on_one_line(
+        self, mock_write: mock.MagicMock
+    ) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
+            result = tui.get_user_input(question='Which color?', choices=['red', 'blue'])
+
+        self.assertIsNone(result)
+
+        printed = self._printed_lines()
+        term = self.term
+
+        self.assertEqual(len(printed), 6)
+        self.assertEqual(
+            printed[0], f'{term.normal}\n{term.purple}Asking{term.normal}{term.normal}'
+        )
+        self.assertEqual(
+            printed[1], f'{term.normal}{term.purple}↳{term.normal} Which color?{term.normal}'
+        )
+        self.assertIn('1)', printed[2])
+        self.assertIn('red', printed[2])
+        self.assertIn('2)', printed[3])
+        self.assertIn('blue', printed[3])
+        self.assertEqual(printed[4], term.purple('─' * term.width))
+        self.assertEqual(printed[5], term.purple('─' * term.width))
+        mock_write.assert_any_call(term.purple('⦿ '))
+
+    @mock.patch('sys.stdout.write')
+    def test_question_label_and_arrow_are_plain_purple_and_text_is_plain_black(
+        self, mock_write: mock.MagicMock
+    ) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
+            tui.get_user_input(question='Which color?', choices=['red', 'blue'])
+
+        full = '\n'.join(self._printed_lines())
+        term = self.term
+
+        self.assertIn(f'{term.purple}Asking', full)
+        self.assertIn(f'{term.purple}↳{term.normal} Which color?', full)
+        self.assertIn(f'{term.purple}1)', full)
+        self.assertIn(f'{term.purple}2)', full)
+        self.assertNotIn(term.bold_purple, full)
+        self.assertNotIn(term.bold_skyblue, full)
+        self.assertNotIn(term.bold_grey, full)
+        self.assertNotIn(term.bold_orange, full)
+        mock_write.assert_any_call(term.purple('⦿ '))

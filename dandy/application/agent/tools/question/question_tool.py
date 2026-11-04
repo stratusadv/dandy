@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 from dandy.domain.tool.tool import BaseTool
 
@@ -17,6 +17,7 @@ class QuestionTool(BaseTool):
     )
 
     action_label = 'Asking'
+    emits_story_beat = False
 
     NO_USER_ANSWER = (
         'No user is available to answer right now. Make a reasonable decision, '
@@ -26,10 +27,6 @@ class QuestionTool(BaseTool):
     def __init__(self, ask_user: QuestionHandler | None = None) -> None:
         self.ask_user = ask_user
         super().__init__()
-
-    def action_output(self, **kwargs: Any) -> str | None:
-        question = kwargs.get('question')
-        return question if isinstance(question, str) and question else None
 
     def handle(self, question: str, choices: list[str] | None = None) -> str:
         if self.ask_user is None:

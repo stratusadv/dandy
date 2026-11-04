@@ -37,6 +37,10 @@ class MutatingWeatherTool(WeatherTool):
     can_mutate_state = True
 
 
+class NoStoryBeatWeatherTool(WeatherTool):
+    emits_story_beat = False
+
+
 class RecordingWeatherTool(WeatherTool):
     def handle(self, location: str = '', units: str = 'celsius') -> str:
         self._received_kwargs.append({'location': location, 'units': units})
@@ -188,6 +192,28 @@ class TestToolService(TestCase):
         )
 
         self.assertEqual(progress_steps, [StoryBeat(label='Get Weather', description='')])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_skips_tool_beats_when_emits_story_beat_is_false(
+        self, mock_post_request
+    ):
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "San Francisco"}'),
+            content_response('{"text": "Sunny and 70 degrees."}'),
+        ]
+
+        progress_steps = []
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in San Francisco?',
+            intel_class=FinalAnswerIntel,
+            tools=[NoStoryBeatWeatherTool],
+            progress_callback=progress_steps.append,
+        )
+
+        self.assertEqual(progress_steps, [])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_summary_sentences(self, mock_post_request):

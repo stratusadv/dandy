@@ -96,11 +96,11 @@ def main() -> int:
 
             print()
 
-            tui.printer.grey_divider()
+            tui.printer.bold_grey_divider()
 
             print(arg_term.bold_blue('\U0001f3a9 Dandy'))
 
-            tui.printer.blue_divider()
+            tui.printer.bold_blue_divider()
 
             if is_init_request:
                 exit_code = 0 if cli.run_init() else 1
@@ -119,7 +119,7 @@ def main() -> int:
         print(crash_term.red(f'Dandy failed: {error}'))
         return 1
 
-    tui.printer.grey_divider()
+    tui.printer.bold_grey_divider()
 
     print()
 

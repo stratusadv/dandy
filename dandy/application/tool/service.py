@@ -270,7 +270,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
 
         arguments_kwargs = arguments_intel.model_dump()
 
-        if progress_callback is not None:
+        if progress_callback is not None and tool.emits_story_beat:
             label = tool.action_label or pascal_to_title_case(tool_call.name)
             description = tool.action_output(**arguments_kwargs) or ''
             progress_callback(

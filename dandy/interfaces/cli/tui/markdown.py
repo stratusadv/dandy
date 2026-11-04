@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, cast
 
+from dandy.interfaces.cli.tui.text import linkify_file_paths
+
 if TYPE_CHECKING:
     from blessed import Terminal
 
@@ -371,7 +373,8 @@ class MarkdownRenderer:
 
     def _apply_inline(self, text: str) -> str:
         unescaped = self._INLINE_ESCAPE_PATTERN.sub(r'\1', text)
-        return self._INLINE_PATTERN.sub(self._style_inline, unescaped)
+        linkified = linkify_file_paths(unescaped)
+        return self._INLINE_PATTERN.sub(self._style_inline, linkified)
 
     def _style_inline(self, match: re.Match[str]) -> str:
         name, value = next(
@@ -379,13 +382,13 @@ class MarkdownRenderer:
         )
 
         if name == 'code':
-            styled = self.term.yellow(value[1:-1])
+            styled = self.term.yellow(linkify_file_paths(value[1:-1]))
         elif name == 'bold':
-            styled = self.term.bold(value[2:-2])
+            styled = self.term.bold(linkify_file_paths(value[2:-2]))
         elif name == 'strike':
-            styled = self.term.strikethrough(value[2:-2])
+            styled = self.term.strikethrough(linkify_file_paths(value[2:-2]))
         elif name == 'italic':
-            styled = self.term.italic(value[1:-1])
+            styled = self.term.italic(linkify_file_paths(value[1:-1]))
         elif name == 'link':
             label, url = value[1:-1].split('](', 1)
             styled = self._styled_link(label, url.rstrip(')'))
@@ -401,11 +404,12 @@ class MarkdownRenderer:
 
     def _styled_link(self, label: str, url: str) -> str:
         term = self.term
+        styled_label = term.underline(linkify_file_paths(label))
 
         if not url or url.startswith('#') or url == label:
-            return term.underline(label)
+            return styled_label
 
-        return f'{term.underline(label)} {term.dim(url)}'
+        return f'{styled_label} {term.dim(url)}'
 
     @staticmethod
     def _bullet_for(marker: str) -> str:

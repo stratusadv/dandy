@@ -1,9 +1,12 @@
 import contextlib
 import io
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from blessed import Terminal
 
+from dandy.application.agent.session import session
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
 from dandy.interfaces.cli.tui.printer import Printer
 
@@ -119,6 +122,79 @@ class TestMarkdownRenderer(TestCase):
         self.assertLess(rendered.index('Build'), rendered.index('make'))
         self.assertLess(rendered.index('make'), rendered.index('echo ok'))
         self.assertLess(rendered.index('echo ok'), rendered.index('Done.'))
+
+
+class TestMarkdownFileLinks(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.project_base_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.project_base_path
+        self.renderer = MarkdownRenderer(Terminal(force_styling='default'), width=40)
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    def _expected_link(self, relative_path: str) -> str:
+        expected_uri = (self.project_base_path / relative_path).as_uri()
+        return f'\x1b]8;;{expected_uri}\x1b\\{relative_path}\x1b]8;;\x1b\\'
+
+    def test_paragraph_path_is_linked(self) -> None:
+        rendered = self.renderer.render('I edited src/foo.py today.')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_inline_code_span_path_is_linked(self) -> None:
+        rendered = self.renderer.render('I edited `src/foo.py` today.')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_bold_span_path_is_linked(self) -> None:
+        rendered = self.renderer.render('**src/foo.py** was touched.')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_list_item_path_is_linked(self) -> None:
+        rendered = self.renderer.render('- touched src/foo.py')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_table_cell_path_is_linked(self) -> None:
+        rendered = self.renderer.render('| file |\n| --- |\n| src/foo.py |')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_heading_path_is_linked(self) -> None:
+        rendered = self.renderer.render('## Changes to src/foo.py')
+
+        self.assertIn(self._expected_link('src/foo.py'), rendered)
+
+    def test_url_is_not_linked(self) -> None:
+        rendered = self.renderer.render('See https://example.com/docs for details.')
+
+        self.assertNotIn('\x1b]8;;', rendered)
+        self.assertIn('https://example.com/docs', rendered)
+
+    def test_fenced_code_block_is_not_linked(self) -> None:
+        rendered = self.renderer.render('```\nfrom src.stockroom.ops import run\n```')
+
+        self.assertNotIn('\x1b]8;;', rendered)
+        self.assertIn('src.stockroom.ops', rendered)
+
+    def test_wrapped_paragraph_keeps_links_intact(self) -> None:
+        long_paragraph = ' '.join(f'src/file{i}.py' for i in range(10)) + ' and more words here'
+
+        rendered = self.renderer.render(long_paragraph)
+        lines = rendered.splitlines()
+
+        self.assertGreater(len(lines), 1)
+
+        for line in lines:
+            self.assertEqual(line.count('\x1b]8;;file'), line.count('\x1b]8;;\x1b\\'))
+
+        for index in range(10):
+            self.assertIn(f'src/file{index}.py', '\n'.join(lines))
 
 
 class TestPrinterMarkdownOutput(TestCase):
