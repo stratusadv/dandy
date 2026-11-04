@@ -30,8 +30,8 @@ the [coding agent](../user_guide/coding_agent.md)'s `turn` is one such interacti
 ```text
 turn(message)
   │  1. stop-signal check (double-escape) → RunStoppedError
-  │  2. _prepare_message(message)          ← subclass hook (the coding agent's
-  │                                          planning pass runs here)
+  │  2. _prepare_message(message)          ← subclass hook (a plain pass-through
+  │                                          for the coding agent)
   │  3. _compact_history_for_next_message  ← history over 80% of the window?
   │                                          compact down to 70% (minus the
   │                                          incoming message's tokens)
@@ -139,21 +139,10 @@ appending the entry when missing; non-git directories are untouched.
 ## The CodingAgent
 
 `CodingAgent` (`dandy/application/agent/coding_agent.py`) is the CLI's child of
-`Agent`: `bot=CodingBot()`, `tools=AGENT_TOOLS`, `intel_class=DefaultIntel`. Its one
-override is `_prepare_message`, which runs the **planning pass** before the coding
-turn:
-
-1. `planning_bot.reset()` — every turn gets a *fresh* planning conversation. The
-   coding history already carries the full context, and prior turns' plans would only
-   add stale material to the new plan.
-2. A `Planning` story beat is emitted for the TUI.
-3. The planning bot (a THINKING-config model) explores the project with the same
-   `AGENT_TOOLS` and returns a concise, actionable plan.
-4. The plan is folded into the turn's prompt under an **Implementation Plan** heading,
-   so the coding model works from an explicit step list.
-
-`CodingAgent(run_planning=False)` skips the pass entirely. Two more methods manage the
-project's `AGENTS.md`:
+`Agent`: `bot=CodingBot()`, `tools=AGENT_TOOLS` plus the `question` tool,
+`intel_class=DefaultIntel`. It is a plain child — the turn (compaction, the fit check,
+the tool loop) and session save/load come from the base class unchanged. Two methods
+manage the project's `AGENTS.md`:
 
 - **`reload_agents_md()`** — re-reads the file and re-syncs it into the running
   conversation: rebuilds the bot's guidelines, the connector's system message, and the
@@ -167,19 +156,18 @@ project's `AGENTS.md`:
 
 ## The bots
 
-Four `Bot` subclasses in `dandy/application/agent/bots/`, each a plain class-attribute
+Three `Bot` subclasses in `dandy/application/agent/bots/`, each a plain class-attribute
 configuration of the [service pattern](service_pattern.md):
 
 | Bot | Role | LLM config | Purpose |
 |---|---|---|---|
 | `CodingBot` | Senior Software Engineer | `CODING` | the workhorse: implements the request with `AGENT_TOOLS` |
-| `PlanningBot` | Planning Engineer | `THINKING` | the per-turn planning pass (fresh conversation each time) |
 | `InitBot` | Project Documentation Engineer | `CODING` | the AGENTS.md generation pass |
 | `SessionNamingBot` | Session Naming Assistant | `SIMPLE` | 8–10 word session titles (`SessionNameIntel`) |
 
 Config names resolve through `get_cli_llm_config` (the settings `CLI_CONFIG` map,
-falling back to `DEFAULT`). `CodingBot` and `PlanningBot` fold the project's
-`AGENTS.md` into their guidelines as a **Project Instructions** section
+falling back to `DEFAULT`). `CodingBot` folds the project's
+`AGENTS.md` into its guidelines as a **Project Instructions** section
 (`dandy/application/agent/agents_md.py`: `read_agents_md` + `agents_md_section`), so
 the file is part of the system message for every turn. `InitBot` deliberately does not
 — it is the bot that *writes* the file.
@@ -274,7 +262,7 @@ The save is in a `finally` block on purpose: a turn saves regardless of outcome
   the tool loop, the LLM connector, and any running subprocess all poll it at safe
   checkpoints and stop. At the prompt, escape twice exits the REPL.
 - **The TUI:** story beats from the `progress_callback` render the running narrative
-  (planning, compaction, each tool execution); the final answer renders through the
+  (compaction, each tool execution); the final answer renders through the
   dependency-free `MarkdownRenderer`. `DEBUG = True` in settings adds one verbose line
   per tool-round event.
 

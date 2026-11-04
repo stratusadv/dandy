@@ -1,73 +1,101 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from .data import Item
+from .pricing import line_value, round_money
 
 
 class InsufficientStock(Exception):
     pass
 
 
-def find_item(items, sku):
+class AttributeConflict(Exception):
+    pass
+
+
+def find_row(items, sku, location):
     for item in items:
-        if item.sku == sku:
+        if item.sku == sku and item.location == location:
             return item
     return None
 
 
-def add_stock(items, sku, name, location, count, unit_price):
-    """Add stock for a SKU.
+def sku_rows(items, sku):
+    return [item for item in items if item.sku == sku]
 
-    If the SKU already exists, merge: count is summed with the new amount
-    and location/unit_price are updated to the new values.
+
+def add_stock(items, sku, name, location, count, unit_price):
+    """Add `count` units of `sku` at `location`.
+
+    The name and unit price must match the SKU's existing attributes when the
+    SKU is already known.
     """
-    existing = find_item(items, sku)
-    if existing is None:
+    existing = sku_rows(items, sku)
+    if existing:
+        reference = existing[0]
+        if name != reference.name:
+            raise AttributeConflict(f'conflicting name for {sku}')
+        if unit_price != reference.unit_price:
+            raise AttributeConflict(f'conflicting price for {sku}')
+    row = find_row(items, sku, location)
+    if row is None:
         items.append(Item(sku, name, location, count, unit_price))
         return
-    existing.count = count
-    existing.location = location
-    existing.unit_price = unit_price
+    row.count = count
 
 
-def remove_stock(items, sku, amount):
-    """Remove `amount` units of a SKU.
+def remove_stock(items, sku, amount, location=None):
+    """Remove `amount` units of `sku`.
 
-    Allowed when amount <= the current count; the count may reach exactly 0.
-    Raises InsufficientStock on unknown SKU or when amount > current count
-    (no mutation in that case).
+    When location is None, units are removed from the lexicographically first
+    location holding stock. Raises InsufficientStock on unknown SKU, no stock
+    at the location, or an amount the location cannot cover.
     """
-    item = find_item(items, sku)
-    if item is None:
+    stocked = [item for item in sku_rows(items, sku) if item.count > 0]
+    if location is None and not stocked:
         raise InsufficientStock(f'unknown sku: {sku}')
-    if amount >= item.count:
-        raise InsufficientStock(f'not enough of {sku}')
-    item.count -= amount
+    if location is None:
+        location = min(item.location for item in stocked)
+    row = find_row(items, sku, location)
+    if row is None or row.count <= 0:
+        raise InsufficientStock(f'no stock of {sku} at {location}')
+    if amount >= row.count:
+        raise InsufficientStock(f'not enough of {sku} at {location}')
+    row.count -= amount
 
 
-def move_stock(items, sku, to_location):
-    """Move all units of a SKU to a new location. The count is unchanged."""
-    item = find_item(items, sku)
-    if item is None:
-        raise InsufficientStock(f'unknown sku: {sku}')
-    item.location = to_location
+def move_stock(items, sku, from_location, to_location):
+    """Move all units of (sku, from_location) to (sku, to_location)."""
+    row = find_row(items, sku, from_location)
+    if row is None or row.count <= 0:
+        raise InsufficientStock(f'no stock of {sku} at {from_location}')
+    items.append(Item(sku, row.name, to_location, row.count, row.unit_price))
+    row.count = 0
 
 
 def total_value(items, location=None):
-    """Sum of count * unit_price, rounded to 2 decimals.
+    """Exact total value, rounded once to 2 decimals.
 
-    When location is given, only items at that location are counted.
+    When location is given, only rows at that location are counted.
     """
-    total = 0.0
+    total = Decimal(0)
     for item in items:
         if location is not None and item.location != location:
             continue
-        total += int(item.count * item.unit_price)
-    return round(total, 2)
+        total += line_value(item.count, item.unit_price)
+    return round_money(total)
+
+
+def sku_total(items, sku):
+    """Total count of `sku` across all locations (0 when unknown)."""
+    return sum(item.count for item in sku_rows(items, sku))
 
 
 def low_stock(items, threshold):
-    """Items with count at or below the threshold, sorted by sku."""
-    return sorted(
-        (item for item in items if item.count < threshold),
-        key=lambda item: item.sku,
-    )
+    """SKUs with count at or below the threshold, as (sku, total) pairs."""
+    totals = {}
+    for item in items:
+        if item.count < threshold:
+            totals[item.sku] = totals.get(item.sku, 0) + item.count
+    return sorted(totals.items())

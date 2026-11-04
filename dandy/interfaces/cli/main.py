@@ -4,6 +4,7 @@ from pathlib import Path
 import dotenv
 from blessed import Terminal
 
+from dandy.interfaces.cli.error_log import log_cli_error
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.constants import __VERSION__
 
@@ -73,44 +74,50 @@ def main() -> int:
             _print_usage()
             return 0
 
-    check_or_create_settings(CWD_PATH)
+    try:
+        check_or_create_settings(CWD_PATH)
 
-    from dandy.shared.settings import settings  # noqa: PLC0415
+        from dandy.shared.settings import settings  # noqa: PLC0415
 
-    settings.reload_from_os()
+        settings.reload_from_os()
 
-    session.post_init(project_base_path=CWD_PATH)
+        session.post_init(project_base_path=CWD_PATH)
 
-    ensure_dandy_gitignore(CWD_PATH)
+        ensure_dandy_gitignore(CWD_PATH)
 
-    from dandy.interfaces.cli.cli import DandyCli  # noqa: PLC0415
+        from dandy.interfaces.cli.cli import DandyCli  # noqa: PLC0415
 
-    cli = DandyCli()
+        cli = DandyCli()
 
-    if len(sys.argv) > 1:
-        user_input = ' '.join(one_shot_arguments)
+        if len(sys.argv) > 1:
+            user_input = ' '.join(one_shot_arguments)
 
-        arg_term = Terminal()
+            arg_term = Terminal()
 
-        print()
+            print()
 
-        tui.printer.grey_divider()
+            tui.printer.grey_divider()
 
-        print(arg_term.bold_blue('\U0001f3a9 Dandy'))
+            print(arg_term.bold_blue('\U0001f3a9 Dandy'))
 
-        tui.printer.blue_divider()
+            tui.printer.blue_divider()
 
-        if is_init_request:
-            exit_code = 0 if cli.run_init() else 1
-        elif '--continue' in sys.argv[1:]:
-            exit_code = 0 if cli.continue_latest_session(user_input) else 1
+            if is_init_request:
+                exit_code = 0 if cli.run_init() else 1
+            elif '--continue' in sys.argv[1:]:
+                exit_code = 0 if cli.continue_latest_session(user_input) else 1
+            else:
+                cli.process_user_input(user_input=user_input)
+                exit_code = 0 if cli.last_turn_succeeded else 1
         else:
-            cli.process_user_input(user_input=user_input)
-            exit_code = 0 if cli.last_turn_succeeded else 1
-
-    else:
-        cli.run()
-        exit_code = 0
+            cli.run()
+            exit_code = 0
+    except Exception as error:
+        log_cli_error(CWD_PATH, 'cli', error)
+        crash_term = Terminal()
+        print()
+        print(crash_term.red(f'Dandy failed: {error}'))
+        return 1
 
     tui.printer.grey_divider()
 

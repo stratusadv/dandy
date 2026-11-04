@@ -134,7 +134,9 @@ model's output (see the [Bots](../user_guide/bots.md) page).
 
 The stateful, loop-ready base class for agentic use cases: one `turn` per exchange
 over a persistent history, a `run` that drives turns until the request is
-complete, and `save_session` / `load_session` for persisting the conversation.
+complete, and `save_session` / `load_session` for persisting the conversation —
+with `save_session_json` / `load_session_json` for the same snapshot as a JSON
+string in an external store (a database column, a queue payload, ...).
 Documented in [Agent](../user_guide/agent.md).
 
 ::: dandy.application.agent.agent.Agent
@@ -145,6 +147,8 @@ Documented in [Agent](../user_guide/agent.md).
             - clear
             - save_session
             - load_session
+            - save_session_json
+            - load_session_json
 
 ::: dandy.application.agent.intel.AgentTurnIntel
 
@@ -169,10 +173,9 @@ Documented in [Agent](../user_guide/agent.md).
 
 ## The coding agent
 
-The framework's own agentic use case: a child of `Agent` that adds a planning bot
-whose plan is folded into each turn's prompt, over a persistent history with
-tools and context-window compaction. It also reads the project's `AGENTS.md` into
-the agent system prompts and runs the `/init` generation pass. The CLI is a thin
+The framework's own agentic use case: a child of `Agent` over a persistent history
+with tools and context-window compaction. It also reads the project's `AGENTS.md`
+into the agent system prompt and runs the `/init` generation pass. The CLI is a thin
 interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
 
 ::: dandy.application.agent.coding_agent.CodingAgent
@@ -189,7 +192,5 @@ interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
 ::: dandy.application.agent.agents_md.agents_md_section
 
 ::: dandy.application.agent.bots.coding_bot.CodingBot
-
-::: dandy.application.agent.bots.planning_bot.PlanningBot
 
 ::: dandy.application.agent.bots.init_bot.InitBot

@@ -7,7 +7,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 IMAGE = 'dandy-eval:latest'
 LABEL = 'dandy-eval=1'
-AGENT_TIMEOUT_SECONDS = 1260
+AGENT_TIMEOUT_SECONDS = 1800
+POST_AGENT_GRACE_SECONDS = 240
 CHECK_TIMEOUT_SECONDS = 300
 
 TURBO_INPUT_PER_MTOK = 1.0
@@ -63,7 +64,15 @@ def docker_run_agent(agent: str, run_name: str, run_dir: Path, prompt: str) -> d
     started = time.time()
     timed_out = False
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=AGENT_TIMEOUT_SECONDS)
+        # The entrypoint's own `timeout` (AGENT_TIMEOUT_SECONDS) fires first;
+        # the grace period covers its post-agent diff capture and cleanup, so
+        # this only trips for a genuinely hung container.
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=AGENT_TIMEOUT_SECONDS + POST_AGENT_GRACE_SECONDS,
+        )
         result = {'exit_code': proc.returncode, 'stderr': proc.stderr[-4000:]}
     except subprocess.TimeoutExpired:
         timed_out = True

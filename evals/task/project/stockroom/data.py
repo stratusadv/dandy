@@ -24,8 +24,11 @@ def load_items(path) -> list[Item]:
 
 
 def save_items(path, items: list[Item]) -> None:
+    rows = [
+        item.__dict__ for item in sorted(items, key=lambda i: (i.sku, i.location)) if item.count > 0
+    ]
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, 'w') as f:
-        json.dump([item.__dict__ for item in sorted(items, key=lambda i: i.sku)], f, indent=2)
+        json.dump(rows, f, indent=2)
         f.write('\n')

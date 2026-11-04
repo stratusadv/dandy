@@ -80,6 +80,8 @@ def judge_run(run_dir: Path, task_statement: str) -> dict:
     check_log = run_dir / 'check.log'
     check_output = check_log.read_text() if check_log.exists() else '(checker never ran)'
     summary_file = run_dir / 'transcript.log'
+    if not summary_file.exists():
+        summary_file = run_dir / 'transcript.json'
     agent_summary = summary_file.read_text() if summary_file.exists() else ''
     result = JudgeBot().process(
         diff_text=diff_text,

@@ -23,7 +23,7 @@ evals/
       check.sh            # copy hidden tests in, export EVAL_TESTING=1, run unittest, tee check.log
   task/
     project/              # agent-visible: buggy stockroom CLI + TASK.md spec
-    hidden_tests/         # 15 unittest cases; mounted only for the checker; skipped
+    hidden_tests/         # 81 unittest cases; mounted only for the checker; skipped
                           # unless the EVAL_TESTING env var is set (the checker exports it)
     solution/             # reference implementation (never given to agents)
   harness/
@@ -36,6 +36,7 @@ evals/
     judge_settings.py     # eval settings: judge -> stratus.thinking
     clean.sh              # rm a run dir + kill labeled containers
   runs/<stamp>/           # gitignored; one dir per orchestrator invocation
+  runs/archive/<stamp>/   # gitignored; results + per-run artifacts; survives clean.sh
 ```
 
 ## Prerequisites
@@ -56,7 +57,7 @@ docker build -t dandy-eval:latest -f evals/docker/Dockerfile evals/docker/
 ## Run
 
 ```bash
-# full matrix: 4 agents x 3 runs (agents in parallel, ~20 min cap per run)
+# full matrix: 4 agents x 3 runs (agents in parallel, ~30 min cap per run)
 .venv/bin/python evals/harness/run_eval.py --agents all --runs 3
 
 # one agent only (pipeline smoke)
@@ -78,27 +79,50 @@ runtime deps. Results land in `evals/runs/<stamp>/`:
   and per-agent usage artifacts (`usage.jsonl` for dandy, `transcript.json` for
   opencode/pi, `.crush-data/crush.db` for crush).
 
+At the end of every invocation the orchestrator copies `results.csv`,
+`report.md`, and each workdir's small artifacts into
+`evals/runs/archive/<stamp>/`, so `clean.sh` can never destroy results.
+
 ## Clean
 
 ```bash
 evals/harness/clean.sh <stamp>   # removes evals/runs/<stamp> + labeled containers
 ```
 
+Results and per-run artifacts are already archived in
+`evals/runs/archive/<stamp>/` by the orchestrator, so cleaning is safe. Run
+workdirs are pytest-ignored (`evals/conftest.py`), so leftover runs never
+break `pytest evals` collection.
+
 ## Task
 
-`task/project/TASK.md` specifies a `stockroom` JSON-inventory CLI (add/remove/
-move/list/value/low + a missing `summary` command, exit codes 0/1/2). The
-shipped code has four planted bugs (add overwrites instead of merging, remove
-rejects full-quantity removals, value truncates cents, low-stock uses `<`
-instead of `<=`). The hidden tests (15 cases) fail exactly on the buggy
-behavior (8 failures on the pristine tree) and pass with the reference
-solution; an agent passes only if the hidden suite goes green.
+`task/project/TASK.md` specifies a `stockroom` JSON-inventory CLI over a
+`(sku, location)`-keyed data model (add/remove/move/transfer/list/value/low/
+summary/report/validate, exit codes 0/1/2). The shipped code is partway
+through migrating from the legacy one-row-per-SKU model: six planted bugs
+(add overwrites instead of merging, remove rejects full-quantity removals,
+low-stock compares per-row counts instead of per-SKU totals, move appends a
+duplicate row instead of merging, money rounding uses float `round()` instead
+of Decimal half-up, remove accepts non-positive counts) plus four missing
+commands (`transfer`, `summary`, `report`, `validate`). The 150-row seed
+plants 4/5/6 count boundaries and X.XX5 rounding traps. The hidden tests
+(81 cases) fail on a measured 42 of 81 on the pristine tree and pass with the
+reference solution; an agent passes only if the hidden suite goes green.
+
+Each agent run gets a 30-minute budget: each entrypoint wraps the agent
+itself in `timeout -k 30 "${AGENT_TIMEOUT_SECONDS:-1800}"` (overridable via
+env), and the orchestrator's outer `docker run` timeout adds a 240 s grace
+period as a safety net for the entrypoint's post-agent diff capture, so a
+budgeted-out agent still leaves `final.diff` and `agent.exit` (124) in its
+workdir for the checker and judge. The LLM judge has a 300 s watchdog per
+run; a judge that hangs or errors lands in the run's `note` and the run
+continues.
 
 To verify the reference solution without Docker, run the hidden suite in the
 repo — `project/` is overlaid with `solution/` in a temp dir:
 
 ```bash
-EVAL_TESTING=1 .venv/bin/python -m pytest evals -q   # 15 passed
+EVAL_TESTING=1 .venv/bin/python -m pytest evals -q   # 81 passed
 ```
 
 Without `EVAL_TESTING` (or with it set to `0`), the hidden tests skip, so a

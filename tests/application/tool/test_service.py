@@ -33,10 +33,6 @@ class ActionOutputWeatherTool(WeatherTool):
         return f'for {kwargs["location"]}'
 
 
-class AsciiCharWeatherTool(WeatherTool):
-    action_ascii_char = '>'
-
-
 class MutatingWeatherTool(WeatherTool):
     can_mutate_state = True
 
@@ -191,9 +187,7 @@ class TestToolService(TestCase):
             progress_callback=progress_steps.append,
         )
 
-        self.assertEqual(
-            progress_steps, [StoryBeat(label='Get Weather', description='', ascii_char='•')]
-        )
+        self.assertEqual(progress_steps, [StoryBeat(label='Get Weather', description='')])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_summary_sentences(self, mock_post_request):
@@ -224,9 +218,9 @@ class TestToolService(TestCase):
             progress_steps,
             [
                 StoryBeat(description='Let me check the current weather.', kind='narration'),
-                StoryBeat(label='Get Weather', description='', ascii_char='•'),
+                StoryBeat(label='Get Weather', description=''),
                 StoryBeat(description='Checking the forecast now.', kind='narration'),
-                StoryBeat(label='Get Weather', description='', ascii_char='•'),
+                StoryBeat(label='Get Weather', description=''),
             ],
         )
 
@@ -249,8 +243,7 @@ class TestToolService(TestCase):
         )
 
         self.assertEqual(
-            progress_steps,
-            [StoryBeat(label='Fetching the weather', description='for Paris', ascii_char='•')],
+            progress_steps, [StoryBeat(label='Fetching the weather', description='for Paris')]
         )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -323,34 +316,7 @@ class TestToolService(TestCase):
         )
 
         self.assertEqual(
-            progress_steps,
-            [
-                StoryBeat(
-                    label='Get Weather', description='', ascii_char='•', can_mutate_state=True
-                )
-            ],
-        )
-
-    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_prompt_to_intel_reports_tool_action_ascii_char(self, mock_post_request):
-        mock_post_request.side_effect = [
-            tool_call_response('get_weather', '{"location": "Paris"}'),
-            content_response('{"text": "Sunny in Paris."}'),
-        ]
-
-        progress_steps = []
-
-        bot = ToolBot()
-
-        bot.llm.tools.prompt_to_intel(
-            prompt='What is the weather in Paris?',
-            intel_class=FinalAnswerIntel,
-            tools=[AsciiCharWeatherTool],
-            progress_callback=progress_steps.append,
-        )
-
-        self.assertEqual(
-            progress_steps, [StoryBeat(label='Get Weather', description='', ascii_char='>')]
+            progress_steps, [StoryBeat(label='Get Weather', description='', can_mutate_state=True)]
         )
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -377,7 +343,7 @@ class TestToolService(TestCase):
             progress_steps,
             [
                 StoryBeat(description='Let me check the weather in Paris.', kind='narration'),
-                StoryBeat(label='Fetching the weather', description='for Paris', ascii_char='•'),
+                StoryBeat(label='Fetching the weather', description='for Paris'),
             ],
         )
 
@@ -424,12 +390,7 @@ class TestToolService(TestCase):
 
         compaction_target = int(bot.llm.config.context_size * 0.70)
 
-        self.assertTrue(
-            any(
-                step.description.startswith('Compacting conversation history')
-                for step in progress_steps
-            )
-        )
+        self.assertTrue(any(step.kind == 'compaction' for step in progress_steps))
         self.assertLessEqual(bot.llm.messages.estimated_token_count, compaction_target)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -455,12 +416,7 @@ class TestToolService(TestCase):
             max_tool_iterations=None,
         )
 
-        self.assertFalse(
-            any(
-                step.description.startswith('Compacting conversation history')
-                for step in progress_steps
-            )
-        )
+        self.assertFalse(any(step.kind == 'compaction' for step in progress_steps))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_caps_oversized_tool_results(

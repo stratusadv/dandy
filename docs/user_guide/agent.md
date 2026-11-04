@@ -114,6 +114,16 @@ agent.load_session(store.load('my-task'))  # the conversation is back
 count). `load_session(session)` restores the history into a fresh
   `MessageHistory` and resets the bot, so the next `turn` continues exactly
   where the saved conversation left off.
+- `save_session_json()` / `load_session_json(session_json)` are the same
+  snapshot as a JSON string, for stores Dandy does not manage itself: a
+  database column, a queue payload, or a key-value cache. This is the shape
+  for a worker process that runs one `turn` per received message — pull the
+  session JSON for the message's conversation (or start fresh when there is
+  none), `load_session_json`, run `turn(message)`, then write
+  `save_session_json()` back. One agent instance serves many conversations
+  this way, because `load_session_json` fully replaces the history and
+  resets the bot. A string that does not validate as an `AgentSession`
+  raises `AgentRecoverableError` without touching the live conversation.
 - `SessionStore` (`dandy/application/agent/session_store.py`) is the file side:
   one JSON record per named session under a directory (each record pairs the
   `AgentSession` with a name and created/updated timestamps). `for_project(path)`
@@ -133,6 +143,6 @@ and `/delete` commands plus the one-shot `--continue` flag.
 
 A Bot is one use case: in, work, out, stateless across calls. An Agent is the
 same composition made stateful and loopable. The [coding agent](coding_agent.md)
-is the framework's own agent: a planning bot plus a coding bot over a persistent
-history — an interactive agent (you drive the turns); a base `Agent.run` is an
+is the framework's own agent: a coding bot over a persistent history — an
+interactive agent (you drive the turns); a base `Agent.run` is an
 autonomous one (the agent drives them).

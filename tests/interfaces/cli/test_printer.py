@@ -87,42 +87,81 @@ class TestPrinterStory(TestCase):
         self.assertNotIn('took', frame)
 
     def test_current_frame_renders_description_only_beat_plain(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
-        frame = progress.frame(StoryBeat(description='Checking the forecast now.'), '...')
+        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+            progress = _StoryProgress(Terminal(force_styling='default'))
+            frame = progress.frame(StoryBeat(description='Checking the forecast now.'))
 
-        self.assertIn('Checking the forecast now.', frame)
+        lines = frame.split('\n')
+
+        self.assertEqual(len(lines), 2)
+        self.assertIn('Checking the forecast now.', lines[0])
         self.assertNotIn('•', frame)
         self.assertNotIn(progress.term.bold_grey, frame)
-        self.assertIn(f'{progress.term.bold_orange}Evaluating ...{progress.term.normal}', frame)
+        phrase_line = f'{progress.term.bold_blue}Polishing a Cufflink{progress.term.normal}'
+        self.assertIn(phrase_line, lines[1])
 
-    def test_animating_frame_renders_bold_orange_evaluating_suffix(self) -> None:
+    def test_animating_frame_renders_bold_blue_phrase_on_the_next_line(self) -> None:
+        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+            progress = _StoryProgress(Terminal(force_styling='default'))
+            beat = StoryBeat(description='Checking the forecast now.')
+
+            animating_frame = progress.frame(beat)
+            settled_frame = progress.settled_frame(beat)
+
+        lines = animating_frame.split('\n')
+        self.assertEqual(len(lines), 2)
+        self.assertIn('Checking the forecast now.', lines[0])
+        self.assertNotIn('Polishing a Cufflink', lines[0])
+        phrase_line = f'{progress.term.bold_blue}Polishing a Cufflink{progress.term.normal}'
+        self.assertIn(phrase_line, lines[1])
+        self.assertNotIn('Checking the forecast now.', lines[1])
+        self.assertNotIn('Polishing a Cufflink', settled_frame)
+
+    def test_animating_frame_holds_the_phrase_for_three_seconds(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         beat = StoryBeat(description='Checking the forecast now.')
 
-        animating_frame = progress.frame(beat, '..')
-        settled_frame = progress.settled_frame(beat)
+        with (
+            mock.patch(
+                'random.choice', side_effect=['Polishing a Cufflink', 'Dusting a Tailcoat']
+            ) as mock_choice,
+            mock.patch(
+                'dandy.interfaces.cli.tui.printer.perf_counter', side_effect=[0.0, 1.5, 2.9, 3.1]
+            ),
+        ):
+            frames = [
+                progress.frame(beat),
+                progress.frame(beat),
+                progress.frame(beat),
+                progress.frame(beat),
+            ]
 
-        self.assertIn(
-            f'{progress.term.bold_orange}Evaluating ..{progress.term.normal}', animating_frame
-        )
-        self.assertNotIn('Evaluating', settled_frame)
+        first_phrase = f'{term.bold_blue}Polishing a Cufflink'
+        second_phrase = f'{term.bold_blue}Dusting a Tailcoat'
 
-    def test_frames_style_label_grey_and_description_plain(self) -> None:
+        self.assertIn(first_phrase, frames[0])
+        self.assertIn(first_phrase, frames[1])
+        self.assertIn(first_phrase, frames[2])
+        self.assertNotIn(first_phrase, frames[3])
+        self.assertIn(second_phrase, frames[3])
+        self.assertEqual(mock_choice.call_count, 2)
+
+    def test_frames_style_label_skyblue_and_description_plain(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
 
-        animating_frame = progress.frame(beat, '...')
+        animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
-        self.assertTrue(animating_frame.startswith(f'\r{term.normal}{term.bold_grey}Reading'))
-        self.assertIn(f'{term.bold_grey}Reading{term.normal}', animating_frame)
+        self.assertTrue(animating_frame.startswith(f'\r{term.normal}\n{term.bold_skyblue}Reading'))
+        self.assertIn(f'{term.bold_skyblue}Reading{term.normal}', animating_frame)
         self.assertIn('src/foo.py', animating_frame)
         self.assertIn('lines 1-10', animating_frame)
 
-        self.assertTrue(settled_frame.startswith(f'\r{term.normal}• '))
+        self.assertTrue(settled_frame.startswith(f'\x1b[1A\r{term.bold_skyblue}↳{term.normal} '))
         self.assertNotIn('Reading', settled_frame)
-        self.assertNotIn(term.bold_grey, settled_frame)
         self.assertIn('src/foo.py', settled_frame)
         self.assertIn('lines 1-10', settled_frame)
 
@@ -131,15 +170,15 @@ class TestPrinterStory(TestCase):
         term = progress.term
         beat = StoryBeat(label='Writing', description='src/foo.py', can_mutate_state=True)
 
-        animating_frame = progress.frame(beat, '...')
+        animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
         self.assertIn(f'{term.bold_orange}Writing{term.normal}', animating_frame)
-        self.assertNotIn(term.bold_grey, animating_frame)
+        self.assertNotIn(term.bold_skyblue, animating_frame)
         self.assertIn('src/foo.py', animating_frame)
 
         self.assertNotIn('Writing', settled_frame)
-        self.assertNotIn(term.bold_grey, settled_frame)
+        self.assertNotIn(term.bold_skyblue, settled_frame)
         self.assertIn('src/foo.py', settled_frame)
 
     def test_narration_beat_renders_bold_blue(self) -> None:
@@ -147,7 +186,7 @@ class TestPrinterStory(TestCase):
         term = progress.term
         beat = StoryBeat(description='Let me check the weather.', kind='narration')
 
-        animating_frame = progress.frame(beat, '...')
+        animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
         for frame in (animating_frame, settled_frame):
@@ -156,33 +195,123 @@ class TestPrinterStory(TestCase):
             self.assertIn('Let me check the weather.', frame)
             self.assertNotIn(term.bold_grey, frame)
 
-    def test_tool_beat_renders_its_own_ascii_char(self) -> None:
+    def test_compaction_beat_renders_bold_purple_after_a_blank_line(self) -> None:
+        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+            progress = _StoryProgress(Terminal(force_styling='default'))
+            term = progress.term
+            beat = StoryBeat(
+                description='Compacting my thoughts into a more manageable size', kind='compaction'
+            )
+
+            animating_frame = progress.frame(beat)
+            settled_frame = progress.settled_frame(beat)
+
+        self.assertEqual(animating_frame.split('\n')[0], f'\r{term.normal}')
+
+        for frame in (animating_frame, settled_frame):
+            self.assertNotIn('•', frame)
+            self.assertIn('Compacting my thoughts into a more manageable size', frame)
+            line = next(line for line in frame.split('\n') if 'Compacting my thoughts' in line)
+
+            self.assertTrue(line.lstrip('\r').startswith(term.bold_purple))
+
+        self.assertNotIn(term.bold_blue, settled_frame)
+
+    def test_tool_beat_renders_an_arrow_in_the_label_color(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
         term = progress.term
-        beat = StoryBeat(label='Reading', description='src/foo.py', ascii_char='>')
+        beat = StoryBeat(label='Reading', description='src/foo.py')
+        mutating = StoryBeat(label='Executing', description='pytest -q', can_mutate_state=True)
 
-        animating_frame = progress.frame(beat, '...')
-        settled_frame = progress.settled_frame(beat)
+        for frame in (progress.frame(beat), progress.settled_frame(beat)):
+            self.assertIn(f'{term.bold_skyblue}↳{term.normal} ', frame)
 
-        self.assertIn(f'{term.normal}> ', animating_frame)
-        self.assertTrue(settled_frame.startswith(f'\r{term.normal}> '))
+        for frame in (progress.frame(mutating), progress.settled_frame(mutating)):
+            self.assertIn(f'{term.bold_orange}↳{term.normal} ', frame)
 
-    def test_multiline_beat_animates_on_a_single_line(self) -> None:
+    def test_multiline_beat_animates_folded_on_one_line(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         description = 'pytest -q\nimport blessed\nprint(1)'
-        beat = StoryBeat(label='Executing', description=description, ascii_char='>')
+        beat = StoryBeat(label='Executing', description=description)
 
-        animating_frame = progress.frame(beat, '...')
-        next_frame = progress.frame(beat, '....')
+        animating_frame = progress.frame(beat)
+        next_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
-        self.assertEqual(animating_frame.count('\n'), 1)
-        animated_line = animating_frame.split('\n', 1)[1]
-        self.assertTrue(animated_line.startswith(f'{term.normal}> '))
-        self.assertIn('pytest -q import blessed print(1)', animating_frame)
-        self.assertNotIn('\n', next_frame)
-        self.assertIn(description, settled_frame)
+        animated_lines = animating_frame.split('\n')
+        self.assertEqual(len(animated_lines), 4)
+        self.assertIn('Executing', animated_lines[1])
+        self.assertTrue(animated_lines[2].startswith(f'\r{term.bold_skyblue}↳{term.normal} '))
+        self.assertIn('pytest -q import blessed print(1)', animated_lines[2])
+
+        next_lines = next_frame.split('\n')
+        self.assertEqual(len(next_lines), 2)
+        self.assertTrue(next_lines[0].startswith(f'\x1b[1A\r{term.bold_skyblue}↳{term.normal} '))
+        self.assertIn('pytest -q import blessed print(1)', next_lines[0])
+
+        settled_lines = settled_frame.split('\n')
+        self.assertTrue(settled_lines[0].startswith(f'\x1b[1A\r{term.bold_skyblue}↳{term.normal} '))
+        for index, part in enumerate(description.split('\n')):
+            self.assertIn(part, settled_lines[index])
+            self.assertTrue(settled_lines[index].endswith(term.clear_eol()))
+
+    def test_settled_frame_clears_each_overwritten_line(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
+        description = (
+            'a long first line that overwrites the animating line\nsecond line\nthird line'
+        )
+        beat = StoryBeat(label='Executing', description=description)
+
+        progress.frame(beat)
+        settled = progress.settled_frame(beat)
+
+        lines = settled.split('\n')
+        self.assertEqual(len(lines), 4)
+        for line in lines[:3]:
+            self.assertTrue(line.endswith(term.clear_eol()))
+        self.assertEqual(lines[3], '\r')
+
+    def test_settling_after_multiple_ticks_clears_the_phrase_line(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
+        beat = StoryBeat(label='Reading', description='src/a.py')
+
+        progress.frame(beat)
+        progress.frame(beat)
+        settled = progress.settled_frame(beat)
+
+        lines = settled.split('\n')
+        self.assertEqual(len(lines), 3)
+        self.assertTrue(lines[0].startswith('\x1b[1A\r'))
+        self.assertTrue(lines[0].endswith(term.clear_eol()))
+        self.assertEqual(lines[1], f'\r{term.clear_eol()}')
+
+        progress.update(StoryBeat(label='Reading', description='src/b.py'))
+        next_frame = progress.frame(progress.beats[-1])
+
+        self.assertTrue(next_frame.startswith('\x1b[1A\r'))
+
+    def test_pause_at_fresh_line_settles_and_lands_on_the_carry_line(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        beat = StoryBeat(label='Reading', description='src/a.py')
+
+        progress.update(beat)
+        progress.frame(beat)
+        pause = progress.pause_at_fresh_line()
+
+        self.assertTrue(pause.startswith('\x1b[1A\r'))
+        self.assertTrue(pause.endswith('\x1b[1A\r'))
+        self.assertIn('src/a.py', pause)
+        self.assertEqual(progress.carry_prefix(), '')
+
+        next_frame = progress.frame(StoryBeat(description='After the pause.'))
+        self.assertTrue(next_frame.startswith('\r'))
+
+        fresh = _StoryProgress(Terminal(force_styling='default'))
+
+        self.assertEqual(fresh.pause_at_fresh_line(), '\r')
 
     def test_event_prints_text_without_prefix(self) -> None:
         self.printer.event('Hello')
@@ -205,12 +334,12 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.15, release.set).start()
 
-        result = self.printer.run_timed_task(action_name='Coding', task='fix bug', work=work)
+        result = self.printer.run_timed_task(task='fix bug', work=work)
 
         self.assertEqual(result, {'text': 'done'})
 
         written = [str(call.args[0]) for call in self.mock_write.call_args_list if call.args]
-        story_lines = [line for line in written if line.endswith('\n')]
+        story_lines = [line for line in written if line.endswith(('\n', '\r'))]
 
         self.assertTrue(
             any('Reading the test file to understand it.' in line for line in story_lines)
@@ -218,21 +347,16 @@ class TestPrinterStory(TestCase):
         self.assertTrue(any('"pytest -q"' in line for line in story_lines))
 
         printed_lines = [str(call.args[0]) for call in self.mock_print.call_args_list if call.args]
-        completion_lines = [
-            line for line in printed_lines if 'I have completed your request in ' in line
-        ]
+        completion_lines = [line for line in printed_lines if 'Request Completed in ' in line]
 
         self.assertEqual(len(completion_lines), 1)
-        self.assertTrue(completion_lines[0].endswith('.'))
 
     def test_run_timed_task_propagates_stop_error_from_work(self) -> None:
         def work(update: Callable[[StoryBeat], None]) -> object:
             raise RunStoppedError('Run stopped by user.')
 
         with self.assertRaises(RunStoppedError):
-            self.printer.run_timed_task(
-                action_name='Coding', task='stop me', work=work, stop_signal=StopSignal()
-            )
+            self.printer.run_timed_task(task='stop me', work=work, stop_signal=StopSignal())
 
     @mock.patch.object(Terminal, 'inkey')
     def test_run_timed_task_double_escape_sets_stop_signal(
@@ -250,9 +374,7 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.3, release.set).start()
 
-        result = self.printer.run_timed_task(
-            action_name='Coding', task='stop me', work=work, stop_signal=stop_signal
-        )
+        result = self.printer.run_timed_task(task='stop me', work=work, stop_signal=stop_signal)
 
         self.assertEqual(result, 'done')
         self.assertTrue(stop_signal.is_set())
@@ -276,9 +398,7 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.3, release.set).start()
 
-        result = self.printer.run_timed_task(
-            action_name='Coding', task='stop me', work=work, stop_signal=stop_signal
-        )
+        result = self.printer.run_timed_task(task='stop me', work=work, stop_signal=stop_signal)
 
         self.assertEqual(result, 'done')
         self.assertTrue(stop_signal.is_set())
@@ -296,9 +416,7 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.3, release.set).start()
 
-        result = self.printer.run_timed_task(
-            action_name='Coding', task='keep going', work=work, stop_signal=stop_signal
-        )
+        result = self.printer.run_timed_task(task='keep going', work=work, stop_signal=stop_signal)
 
         self.assertEqual(result, 'done')
         self.assertFalse(stop_signal.is_set())
@@ -315,7 +433,7 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.15, release.set).start()
 
-        result = self.printer.run_timed_task(action_name='Coding', task='no stop', work=work)
+        result = self.printer.run_timed_task(task='no stop', work=work)
 
         self.assertEqual(result, 'done')
         mock_inkey.assert_not_called()
@@ -330,9 +448,7 @@ class TestPrinterStory(TestCase):
 
         threading.Timer(0.15, release.set).start()
 
-        result = self.printer.run_timed_task(
-            action_name='Coding', task='no tty', work=work, stop_signal=StopSignal()
-        )
+        result = self.printer.run_timed_task(task='no tty', work=work, stop_signal=StopSignal())
 
         self.assertEqual(result, 'done')
 
@@ -348,15 +464,33 @@ class TestPrinterStory(TestCase):
             return 'blue'
 
         result = self.printer.run_timed_task(
-            action_name='Coding',
-            task='pick a color',
-            work=work,
-            question_gate=gate,
-            question_handler=question_handler,
+            task='pick a color', work=work, question_gate=gate, question_handler=question_handler
         )
 
         self.assertEqual(result, {'answer': 'blue'})
         self.assertEqual(prompts, [('Which color?', ['red', 'blue'])])
+        self.assertIsNone(gate.pending)
+
+    def test_run_timed_task_question_prompt_lands_on_a_fresh_line(self) -> None:
+        gate = QuestionGate()
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            update(StoryBeat(label='Reading', description='src/a.py'))
+            sleep(0.3)
+            return {'answer': gate.ask('Which color?', ['red', 'blue'])}
+
+        def question_handler(question: str, choices: list[str]) -> str | None:
+            written = [str(call.args[0]) for call in self.mock_write.call_args_list if call.args]
+            self.assertIn(written[-1], ('\x1b[1A\r', '\r'))
+            self.assertEqual(question, 'Which color?')
+            self.assertEqual(choices, ['red', 'blue'])
+            return 'blue'
+
+        result = self.printer.run_timed_task(
+            task='pick a color', work=work, question_gate=gate, question_handler=question_handler
+        )
+
+        self.assertEqual(result, {'answer': 'blue'})
         self.assertIsNone(gate.pending)
 
     def test_run_timed_task_a_none_answer_stops_the_run(self) -> None:
@@ -376,7 +510,6 @@ class TestPrinterStory(TestCase):
 
         with self.assertRaises(RunStoppedError):
             self.printer.run_timed_task(
-                action_name='Coding',
                 task='stop me',
                 work=work,
                 stop_signal=stop_signal,
@@ -396,7 +529,7 @@ class TestStoryProgressHeadingGrouping(TestCase):
         beat = StoryBeat(label='Reading', description='src/a.py')
         self.progress.update(beat)
 
-        frame = self.progress.frame(beat, '.')
+        frame = self.progress.frame(beat)
 
         self.assertIn('Reading', frame)
         self.assertIn('src/a.py', frame)
@@ -407,9 +540,9 @@ class TestStoryProgressHeadingGrouping(TestCase):
         self.progress.update(first)
         self.progress.update(second)
 
-        first_frame = self.progress.frame(first, '.')
+        first_frame = self.progress.frame(first)
         first_settled = self.progress.settled_frame(first)
-        second_frame = self.progress.frame(second, '.')
+        second_frame = self.progress.frame(second)
         second_settled = self.progress.settled_frame(second)
 
         self.assertIn('Reading', first_frame)
@@ -422,8 +555,8 @@ class TestStoryProgressHeadingGrouping(TestCase):
     def test_heading_prints_once_across_animating_and_settling(self) -> None:
         beat = StoryBeat(label='Reading', description='src/a.py')
 
-        first_frame = self.progress.frame(beat, '.')
-        second_frame = self.progress.frame(beat, '..')
+        first_frame = self.progress.frame(beat)
+        second_frame = self.progress.frame(beat)
         settled = self.progress.settled_frame(beat)
 
         self.assertIn('Reading', first_frame)
@@ -436,9 +569,9 @@ class TestStoryProgressHeadingGrouping(TestCase):
         self.progress.update(reading)
         self.progress.update(writing)
 
-        reading_frame = self.progress.frame(reading, '.')
+        reading_frame = self.progress.frame(reading)
         reading_settled = self.progress.settled_frame(reading)
-        writing_frame = self.progress.frame(writing, '.')
+        writing_frame = self.progress.frame(writing)
 
         self.assertIn('Reading', reading_frame)
         self.assertNotIn('Reading', reading_settled)
@@ -454,16 +587,16 @@ class TestStoryProgressHeadingGrouping(TestCase):
         self.progress.update(writing)
         self.progress.update(reading_again)
 
-        self.progress.frame(reading, '.')
+        self.progress.frame(reading)
         self.progress.settled_frame(reading)
-        self.progress.frame(writing, '.')
+        self.progress.frame(writing)
         self.progress.settled_frame(writing)
-        reading_again_frame = self.progress.frame(reading_again, '.')
+        reading_again_frame = self.progress.frame(reading_again)
 
         self.assertIn('Reading', reading_again_frame)
         self.assertIn('src/c.py', reading_again_frame)
 
-    def test_non_tool_beat_does_not_break_the_group(self) -> None:
+    def test_non_tool_beat_breaks_the_group_and_reprints_the_label(self) -> None:
         first = StoryBeat(label='Reading', description='src/a.py')
         narration = StoryBeat(description='Let me check the other file.', kind='narration')
         second = StoryBeat(label='Reading', description='src/b.py')
@@ -473,12 +606,30 @@ class TestStoryProgressHeadingGrouping(TestCase):
 
         first_settled = self.progress.settled_frame(first)
         narration_settled = self.progress.settled_frame(narration)
-        second_frame = self.progress.frame(second, '.')
+        second_frame = self.progress.frame(second)
 
         self.assertIn('Reading', first_settled)
         self.assertNotIn('Reading', narration_settled)
-        self.assertNotIn('Reading', second_frame)
+        self.assertIn('Reading', second_frame)
         self.assertNotIn('•', narration_settled)
+
+    def test_compaction_beat_also_breaks_the_group(self) -> None:
+        first = StoryBeat(label='Reading', description='src/a.py')
+        notice = StoryBeat(
+            description='Compacting my thoughts into a more manageable size', kind='compaction'
+        )
+        second = StoryBeat(label='Reading', description='src/b.py')
+        self.progress.update(first)
+        self.progress.update(notice)
+        self.progress.update(second)
+
+        first_settled = self.progress.settled_frame(first)
+        notice_settled = self.progress.settled_frame(notice)
+        second_frame = self.progress.frame(second)
+
+        self.assertIn('Reading', first_settled)
+        self.assertNotIn('Reading', notice_settled)
+        self.assertIn('Reading', second_frame)
 
     def test_settled_frame_emits_heading_when_beat_never_animated(self) -> None:
         first = StoryBeat(label='Reading', description='src/a.py')
@@ -539,7 +690,7 @@ class TestLinkifyFilePaths(TestCase):
         progress = _StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
 
-        animating_frame = progress.frame(beat, '...')
+        animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
         expected_uri = (self.project_base_path / 'src' / 'foo.py').as_uri()
@@ -552,7 +703,7 @@ class TestLinkifyFilePaths(TestCase):
         progress = _StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(description='Checking src/foo.py now.', kind='narration')
 
-        animating_frame = progress.frame(beat, '...')
+        animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
         for frame in (animating_frame, settled_frame):

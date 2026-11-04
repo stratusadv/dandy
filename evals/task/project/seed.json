@@ -1,8 +1,1052 @@
 [
-  {"sku": "AB-100", "name": "Alder Box", "location": "A1", "count": 12, "unit_price": 19.99},
-  {"sku": "CD-200", "name": "Cedar Crate", "location": "A1", "count": 5, "unit_price": 3.5},
-  {"sku": "EF-300", "name": "Elm Crate", "location": "B2", "count": 7, "unit_price": 100.0},
-  {"sku": "GH-400", "name": "Gumwood Bin", "location": "B2", "count": 3, "unit_price": 8.75},
-  {"sku": "IJ-500", "name": "Iroko Shelf", "location": "C3", "count": 9, "unit_price": 42.1},
-  {"sku": "KL-600", "name": "Larch Panel", "location": "C3", "count": 1, "unit_price": 250.25}
+  {
+    "sku": "A-001",
+    "name": "Alder Part 001",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 1.11
+  },
+  {
+    "sku": "A-002",
+    "name": "Birch Bracket 002",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 1.28
+  },
+  {
+    "sku": "A-003",
+    "name": "Cedar Gasket 003",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 1.45
+  },
+  {
+    "sku": "A-004",
+    "name": "Elm Panel 004",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 1.62
+  },
+  {
+    "sku": "A-005",
+    "name": "Fir Housing 005",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 1.79
+  },
+  {
+    "sku": "A-006",
+    "name": "Gumwood Part 006",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 1.96
+  },
+  {
+    "sku": "A-007",
+    "name": "Iroko Bracket 007",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 2.13
+  },
+  {
+    "sku": "A-008",
+    "name": "Juniper Gasket 008",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 2.3
+  },
+  {
+    "sku": "A-009",
+    "name": "Larch Panel 009",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 2.47
+  },
+  {
+    "sku": "A-010",
+    "name": "Maple Housing 010",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 2.64
+  },
+  {
+    "sku": "A-011",
+    "name": "Alder Part 011",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 2.81
+  },
+  {
+    "sku": "A-012",
+    "name": "Birch Bracket 012",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 2.98
+  },
+  {
+    "sku": "A-013",
+    "name": "Cedar Gasket 013",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 3.15
+  },
+  {
+    "sku": "A-014",
+    "name": "Elm Panel 014",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 3.32
+  },
+  {
+    "sku": "A-015",
+    "name": "Fir Housing 015",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 3.49
+  },
+  {
+    "sku": "A-016",
+    "name": "Gumwood Part 016",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 3.66
+  },
+  {
+    "sku": "A-017",
+    "name": "Iroko Bracket 017",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 3.83
+  },
+  {
+    "sku": "A-018",
+    "name": "Juniper Gasket 018",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 4.0
+  },
+  {
+    "sku": "A-019",
+    "name": "Larch Panel 019",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 4.17
+  },
+  {
+    "sku": "A-020",
+    "name": "Maple Housing 020",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 4.34
+  },
+  {
+    "sku": "A-021",
+    "name": "Alder Part 021",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 4.51
+  },
+  {
+    "sku": "A-022",
+    "name": "Birch Bracket 022",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 4.68
+  },
+  {
+    "sku": "A-023",
+    "name": "Cedar Gasket 023",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 4.85
+  },
+  {
+    "sku": "A-024",
+    "name": "Elm Panel 024",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 5.02
+  },
+  {
+    "sku": "A-025",
+    "name": "Fir Housing 025",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 5.19
+  },
+  {
+    "sku": "A-026",
+    "name": "Gumwood Part 026",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 5.36
+  },
+  {
+    "sku": "A-027",
+    "name": "Iroko Bracket 027",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 5.53
+  },
+  {
+    "sku": "A-028",
+    "name": "Juniper Gasket 028",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 5.7
+  },
+  {
+    "sku": "A-029",
+    "name": "Larch Panel 029",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 5.87
+  },
+  {
+    "sku": "A-030",
+    "name": "Maple Housing 030",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 6.04
+  },
+  {
+    "sku": "A-031",
+    "name": "Alder Part 031",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 1.21
+  },
+  {
+    "sku": "A-032",
+    "name": "Birch Bracket 032",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 1.38
+  },
+  {
+    "sku": "A-033",
+    "name": "Cedar Gasket 033",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 1.55
+  },
+  {
+    "sku": "A-034",
+    "name": "Elm Panel 034",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 1.72
+  },
+  {
+    "sku": "A-035",
+    "name": "Fir Housing 035",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 1.89
+  },
+  {
+    "sku": "A-036",
+    "name": "Gumwood Part 036",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 2.06
+  },
+  {
+    "sku": "A-037",
+    "name": "Iroko Bracket 037",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 2.23
+  },
+  {
+    "sku": "A-038",
+    "name": "Juniper Gasket 038",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 2.4
+  },
+  {
+    "sku": "A-039",
+    "name": "Larch Panel 039",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 2.57
+  },
+  {
+    "sku": "A-040",
+    "name": "Maple Housing 040",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 2.74
+  },
+  {
+    "sku": "A-041",
+    "name": "Alder Part 041",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 2.91
+  },
+  {
+    "sku": "A-042",
+    "name": "Birch Bracket 042",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 3.08
+  },
+  {
+    "sku": "A-043",
+    "name": "Cedar Gasket 043",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 3.25
+  },
+  {
+    "sku": "A-044",
+    "name": "Elm Panel 044",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 3.42
+  },
+  {
+    "sku": "A-045",
+    "name": "Fir Housing 045",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 3.59
+  },
+  {
+    "sku": "A-046",
+    "name": "Gumwood Part 046",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 3.76
+  },
+  {
+    "sku": "A-047",
+    "name": "Iroko Bracket 047",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 3.93
+  },
+  {
+    "sku": "A-048",
+    "name": "Juniper Gasket 048",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 4.1
+  },
+  {
+    "sku": "A-049",
+    "name": "Larch Panel 049",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 4.27
+  },
+  {
+    "sku": "A-050",
+    "name": "Maple Housing 050",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 4.44
+  },
+  {
+    "sku": "B-001",
+    "name": "Alder Part 001",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 4.61
+  },
+  {
+    "sku": "B-002",
+    "name": "Birch Bracket 002",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 4.78
+  },
+  {
+    "sku": "B-003",
+    "name": "Cedar Gasket 003",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 4.95
+  },
+  {
+    "sku": "B-004",
+    "name": "Elm Panel 004",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 5.12
+  },
+  {
+    "sku": "B-005",
+    "name": "Fir Housing 005",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 5.29
+  },
+  {
+    "sku": "B-006",
+    "name": "Gumwood Part 006",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 5.46
+  },
+  {
+    "sku": "B-007",
+    "name": "Iroko Bracket 007",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 5.63
+  },
+  {
+    "sku": "B-008",
+    "name": "Juniper Gasket 008",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 5.8
+  },
+  {
+    "sku": "B-009",
+    "name": "Larch Panel 009",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 5.97
+  },
+  {
+    "sku": "B-010",
+    "name": "Maple Housing 010",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 1.14
+  },
+  {
+    "sku": "B-011",
+    "name": "Alder Part 011",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 1.31
+  },
+  {
+    "sku": "B-012",
+    "name": "Birch Bracket 012",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 1.48
+  },
+  {
+    "sku": "B-013",
+    "name": "Cedar Gasket 013",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 1.65
+  },
+  {
+    "sku": "B-014",
+    "name": "Elm Panel 014",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 1.82
+  },
+  {
+    "sku": "B-015",
+    "name": "Fir Housing 015",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 1.99
+  },
+  {
+    "sku": "B-016",
+    "name": "Gumwood Part 016",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 2.16
+  },
+  {
+    "sku": "B-017",
+    "name": "Iroko Bracket 017",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 2.33
+  },
+  {
+    "sku": "B-018",
+    "name": "Juniper Gasket 018",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 2.5
+  },
+  {
+    "sku": "B-019",
+    "name": "Larch Panel 019",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 2.67
+  },
+  {
+    "sku": "B-020",
+    "name": "Maple Housing 020",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 2.84
+  },
+  {
+    "sku": "B-021",
+    "name": "Alder Part 021",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 3.01
+  },
+  {
+    "sku": "B-022",
+    "name": "Birch Bracket 022",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 3.18
+  },
+  {
+    "sku": "B-023",
+    "name": "Cedar Gasket 023",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 3.35
+  },
+  {
+    "sku": "B-024",
+    "name": "Elm Panel 024",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 3.52
+  },
+  {
+    "sku": "B-025",
+    "name": "Fir Housing 025",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 3.69
+  },
+  {
+    "sku": "B-026",
+    "name": "Gumwood Part 026",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 3.86
+  },
+  {
+    "sku": "B-027",
+    "name": "Iroko Bracket 027",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 4.03
+  },
+  {
+    "sku": "B-028",
+    "name": "Juniper Gasket 028",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 4.2
+  },
+  {
+    "sku": "B-029",
+    "name": "Larch Panel 029",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 4.37
+  },
+  {
+    "sku": "B-030",
+    "name": "Maple Housing 030",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 4.54
+  },
+  {
+    "sku": "B-031",
+    "name": "Alder Part 031",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 4.71
+  },
+  {
+    "sku": "B-032",
+    "name": "Birch Bracket 032",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 4.88
+  },
+  {
+    "sku": "B-033",
+    "name": "Cedar Gasket 033",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 5.05
+  },
+  {
+    "sku": "B-034",
+    "name": "Elm Panel 034",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 5.22
+  },
+  {
+    "sku": "B-035",
+    "name": "Fir Housing 035",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 5.39
+  },
+  {
+    "sku": "B-036",
+    "name": "Gumwood Part 036",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 5.56
+  },
+  {
+    "sku": "B-037",
+    "name": "Iroko Bracket 037",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 5.73
+  },
+  {
+    "sku": "B-038",
+    "name": "Juniper Gasket 038",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 5.9
+  },
+  {
+    "sku": "B-039",
+    "name": "Larch Panel 039",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 6.07
+  },
+  {
+    "sku": "B-040",
+    "name": "Maple Housing 040",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 1.24
+  },
+  {
+    "sku": "B-041",
+    "name": "Alder Part 041",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 1.41
+  },
+  {
+    "sku": "B-042",
+    "name": "Birch Bracket 042",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 1.58
+  },
+  {
+    "sku": "B-043",
+    "name": "Cedar Gasket 043",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 1.75
+  },
+  {
+    "sku": "B-044",
+    "name": "Elm Panel 044",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 1.92
+  },
+  {
+    "sku": "B-045",
+    "name": "Fir Housing 045",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 2.09
+  },
+  {
+    "sku": "B-046",
+    "name": "Gumwood Part 046",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 2.26
+  },
+  {
+    "sku": "B-047",
+    "name": "Iroko Bracket 047",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 2.43
+  },
+  {
+    "sku": "B-048",
+    "name": "Juniper Gasket 048",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 2.6
+  },
+  {
+    "sku": "B-049",
+    "name": "Larch Panel 049",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 2.77
+  },
+  {
+    "sku": "B-050",
+    "name": "Maple Housing 050",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 2.94
+  },
+  {
+    "sku": "C-001",
+    "name": "Alder Part 001",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 3.11
+  },
+  {
+    "sku": "C-002",
+    "name": "Birch Bracket 002",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 3.28
+  },
+  {
+    "sku": "C-003",
+    "name": "Cedar Gasket 003",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 3.45
+  },
+  {
+    "sku": "C-004",
+    "name": "Elm Panel 004",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 3.62
+  },
+  {
+    "sku": "C-005",
+    "name": "Fir Housing 005",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 3.79
+  },
+  {
+    "sku": "C-006",
+    "name": "Gumwood Part 006",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 3.96
+  },
+  {
+    "sku": "C-007",
+    "name": "Iroko Bracket 007",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 4.13
+  },
+  {
+    "sku": "C-008",
+    "name": "Juniper Gasket 008",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 4.3
+  },
+  {
+    "sku": "C-009",
+    "name": "Larch Panel 009",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 4.47
+  },
+  {
+    "sku": "C-010",
+    "name": "Maple Housing 010",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 4.64
+  },
+  {
+    "sku": "C-011",
+    "name": "Alder Part 011",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 4.81
+  },
+  {
+    "sku": "C-012",
+    "name": "Birch Bracket 012",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 4.98
+  },
+  {
+    "sku": "C-013",
+    "name": "Cedar Gasket 013",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 5.15
+  },
+  {
+    "sku": "C-014",
+    "name": "Elm Panel 014",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 5.32
+  },
+  {
+    "sku": "C-015",
+    "name": "Fir Housing 015",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 5.49
+  },
+  {
+    "sku": "C-016",
+    "name": "Gumwood Part 016",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 5.66
+  },
+  {
+    "sku": "C-017",
+    "name": "Iroko Bracket 017",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 5.83
+  },
+  {
+    "sku": "C-018",
+    "name": "Juniper Gasket 018",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 6.0
+  },
+  {
+    "sku": "C-019",
+    "name": "Larch Panel 019",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 1.17
+  },
+  {
+    "sku": "C-020",
+    "name": "Maple Housing 020",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 1.34
+  },
+  {
+    "sku": "C-021",
+    "name": "Alder Part 021",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 1.51
+  },
+  {
+    "sku": "C-022",
+    "name": "Birch Bracket 022",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 1.68
+  },
+  {
+    "sku": "C-023",
+    "name": "Cedar Gasket 023",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 1.85
+  },
+  {
+    "sku": "C-024",
+    "name": "Elm Panel 024",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 2.02
+  },
+  {
+    "sku": "C-025",
+    "name": "Fir Housing 025",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 2.19
+  },
+  {
+    "sku": "C-026",
+    "name": "Gumwood Part 026",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 2.36
+  },
+  {
+    "sku": "C-027",
+    "name": "Iroko Bracket 027",
+    "location": "A1",
+    "count": 4,
+    "unit_price": 2.53
+  },
+  {
+    "sku": "C-028",
+    "name": "Juniper Gasket 028",
+    "location": "A2",
+    "count": 5,
+    "unit_price": 2.7
+  },
+  {
+    "sku": "C-029",
+    "name": "Larch Panel 029",
+    "location": "B1",
+    "count": 6,
+    "unit_price": 2.87
+  },
+  {
+    "sku": "C-030",
+    "name": "Maple Housing 030",
+    "location": "B2",
+    "count": 4,
+    "unit_price": 3.04
+  },
+  {
+    "sku": "C-031",
+    "name": "Alder Part 031",
+    "location": "C1",
+    "count": 5,
+    "unit_price": 3.21
+  },
+  {
+    "sku": "C-032",
+    "name": "Birch Bracket 032",
+    "location": "C2",
+    "count": 6,
+    "unit_price": 3.38
+  },
+  {
+    "sku": "C-033",
+    "name": "Cedar Gasket 033",
+    "location": "D1",
+    "count": 4,
+    "unit_price": 3.55
+  },
+  {
+    "sku": "C-034",
+    "name": "Elm Panel 034",
+    "location": "A1",
+    "count": 5,
+    "unit_price": 3.72
+  },
+  {
+    "sku": "C-035",
+    "name": "Fir Housing 035",
+    "location": "A2",
+    "count": 6,
+    "unit_price": 3.89
+  },
+  {
+    "sku": "C-036",
+    "name": "Gumwood Part 036",
+    "location": "B1",
+    "count": 4,
+    "unit_price": 4.06
+  },
+  {
+    "sku": "C-037",
+    "name": "Iroko Bracket 037",
+    "location": "B2",
+    "count": 5,
+    "unit_price": 4.23
+  },
+  {
+    "sku": "C-038",
+    "name": "Juniper Gasket 038",
+    "location": "C1",
+    "count": 6,
+    "unit_price": 4.4
+  },
+  {
+    "sku": "C-039",
+    "name": "Larch Panel 039",
+    "location": "C2",
+    "count": 4,
+    "unit_price": 4.57
+  },
+  {
+    "sku": "C-040",
+    "name": "Maple Housing 040",
+    "location": "D1",
+    "count": 5,
+    "unit_price": 4.74
+  },
+  {
+    "sku": "C-041",
+    "name": "Alder Part 041",
+    "location": "A1",
+    "count": 6,
+    "unit_price": 4.91
+  },
+  {
+    "sku": "C-042",
+    "name": "Birch Bracket 042",
+    "location": "A2",
+    "count": 4,
+    "unit_price": 5.08
+  },
+  {
+    "sku": "C-043",
+    "name": "Cedar Gasket 043",
+    "location": "B1",
+    "count": 5,
+    "unit_price": 5.25
+  },
+  {
+    "sku": "C-044",
+    "name": "Elm Panel 044",
+    "location": "B2",
+    "count": 6,
+    "unit_price": 5.42
+  },
+  {
+    "sku": "C-045",
+    "name": "Fir Housing 045",
+    "location": "C1",
+    "count": 4,
+    "unit_price": 5.59
+  },
+  {
+    "sku": "C-046",
+    "name": "Gumwood Part 046",
+    "location": "C2",
+    "count": 5,
+    "unit_price": 5.76
+  },
+  {
+    "sku": "C-047",
+    "name": "Iroko Bracket 047",
+    "location": "D1",
+    "count": 6,
+    "unit_price": 5.93
+  },
+  {
+    "sku": "C-048",
+    "name": "Juniper Gasket 048",
+    "location": "A1",
+    "count": 7,
+    "unit_price": 2.145
+  },
+  {
+    "sku": "T-001",
+    "name": "Walnut Trap 001",
+    "location": "T1",
+    "count": 5,
+    "unit_price": 0.035
+  },
+  {
+    "sku": "T-002",
+    "name": "Walnut Trap 002",
+    "location": "T2",
+    "count": 3,
+    "unit_price": 0.025
+  }
 ]

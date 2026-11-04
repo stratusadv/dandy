@@ -3,7 +3,7 @@ source /entrypoints/common.sh
 
 cd /workdir
 status=0
-timeout 1200 pi -p "$AGENT_PROMPT" \
+timeout -k 30 "${AGENT_TIMEOUT_SECONDS:-1800}" pi -p "$AGENT_PROMPT" \
   --model stratus/stratus.turbo \
   --extension /eval/pi-stratus.ts \
   --session-dir /workdir/.pi-sessions \

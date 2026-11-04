@@ -89,7 +89,7 @@ class TestDandyCli(TestCase):
 
         self.assertTrue(should_continue)
         self.assertFalse(self.cli.last_turn_succeeded)
-        mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+        mock_error.assert_called_once_with(error='Dandy ran into an error', description='boom')
 
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
     @mock.patch.object(tui.printer, 'green_divider')
@@ -107,7 +107,7 @@ class TestDandyCli(TestCase):
         self.cli.process_user_input('first request')
 
         self.assertFalse(self.cli.last_turn_succeeded)
-        mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+        mock_error.assert_called_once_with(error='Dandy ran into an error', description='boom')
 
         mock_turn.side_effect = None
         mock_turn.return_value = mock.MagicMock(text='answer')
@@ -188,6 +188,8 @@ class TestDandyCli(TestCase):
             verbose_callback: Callable[[str], None] | None = None,
             tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
         ) -> object:
+            del message, progress_callback, verbose_callback
+
             tool_call_callback('write_file', {'file_path': 'src/foo.py', 'content': 'x'})
             tool_call_callback(
                 'edit_file', {'file_path': 'src/foo.py', 'old_string': 'a', 'new_string': 'b'}
@@ -312,7 +314,7 @@ class TestDandyCli(TestCase):
 
         self.assertTrue(should_continue)
         self.assertFalse(self.cli.last_turn_succeeded)
-        mock_error.assert_called_once_with(error='Coding agent failed', description='boom')
+        mock_error.assert_called_once_with(error='Dandy ran into an error', description='boom')
         self.assertIsNotNone(self.cli.active_name)
         loaded = self.cli.session_store.load(self.cli.active_name)
         self.assertEqual(loaded.last_request, 'Fix the login bug')

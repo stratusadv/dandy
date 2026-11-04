@@ -103,7 +103,7 @@ Use cases: orchestration of domain objects against the outside world.
 - `diligence/` — diligence handlers.
 - `agent/` — the base `Agent` (turns, runs, session save/load) and the CLI's
   `CodingAgent` child of it, plus `SessionStore` (named conversation files under
-  `.dandy/agent/sessions/`), session state, planning/coding bots, and the agent
+  `.dandy/agent/sessions/`), session state, the coding bot, and the agent
   toolset.
 
 ### `dandy/infrastructure/` — infrastructure

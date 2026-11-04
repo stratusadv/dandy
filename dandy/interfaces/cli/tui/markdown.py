@@ -325,16 +325,15 @@ class MarkdownRenderer:
         return '\n'.join(rendered)
 
     def _table_separator(self, left: str, middle: str, right: str, column_widths: list[int]) -> str:
-        border = self.term.grey
-        pieces = [border(left)]
+        pieces = [left]
 
         for column in range(len(column_widths)):
-            pieces.append(border('─' * column_widths[column]))
+            pieces.append('─' * (column_widths[column] + 2))
 
             if column < len(column_widths) - 1:
-                pieces.append(border(middle))
+                pieces.append(middle)
 
-        pieces.append(border(right))
+        pieces.append(right)
         return ''.join(pieces)
 
     def _table_row_lines(
@@ -366,7 +365,7 @@ class MarkdownRenderer:
 
                 cell_texts.append(cell_text)
 
-            rendered.append(f'{term.grey("│")} {" │ ".join(cell_texts)} {term.grey("│")}')
+            rendered.append(f'│ {" │ ".join(cell_texts)} │')
 
         return rendered
 

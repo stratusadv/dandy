@@ -104,6 +104,14 @@ class TestMarkdownRenderer(TestCase):
         self.assertIn(' 12 │', lines[3])
         self.assertIn('100 │', lines[4])
 
+    def test_render_table_border_matches_row_widths(self) -> None:
+        source = '| agent | pass | mean wall |\n| --- | --- | --- |\n| dandy | 2/3 | 349s |'
+        rendered = self.renderer.render(source)
+        lines = rendered.splitlines()
+
+        self.assertEqual(len(lines), 5)
+        self.assertEqual(len({self.renderer.term.length(line) for line in lines}), 1)
+
     def test_render_mixed_document_keeps_block_order(self) -> None:
         source = '# Build\n\nRun the steps:\n\n- make\n- test\n\n```sh\necho ok\n```\n\nDone.'
         rendered = self.renderer.render(source)

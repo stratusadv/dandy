@@ -9,7 +9,7 @@ proxy_pid=$!
 sleep 1
 
 status=0
-timeout 1200 python3 /dandy-lib/dandy/interfaces/cli/main.py "$AGENT_PROMPT" \
+timeout -k 30 "${AGENT_TIMEOUT_SECONDS:-1800}" python3 /dandy-lib/dandy/interfaces/cli/main.py "$AGENT_PROMPT" \
   > /workdir/transcript.log 2>&1 || status=$?
 kill "$proxy_pid" 2>/dev/null || true
 wait "$proxy_pid" 2>/dev/null || true

@@ -6,6 +6,7 @@ from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
+from dandy.interfaces.cli.error_log import log_cli_error
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.constants import AGENTS_MD_FILE_NAME
@@ -29,12 +30,13 @@ def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) ->
     try:
         naming_bot.reset()
         intel = naming_bot.process(request_text)
-    except Exception:
+    except Exception as error:
+        log_cli_error(session.project_base_path, 'session naming', error)
         return request_text
 
     name = intel.name.strip()
 
-    return name if name else request_text
+    return name or request_text
 
 
 class DandyCli:
@@ -182,8 +184,6 @@ class DandyCli:
         return True
 
     def process_agent_input(self, user_input: str) -> bool:
-        tui.printer.running_phrase()
-
         stop_signal.clear()
 
         succeeded = True
@@ -202,7 +202,6 @@ class DandyCli:
 
         try:
             result_intel = tui.printer.run_timed_task(
-                action_name='Coding',
                 task=user_input[:80],
                 work=lambda update: self.agent.turn(
                     user_input,
@@ -217,7 +216,8 @@ class DandyCli:
         except RunStoppedError:
             tui.printer.output('Run stopped.')
         except Exception as error:
-            tui.printer.error(error='Coding agent failed', description=str(error))
+            log_cli_error(session.project_base_path, 'agent turn', error)
+            tui.printer.error(error='Dandy ran into an error', description=str(error))
             succeeded = False
         else:
             tui.printer.green_divider()
@@ -261,7 +261,6 @@ class DandyCli:
 
         try:
             summary = tui.printer.run_timed_task(
-                action_name='Init',
                 task=f'{AGENTS_MD_FILE_NAME} for {session.project_base_path}',
                 work=lambda update: self.agent.run_init_pass(
                     progress_callback=update, verbose_callback=self.verbose_callback
@@ -272,6 +271,7 @@ class DandyCli:
             tui.printer.output('Run stopped.')
             return False
         except Exception as error:
+            log_cli_error(session.project_base_path, 'init', error)
             tui.printer.error(error='Init failed', description=str(error))
             return False
 

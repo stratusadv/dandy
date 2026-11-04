@@ -32,11 +32,10 @@ class GetWeatherTool(BaseTool):
   `action_output(**validated_args)` override let a UI show exactly what the tool is
   doing while it runs — for example, label `'Reading'` with output
   `'src/foo.py lines 1-10'`. Without a label, the title-cased tool name is used;
-  without an output override, the label stands alone. An optional
-  `action_ascii_char` class attribute (default `'•'`) sets the character the CLI
-  prefixes the tool's beat lines with. The `can_mutate_state` class attribute
-  (default `False`) marks tools that can change state; the CLI renders their
-  beat labels in bold orange instead of grey.
+  without an output override, the label stands alone. The `can_mutate_state`
+  class attribute (default `False`) marks tools that can change state; the CLI
+  renders their beat labels in bold orange instead of grey, and the fixed `↳`
+  arrow that prefixes each tool beat line is colored like the label.
 
 ## The execute-and-loop
 
@@ -74,21 +73,30 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   per event: one for the model's narration sentence (when it wrote one, a
   description-only beat marked `kind='narration'`), and one per executed tool
   carrying the tool's `action_label` as `label`, its
-  `action_output(**validated_args)` result as `description`, its
-  `action_ascii_char` as `ascii_char`, and its `can_mutate_state` flag as
-  `can_mutate_state`. Compaction notices are description-only
+  `action_output(**validated_args)` result as `description`, and its
+  `can_mutate_state` flag as `can_mutate_state`. Compaction notices are description-only
   beats too. The split exists so a UI can style the parts independently (the CLI
   renders every line flush left as a running list: consecutive tool beats with
-  the same label share one heading line — the label in bold grey, bold orange
-  when `can_mutate_state` is set — printed exactly once when the label appears
-  and again when it reappears after a change, with each description on its own
-  line below the heading prefixed by its `ascii_char`, so bullets exist only on
-  tool output lines; the model's narration renders in bold blue with no prefix,
-  and system beats print plain); the animating frame folds a multi-line beat
-  onto one line, and the settled frame prints it in full. File paths in a tool
-  beat's description are emitted as clickable `file://` links (raw OSC 8,
-  resolved against the project root), so clicking one opens the file with the
-  OS default handler.
+  the same label share one heading line — the label in bold skyblue, bold orange
+  when `can_mutate_state` is set — printed once when the label appears and
+  again whenever the label changes or a non-tool line (a thought or a notice)
+  has printed in between, with each description on its own
+  line below the heading prefixed by a `↳` arrow colored like the label, so
+  arrows exist only on tool output lines; each heading, and each narration, is
+  preceded by a blank line; the model's narration renders in bold blue and
+  compaction notices in bold purple, both with no prefix, and system beats
+  print plain). The newest beat animates: a bold blue thinking-phrase line
+  sits on its own line below the beat, a random phrase is drawn once and held
+  for three seconds (the phrase line carries no animated dots), and the
+  region is redrawn in place every tick so it never appends to the scrollback;
+  the animating frame folds a multi-line description onto the single line above
+  the phrase line, and the settled frame prints the beat's text in full,
+  clearing every line it overwrites so no tail of the longer animating frame
+  survives. The leftover phrase line is reused as the first line of the next
+  region, so beats within a group settle with no blank line between them.
+  File paths in a tool beat's description are emitted as clickable `file://`
+  links (raw OSC 8, resolved against the project root), so clicking one opens
+  the file with the OS default handler.
 - A `verbose_callback` gets one line per event for debugging, including a `GAVE UP` line
   when a finite cap is hit.
 - A `tool_call_callback` (typed `Callable[[str, dict[str, object]], None]`) is fired once

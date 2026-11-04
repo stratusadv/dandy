@@ -12,7 +12,7 @@ framework models for you* — the same boundaries your application code will fol
 | Observability (events, recordings, renderers) | **Supporting** | Essential to the product's trust story, but not the differentiator. Modeled, but deliberately simple. |
 | Concurrency (futures) | **Generic** | A commodity capability; the framework ships one small thread-pool primitive and stops. |
 | Persistence (caching, file I/O) | **Generic** | Commodity memoization and disk access. Deliberately dumb: it hashes arguments, it does not understand them. |
-| Coding agent (agentic coding session, planning, toolset, session state) | **Supporting (own context)** | A bounded context *built on* the core, with its own language: turns, plans, project paths, agent tools. |
+| Coding agent (agentic coding session, toolset, session state) | **Supporting (own context)** | A bounded context *built on* the core, with its own language: turns, project paths, agent tools. |
 
 ## The contexts
 

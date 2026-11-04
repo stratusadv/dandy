@@ -1,7 +1,7 @@
 # The Coding Agent
 
 **Domain concept:** the [coding agent bounded context](../domain_model/contexts.md#5-the-coding-agent-own-context)
-— turns, plans, session state, and an agent toolset, built *on* the core tool-calling
+— turns, session state, and an agent toolset, built *on* the core tool-calling
 loop.
 
 **Lives in:** `dandy/application/agent/` (the use case) and `dandy/interfaces/cli/` (the
@@ -24,11 +24,8 @@ your message
   │
   ▼
 CodingAgent.turn              (dandy/application/agent/coding_agent.py)
-  │  1. optional planning turn (a base-Agent hook):
-  │       PlanningBot (THINKING config) writes an Implementation Plan
-  │       that is folded into the coding prompt
-  │  2. compact the persistent history if it approaches CONTEXT_SIZE
-  │  3. run the core tool-calling loop:
+  │  1. compact the persistent history if it approaches CONTEXT_SIZE
+  │  2. run the core tool-calling loop:
   │       bot.llm.tools.prompt_to_intel(
   │           ..., tools=AGENT_TOOLS,
   │           message_history=self.history,
@@ -38,9 +35,9 @@ CodingAgent.turn              (dandy/application/agent/coding_agent.py)
 the agent's final answer (rendered as terminal markdown)
 ```
 
-`CodingAgent` is the framework's own child of the base [Agent](agent.md): the planning
-pass is an override of the base `Agent`'s `_prepare_message` hook, so everything else
-(compaction, the fit check, session save/load) comes from the base class unchanged.
+`CodingAgent` is the framework's own child of the base [Agent](agent.md) and a plain
+one at that: the turn (compaction, the fit check, the tool loop) and session save/load
+all come from the base class unchanged.
 
 Because each turn reuses the persistent `MessageHistory`, the agent remembers the
 conversation; `replace_message_history=True` attaches *your* history object so the
@@ -49,7 +46,7 @@ conversation accumulates in it.
 ## Project instructions (AGENTS.md)
 
 When the project root contains an `AGENTS.md` file, its content is folded into the
-`CodingBot` and `PlanningBot` guidelines as a **Project Instructions** section, so it
+`CodingBot` guidelines as a **Project Instructions** section, so it
 is part of the system message for every turn (and for one-shot mode). The file is read
 at agent construction, and the welcome banner shows a line for it (`found (15.3 KB) -
 loaded into the agent system prompt` or `not found - run /init to create one`).
@@ -75,8 +72,8 @@ project-aware toolset (`dandy/application/agent/tools/`):
   `create_directory`, `list_directory`, plus `search_files` (grep-style, skipping
   `.git`/`.dandy`/`node_modules`/`.venv`/`__pycache__`, capped output).
 - **Commands** — `run_command` (no user confirmation), `git_status`, `git_diff`.
-- **Questions** — `question`, on the coding agent only (the planning and init
-  passes do not ask): the model pauses the turn, shows you a question with
+- **Questions** — `question`, on the coding agent only (the init pass does
+  not ask): the model pauses the turn, shows you a question with
   optional numbered choices, and waits for your answer (a choice number or
   free text), which it receives as the tool result.
 
@@ -125,6 +122,12 @@ a session-status line (how many are saved and how to resume the latest).
 In a git project, dandy makes sure `.dandy/` is in the project's `.gitignore`
 (adding the entry if it is missing), so saved sessions never show up as
 untracked files in `git status`. Non-git directories are left untouched.
+
+When the CLI hits an error — a failed turn, a failed init pass, or an
+unhandled crash at startup — it appends a timestamped entry with the full
+traceback to `.dandy/logs/errors.log` in the project, and trims the log to
+the newest 10000 lines after each write, so it stays small. Because the log
+lives under `.dandy/`, it is gitignored along with the sessions.
 
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token

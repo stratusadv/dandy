@@ -85,8 +85,8 @@ calibrated units.
 `compact_message_history` (domain, `dandy/domain/message/message.py`) is what keeps
 long sessions inside the window. It is called automatically:
 
-- before every coding-agent chat (after the planning pass, with the real incoming
-  prompt — plan section included — subtracted from the target), and
+- before every coding-agent turn (with the real incoming prompt subtracted from
+  the target), and
 - before every tool round by the tool-calling loop.
 
 The rules: the message in the system slot is always kept, and so is the opening
@@ -95,8 +95,8 @@ tool round, its declaration and results are protected along with it, so the kept
 prefix stays valid on the wire); drop oldest tool-use rounds
 first, then oldest plain exchanges; never leave a `tool` result without its assistant
 tool-call, so when the newest message is a tool result its whole round is dropped.
-Compaction reports progress (`Compacting conversation history (...) tokens...`)
-through the agent's `progress_callback`.
+Compaction reports progress through the agent's `progress_callback` with a
+`kind='compaction'` beat ("Compacting my thoughts into a more manageable size").
 
 Tool results are capped at 8000 characters before they enter the conversation — the
 built-in `read_file` and `list_directory` tools cap their own output the same way — so

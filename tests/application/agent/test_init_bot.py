@@ -59,7 +59,7 @@ class TestRunInitPass(TestCase):
             content_response('{"text": "Created AGENTS.md covering the commands."}'),
         ]
 
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
 
         summary = agent.run_init_pass()
 
@@ -92,7 +92,7 @@ class TestRunInitPass(TestCase):
             content_response('{"text": "Refreshed AGENTS.md."}'),
         ]
 
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
 
         summary = agent.run_init_pass()
 
@@ -115,7 +115,7 @@ class TestRunInitPass(TestCase):
     ) -> None:
         mock_post_request.side_effect = [content_response('{"text": "Skipped by the model."}')]
 
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
 
         summary = agent.run_init_pass()
 

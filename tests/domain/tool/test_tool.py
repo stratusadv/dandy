@@ -110,11 +110,6 @@ class TestBaseTool(TestCase):
         self.assertEqual(tool.action_label, '')
         self.assertIsNone(tool.action_output(location='Paris'))
 
-    def test_action_ascii_char_defaults_to_bullet(self):
-        tool = WeatherTool()
-
-        self.assertEqual(tool.action_ascii_char, '•')
-
     def test_can_mutate_state_defaults_to_false(self) -> None:
         tool = WeatherTool()
 

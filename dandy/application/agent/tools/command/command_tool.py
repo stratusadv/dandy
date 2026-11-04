@@ -16,7 +16,6 @@ class RunCommandTool(BaseTool):
     )
 
     action_label = 'Executing'
-    action_ascii_char = '◦'
     can_mutate_state = True
 
     timeout_seconds = 30

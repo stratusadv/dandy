@@ -31,7 +31,7 @@ class TestCodingAgentMultiTurn(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        self.agent = CodingAgent(run_planning=False)
+        self.agent = CodingAgent()
 
     def tearDown(self) -> None:
         session.project_base_path = self.original_project_base_path
@@ -60,7 +60,7 @@ class TestCodingAgentMultiTurn(TestCase):
         self, mock_post_request: mock.MagicMock
     ) -> None:
         self._write_agents_md('# Project notes\n\nUse the make smoke command for local checks.')
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
         mock_post_request.side_effect = [content_response('{"text": "Noted."}')]
 
         agent.turn('Say noted')
@@ -77,7 +77,7 @@ class TestCodingAgentMultiTurn(TestCase):
     def test_system_prompt_has_no_project_instructions_without_agents_md(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
         mock_post_request.side_effect = [content_response('{"text": "Noted."}')]
 
         agent.turn('Say noted')
@@ -91,7 +91,7 @@ class TestCodingAgentMultiTurn(TestCase):
         self, mock_post_request: mock.MagicMock
     ) -> None:
         self._write_agents_md('Rule one: use make smoke.')
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
 
         responses = iter(
             [
@@ -226,9 +226,7 @@ class TestCodingAgentMultiTurn(TestCase):
 
         self.agent.turn('continue', progress_callback=progress_calls.append)
 
-        self.assertFalse(
-            any('Compacting conversation history' in step.description for step in progress_calls)
-        )
+        self.assertFalse(any(step.kind == 'compaction' for step in progress_calls))
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_forwards_verbose_details(self, mock_post_request: mock.MagicMock) -> None:
@@ -411,7 +409,7 @@ class TestCodingAgentCompaction(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        self.agent = CodingAgent(run_planning=False)
+        self.agent = CodingAgent()
 
     def tearDown(self) -> None:
         session.project_base_path = self.original_project_base_path
@@ -448,7 +446,8 @@ class TestCodingAgentCompaction(TestCase):
         self.agent.turn('continue', progress_callback=progress_calls.append)
 
         self.assertIn(
-            'Compacting conversation history', ' '.join(step.description for step in progress_calls)
+            'Compacting my thoughts into a more manageable size',
+            ' '.join(step.description for step in progress_calls),
         )
 
         request_intel = mock_post_request.call_args.kwargs['request_intel']
@@ -494,28 +493,28 @@ class TestCodingAgentCompaction(TestCase):
 
         return message_history
 
-    def test_compaction_counts_the_plan_section_of_the_prompt(self) -> None:
+    def test_compaction_counts_a_long_incoming_prompt(self) -> None:
         self.agent.max_context_tokens = 5000
 
-        raw_prompt = 'Change the greeting'
-        plan_prompt = (
+        short_prompt = 'Change the greeting'
+        long_prompt = (
             Prompt()
-            .text(raw_prompt)
+            .text(short_prompt)
             .line_break()
-            .heading('Implementation Plan')
+            .heading('Extra Context')
             .line_break()
-            .text('Step one: ' + ('do the thing ' * 100))
+            .text('Note: ' + ('do the thing ' * 100))
         )
 
         self.agent.history = self._build_history_with_tool_rounds(12)
-        self.agent._compact_history_for_next_message(message=raw_prompt)
-        raw_remaining_count = len(self.agent.history)
+        self.agent._compact_history_for_next_message(message=short_prompt)
+        short_remaining_count = len(self.agent.history)
 
         self.agent.history = self._build_history_with_tool_rounds(12)
-        self.agent._compact_history_for_next_message(message=plan_prompt)
-        plan_remaining_count = len(self.agent.history)
+        self.agent._compact_history_for_next_message(message=long_prompt)
+        long_remaining_count = len(self.agent.history)
 
-        self.assertLess(plan_remaining_count, raw_remaining_count)
+        self.assertLess(long_remaining_count, short_remaining_count)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_does_not_compact_under_budget(self, mock_post_request: mock.MagicMock) -> None:
@@ -527,22 +526,20 @@ class TestCodingAgentCompaction(TestCase):
 
         self.agent.turn('short question', progress_callback=progress_calls.append)
 
-        self.assertFalse(
-            any('Compacting conversation history' in call.description for call in progress_calls)
-        )
+        self.assertFalse(any(call.kind == 'compaction' for call in progress_calls))
 
     def test_agent_resolves_context_size_from_coding_config(self) -> None:
         self.assertEqual(self.agent.max_context_tokens, 262_144)
 
     def test_agent_context_size_accepts_string_values(self) -> None:
         with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size='8000')):
-            agent = CodingAgent(run_planning=False)
+            agent = CodingAgent()
 
         self.assertEqual(agent.max_context_tokens, 8000)
 
     def test_agent_context_size_falls_back_when_absent(self) -> None:
         with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size=None)):
-            agent = CodingAgent(run_planning=False)
+            agent = CodingAgent()
 
         self.assertEqual(agent.max_context_tokens, AGENT_MAX_CONTEXT_TOKENS_DEFAULT)
 
@@ -561,98 +558,6 @@ def _coding_llm_configs(context_size: int | str | None) -> dict:
     return {'DEFAULT': default_config, 'THINKING': {'MODEL': 'gpt-test'}}
 
 
-def user_message_text(request_intel: HttpResponseIntel, index: int = 1) -> str:
-    messages = request_intel.json_data['messages']
-    return ''.join(part.get('text') or '' for part in messages[index]['content'])
-
-
-class TestCodingAgentPlanning(TestCase):
-    def setUp(self) -> None:
-        self.temp_directory_context = TemporaryDirectory()
-        self.temp_directory_path = Path(self.temp_directory_context.name)
-        self.original_project_base_path = session.project_base_path
-        session.project_base_path = self.temp_directory_path
-
-        self.agent = CodingAgent(run_planning=True)
-
-    def tearDown(self) -> None:
-        session.project_base_path = self.original_project_base_path
-        self.temp_directory_context.cleanup()
-
-    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_turn_creates_plan_and_feeds_it_to_coding_bot(
-        self, mock_post_request: mock.MagicMock
-    ) -> None:
-        mock_post_request.side_effect = [
-            content_response('{"text": "Step 1: read the code, Step 2: edit it."}'),
-            content_response('{"text": "Done."}'),
-        ]
-
-        progress_calls: list[StoryBeat] = []
-
-        result = self.agent.turn('Add a feature', progress_callback=progress_calls.append)
-
-        self.assertEqual(result.text, 'Done.')
-        self.assertEqual(mock_post_request.call_count, 2)
-        self.assertIn('Planning', [call.description for call in progress_calls])
-
-        coding_request_intel = mock_post_request.call_args_list[1].kwargs['request_intel']
-        coding_user_text = user_message_text(coding_request_intel)
-        self.assertIn('Add a feature', coding_user_text)
-        self.assertIn('Implementation Plan', coding_user_text)
-        self.assertIn('Step 1: read the code, Step 2: edit it.', coding_user_text)
-
-    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_turn_skips_planning_when_disabled(self, mock_post_request: mock.MagicMock) -> None:
-        mock_post_request.side_effect = [content_response('{"text": "Done."}')]
-
-        self.agent.run_planning = False
-
-        result = self.agent.turn('Add a feature')
-
-        self.assertEqual(result.text, 'Done.')
-        self.assertEqual(mock_post_request.call_count, 1)
-
-        coding_user_text = user_message_text(mock_post_request.call_args.kwargs['request_intel'])
-        self.assertIn('Add a feature', coding_user_text)
-        self.assertNotIn('Implementation Plan', coding_user_text)
-
-    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_planning_does_not_give_up_after_five_tool_rounds(
-        self, mock_post_request: mock.MagicMock
-    ) -> None:
-        responses = [tool_call_response('search_files', '{"query": "needle"}') for _ in range(6)]
-        responses.append(content_response('{"text": "A plan."}'))
-        responses.append(content_response('{"text": "Done."}'))
-        mock_post_request.side_effect = responses
-
-        result = self.agent.turn('Investigate then do it')
-
-        self.assertEqual(result.text, 'Done.')
-        self.assertEqual(mock_post_request.call_count, 8)
-
-    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_planning_conversation_starts_fresh_each_turn(
-        self, mock_post_request: mock.MagicMock
-    ) -> None:
-        mock_post_request.side_effect = [
-            content_response('{"text": "First plan."}'),
-            content_response('{"text": "First answer."}'),
-            content_response('{"text": "Second plan."}'),
-            content_response('{"text": "Second answer."}'),
-        ]
-
-        self.agent.turn('First request')
-        self.agent.turn('Second request')
-
-        planning_messages = self.agent.planning_bot.llm._llm_connector.request_body.messages
-
-        self.assertEqual(
-            [message.role for message in planning_messages.messages],
-            ['system', 'user', 'assistant'],
-        )
-
-
 class TestCodingAgentQuestionTool(TestCase):
     def setUp(self) -> None:
         self.temp_directory_context = TemporaryDirectory()
@@ -669,7 +574,7 @@ class TestCodingAgentQuestionTool(TestCase):
         return [tool for tool in agent.tools if isinstance(tool, QuestionTool)]
 
     def test_tools_include_one_question_tool(self) -> None:
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
 
         self.assertEqual(len(self._question_tools(agent)), 1)
         self.assertIsNone(self._question_tools(agent)[0].ask_user)
@@ -678,7 +583,7 @@ class TestCodingAgentQuestionTool(TestCase):
         def ask_user(question: str, choices: list[str]) -> str:
             return 'answer'
 
-        agent = CodingAgent(run_planning=False, ask_user=ask_user)
+        agent = CodingAgent(ask_user=ask_user)
 
         self.assertIs(self._question_tools(agent)[0].ask_user, ask_user)
 
@@ -686,7 +591,7 @@ class TestCodingAgentQuestionTool(TestCase):
     def test_turn_feeds_the_user_answer_back_to_the_model(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        agent = CodingAgent(run_planning=False, ask_user=lambda question, choices: 'blue')
+        agent = CodingAgent(ask_user=lambda question, choices: 'blue')
         mock_post_request.side_effect = [
             tool_call_response(
                 'question',
@@ -711,7 +616,7 @@ class TestCodingAgentQuestionTool(TestCase):
     def test_turn_without_ask_user_gets_the_no_user_answer(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        agent = CodingAgent(run_planning=False)
+        agent = CodingAgent()
         mock_post_request.side_effect = [
             tool_call_response('question', '{"question": "Which color should the banner be?"}'),
             content_response('{"text": "Assumed blue."}'),

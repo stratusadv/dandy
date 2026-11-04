@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable
 
+from pydantic import ValidationError
+
 from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
@@ -221,6 +223,20 @@ class Agent:
         self.last_request = session.last_request
         self.bot.reset()
 
+    def save_session_json(self) -> str:
+        """The conversation snapshot as a JSON string for external storage."""
+        return self.save_session().model_dump_json()
+
+    def load_session_json(self, session_json: str) -> None:
+        """Replace the conversation with a snapshot from save_session_json."""
+        try:
+            session = AgentSession.model_validate_json(session_json)
+        except ValidationError:
+            message = 'The session JSON is not a valid agent session snapshot.'
+            raise AgentRecoverableError(message) from None
+
+        self.load_session(session)
+
     def _has_done_field(self) -> bool:
         return 'done' in getattr(self.intel_class, 'model_fields', {})
 
@@ -273,7 +289,11 @@ class Agent:
             return
 
         if progress_callback is not None:
-            description = f'Compacting conversation history ({current_token_count} tokens)...'
-            progress_callback(StoryBeat(description=description))
+            progress_callback(
+                StoryBeat(
+                    description='Compacting my thoughts into a more manageable size',
+                    kind='compaction',
+                )
+            )
 
         compact_message_history(history=self.history, max_context_tokens=target_token_count)

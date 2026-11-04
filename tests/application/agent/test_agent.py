@@ -227,6 +227,48 @@ class TestAgentSession(TestCase):
         self.assertIsNone(self.agent.last_request)
         self.assertEqual(len(self.agent.history), 0)
 
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_save_load_session_json_round_trip(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "It is sunny.", "done": true}'),
+            content_response('{"text": "Loaded answer.", "done": true}'),
+        ]
+
+        self.agent.turn('What is the weather in Austin?')
+        session_json = self.agent.save_session_json()
+
+        fresh_agent = Agent(ToolBot(), tools=[WeatherTool()])
+        fresh_agent.load_session_json(session_json)
+        result = fresh_agent.turn('And in Dallas?')
+
+        self.assertEqual(result.text, 'Loaded answer.')
+        self.assertEqual(fresh_agent.last_request, 'And in Dallas?')
+
+        resumed_messages = _request_messages_for_call(mock_post_request, 2)
+        user_texts = [
+            _message_text(message) for message in resumed_messages if message['role'] == 'user'
+        ]
+        self.assertTrue(any('Austin' in text for text in user_texts))
+        self.assertTrue(any('Dallas' in text for text in user_texts))
+        self.assertIn('tool', [message['role'] for message in resumed_messages])
+
+    def test_save_session_json_of_empty_agent_round_trips(self) -> None:
+        session_json = self.agent.save_session_json()
+
+        self.agent.load_session_json(session_json)
+
+        self.assertEqual(len(self.agent.history), 0)
+        self.assertIsNone(self.agent.last_request)
+
+    def test_load_session_json_rejects_invalid_json(self) -> None:
+        for invalid_json in ('not a session', '{"messages": "nope"}', '{"token_count": "lots"}'):
+            with self.assertRaises(AgentRecoverableError):
+                self.agent.load_session_json(invalid_json)
+
+        self.assertEqual(len(self.agent.history), 0)
+        self.assertIsNone(self.agent.last_request)
+
 
 class TestAgentRun(TestCase):
     def setUp(self) -> None:

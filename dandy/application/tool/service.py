@@ -217,8 +217,12 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             return
 
         if progress_callback is not None:
-            description = f'Compacting conversation history ({current_token_count} tokens)...'
-            progress_callback(StoryBeat(description=description))
+            progress_callback(
+                StoryBeat(
+                    description='Compacting my thoughts into a more manageable size',
+                    kind='compaction',
+                )
+            )
 
         compact_message_history(history=self.obj.messages, max_context_tokens=target_token_count)
 
@@ -271,10 +275,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             description = tool.action_output(**arguments_kwargs) or ''
             progress_callback(
                 StoryBeat(
-                    label=label,
-                    description=description,
-                    ascii_char=tool.action_ascii_char,
-                    can_mutate_state=tool.can_mutate_state,
+                    label=label, description=description, can_mutate_state=tool.can_mutate_state
                 )
             )
 

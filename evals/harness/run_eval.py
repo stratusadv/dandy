@@ -1,6 +1,8 @@
 import argparse
 import csv
 import json
+import shutil
+import signal
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -34,6 +36,23 @@ RESULTS_FIELDS = [
     'note',
 ]
 
+JUDGE_TIMEOUT_SECONDS = 300
+JUDGE_TIMEOUT_MESSAGE = f'judge timed out after {JUDGE_TIMEOUT_SECONDS} seconds'
+AGENT_TIMEOUT_EXIT_CODES = {124, 137}
+RUN_ARTIFACTS = (
+    'judge.json',
+    'final.diff',
+    'final.diff.stat',
+    'check.log',
+    'agent.exit',
+    'docker.stderr',
+    'transcript.log',
+    'transcript.json',
+    'stderr.log',
+    'proxy.log',
+    'usage.jsonl',
+)
+
 
 def write_csv(path: Path, rows: list[dict]) -> None:
     with open(path, 'w', newline='') as f:
@@ -41,6 +60,30 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writeheader()
         for row in rows:
             writer.writerow(row)
+
+
+def _judge_alarm(_signum: int, _frame: object) -> None:
+    raise TimeoutError(JUDGE_TIMEOUT_MESSAGE)
+
+
+def archive_run(run_root: Path, stamp: str) -> Path:
+    archive_root = run_root.parent / 'archive' / stamp
+    archive_root.mkdir(parents=True, exist_ok=True)
+    for name in ('results.csv', 'report.md'):
+        source = run_root / name
+        if source.exists():
+            shutil.copy2(source, archive_root / name)
+    for child in sorted(run_root.iterdir()):
+        workdir = child / 'workdir'
+        if not workdir.is_dir():
+            continue
+        dest = archive_root / child.name
+        dest.mkdir(exist_ok=True)
+        for name in RUN_ARTIFACTS:
+            source = workdir / name
+            if source.exists():
+                shutil.copy2(source, dest / name)
+    return archive_root
 
 
 def main() -> None:
@@ -76,15 +119,16 @@ def main() -> None:
             try:
                 agent_result = docker_run_agent(agent, run_name, run_dir, prompt)
                 row['wall_s'] = agent_result['wall_s']
-                row['timed_out'] = agent_result['timed_out']
                 (run_dir / 'docker.stderr').write_text(agent_result['stderr'])
-                if agent_result['exit_code'] not in (0, None):
+                row['agent_exit'] = agent_exit_code(run_dir)
+                timed = agent_result['timed_out'] or row['agent_exit'] in AGENT_TIMEOUT_EXIT_CODES
+                row['timed_out'] = timed
+                if not row['timed_out'] and agent_result['exit_code'] not in (0, None):
                     tail = agent_result['stderr'].strip().splitlines()[-3:]
                     row['note'] = f'docker exit {agent_result["exit_code"]}: ' + ' | '.join(tail)
-                row['agent_exit'] = agent_exit_code(run_dir)
                 row['diff_stat'] = diff_stat(run_dir)
                 row['pass'] = docker_run_check(f'{run_name}-check', run_dir)
-                if agent_result['timed_out']:
+                if row['timed_out']:
                     row['note'] = 'harness timeout'
             except Exception as exc:
                 row['note'] = f'error: {exc}'
@@ -98,28 +142,41 @@ def main() -> None:
             row['output_tokens'] = out_tokens
             row['cost_usd'] = cost_usd(in_tokens, out_tokens)
             record(row)
-            print(f'[{agent} run {run_index}] pass={row["pass"]} wall={row.get("wall_s")}s '
-                  f'tokens={in_tokens}+{out_tokens} ${row["cost_usd"]} note={row["note"]!r}')
+            print(
+                f'[{agent} run {run_index}] pass={row["pass"]} wall={row.get("wall_s")}s '
+                f'tokens={in_tokens}+{out_tokens} ${row["cost_usd"]} note={row["note"]!r}',
+                flush=True,
+            )
 
     with ThreadPoolExecutor(max_workers=len(agents)) as pool:
         list(pool.map(run_agent, agents))
 
     if not args.no_judge:
+        signal.signal(signal.SIGALRM, _judge_alarm)
         for row in results:
             run_dir = run_root / f"{row['agent']}-run{row['run']}" / 'workdir'
             try:
                 from judge import judge_run
 
-                judged = judge_run(run_dir, task_statement)
+                signal.setitimer(signal.ITIMER_REAL, JUDGE_TIMEOUT_SECONDS)
+                try:
+                    judged = judge_run(run_dir, task_statement)
+                finally:
+                    signal.setitimer(signal.ITIMER_REAL, 0)
                 row['judge_total'] = judged['total']
                 (run_dir / 'judge.json').write_text(json.dumps(judged, indent=2))
-                print(f"[{row['agent']} run {row['run']}] judge total={judged['total']}")
+                print(
+                    f"[{row['agent']} run {row['run']}] judge total={judged['total']}",
+                    flush=True,
+                )
             except Exception as exc:
                 row['note'] = f'{row["note"]}; judge error: {exc}'.strip('; ')
             write_csv(run_root / 'results.csv', results)
 
     render_report(run_root, results, stamp)
-    print(f'report: {run_root / "report.md"}')
+    archive_root = archive_run(run_root, stamp)
+    print(f'report: {run_root / "report.md"}', flush=True)
+    print(f'archive: {archive_root}', flush=True)
 
 
 if __name__ == '__main__':

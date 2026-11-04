@@ -33,28 +33,31 @@ def render_report(run_root: Path, rows: list[dict], stamp: str) -> None:
     out = []
     out.append(f'# CLI eval: dandy vs opencode vs pi vs crush\n')
     out.append(f'- stamp: `{stamp}`')
-    out.append('- task: stockroom (spec-compliance: 4 planted bugs + 1 missing command, 15 hidden tests)')
+    out.append('- task: stockroom (spec-compliance: 6 bugs + 4 missing commands, 81 hidden tests)')
     out.append('- model: `stratus.turbo` for all four agents (same endpoint, same model, same prompt)')
     out.append('- runs per agent: 3 independent containers; judge: dandy `JudgeBot` on `stratus.thinking`')
     out.append('- cost = tokens x stratus.turbo list price ($1.00/$5.00 per Mtok)\n')
 
     out.append('## Aggregate\n')
-    out.append('| agent | passed | wall (mean) | cost (total) | judge (mean) |')
-    out.append('|---|---|---|---|---|')
+    out.append('| agent | passed | timeouts | wall (mean) | cost (total) | judge (mean) |')
+    out.append('|---|---|---|---|---|---|')
     for agent in AGENTS:
         agent_rows = [row for row in rows if row['agent'] == agent]
         if not agent_rows:
             continue
         passed = sum(1 for row in agent_rows if str(row['pass']).lower() == 'true')
-        walls = [float(row['wall_s']) for row in agent_rows if row.get('wall_s')]
+        normal = [row for row in agent_rows if str(row.get('timed_out') or '').lower() != 'true']
+        timeouts = len(agent_rows) - len(normal)
+        walls = [float(row['wall_s']) for row in normal if row.get('wall_s')]
         mean_wall = sum(walls) / len(walls) if walls else 0
         total_cost = sum(float(row['cost_usd'] or 0) for row in agent_rows)
         judges = [float(row['judge_total']) for row in agent_rows if row.get('judge_total')]
         mean_judge = sum(judges) / len(judges) if judges else 0
         out.append(
-            f'| {agent} | {passed}/{len(agent_rows)} | {mean_wall:.0f}s | ${total_cost:.4f} | '
-            f'{mean_judge:.1f} |'
+            f'| {agent} | {passed}/{len(agent_rows)} | {timeouts} | {mean_wall:.0f}s | '
+            f'${total_cost:.4f} | {mean_judge:.1f} |'
         )
+    out.append('\n*wall (mean) excludes timed-out runs; the timeouts column counts them.*')
 
     out.append('\n## Per run\n')
     out.append('| agent | run | pass | wall_s | in_tok | out_tok | cost_usd | agent_exit | diff_stat | judge | note |')
