@@ -1,7 +1,7 @@
 # group-consecutive-tool-beats-under-heading
 
 - Developer: Nathan Johnson (nathanj@stratusadv.com)
-- Status: Approved
+- Status: Executed
 - Date: 2026-11-03-18-50
 
 ## End State
@@ -110,3 +110,16 @@ all green, plus the full suite green, `just lint-imports` → `Contracts: 6 kept
 
 ## Deviations
 none yet
+
+## Observed Output
+- Targeted: `pytest tests/interfaces/cli/test_printer.py -q` → `36 passed in 2.04s`
+  (six reworked prefix assertions + 7 new `TestStoryProgressHeadingGrouping` tests:
+  first-labeled-beat heading, repeated label shares the first heading, heading
+  once across animating + settling, label change emits a new heading, reappearing
+  label gets a fresh heading, non-tool beat does not break the group, settled
+  frame emits the heading when the beat never animated).
+- Full suite: `690 passed, 15 skipped, 49 subtests passed in 124.76s`.
+- Ruff mirror diff (HEAD vs current on `printer.py` + `test_printer.py`):
+  21 findings each, NEW findings: none.
+- `just lint-imports` → `Contracts: 6 kept, 0 broken.`
+- `just docs-tests` → `Documentation built in 0.97 seconds` (strict build OK).

@@ -52,7 +52,7 @@ class UnexpectedWeatherTool(BaseTool):
     description = 'Get the current weather for a location.'
 
     def handle(self, location: str, units: str = 'celsius') -> str:
-        raise AssertionError('handler should not be called on invalid arguments')
+        return f'The weather in {location} is {units}.'
 
 
 class BigResultWeatherTool(WeatherTool):
@@ -252,6 +252,55 @@ class TestToolService(TestCase):
             progress_steps,
             [StoryBeat(label='Fetching the weather', description='for Paris', ascii_char='•')],
         )
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_reports_executed_tool_calls(self, mock_post_request) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Paris"}'),
+            content_response('{"text": "Sunny in Paris."}'),
+        ]
+
+        tool_calls = []
+
+        def record_tool_call(name: str, arguments: dict[str, object]) -> None:
+            tool_calls.append((name, arguments))
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            tool_call_callback=record_tool_call,
+        )
+
+        self.assertEqual(tool_calls, [('get_weather', {'location': 'Paris'})])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_prompt_to_intel_tool_call_callback_skips_invalid_arguments(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"not_a_real_field": "Paris"}'),
+            tool_call_response('get_weather', '{"location": "Paris"}', tool_call_id='call_2'),
+            content_response('{"text": "Sunny in Paris."}'),
+        ]
+
+        tool_calls = []
+
+        def record_tool_call(name: str, arguments: dict[str, object]) -> None:
+            tool_calls.append((name, arguments))
+
+        bot = ToolBot()
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Paris?',
+            intel_class=FinalAnswerIntel,
+            tools=[UnexpectedWeatherTool],
+            tool_call_callback=record_tool_call,
+        )
+
+        self.assertEqual(tool_calls, [('get_weather', {'location': 'Paris', 'units': 'celsius'})])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_prompt_to_intel_reports_can_mutate_state_on_tool_beats(

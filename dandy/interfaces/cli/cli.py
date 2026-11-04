@@ -14,6 +14,15 @@ from dandy.shared.settings import settings
 
 CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
+# Tool name to path argument for the tools whose calls count as edited files
+# in the summary the CLI prints above the final answer.
+EDITED_FILE_TOOL_PARAMS = {
+    'write_file': 'file_path',
+    'edit_file': 'file_path',
+    'delete_file': 'file_path',
+    'create_directory': 'directory_path',
+}
+
 
 def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) -> str:
     try:
@@ -167,13 +176,28 @@ class DandyCli:
         stop_signal.clear()
 
         succeeded = True
+        edited_files: list[str] = []
+
+        def record_tool_call(name: str, arguments: dict[str, object]) -> None:
+            param = EDITED_FILE_TOOL_PARAMS.get(name)
+
+            if param is None:
+                return
+
+            path = arguments.get(param)
+
+            if isinstance(path, str) and path and path not in edited_files:
+                edited_files.append(path)
 
         try:
             result_intel = tui.printer.run_timed_task(
                 action_name='Coding',
                 task=user_input[:80],
                 work=lambda update: self.agent.turn(
-                    user_input, progress_callback=update, verbose_callback=self.verbose_callback
+                    user_input,
+                    progress_callback=update,
+                    verbose_callback=self.verbose_callback,
+                    tool_call_callback=record_tool_call,
                 ),
                 stop_signal=stop_signal,
             )
@@ -184,6 +208,7 @@ class DandyCli:
             succeeded = False
         else:
             tui.printer.green_divider()
+            tui.printer.edited_files(edited_files)
             tui.printer.output(result_intel.text)
         finally:
             self._save_session_after_turn(user_input)

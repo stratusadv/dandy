@@ -100,6 +100,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         max_tool_iterations: int | None = 5,
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
+        tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
         **kwargs,
     ) -> IntelType:
         skill_service = self.obj.skills
@@ -171,6 +172,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                     tool_functions=tool_functions,
                     progress_callback=progress_callback,
                     verbose_callback=verbose_callback,
+                    tool_call_callback=tool_call_callback,
                     repeated_call_tracker=repeated_call_tracker,
                     repeated_result_tracker=repeated_result_tracker,
                 )
@@ -228,6 +230,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         *,
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
+        tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
         repeated_call_tracker: dict[tuple[str, str, str], int] | None = None,
         repeated_result_tracker: dict[tuple[str, str], int] | None = None,
     ) -> None:
@@ -279,6 +282,9 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             result = tool.handle(**arguments_kwargs)
         else:
             result = tool_function(arguments_intel)
+
+        if tool_call_callback is not None:
+            tool_call_callback(tool_call.name, arguments_kwargs)
 
         result_text = result if isinstance(result, str) else result.model_dump_json()
 

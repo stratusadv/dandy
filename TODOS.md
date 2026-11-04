@@ -1,6 +1,3 @@
-- [ ] Combine chained tool calls into a simple list instead of writing the tool call label on every line
-- [ ] Remove all the bullet points and only have them on the lines with files.
-- [ ] Include all edited files in the summary (with clickable links)
 - [ ] Compact the first 4 lines into the top part of the run (ask questions)
 - [ ] Dig into the compaction weirdness (why 56000 compaction ETC)
 - [ ] Question Tool

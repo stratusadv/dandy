@@ -55,6 +55,22 @@ class TestAgentTurn(TestCase):
         self.assertIn('tool', [message['role'] for message in second_call_messages])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_reports_executed_tool_calls(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "It is sunny.", "done": true}'),
+        ]
+
+        tool_calls = []
+
+        def record_tool_call(name: str, arguments: dict[str, object]) -> None:
+            tool_calls.append((name, arguments))
+
+        self.agent.turn('What is the weather in Austin?', tool_call_callback=record_tool_call)
+
+        self.assertEqual(tool_calls, [('get_weather', {'location': 'Austin', 'units': 'celsius'})])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_turns_keep_conversation_history(self, mock_post_request: mock.MagicMock) -> None:
         mock_post_request.side_effect = [
             content_response('{"text": "First answer.", "done": false}'),

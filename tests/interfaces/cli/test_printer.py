@@ -81,16 +81,16 @@ class TestPrinterStory(TestCase):
         progress = _StoryProgress(Terminal())
         frame = progress.settled_frame(StoryBeat(description='Reading the test file.'))
 
-        self.assertIn('• Reading the test file.', frame)
         self.assertIn('Reading the test file.', frame)
+        self.assertNotIn('•', frame)
         self.assertNotIn('took', frame)
 
     def test_current_frame_renders_description_only_beat_plain(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
         frame = progress.frame(StoryBeat(description='Checking the forecast now.'), '...')
 
-        self.assertIn('• Checking the forecast now.', frame)
         self.assertIn('Checking the forecast now.', frame)
+        self.assertNotIn('•', frame)
         self.assertNotIn(progress.term.bold_grey, frame)
         self.assertIn(f'{progress.term.bold_orange}Evaluating ...{progress.term.normal}', frame)
 
@@ -106,65 +106,79 @@ class TestPrinterStory(TestCase):
 
     def test_frames_style_label_grey_and_description_plain(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
 
         animating_frame = progress.frame(beat, '...')
         settled_frame = progress.settled_frame(beat)
 
-        for frame in (animating_frame, settled_frame):
-            self.assertTrue(frame.startswith(f'\r{progress.term.normal}• '))
-            self.assertIn(progress.term.bold_grey, frame)
-            self.assertIn('Reading', frame)
-            self.assertIn('src/foo.py', frame)
-            self.assertIn('lines 1-10', frame)
+        self.assertTrue(animating_frame.startswith(f'\r{term.normal}{term.bold_grey}Reading'))
+        self.assertIn(f'{term.bold_grey}Reading{term.normal}', animating_frame)
+        self.assertIn('src/foo.py', animating_frame)
+        self.assertIn('lines 1-10', animating_frame)
+
+        self.assertTrue(settled_frame.startswith(f'\r{term.normal}• '))
+        self.assertNotIn('Reading', settled_frame)
+        self.assertNotIn(term.bold_grey, settled_frame)
+        self.assertIn('src/foo.py', settled_frame)
+        self.assertIn('lines 1-10', settled_frame)
 
     def test_frames_style_mutating_label_orange(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         beat = StoryBeat(label='Writing', description='src/foo.py', can_mutate_state=True)
 
         animating_frame = progress.frame(beat, '...')
         settled_frame = progress.settled_frame(beat)
 
-        for frame in (animating_frame, settled_frame):
-            self.assertIn(f'{progress.term.bold_orange}Writing{progress.term.normal}', frame)
-            self.assertIn('src/foo.py', frame)
+        self.assertIn(f'{term.bold_orange}Writing{term.normal}', animating_frame)
+        self.assertNotIn(term.bold_grey, animating_frame)
+        self.assertIn('src/foo.py', animating_frame)
 
-        self.assertNotIn(progress.term.bold_grey, settled_frame)
+        self.assertNotIn('Writing', settled_frame)
+        self.assertNotIn(term.bold_grey, settled_frame)
+        self.assertIn('src/foo.py', settled_frame)
 
     def test_narration_beat_renders_bold_blue(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         beat = StoryBeat(description='Let me check the weather.', kind='narration')
 
         animating_frame = progress.frame(beat, '...')
         settled_frame = progress.settled_frame(beat)
 
         for frame in (animating_frame, settled_frame):
-            self.assertTrue(frame.startswith(f'\r{progress.term.normal}• '))
-            self.assertIn(progress.term.bold_blue, frame)
+            self.assertNotIn('•', frame)
+            self.assertIn(term.bold_blue, frame)
             self.assertIn('Let me check the weather.', frame)
-            self.assertNotIn(progress.term.bold_grey, frame)
+            self.assertNotIn(term.bold_grey, frame)
 
     def test_tool_beat_renders_its_own_ascii_char(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py', ascii_char='>')
 
         animating_frame = progress.frame(beat, '...')
         settled_frame = progress.settled_frame(beat)
 
-        for frame in (animating_frame, settled_frame):
-            self.assertTrue(frame.startswith(f'\r{progress.term.normal}> '))
+        self.assertIn(f'{term.normal}> ', animating_frame)
+        self.assertTrue(settled_frame.startswith(f'\r{term.normal}> '))
 
     def test_multiline_beat_animates_on_a_single_line(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
         description = 'pytest -q\nimport blessed\nprint(1)'
         beat = StoryBeat(label='Executing', description=description, ascii_char='>')
 
         animating_frame = progress.frame(beat, '...')
+        next_frame = progress.frame(beat, '....')
         settled_frame = progress.settled_frame(beat)
 
-        self.assertNotIn('\n', animating_frame)
-        self.assertTrue(animating_frame.startswith(f'\r{progress.term.normal}> '))
+        self.assertEqual(animating_frame.count('\n'), 1)
+        animated_line = animating_frame.split('\n', 1)[1]
+        self.assertTrue(animated_line.startswith(f'{term.normal}> '))
         self.assertIn('pytest -q import blessed print(1)', animating_frame)
+        self.assertNotIn('\n', next_frame)
         self.assertIn(description, settled_frame)
 
     def test_event_prints_text_without_prefix(self) -> None:
@@ -320,6 +334,113 @@ class TestPrinterStory(TestCase):
         self.assertEqual(result, 'done')
 
 
+class TestStoryProgressHeadingGrouping(TestCase):
+    def setUp(self) -> None:
+        self.progress = _StoryProgress(Terminal(force_styling='default'))
+
+    def test_first_labeled_beat_gets_a_heading(self) -> None:
+        beat = StoryBeat(label='Reading', description='src/a.py')
+        self.progress.update(beat)
+
+        frame = self.progress.frame(beat, '.')
+
+        self.assertIn('Reading', frame)
+        self.assertIn('src/a.py', frame)
+
+    def test_repeated_label_shares_the_first_heading(self) -> None:
+        first = StoryBeat(label='Reading', description='src/a.py')
+        second = StoryBeat(label='Reading', description='src/b.py')
+        self.progress.update(first)
+        self.progress.update(second)
+
+        first_frame = self.progress.frame(first, '.')
+        first_settled = self.progress.settled_frame(first)
+        second_frame = self.progress.frame(second, '.')
+        second_settled = self.progress.settled_frame(second)
+
+        self.assertIn('Reading', first_frame)
+        self.assertNotIn('Reading', first_settled)
+        self.assertNotIn('Reading', second_frame)
+        self.assertNotIn('Reading', second_settled)
+        self.assertIn('src/a.py', first_settled)
+        self.assertIn('src/b.py', second_frame)
+
+    def test_heading_prints_once_across_animating_and_settling(self) -> None:
+        beat = StoryBeat(label='Reading', description='src/a.py')
+
+        first_frame = self.progress.frame(beat, '.')
+        second_frame = self.progress.frame(beat, '..')
+        settled = self.progress.settled_frame(beat)
+
+        self.assertIn('Reading', first_frame)
+        self.assertNotIn('Reading', second_frame)
+        self.assertNotIn('Reading', settled)
+
+    def test_label_change_emits_a_new_heading(self) -> None:
+        reading = StoryBeat(label='Reading', description='src/a.py')
+        writing = StoryBeat(label='Writing', description='src/b.py')
+        self.progress.update(reading)
+        self.progress.update(writing)
+
+        reading_frame = self.progress.frame(reading, '.')
+        reading_settled = self.progress.settled_frame(reading)
+        writing_frame = self.progress.frame(writing, '.')
+
+        self.assertIn('Reading', reading_frame)
+        self.assertNotIn('Reading', reading_settled)
+        self.assertIn('Writing', writing_frame)
+        self.assertNotIn('Reading', writing_frame)
+        self.assertIn('src/b.py', writing_frame)
+
+    def test_reappearing_label_gets_a_fresh_heading(self) -> None:
+        reading = StoryBeat(label='Reading', description='src/a.py')
+        writing = StoryBeat(label='Writing', description='src/b.py')
+        reading_again = StoryBeat(label='Reading', description='src/c.py')
+        self.progress.update(reading)
+        self.progress.update(writing)
+        self.progress.update(reading_again)
+
+        self.progress.frame(reading, '.')
+        self.progress.settled_frame(reading)
+        self.progress.frame(writing, '.')
+        self.progress.settled_frame(writing)
+        reading_again_frame = self.progress.frame(reading_again, '.')
+
+        self.assertIn('Reading', reading_again_frame)
+        self.assertIn('src/c.py', reading_again_frame)
+
+    def test_non_tool_beat_does_not_break_the_group(self) -> None:
+        first = StoryBeat(label='Reading', description='src/a.py')
+        narration = StoryBeat(description='Let me check the other file.', kind='narration')
+        second = StoryBeat(label='Reading', description='src/b.py')
+        self.progress.update(first)
+        self.progress.update(narration)
+        self.progress.update(second)
+
+        first_settled = self.progress.settled_frame(first)
+        narration_settled = self.progress.settled_frame(narration)
+        second_frame = self.progress.frame(second, '.')
+
+        self.assertIn('Reading', first_settled)
+        self.assertNotIn('Reading', narration_settled)
+        self.assertNotIn('Reading', second_frame)
+        self.assertNotIn('•', narration_settled)
+
+    def test_settled_frame_emits_heading_when_beat_never_animated(self) -> None:
+        first = StoryBeat(label='Reading', description='src/a.py')
+        second = StoryBeat(label='Reading', description='src/b.py')
+        self.progress.update(first)
+        self.progress.update(second)
+
+        first_settled = self.progress.settled_frame(first)
+        second_settled = self.progress.settled_frame(second)
+
+        self.assertIn('Reading', first_settled)
+        self.assertNotIn('Reading', second_settled)
+        self.assertIn('src/a.py', first_settled)
+        self.assertIn('src/b.py', second_settled)
+
+
 class TestLinkifyFilePaths(TestCase):
     def setUp(self) -> None:
         self.temp_directory_context = TemporaryDirectory()
@@ -383,3 +504,41 @@ class TestLinkifyFilePaths(TestCase):
 
         for frame in (animating_frame, settled_frame):
             self.assertNotIn('\x1b]8', frame)
+
+
+class TestPrinterEditedFiles(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.project_base_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.project_base_path
+        self.printer = Printer(Terminal(force_styling='default'))
+
+        self.print_patch = mock.patch('builtins.print')
+        self.mock_print = self.print_patch.start()
+        self.addCleanup(self.print_patch.stop)
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    def test_empty_list_prints_nothing(self) -> None:
+        self.printer.edited_files([])
+
+        self.mock_print.assert_not_called()
+
+    def test_paths_print_as_bulleted_links_under_a_heading(self) -> None:
+        expected_foo_uri = (self.project_base_path / 'src' / 'foo.py').as_uri()
+        expected_bar_uri = (self.project_base_path / 'src' / 'bar.py').as_uri()
+
+        self.printer.edited_files(['src/foo.py', 'src/bar.py'])
+
+        lines = [call.args[0] for call in self.mock_print.call_args_list]
+
+        self.assertEqual(len(lines), 3)
+        self.assertIn('Edited files:', lines[0])
+        self.assertIn(self.printer.term.bold_grey, lines[0])
+        self.assertTrue(lines[1].startswith(f'{self.printer.term.normal}• '))
+        self.assertIn(f'\x1b]8;;{expected_foo_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\', lines[1])
+        self.assertTrue(lines[2].startswith(f'{self.printer.term.normal}• '))
+        self.assertIn(f'\x1b]8;;{expected_bar_uri}\x1b\\src/bar.py\x1b]8;;\x1b\\', lines[2])

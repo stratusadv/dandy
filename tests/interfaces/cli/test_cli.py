@@ -2,6 +2,7 @@ import contextlib
 import io
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Callable
 from unittest import TestCase, mock
 
 from dandy.application.agent.intel import AgentSession
@@ -10,6 +11,7 @@ from dandy.application.agent.session_store import SessionStore
 from dandy.interfaces.cli.cli import DandyCli
 from dandy.interfaces.cli.tui.printer import session_banner_line
 from dandy.interfaces.cli.tui.tui import tui
+from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.settings import settings
@@ -170,6 +172,42 @@ class TestDandyCli(TestCase):
             self.cli = DandyCli()
 
         self.assertIsNone(self.cli.verbose_callback)
+
+    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch.object(tui.printer, 'green_divider')
+    def test_process_agent_input_prints_edited_files_above_the_answer(
+        self, _mock_green_divider: mock.MagicMock, mock_turn: mock.MagicMock
+    ) -> None:
+        def fake_turn(
+            message: str,
+            progress_callback: Callable[[StoryBeat], None] | None = None,
+            verbose_callback: Callable[[str], None] | None = None,
+            tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
+        ) -> object:
+            tool_call_callback('write_file', {'file_path': 'src/foo.py', 'content': 'x'})
+            tool_call_callback(
+                'edit_file', {'file_path': 'src/foo.py', 'old_string': 'a', 'new_string': 'b'}
+            )
+            tool_call_callback(
+                'edit_file', {'file_path': 'src/bar.py', 'old_string': 'a', 'new_string': 'b'}
+            )
+            tool_call_callback('read_file', {'file_path': 'src/baz.py', 'start_line': 1})
+
+            return mock.MagicMock(text='answer')
+
+        mock_turn.side_effect = fake_turn
+
+        with contextlib.redirect_stdout(io.StringIO()) as buffer:
+            self.cli.process_user_input('fix the bug')
+
+        printed = buffer.getvalue()
+
+        self.assertIn('Edited files:', printed)
+        self.assertEqual(printed.count('\x1b\\src/foo.py\x1b]8;;\x1b\\'), 1)
+        self.assertIn('src/bar.py', printed)
+        self.assertNotIn('src/baz.py', printed)
+        self.assertIn('\x1b]8;;', printed)
+        self.assertLess(printed.index('Edited files:'), printed.index('answer'))
 
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')

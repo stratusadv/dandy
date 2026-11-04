@@ -82,10 +82,13 @@ class Agent:
         message: Prompt | str | None = None,
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
+        tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
     ) -> IntelType:
         """Run one exchange: prepare, compact, work through any tool rounds, return the answer.
 
-        The conversation accumulates in ``self.history`` across turns.
+        The conversation accumulates in ``self.history`` across turns. When
+        ``tool_call_callback`` is given, it is called once per executed tool
+        call with the tool name and its validated keyword arguments.
         """
         if stop_signal.is_set():
             raise RunStoppedError('Run stopped by user.')
@@ -103,6 +106,7 @@ class Agent:
             replace_message_history=True,
             progress_callback=progress_callback,
             verbose_callback=verbose_callback,
+            tool_call_callback=tool_call_callback,
             max_tool_iterations=self.max_tool_rounds,
         )
 
@@ -142,6 +146,7 @@ class Agent:
         is_done: Callable[[IntelType], bool] | None = None,
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
+        tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
     ) -> IntelType:
         """Drive turns until the request is complete or the turn budget is exhausted.
 
@@ -158,7 +163,10 @@ class Agent:
             raise AgentCriticalError(message)
 
         result = self.turn(
-            request, progress_callback=progress_callback, verbose_callback=verbose_callback
+            request,
+            progress_callback=progress_callback,
+            verbose_callback=verbose_callback,
+            tool_call_callback=tool_call_callback,
         )
         turn_count = 1
 
@@ -177,6 +185,7 @@ class Agent:
                 continuation_prompt(),
                 progress_callback=progress_callback,
                 verbose_callback=verbose_callback,
+                tool_call_callback=tool_call_callback,
             )
             turn_count += 1
 

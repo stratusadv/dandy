@@ -78,16 +78,25 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   `action_ascii_char` as `ascii_char`, and its `can_mutate_state` flag as
   `can_mutate_state`. Compaction notices are description-only
   beats too. The split exists so a UI can style the parts independently (the CLI
-  renders every line flush left, each beat prefixed by its `ascii_char` — the
-  tool's character, or a bullet when the beat carries none — with the label in
-  bold grey (bold orange when `can_mutate_state` is set), the description in
-  plain black, and the model's narration in bold
-  blue); the animating frame folds a multi-line beat onto one line, and the
-  settled frame prints it in full. File paths in a tool beat's description
-  are emitted as clickable `file://` links (raw OSC 8, resolved against the
-  project root), so clicking one opens the file with the OS default handler.
+  renders every line flush left as a running list: consecutive tool beats with
+  the same label share one heading line — the label in bold grey, bold orange
+  when `can_mutate_state` is set — printed exactly once when the label appears
+  and again when it reappears after a change, with each description on its own
+  line below the heading prefixed by its `ascii_char`, so bullets exist only on
+  tool output lines; the model's narration renders in bold blue with no prefix,
+  and system beats print plain); the animating frame folds a multi-line beat
+  onto one line, and the settled frame prints it in full. File paths in a tool
+  beat's description are emitted as clickable `file://` links (raw OSC 8,
+  resolved against the project root), so clicking one opens the file with the
+  OS default handler.
 - A `verbose_callback` gets one line per event for debugging, including a `GAVE UP` line
   when a finite cap is hit.
+- A `tool_call_callback` (typed `Callable[[str, dict[str, object]], None]`) is fired once
+  per executed tool call with the tool name and its validated keyword arguments — after
+  the `handle()` / `tool_function` dispatch, so a call whose arguments fail validation
+  never fires it. `Agent.turn` and `Agent.run` accept and forward it; the CLI uses it to
+  collect the paths its file tools touched and print an `Edited files:` block (clickable
+  links) above the final answer.
 
 ## Subprocess tools
 

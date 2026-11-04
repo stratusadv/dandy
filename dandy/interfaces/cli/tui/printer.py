@@ -95,13 +95,16 @@ class _StoryProgress:
 
     The worker thread pushes `StoryBeat`s (AI summary sentences, tool action
     labels with their per-call detail, or plain notices) with `update`; the
-    rendering thread prints settled beats in plain text, the model's narration
-    in bold blue, and tool labels in grey (bold orange when the beat can mutate
-    state); file paths in a tool beat's description are emitted as clickable
-    file:// links. The newest beat animates with a bold orange 'Evaluating ...'
-    suffix. Every line is flush left, prefixed with the
-    beat's ascii character (a bullet when the beat carries none). The
-    animating frame
+    rendering thread prints them as a running list: consecutive tool beats
+    with the same label share one heading line (the label in bold grey, or
+    bold orange when the beat can mutate state), printed exactly once when
+    the label appears and again when it reappears after a change, and each
+    beat's description prints below it on its own line prefixed by the
+    beat's ascii character (a bullet when the beat carries none). File paths
+    in a tool beat's description are emitted as clickable file:// links.
+    Non-tool beats (narration in bold blue, system notices plain) print with
+    no prefix. The newest beat animates with a bold orange 'Evaluating ...'
+    suffix. Every line is flush left. The animating frame
     folds a multi-line beat onto one line so its per-tick redraw stays on a
     single line; the settled frame prints the beat's text in full.
     """
@@ -110,6 +113,8 @@ class _StoryProgress:
         self.term = term
         self._beats: list[StoryBeat] = [StoryBeat(description=random.choice(THINKING_PHRASES))]
         self._lock = threading.Lock()
+        self._heading_beat: StoryBeat | None = None
+        self._heading_emitted: set[int] = set()
 
     def update(self, beat: StoryBeat) -> None:
         with self._lock:
@@ -120,49 +125,81 @@ class _StoryProgress:
         with self._lock:
             return list(self._beats)
 
-    @staticmethod
-    def _plain_beat(label: str, description: str) -> str:
-        if not label:
-            return description
+    def _previous_tool_label(self, beat: StoryBeat) -> str:
+        beats = self.beats
 
-        return f'{label} {description}'.rstrip()
+        for index, current in enumerate(beats):
+            if current is beat:
+                for earlier in reversed(beats[:index]):
+                    if earlier.label:
+                        return earlier.label
 
-    def styled_beat(
-        self, label: str, description: str, kind: str = 'system', can_mutate_state: bool = False
-    ) -> str:
-        if not label:
-            if kind == 'narration':
-                return f'{self.term.bold_blue}{description}{self.term.normal}'
+                break
 
-            return description
+        return ''
 
-        label_style = self.term.bold_orange if can_mutate_state else self.term.bold_grey
-        description = linkify_file_paths(description)
+    def _needs_heading(self, beat: StoryBeat) -> bool:
+        return bool(beat.label) and beat.label != self._previous_tool_label(beat)
 
-        return f'{label_style}{label}{self.term.normal} {description}'.rstrip()
+    def _styled_label(self, beat: StoryBeat) -> str:
+        label_style = self.term.bold_orange if beat.can_mutate_state else self.term.bold_grey
+
+        return f'{label_style}{beat.label}{self.term.normal}'
+
+    def _styled_description(self, beat: StoryBeat, description: str) -> str:
+        if beat.label:
+            return linkify_file_paths(description)
+
+        if beat.kind == 'narration':
+            return f'{self.term.bold_blue}{description}{self.term.normal}'
+
+        return description
+
+    def _emit_heading(self, beat: StoryBeat) -> str:
+        if not self._needs_heading(beat) or id(beat) in self._heading_emitted:
+            return ''
+
+        self._heading_beat = beat
+        self._heading_emitted.add(id(beat))
+
+        return f'{self.term.normal}{self._styled_label(beat)}{self.term.clear_eol()}\n'
 
     def settled_frame(self, beat: StoryBeat) -> str:
-        char = beat.ascii_char or '•'
-        beat_text = self.styled_beat(
-            beat.label, beat.description, beat.kind, beat.can_mutate_state
-        )
-        return f'\r{self.term.normal}{char} {beat_text}{self.term.clear_eol()}\n'
+        heading = self._emit_heading(beat)
+        description = self._styled_description(beat, beat.description)
+
+        if beat.label:
+            line = f'{self.term.normal}{beat.ascii_char or "•"} {description}'
+        else:
+            line = f'{self.term.normal}{description}'
+
+        return f'\r{heading}{line}{self.term.clear_eol()}\n'
 
     def frame(self, beat: StoryBeat, dots: str) -> str:
-        prefix = f'{self.term.normal}{beat.ascii_char or "•"} '
-        plain_beat = ' '.join(self._plain_beat(beat.label, beat.description).split())
+        heading = ''
+
+        if self._heading_beat is not beat:
+            heading = self._emit_heading(beat)
+            self._heading_beat = beat
+
+        prefix = f'{self.term.normal}{beat.ascii_char or "•"} ' if beat.label else self.term.normal
+        plain_description = ' '.join(beat.description.split())
         max_beat_length = max(1, self.term.width - len(prefix) - len(f'{EVALUATING_LABEL} ...'))
 
-        if len(plain_beat) > max_beat_length:
-            short_beat = plain_beat[: max_beat_length - 1]
-            label_part = short_beat[: len(beat.label)]
-            description_part = short_beat[len(beat.label) :].lstrip(' ')
+        if len(plain_description) > max_beat_length:
+            description_part = plain_description[: max_beat_length - 1]
         else:
-            label_part, description_part = beat.label, ' '.join(beat.description.split())
+            description_part = plain_description
 
-        beat_text = self.styled_beat(label_part, description_part, beat.kind, beat.can_mutate_state)
+        beat_text = self._styled_description(beat, description_part)
+        beat_line = f'{prefix}{beat_text}'
+
+        if beat_text:
+            beat_line = f'{beat_line} '
+
         suffix = f'{self.term.bold_orange}{EVALUATING_LABEL} {dots}{self.term.normal}'
-        return f'\r{prefix}{beat_text} {suffix}{self.term.clear_eol()}'
+
+        return f'\r{heading}{beat_line}{suffix}{self.term.clear_eol()}'
 
 
 def agents_md_banner_line(project_base_path: Path) -> str:
@@ -246,13 +283,14 @@ class Printer:
         """Run `work(update_beat)` while animating a story of AI summary beats.
 
         Prints a task header line, then a story: every `StoryBeat` pushed
-        through `update_beat` is appended to the output, with the previous
-        beats settling as plain lines (a grey label when the beat has one, a
-        bold orange label when it can mutate state) and the most recent beat
-        rendered with a bold orange animated 'Evaluating ...'
-        suffix (so it is clear the task is still running). When `work`
-        finishes, a completion sentence reports the total elapsed time.
-        Rendering happens only on the
+        through `update_beat` is appended to the output as a running list.
+        Consecutive tool beats with the same label settle under one heading
+        line (the label in grey, bold orange when the beat can mutate state)
+        with each description on its own bulleted line; non-tool beats settle
+        as plain lines; the most recent beat is rendered with a bold orange
+        animated 'Evaluating ...' suffix (so it is clear the task is still
+        running). When `work` finishes, a completion sentence reports the
+        total elapsed time. Rendering happens only on the
         calling thread (`work` runs on a daemon thread), and any exception
         raised by `work` is re-raised here.
 
@@ -359,6 +397,21 @@ class Printer:
         for line in rendered_output.splitlines():
             sleep(0.02)
             print(line)
+
+    def edited_files(self, paths: list[str]) -> None:
+        """Print the turn's edited-file list above the final answer.
+
+        A bold grey 'Edited files:' heading followed by one bulleted,
+        clickable file:// link per path; prints nothing when the list is
+        empty.
+        """
+        if not paths:
+            return
+
+        print(f'{self.term.bold_grey}Edited files:{self.term.normal}')
+
+        for path in paths:
+            print(f'{self.term.normal}• {linkify_file_paths(path)}')
 
     def error(self, error: str, description: str):
         self.event(text=f'{self.term.red}Error: {self.term.normal}{error} !!!')
