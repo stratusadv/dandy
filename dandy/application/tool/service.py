@@ -267,7 +267,12 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             label = tool.action_label or pascal_to_title_case(tool_call.name)
             description = tool.action_output(**arguments_kwargs) or ''
             progress_callback(
-                StoryBeat(label=label, description=description, ascii_char=tool.action_ascii_char)
+                StoryBeat(
+                    label=label,
+                    description=description,
+                    ascii_char=tool.action_ascii_char,
+                    can_mutate_state=tool.can_mutate_state,
+                )
             )
 
         if tool_function is None:

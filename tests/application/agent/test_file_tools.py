@@ -42,6 +42,14 @@ class TestCodeEditingTools(TestCase):
             },
         )
 
+    def test_can_mutate_state_flags_mutating_tools(self) -> None:
+        self.assertTrue(WriteFileTool().can_mutate_state)
+        self.assertTrue(EditFileTool().can_mutate_state)
+        self.assertTrue(DeleteFileTool().can_mutate_state)
+        self.assertTrue(CreateDirectoryTool().can_mutate_state)
+        self.assertFalse(ReadFileTool().can_mutate_state)
+        self.assertFalse(ListDirectoryTool().can_mutate_state)
+
     def test_write_file_creates_parent_directories(self):
         result = WriteFileTool().handle(file_path='nested/dir/example.txt', content='hello world')
 

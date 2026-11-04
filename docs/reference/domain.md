@@ -55,6 +55,7 @@ are framework-agnostic.
             - description
             - action_label
             - action_ascii_char
+            - can_mutate_state
             - working_directory
             - timeout_seconds
             - use_shell

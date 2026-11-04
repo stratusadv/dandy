@@ -34,7 +34,9 @@ class GetWeatherTool(BaseTool):
   `'src/foo.py lines 1-10'`. Without a label, the title-cased tool name is used;
   without an output override, the label stands alone. An optional
   `action_ascii_char` class attribute (default `'•'`) sets the character the CLI
-  prefixes the tool's beat lines with.
+  prefixes the tool's beat lines with. The `can_mutate_state` class attribute
+  (default `False`) marks tools that can change state; the CLI renders their
+  beat labels in bold orange instead of grey.
 
 ## The execute-and-loop
 
@@ -72,14 +74,18 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   per event: one for the model's narration sentence (when it wrote one, a
   description-only beat marked `kind='narration'`), and one per executed tool
   carrying the tool's `action_label` as `label`, its
-  `action_output(**validated_args)` result as `description`, and its
-  `action_ascii_char` as `ascii_char`. Compaction notices are description-only
+  `action_output(**validated_args)` result as `description`, its
+  `action_ascii_char` as `ascii_char`, and its `can_mutate_state` flag as
+  `can_mutate_state`. Compaction notices are description-only
   beats too. The split exists so a UI can style the parts independently (the CLI
   renders every line flush left, each beat prefixed by its `ascii_char` — the
   tool's character, or a bullet when the beat carries none — with the label in
-  bold grey, the description in plain black, and the model's narration in bold
+  bold grey (bold orange when `can_mutate_state` is set), the description in
+  plain black, and the model's narration in bold
   blue); the animating frame folds a multi-line beat onto one line, and the
-  settled frame prints it in full.
+  settled frame prints it in full. File paths in a tool beat's description
+  are emitted as clickable `file://` links (raw OSC 8, resolved against the
+  project root), so clicking one opens the file with the OS default handler.
 - A `verbose_callback` gets one line per event for debugging, including a `GAVE UP` line
   when a finite cap is hit.
 

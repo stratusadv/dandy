@@ -14,6 +14,7 @@ class WriteFileTool(BaseTool):
     )
 
     action_label = 'Writing'
+    can_mutate_state = True
 
     def action_output(self, **kwargs: Any) -> str:
         return kwargs['file_path']

@@ -8,11 +8,13 @@ from unittest import TestCase, mock
 from blessed import Terminal
 from blessed.keyboard import Keystroke
 
+from dandy.application.agent.session import session
 from dandy.interfaces.cli.tui.printer import (
     Printer,
     _StoryProgress,
     agents_md_banner_line,
     format_verbose_duration,
+    linkify_file_paths,
 )
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
@@ -113,7 +115,21 @@ class TestPrinterStory(TestCase):
             self.assertTrue(frame.startswith(f'\r{progress.term.normal}• '))
             self.assertIn(progress.term.bold_grey, frame)
             self.assertIn('Reading', frame)
-            self.assertIn('src/foo.py lines 1-10', frame)
+            self.assertIn('src/foo.py', frame)
+            self.assertIn('lines 1-10', frame)
+
+    def test_frames_style_mutating_label_orange(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        beat = StoryBeat(label='Writing', description='src/foo.py', can_mutate_state=True)
+
+        animating_frame = progress.frame(beat, '...')
+        settled_frame = progress.settled_frame(beat)
+
+        for frame in (animating_frame, settled_frame):
+            self.assertIn(f'{progress.term.bold_orange}Writing{progress.term.normal}', frame)
+            self.assertIn('src/foo.py', frame)
+
+        self.assertNotIn(progress.term.bold_grey, settled_frame)
 
     def test_narration_beat_renders_bold_blue(self) -> None:
         progress = _StoryProgress(Terminal(force_styling='default'))
@@ -302,3 +318,68 @@ class TestPrinterStory(TestCase):
         )
 
         self.assertEqual(result, 'done')
+
+
+class TestLinkifyFilePaths(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.project_base_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.project_base_path
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    def test_relative_path_with_slash_is_linked(self) -> None:
+        expected_uri = (self.project_base_path / 'src' / 'foo.py').as_uri()
+
+        linked = linkify_file_paths('Reading src/foo.py lines 1-10')
+
+        self.assertEqual(
+            linked,
+            f'Reading \x1b]8;;{expected_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\ lines 1-10',
+        )
+
+    def test_extension_only_word_is_linked(self) -> None:
+        expected_uri = (self.project_base_path / 'foo.py').as_uri()
+
+        linked = linkify_file_paths('Editing foo.py everywhere')
+
+        self.assertIn(f'\x1b]8;;{expected_uri}\x1b\\foo.py\x1b]8;;\x1b\\', linked)
+        self.assertIn('everywhere', linked)
+
+    def test_non_path_words_are_untouched(self) -> None:
+        text = 'Running pytest -q lines 1-10 1.0.5 v2.0 end . recursively'
+
+        self.assertEqual(linkify_file_paths(text), text)
+
+    def test_absolute_path_links_its_own_uri(self) -> None:
+        expected_uri = Path('/etc/hosts').as_uri()
+
+        linked = linkify_file_paths('Editing /etc/hosts')
+
+        self.assertIn(f'\x1b]8;;{expected_uri}\x1b\\/etc/hosts\x1b]8;;\x1b\\', linked)
+
+    def test_frames_link_file_paths_in_tool_beats(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
+
+        animating_frame = progress.frame(beat, '...')
+        settled_frame = progress.settled_frame(beat)
+
+        expected_uri = (self.project_base_path / 'src' / 'foo.py').as_uri()
+
+        for frame in (animating_frame, settled_frame):
+            self.assertIn(f'\x1b]8;;{expected_uri}\x1b\\src/foo.py\x1b]8;;\x1b\\', frame)
+            self.assertIn('lines 1-10', frame)
+
+    def test_description_only_beats_are_not_linked(self) -> None:
+        progress = _StoryProgress(Terminal(force_styling='default'))
+        beat = StoryBeat(description='Checking src/foo.py now.', kind='narration')
+
+        animating_frame = progress.frame(beat, '...')
+        settled_frame = progress.settled_frame(beat)
+
+        for frame in (animating_frame, settled_frame):
+            self.assertNotIn('\x1b]8', frame)

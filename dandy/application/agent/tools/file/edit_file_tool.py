@@ -16,6 +16,7 @@ class EditFileTool(BaseTool):
     )
 
     action_label = 'Editing'
+    can_mutate_state = True
 
     def action_output(self, **kwargs: Any) -> str:
         file_path = kwargs['file_path']

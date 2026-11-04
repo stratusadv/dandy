@@ -1,4 +1,5 @@
 import random
+import re
 import sys
 import threading
 from pathlib import Path
@@ -48,14 +49,57 @@ def format_verbose_duration(seconds: float) -> str:
     return ''.join(parts) if len(parts) == 1 else ' and '.join(parts)
 
 
+_PATH_WORD_RE = re.compile(r'[A-Za-z0-9._~/-]+')
+_FILE_EXTENSION_RE = re.compile(r'\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$')
+
+
+def _is_path_token(word: str) -> bool:
+    if not _PATH_WORD_RE.fullmatch(word):
+        return False
+
+    if word in ('.', '..') or word.startswith('-'):
+        return False
+
+    return '/' in word or bool(_FILE_EXTENSION_RE.search(word))
+
+
+def linkify_file_paths(description: str) -> str:
+    """Wrap the file paths in a beat's description in clickable OSC 8 links.
+
+    A whitespace-separated word is linked when it uses only path-safe
+    characters, is not a dash flag or `.`/`..`, and either contains a `/` or
+    ends in a dotted extension with a letter (so `src/foo.py` links while
+    `lines`, `1-10`, `-q`, and `1.0.5` do not). Relative paths resolve against
+    the session's project base path. The sequences are raw OSC 8 because
+    blessed's `hyperlink` terminfo capability is unavailable.
+    """
+
+    def linkify(word_match: re.Match[str]) -> str:
+        word = word_match.group(0)
+
+        if not _is_path_token(word):
+            return word
+
+        path = Path(word).expanduser()
+
+        if not path.is_absolute():
+            path = session.project_base_path / path
+
+        return f'\x1b]8;;{path.as_uri()}\x1b\\{word}\x1b]8;;\x1b\\'
+
+    return re.sub(r'\S+', linkify, description)
+
+
 class _StoryProgress:
     """Thread-safe accumulator for the story beats of a running task.
 
     The worker thread pushes `StoryBeat`s (AI summary sentences, tool action
     labels with their per-call detail, or plain notices) with `update`; the
     rendering thread prints settled beats in plain text, the model's narration
-    in bold blue, and tool labels in grey, animating the newest beat with a
-    bold orange 'Evaluating ...' suffix. Every line is flush left, prefixed with the
+    in bold blue, and tool labels in grey (bold orange when the beat can mutate
+    state); file paths in a tool beat's description are emitted as clickable
+    file:// links. The newest beat animates with a bold orange 'Evaluating ...'
+    suffix. Every line is flush left, prefixed with the
     beat's ascii character (a bullet when the beat carries none). The
     animating frame
     folds a multi-line beat onto one line so its per-tick redraw stays on a
@@ -83,18 +127,25 @@ class _StoryProgress:
 
         return f'{label} {description}'.rstrip()
 
-    def styled_beat(self, label: str, description: str, kind: str = 'system') -> str:
+    def styled_beat(
+        self, label: str, description: str, kind: str = 'system', can_mutate_state: bool = False
+    ) -> str:
         if not label:
             if kind == 'narration':
                 return f'{self.term.bold_blue}{description}{self.term.normal}'
 
             return description
 
-        return f'{self.term.bold_grey}{label}{self.term.normal} {description}'.rstrip()
+        label_style = self.term.bold_orange if can_mutate_state else self.term.bold_grey
+        description = linkify_file_paths(description)
+
+        return f'{label_style}{label}{self.term.normal} {description}'.rstrip()
 
     def settled_frame(self, beat: StoryBeat) -> str:
         char = beat.ascii_char or '•'
-        beat_text = self.styled_beat(beat.label, beat.description, beat.kind)
+        beat_text = self.styled_beat(
+            beat.label, beat.description, beat.kind, beat.can_mutate_state
+        )
         return f'\r{self.term.normal}{char} {beat_text}{self.term.clear_eol()}\n'
 
     def frame(self, beat: StoryBeat, dots: str) -> str:
@@ -109,7 +160,7 @@ class _StoryProgress:
         else:
             label_part, description_part = beat.label, ' '.join(beat.description.split())
 
-        beat_text = self.styled_beat(label_part, description_part, beat.kind)
+        beat_text = self.styled_beat(label_part, description_part, beat.kind, beat.can_mutate_state)
         suffix = f'{self.term.bold_orange}{EVALUATING_LABEL} {dots}{self.term.normal}'
         return f'\r{prefix}{beat_text} {suffix}{self.term.clear_eol()}'
 
@@ -196,8 +247,9 @@ class Printer:
 
         Prints a task header line, then a story: every `StoryBeat` pushed
         through `update_beat` is appended to the output, with the previous
-        beats settling as plain lines (a grey label when the beat has one) and
-        the most recent beat rendered with a bold orange animated 'Evaluating ...'
+        beats settling as plain lines (a grey label when the beat has one, a
+        bold orange label when it can mutate state) and the most recent beat
+        rendered with a bold orange animated 'Evaluating ...'
         suffix (so it is clear the task is still running). When `work`
         finishes, a completion sentence reports the total elapsed time.
         Rendering happens only on the

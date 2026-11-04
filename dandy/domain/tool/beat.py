@@ -13,11 +13,15 @@ class StoryBeat:
     compaction notices; 'narration' for a sentence the model itself wrote
     alongside its tool calls. `ascii_char` is the character UIs prefix the
     beat line with; tool beats carry the tool's `action_ascii_char`, and an
-    empty value means the renderer falls back to its default bullet. UIs may
-    style the label, the description, and the kind independently.
+    empty value means the renderer falls back to its default bullet. Tool
+    beats also carry the tool's `can_mutate_state` flag so a UI can tell
+    state-changing actions apart from read-only ones; the CLI renders their
+    labels in orange. UIs may style the label, the description, and the kind
+    independently.
     """
 
     label: str = ''
     description: str = ''
     kind: str = 'system'
     ascii_char: str = ''
+    can_mutate_state: bool = False

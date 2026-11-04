@@ -24,7 +24,9 @@ class BaseTool(ABC):
     The optional action_output method builds the per-call detail shown next to
     the label while the tool runs, from the validated keyword arguments. The
     optional action_ascii_char class attribute sets the character the CLI
-    prefixes the tool's beat lines with; without one, a bullet is used.
+    prefixes the tool's beat lines with; without one, a bullet is used. The
+    can_mutate_state class attribute (default False) marks tools that can
+    change state; the CLI renders their beat labels in orange.
 
     Example:
         class GetWeatherTool(BaseTool):
@@ -40,6 +42,7 @@ class BaseTool(ABC):
     description: str = ''
     action_label: str = ''
     action_ascii_char: str = '•'
+    can_mutate_state: bool = False
 
     timeout_seconds: int = 30
     use_shell: bool = False

@@ -37,6 +37,7 @@ nav:
       - Layering and Dependency Rules: architecture/layering.md
       - The Service Pattern: architecture/service_pattern.md
       - Anatomy of an LLM Call: architecture/data_flow.md
+      - How Agents Work: architecture/agents.md
   - Getting Started:
       - Installation: getting_started/installation.md
       - Quick Start: getting_started/quick_start.md

@@ -11,6 +11,7 @@ class DeleteFileTool(BaseTool):
     description = 'Delete a file. The path is relative to the project root.'
 
     action_label = 'Deleting'
+    can_mutate_state = True
 
     def action_output(self, **kwargs: Any) -> str:
         return kwargs['file_path']

@@ -115,6 +115,11 @@ class TestBaseTool(TestCase):
 
         self.assertEqual(tool.action_ascii_char, '•')
 
+    def test_can_mutate_state_defaults_to_false(self) -> None:
+        tool = WeatherTool()
+
+        self.assertFalse(tool.can_mutate_state)
+
     def test_action_output_returns_override_detail(self):
         tool = ActionOutputTool()
 

@@ -195,3 +195,8 @@ class TestToolActionLabelsAndOutputs(TestCase):
         self.assertEqual(GitDiffTool().action_label, 'Showing git diff')
         self.assertIsNone(GitDiffTool().action_output())
         self.assertEqual(GitDiffTool().action_output(path='src/foo.py'), 'for src/foo.py')
+
+    def test_can_mutate_state_flags_the_command_tool(self) -> None:
+        self.assertTrue(RunCommandTool().can_mutate_state)
+        self.assertFalse(GitStatusTool().can_mutate_state)
+        self.assertFalse(GitDiffTool().can_mutate_state)

@@ -14,6 +14,7 @@ class CreateDirectoryTool(BaseTool):
     )
 
     action_label = 'Creating directory'
+    can_mutate_state = True
 
     def action_output(self, **kwargs: Any) -> str:
         return kwargs['directory_path']
