@@ -55,7 +55,7 @@ inside the framework (anything other than the package root) must update its impo
 | `dandy.llm.decoder.decoder`, `.../service`, `.../mixin` | `dandy.application.decision.decision`, `.../service`, `.../mixin` |
 | `dandy.llm.diligence.*` | `dandy.application.diligence.*` |
 | `dandy.cli.intelligence.*` (CodingAgent, bots, prompts) | `dandy.application.agent.*` |
-| `dandy.cli.intelligence.tools.*` (agent tools) | `dandy.application.agent.tools.*` |
+| `dandy.cli.intelligence.tools.*` (agent tools) | `dandy.application.agent.intelligence.tools.*` |
 | `dandy.cli.session` | `dandy.application.agent.session` |
 | `dandy.llm.connector`, `dandy.llm.config` | `dandy.infrastructure.llm.connector`, `dandy.infrastructure.llm.config` |
 | `dandy.http.*` | `dandy.infrastructure.http.*` |

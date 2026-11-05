@@ -3,12 +3,13 @@
 The agent subsystem is where Dandy's single-shot [Bots](../user_guide/bots.md) become
 stateful, looping, project-aware workers: a base `Agent` that owns a conversation and
 drives the [tool-calling loop](../user_guide/tool_calling.md), and the CLI's
-`CodingAgent`, the framework's own built-in agent.
+`CliAgent`, the framework's own built-in agent.
 
-**Lives in:** `dandy/application/agent/` (the use case: `agent.py`, `coding_agent.py`,
-the bots in `bots/`, the project toolset in `tools/`, sessions in `session.py` /
-`session_store.py` / `intel.py`) and `dandy/interfaces/cli/` (the front end that drives
-it). It is its own [bounded context](../domain_model/contexts.md#5-the-coding-agent-own-context)
+**Lives in:** `dandy/application/agent/` (the use case: the base `agent.py`, the
+universal toolset in `intelligence/tools/`, sessions in `session.py` /
+`session_store.py` / `intel.py`, and the CLI's `CliAgent` in `cli/` with its bots and
+prompts in `cli/intelligence/`) and `dandy/interfaces/cli/` (the front end that drives
+it). It is its own [bounded context](../domain_model/contexts.md#5-the-cli-agent-own-context)
 that consumes the core LLM context — the core stays free of CLI concerns.
 
 ## The vocabulary
@@ -21,7 +22,7 @@ that consumes the core LLM context — the core stays free of CLI concerns.
 
 A `run` is made of `turn`s; a `turn` is made of `tool round`s. Interactive use — a
 human feeding one message at a time, like the CLI REPL — is a sequence of `turn`s;
-the [coding agent](../user_guide/coding_agent.md)'s `turn` is one such interactive turn.
+the [CLI agent](../user_guide/cli_agent.md)'s `turn` is one such interactive turn.
 
 ## Anatomy of a turn
 
@@ -136,9 +137,9 @@ out of version control: before any mode it ensures a git project's `.gitignore`
 contains `.dandy/` (`ensure_dandy_gitignore` in `dandy/interfaces/cli/utils.py`),
 appending the entry when missing; non-git directories are untouched.
 
-## The CodingAgent
+## The CliAgent
 
-`CodingAgent` (`dandy/application/agent/coding_agent.py`) is the CLI's child of
+`CliAgent` (`dandy/application/agent/cli/cli_agent.py`) is the CLI's child of
 `Agent`: `bot=CodingBot()`, `tools=AGENT_TOOLS` plus the `question` tool,
 `intel_class=DefaultIntel`. It is a plain child — the turn (compaction, the fit check,
 the tool loop) and session save/load come from the base class unchanged. Two methods
@@ -156,7 +157,7 @@ manage the project's `AGENTS.md`:
 
 ## The bots
 
-Three `Bot` subclasses in `dandy/application/agent/bots/`, each a plain class-attribute
+Three `Bot` subclasses in `dandy/application/agent/cli/intelligence/bots/`, each a plain class-attribute
 configuration of the [service pattern](service_pattern.md):
 
 | Bot | Role | LLM config | Purpose |
@@ -168,13 +169,13 @@ configuration of the [service pattern](service_pattern.md):
 Config names resolve through `get_cli_llm_config` (the settings `CLI_CONFIG` map,
 falling back to `DEFAULT`). `CodingBot` folds the project's
 `AGENTS.md` into its guidelines as a **Project Instructions** section
-(`dandy/application/agent/agents_md.py`: `read_agents_md` + `agents_md_section`), so
+(`dandy/application/agent/cli/agents_md.py`: `read_agents_md` + `agents_md_section`), so
 the file is part of the system message for every turn. `InitBot` deliberately does not
 — it is the bot that *writes* the file.
 
 ## The toolset
 
-`AGENT_TOOLS` (`dandy/application/agent/tools/`) is the core tool-calling machinery
+`AGENT_TOOLS` (`dandy/application/agent/intelligence/tools/`) is the core tool-calling machinery
 pointed at a project-aware toolset:
 
 ```python
@@ -191,10 +192,10 @@ AGENT_TOOLS = [*CODE_EDITING_TOOLS, *SEARCH_TOOLS, *COMMAND_TOOLS, *GIT_TOOLS]
 Three rules make the toolset safe to run unattended:
 
 - **Sandboxed paths.** Every path resolves against the session's `project_base_path`
-  via `resolve_project_path` (`tools/paths.py`) and refuses paths that escape it;
+  via `resolve_project_path` (`intelligence/tools/paths.py`) and refuses paths that escape it;
   results are reported as project-relative paths.
 - **No raises.** Every `handle()` is wrapped in the `tool_error` decorator
-  (`tools/tool_errors.py`), so an unexpected error comes back to the model as an
+  (`intelligence/tools/tool_errors.py`), so an unexpected error comes back to the model as an
   `Error ...: ...` string it can react to instead of killing the loop.
 - **Shared subprocess primitive.** `run_command` and the git tools call
   `self.run_subprocess(...)` (the shared kernel's subprocess helper): exit-code line,
@@ -222,7 +223,7 @@ The pieces, from `dandy/application/agent/intel.py` and `session.py`:
 
 ## The CLI wiring
 
-`DandyCli` (`dandy/interfaces/cli/cli.py`) is the front end: it owns a `CodingAgent`,
+`DandyCli` (`dandy/interfaces/cli/cli.py`) is the front end: it owns a `CliAgent`,
 a `SessionNamingBot`, and a `SessionStore.for_project(session.project_base_path)`.
 Every non-command message is exactly one `agent.turn`:
 
@@ -270,7 +271,7 @@ The save is in a `finally` block on purpose: a turn saves regardless of outcome
 
 - [Agent](../user_guide/agent.md) — the user-facing API for `turn`, `run`, and
   sessions.
-- [The Coding Agent](../user_guide/coding_agent.md) — the CLI from the user's side:
+- [The CLI Agent](../user_guide/cli_agent.md) — the CLI from the user's side:
   commands, the TUI, sessions.
 - [Tool Calling](../user_guide/tool_calling.md) — the execute-and-loop mechanics the
   agent's tool rounds run on.
@@ -278,5 +279,5 @@ The save is in a `finally` block on purpose: a turn saves regardless of outcome
   token estimation, and compaction.
 - [Anatomy of an LLM Call](data_flow.md) — what happens inside each LLM call of a
   tool round.
-- [Bounded Contexts](../domain_model/contexts.md#5-the-coding-agent-own-context) —
-  why the coding agent is its own context.
+- [Bounded Contexts](../domain_model/contexts.md#5-the-cli-agent-own-context) —
+  why the CLI agent is its own context.

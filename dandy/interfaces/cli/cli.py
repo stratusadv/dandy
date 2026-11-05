@@ -1,7 +1,7 @@
 import sys
 
-from dandy.application.agent.bots.session_naming_bot import SessionNamingBot
-from dandy.application.agent.coding_agent import CodingAgent
+from dandy.application.agent.cli.intelligence.bots.session_naming_bot import SessionNamingBot
+from dandy.application.agent.cli.cli_agent import CliAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
@@ -41,7 +41,7 @@ def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) ->
 
 class DandyCli:
     def __init__(self) -> None:
-        self.agent = CodingAgent(ask_user=self._ask_user)
+        self.agent = CliAgent(ask_user=self._ask_user)
         self.session_naming_bot = SessionNamingBot()
         self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
         self.session_store = SessionStore.for_project(session.project_base_path)

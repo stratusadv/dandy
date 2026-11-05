@@ -102,8 +102,7 @@ class TestCliErrorLogIntegration(TestCase):
         self.temp_directory_context.cleanup()
 
     @mock.patch(
-        'dandy.application.agent.coding_agent.CodingAgent.turn',
-        side_effect=RuntimeError('turn boom'),
+        'dandy.application.agent.cli.cli_agent.CliAgent.turn', side_effect=RuntimeError('turn boom')
     )
     @mock.patch.object(tui.printer, 'error')
     def test_failed_agent_turn_writes_to_the_error_log(
@@ -120,7 +119,7 @@ class TestCliErrorLogIntegration(TestCase):
         self.assertIn('RuntimeError: turn boom', content)
 
     @mock.patch(
-        'dandy.application.agent.coding_agent.CodingAgent.run_init_pass',
+        'dandy.application.agent.cli.cli_agent.CliAgent.run_init_pass',
         side_effect=RuntimeError('init boom'),
     )
     @mock.patch.object(tui.printer, 'error')

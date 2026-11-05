@@ -60,14 +60,14 @@ Language: [cache, cache key](glossary.md#glossary), file primitives.
 Two stores (memory, SQLite), one key policy (layered, depth-capped hashing of arguments).
 The context is intentionally ignorant of what it caches — that is what makes it generic.
 
-### 5. The coding agent (own context)
+### 5. The CLI agent (own context)
 
 **Question it answers:** *how does an agent carry out a multi-step coding task in a
 project?*
 
 Language: turn, plan, project base path, agent tool, session.
 
-This context **consumes** the core context: a coding agent turn is a use case that sends
+This context **consumes** the core context: a CLI agent turn is a use case that sends
 a prompt (with an optional plan) into the core's tool-calling loop with an agent-specific
 toolset (file editing, search, command, git). It keeps its own state (the persistent
 conversation, the session) and its own compaction policy. It is isolated in
@@ -77,7 +77,7 @@ conversation, the session) and its own compaction policy. It is isolated in
 
 ```text
                  ┌──────────────────────────────┐
-                 │      Coding Agent context    │
+                 │      CLI Agent context       │
                  │  (own language, own state)   │
                  └──────────────┬───────────────┘
                                 │ consumes (shared kernel for session state,

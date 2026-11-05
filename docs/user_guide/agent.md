@@ -19,7 +19,7 @@ come back, the model works again. Dandy names the levels of that loop precisely:
 
 A `run` is made of `turn`s; a `turn` is made of `tool round`s. Interactive use — a
 human feeding one message at a time, like the CLI REPL — is a sequence of `turn`s;
-the [coding agent](coding_agent.md)'s `turn` is one such interactive turn.
+the [CLI agent](cli_agent.md)'s `turn` is one such interactive turn.
 
 ## The base class
 
@@ -135,14 +135,14 @@ count). `load_session(session)` restores the history into a fresh
   names (empty, `.`/`..`, or containing path separators) raise
   `AgentCriticalError`.
 
-The [coding agent](coding_agent.md)'s REPL is the built-in consumer: it auto-saves
+The [CLI agent](cli_agent.md)'s REPL is the built-in consumer: it auto-saves
 after every turn and exposes the store through the `/new`, `/sessions`, `/resume`,
 and `/delete` commands plus the one-shot `--continue` flag.
 
-## Relationship to Bot and to the coding agent
+## Relationship to Bot and to the CLI agent
 
 A Bot is one use case: in, work, out, stateless across calls. An Agent is the
-same composition made stateful and loopable. The [coding agent](coding_agent.md)
+same composition made stateful and loopable. The [CLI agent](cli_agent.md)
 is the framework's own agent: a coding bot over a persistent history — an
 interactive agent (you drive the turns); a base `Agent.run` is an
 autonomous one (the agent drives them).

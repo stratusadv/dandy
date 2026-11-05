@@ -171,14 +171,14 @@ Documented in [Agent](../user_guide/agent.md).
 
 ::: dandy.application.agent.exceptions.AgentRecoverableError
 
-## The coding agent
+## The CLI agent
 
 The framework's own agentic use case: a child of `Agent` over a persistent history
 with tools and context-window compaction. It also reads the project's `AGENTS.md`
 into the agent system prompt and runs the `/init` generation pass. The CLI is a thin
-interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
+interface on top of it; see [The CLI Agent](../user_guide/cli_agent.md).
 
-::: dandy.application.agent.coding_agent.CodingAgent
+::: dandy.application.agent.cli.cli_agent.CliAgent
     options:
         members:
             - clear
@@ -187,10 +187,10 @@ interface on top of it; see [The Coding Agent](../user_guide/coding_agent.md).
 
 ::: dandy.application.agent.session.DandyCliSession
 
-::: dandy.application.agent.agents_md.read_agents_md
+::: dandy.application.agent.cli.agents_md.read_agents_md
 
-::: dandy.application.agent.agents_md.agents_md_section
+::: dandy.application.agent.cli.agents_md.agents_md_section
 
-::: dandy.application.agent.bots.coding_bot.CodingBot
+::: dandy.application.agent.cli.intelligence.bots.coding_bot.CodingBot
 
-::: dandy.application.agent.bots.init_bot.InitBot
+::: dandy.application.agent.cli.intelligence.bots.init_bot.InitBot

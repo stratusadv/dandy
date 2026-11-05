@@ -5,7 +5,7 @@ from typing import Any
 from unittest import TestCase, mock
 
 from dandy.application.agent.session import session
-from dandy.application.agent.tools import EditFileTool
+from dandy.application.agent.intelligence.tools import EditFileTool
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.tool.beat import StoryBeat

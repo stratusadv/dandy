@@ -3,7 +3,7 @@ import sys
 from blessed import Terminal
 from blessed.keyboard import Keystroke
 
-from dandy.application.agent.tools.question.question_tool import QuestionTool
+from dandy.application.agent.intelligence.tools.question.question_tool import QuestionTool
 from dandy.interfaces.cli.tui.printer import Printer
 from dandy.interfaces.cli.tui.text import linkify_file_paths
 

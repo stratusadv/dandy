@@ -1,7 +1,7 @@
 # Interfaces Layer
 
 Interfaces are where the framework meets its users. Today there is one: the command-line
-interface, a terminal REPL over the [coding agent](../user_guide/coding_agent.md) built
+interface, a terminal REPL over the [CLI agent](../user_guide/cli_agent.md) built
 on `blessed` (no other TUI dependencies).
 
 The interfaces layer may depend on every other layer; nothing may depend on it. If you
@@ -18,7 +18,7 @@ interactive REPL; `-h` and `-v` are handled before any settings load.
 
 ## The CLI loop
 
-`DandyCli` is the agent REPL: it owns the `CodingAgent`, a `SessionStore`
+`DandyCli` is the agent REPL: it owns the `CliAgent`, a `SessionStore`
 (`SessionStore.for_project(...)`) over the project's `.dandy/agent/sessions/`, and the
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,

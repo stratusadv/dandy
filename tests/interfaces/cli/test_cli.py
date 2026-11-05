@@ -10,7 +10,7 @@ from unittest import TestCase, mock
 from dandy.application.agent.intel import AgentSession
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
-from dandy.application.agent.tools.question import QuestionTool
+from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.interfaces.cli.cli import DandyCli
 from dandy.interfaces.cli.tui.printer import session_banner_line
 from dandy.interfaces.cli.tui.tui import tui
@@ -59,7 +59,7 @@ class TestDandyCli(TestCase):
 
         mock_get_user_input.assert_called_once_with()
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_process_user_input_sends_plain_text_to_agent(
@@ -79,7 +79,7 @@ class TestDandyCli(TestCase):
         mock_output.assert_called_once_with('answer')
 
     @mock.patch(
-        'dandy.application.agent.coding_agent.CodingAgent.turn', side_effect=RuntimeError('boom')
+        'dandy.application.agent.cli.cli_agent.CliAgent.turn', side_effect=RuntimeError('boom')
     )
     @mock.patch.object(tui.printer, 'error')
     def test_process_agent_input_reports_error_on_failure(
@@ -91,7 +91,7 @@ class TestDandyCli(TestCase):
         self.assertFalse(self.cli.last_turn_succeeded)
         mock_error.assert_called_once_with(error='Dandy ran into an error', description='boom')
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     @mock.patch.object(tui.printer, 'error')
@@ -118,7 +118,7 @@ class TestDandyCli(TestCase):
         mock_output.assert_called_once_with('answer')
 
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_process_user_input_stops_when_run_stopped(
         self, _mock_turn: mock.MagicMock, mock_output: mock.MagicMock
     ) -> None:
@@ -135,7 +135,7 @@ class TestDandyCli(TestCase):
         self.assertFalse(stop_signal.is_set())
 
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_process_user_input_passes_stop_signal_to_run_timed_task(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
     ) -> None:
@@ -147,7 +147,7 @@ class TestDandyCli(TestCase):
 
         self.assertIs(mock_run_timed_task.call_args.kwargs['stop_signal'], stop_signal)
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_process_agent_input_passes_verbose_callback_when_debug_is_on(
@@ -177,7 +177,7 @@ class TestDandyCli(TestCase):
 
         self.assertIsNone(self.cli.verbose_callback)
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'bold_green_divider')
     def test_process_agent_input_prints_file_sections_below_the_answer(
         self, _mock_green_divider: mock.MagicMock, mock_turn: mock.MagicMock
@@ -220,7 +220,7 @@ class TestDandyCli(TestCase):
         self.assertIn('\x1b]8;;', printed)
 
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_turn_without_history_saves_no_session(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock
     ) -> None:
@@ -236,7 +236,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_first_turn_auto_saves_a_named_session(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -255,7 +255,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_first_turn_names_the_session_from_the_ai_title(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock, mock_naming: mock.MagicMock
     ) -> None:
@@ -267,11 +267,11 @@ class TestDandyCli(TestCase):
         self.assertTrue(self.cli.session_store._record_path(self.cli.active_name).is_file())
 
     @mock.patch(
-        'dandy.application.agent.bots.session_naming_bot.SessionNamingBot.process',
+        'dandy.application.agent.cli.intelligence.bots.session_naming_bot.SessionNamingBot.process',
         side_effect=RuntimeError('naming failed'),
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_failed_naming_falls_back_to_the_request_text(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock, _mock_process: mock.MagicMock
     ) -> None:
@@ -286,7 +286,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_later_turns_update_the_same_session(
         self, mock_turn: mock.MagicMock, _mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -305,7 +305,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch(
-        'dandy.application.agent.coding_agent.CodingAgent.turn', side_effect=RuntimeError('boom')
+        'dandy.application.agent.cli.cli_agent.CliAgent.turn', side_effect=RuntimeError('boom')
     )
     @mock.patch.object(tui.printer, 'error')
     def test_crashed_turn_still_saves_a_session(
@@ -328,7 +328,7 @@ class TestDandyCli(TestCase):
         'dandy.interfaces.cli.cli.session_name_for_request',
         return_value='Fixing The Broken Login Flow',
     )
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'output')
     def test_stopped_turn_still_saves_a_session(
         self, mock_output: mock.MagicMock, _mock_turn: mock.MagicMock, _mock_naming: mock.MagicMock
@@ -357,7 +357,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_continue_latest_session_runs_turn_and_resaves(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -386,7 +386,7 @@ class TestDandyCli(TestCase):
             description='There are no saved sessions for this project yet.',
         )
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.run_init_pass')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.run_init_pass')
     @mock.patch.object(tui.printer, 'bold_green_divider')
     @mock.patch.object(tui.printer, 'output')
     def test_init_command_runs_the_pass_and_reports_the_file(
@@ -409,7 +409,7 @@ class TestDandyCli(TestCase):
         self.assertIn('Wrote AGENTS.md', final_line)
         self.assertIn('now part of the agent system prompt', final_line)
 
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.run_init_pass')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.run_init_pass')
     @mock.patch.object(tui.printer, 'error')
     def test_init_command_reports_failure_when_no_file_was_written(
         self, mock_error: mock.MagicMock, mock_run_init_pass: mock.MagicMock
@@ -429,7 +429,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_new_command_starts_fresh_conversation(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -447,7 +447,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_new_command_with_name_pre_names_the_session(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -465,7 +465,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_sessions_command_lists_saved_sessions(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -488,7 +488,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_resume_command_loads_the_session(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -511,7 +511,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'error')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_resume_unknown_session_lists_available(
         self, mock_turn: mock.MagicMock, mock_error: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
@@ -536,7 +536,7 @@ class TestDandyCli(TestCase):
         return_value='Fixing The Broken Login Flow',
     )
     @mock.patch.object(tui.printer, 'output')
-    @mock.patch('dandy.application.agent.coding_agent.CodingAgent.turn')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     def test_delete_command_removes_and_unbinds_active_session(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:

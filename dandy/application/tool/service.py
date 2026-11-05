@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 # Compaction in the tool loop keeps the accumulated conversation to this share
 # of the model's context window, matching the agent's compaction target in
-# dandy/cli/intelligence/coding_agent.py (0.70), so a long tool-calling session
+# dandy/application/agent/agent.py (0.70), so a long tool-calling session
 # never overflows the provider's context window. The fallback window mirrors
 # AGENT_MAX_CONTEXT_TOKENS_DEFAULT for configs without a CONTEXT_SIZE.
 

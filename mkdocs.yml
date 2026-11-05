@@ -54,7 +54,7 @@ nav:
       - Caching: user_guide/caching.md
       - Futures: user_guide/futures.md
       - Agent: user_guide/agent.md
-      - The Coding Agent: user_guide/coding_agent.md
+      - The CLI Agent: user_guide/cli_agent.md
       - Error Handling: user_guide/error_handling.md
   - API Reference:
       - Shared Kernel: reference/shared.md

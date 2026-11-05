@@ -155,10 +155,10 @@ ignore_imports = [
     "dandy.interfaces.cli.tui.printer -> dandy.infrastructure.llm.config",
     # The CLI entry point reaches the LLM adapters transitively through the
     # agent's documented application -> infrastructure seams.
-    "dandy.interfaces.cli.cli -> dandy.application.agent.coding_agent",
+    "dandy.interfaces.cli.cli -> dandy.application.agent.cli.cli_agent",
     # New sessions are named through the naming bot, which reaches the same
-    # documented application -> infrastructure seams as the coding agent.
-    "dandy.interfaces.cli.cli -> dandy.application.agent.bots.session_naming_bot",
+    # documented application -> infrastructure seams as the CLI agent.
+    "dandy.interfaces.cli.cli -> dandy.application.agent.cli.intelligence.bots.session_naming_bot",
 ]
 
 [tool.coverage.run]

@@ -1,0 +1,28 @@
+from typing import Any
+
+from dandy.application.agent.intelligence.tools.paths import resolve_project_path
+from dandy.application.agent.intelligence.tools.tool_errors import tool_error
+from dandy.shared.files import make_directory
+from dandy.domain.tool.tool import BaseTool
+
+
+class CreateDirectoryTool(BaseTool):
+    name = 'create_directory'
+    description = (
+        'Create a directory, including any missing parent directories. '
+        'The path is relative to the project root.'
+    )
+
+    action_label = 'Creating directory'
+    can_mutate_state = True
+
+    def action_output(self, **kwargs: Any) -> str:
+        return kwargs['directory_path']
+
+    @tool_error('creating directory')
+    def handle(self, directory_path: str) -> str:
+        resolved_directory_path = resolve_project_path(directory_path)
+
+        make_directory(resolved_directory_path)
+
+        return f'Created directory "{directory_path}".'
