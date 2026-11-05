@@ -68,7 +68,8 @@ LLM_CONFIGS = {
 
 | Constant | Share of the window | Used for |
 |---|---|---|
-| `AGENT_COMPACTION_TARGET_RATIO = 0.70` | 70% | what long histories are compacted down to before a call |
+| `COMPACTION_TRIGGER_RATIO = 0.80` | 80% | the threshold at which a history is compacted before a call |
+| `COMPACTION_TARGET_RATIO = 0.70` | 70% | what long histories are compacted down to before a call |
 
 Token counts come from a dependency-free character-class heuristic
 (`dandy/domain/tokens/estimate.py`) fitted to BPE tokenizer output, run through a
@@ -98,13 +99,13 @@ tool-call, so when the newest message is a tool result its whole round is droppe
 Compaction reports progress through the agent's `progress_callback` with a
 `kind='compaction'` beat ("Compacting my thoughts into a more manageable size").
 
-Tool results are capped at 8000 characters before they enter the conversation — the
-built-in `read_file` and `list_directory` tools cap their own output the same way — so
+Tool results are capped at 8000 characters (`OUTPUT_CHARACTER_LIMIT`) before they enter the conversation — the
+built-in `read_file`, `list_directory`, and `search_files` tools cap their own output the same way — so
 a single oversized result can never overflow the window or be dropped whole. If the
 conversation still cannot fit the window after compaction, the coding agent raises
 `AgentRecoverableError` (the CLI shows it instead of an opaque provider 400); clear the
 conversation and retry with a shorter message.
 
-Without any `CONTEXT_SIZE`, compaction falls back to a 65536-token window constant —
+Without any `CONTEXT_SIZE`, compaction falls back to the `DEFAULT_CONTEXT_WINDOW` (a 65536-token window constant) —
 the system still works, it just cannot prove the fit. If you want a bounded output,
 declare `max_completion_tokens` in the config's `OPTIONS`.

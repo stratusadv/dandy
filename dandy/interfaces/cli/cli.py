@@ -14,7 +14,7 @@ from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.interaction import question_gate
 from dandy.shared.settings import settings
 
-CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
+_CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
 # Tool name to (path argument, action) for the tools whose calls show up in the
 # file sections the CLI prints below the final answer.
@@ -103,7 +103,7 @@ class DandyCli:
 
         tui.printer.error(
             error='Unknown command',
-            description=f'"{command}" is not a valid command. Try {tuple(CLI_COMMANDS)}.',
+            description=f'"{command}" is not a valid command. Try {tuple(_CLI_COMMANDS)}.',
         )
         return True
 

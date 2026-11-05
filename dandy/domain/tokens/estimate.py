@@ -9,13 +9,13 @@
 # against real API prompt-token counts, so the estimate tracks what the provider
 # actually bills.
 
-TOKEN_COUNT_FIXED_BASE = 3
+_TOKEN_COUNT_FIXED_BASE = 3
 
-TOKEN_COUNT_ALPHA_CHAR_COST = 0.215
-TOKEN_COUNT_DIGIT_CHAR_COST = 0.5
-TOKEN_COUNT_SYMBOL_CHAR_COST = 0.67
-TOKEN_COUNT_SPACE_CHAR_COST = 0.02
-TOKEN_COUNT_OTHER_CHAR_COST = 0.5
+_TOKEN_COUNT_ALPHA_CHAR_COST = 0.215
+_TOKEN_COUNT_DIGIT_CHAR_COST = 0.5
+_TOKEN_COUNT_SYMBOL_CHAR_COST = 0.67
+_TOKEN_COUNT_SPACE_CHAR_COST = 0.02
+_TOKEN_COUNT_OTHER_CHAR_COST = 0.5
 
 # Calibration against real provider prompt-token counts (stratus.turbo, via the
 # eval usage proxy, 251 requests across two agentic coding sessions): the
@@ -48,10 +48,10 @@ TOKEN_COUNT_TOOL_CALL_ID_OVERHEAD = 3
 # treated as high to stay conservative.
 
 TOKEN_COUNT_IMAGE_LOW = 85
-TOKEN_COUNT_IMAGE_TILE = 170
-TOKEN_COUNT_IMAGE_TILE_DEFAULT_COUNT = 4
+_TOKEN_COUNT_IMAGE_TILE = 170
+_TOKEN_COUNT_IMAGE_TILE_DEFAULT_COUNT = 4
 TOKEN_COUNT_IMAGE_HIGH_DEFAULT = TOKEN_COUNT_IMAGE_LOW + (
-    TOKEN_COUNT_IMAGE_TILE * TOKEN_COUNT_IMAGE_TILE_DEFAULT_COUNT
+    _TOKEN_COUNT_IMAGE_TILE * _TOKEN_COUNT_IMAGE_TILE_DEFAULT_COUNT
 )
 
 
@@ -78,12 +78,12 @@ def get_estimated_token_count_for_string(string: str) -> int:
             symbol_count += 1
 
     token_count = (
-        TOKEN_COUNT_FIXED_BASE
-        + (alpha_count * TOKEN_COUNT_ALPHA_CHAR_COST)
-        + (digit_count * TOKEN_COUNT_DIGIT_CHAR_COST)
-        + (symbol_count * TOKEN_COUNT_SYMBOL_CHAR_COST)
-        + (space_count * TOKEN_COUNT_SPACE_CHAR_COST)
-        + (other_count * TOKEN_COUNT_OTHER_CHAR_COST)
+        _TOKEN_COUNT_FIXED_BASE
+        + (alpha_count * _TOKEN_COUNT_ALPHA_CHAR_COST)
+        + (digit_count * _TOKEN_COUNT_DIGIT_CHAR_COST)
+        + (symbol_count * _TOKEN_COUNT_SYMBOL_CHAR_COST)
+        + (space_count * _TOKEN_COUNT_SPACE_CHAR_COST)
+        + (other_count * _TOKEN_COUNT_OTHER_CHAR_COST)
     )
 
     return int(token_count * TOKEN_COUNT_CALIBRATION_SCALE)

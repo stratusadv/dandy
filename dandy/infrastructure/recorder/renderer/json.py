@@ -11,7 +11,7 @@ class JsonRecordingRenderer(BaseRecordingRenderer):
     def _render_json_to_str(self) -> str:
         return self.recording.model_dump_json()
 
-    def to_file(self, path: Path | str):
+    def to_file(self, path: Path | str) -> None:
         Path(path).mkdir(parents=True, exist_ok=True)
 
         with open(

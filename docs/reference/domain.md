@@ -165,6 +165,9 @@ trims it to fit a context window (see [Options and Context](../user_guide/option
 ::: dandy.domain.message.compaction
     options:
         members:
+            - DEFAULT_CONTEXT_WINDOW
+            - COMPACTION_TARGET_RATIO
+            - COMPACTION_TRIGGER_RATIO
             - compact_message_history
             - drop_incomplete_tool_round
 

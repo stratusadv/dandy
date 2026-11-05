@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import Any
 from unittest import TestCase
 
 from dandy.shared.exceptions import DandyCriticalError
@@ -34,8 +34,8 @@ class TestTypingTools(TestCase):
             {'mapping': {'str': 'int'}, 'items': ['str'], 'empty': []}
         )
 
-        self.assertEqual(typed_kwargs['mapping'], Dict[str, int])
-        self.assertEqual(typed_kwargs['items'], List[str])
+        self.assertEqual(typed_kwargs['mapping'], dict[str, int])
+        self.assertEqual(typed_kwargs['items'], list[str])
         self.assertEqual(typed_kwargs['empty'], list)
 
     def test_typed_kwargs_from_simple_json_schema_unknown_type_raises(self) -> None:

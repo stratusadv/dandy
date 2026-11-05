@@ -11,7 +11,7 @@ tui_terminal = Terminal()
 
 
 class Tui:
-    def __init__(self):
+    def __init__(self) -> None:
         self.term = tui_terminal
         self.printer = Printer(tui_terminal)
 
@@ -21,7 +21,7 @@ class Tui:
         self._escape_count = 0
         self._escape_exit = False
 
-    def clear(self):
+    def clear(self) -> None:
         print(self.term.clear)
 
     def get_user_input(
@@ -107,14 +107,14 @@ class Tui:
 
         return text
 
-    def _process_enter_key(self):
+    def _process_enter_key(self) -> None:
         if self._buffer:
             sys.stdout.write('\n')
             sys.stdout.flush()
 
             self._processing_input = False
 
-    def _process_backspace_key(self):
+    def _process_backspace_key(self) -> None:
         if self._buffer:
             self._buffer.pop()
             # Redraw line
@@ -122,7 +122,7 @@ class Tui:
             sys.stdout.write(self._input_prefix + ''.join(self._buffer))
             sys.stdout.flush()
 
-    def _process_key(self, key: Keystroke):
+    def _process_key(self, key: Keystroke) -> None:
         self._buffer.append(key)
         sys.stdout.write(key)
         sys.stdout.flush()

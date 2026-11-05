@@ -4,7 +4,7 @@ from dandy.infrastructure.http.intel import HttpResponseIntel, HttpRequestIntel
 
 
 class HttpService(BaseService['dandy.infrastructure.http.mixin.HttpServiceMixin']):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._http_connector = HttpConnector()
 
     def get(
@@ -44,5 +44,5 @@ class HttpService(BaseService['dandy.infrastructure.http.mixin.HttpServiceMixin'
     def request_intel_to_response_intel(self, request_intel: HttpRequestIntel) -> HttpResponseIntel:
         return self._http_connector.request_to_response(request_intel)
 
-    def reset(self):
+    def reset(self) -> None:
         pass

@@ -15,15 +15,15 @@ class Recording(BaseModel):
     event_count: int = 0
     event_store: EventStore = Field(default_factory=EventStore)
 
-    def clear(self):
+    def clear(self) -> None:
         self.start_datetime = datetime.now()
         self.stop_datetime = datetime.now()
 
-    def start(self):
+    def start(self) -> None:
         self.start_datetime = datetime.now()
         self.is_running = True
 
-    def stop(self):
+    def stop(self) -> None:
         self.stop_datetime = datetime.now()
         self.run_time_seconds = self.event_store.events_total_run_time
         self.token_usage = self.event_store.events_total_token_usage

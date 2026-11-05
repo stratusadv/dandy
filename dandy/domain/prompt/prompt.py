@@ -14,7 +14,7 @@ class Prompt:
     input: Self | str | None = (None,)
     tag: str | None = (None,)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.snippets: list[snippet.BaseSnippet] = []
 
         if isinstance(self.input, Prompt):

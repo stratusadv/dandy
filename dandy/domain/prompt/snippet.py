@@ -6,7 +6,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from random import randint, shuffle
-from typing import TYPE_CHECKING, List, Sequence
+from typing import TYPE_CHECKING, Sequence
 
 from dandy.shared.files import (
     get_directory_listing,
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 def list_to_str(
-    items: List, ordered: bool = False, indent: int = 0, ordered_number_prefix: str = ''
+    items: list, ordered: bool = False, indent: int = 0, ordered_number_prefix: str = ''
 ) -> str:
     output_str = ''
     ordered_correction = 1
@@ -56,10 +56,10 @@ class BaseSnippet(ABC):
     triple_backtick_inner_label: str | None = None
     triple_backtick_outer_label: str | None = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_str()
 
-    def to_str(self):
+    def to_str(self) -> str:
         snippet_str = ''
 
         if self.triple_backtick:

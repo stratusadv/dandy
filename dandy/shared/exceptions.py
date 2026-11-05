@@ -26,3 +26,8 @@ class RunStoppedError(DandyRecoverableError):
     """
 
     pass
+
+
+# The message every stop checkpoint raises with, so a stopped run reads the
+# same way no matter which layer noticed the signal.
+RUN_STOPPED_MESSAGE = 'Run stopped by user.'

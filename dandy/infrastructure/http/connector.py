@@ -3,7 +3,7 @@ from __future__ import annotations
 import requests
 
 from dandy.shared.cancellation import stop_signal
-from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.shared.settings import settings
 from dandy.shared.connector.connector import BaseConnector
 from dandy.infrastructure.http.exceptions import HttpConnectorRecoverableError
@@ -20,7 +20,7 @@ class HttpConnector(BaseConnector):
 
         for _ in range(settings.HTTP_CONNECTION_RETRY_COUNT + 1):
             if stop_signal.is_set():
-                raise RunStoppedError('Run stopped by user.')
+                raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
             try:
                 response_intel = request_intel.to_http_response_intel()

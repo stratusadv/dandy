@@ -77,7 +77,7 @@ class EventStore(BaseModel):
 
         return event
 
-    def _calculate_event_run_times(self):
+    def _calculate_event_run_times(self) -> None:
         if len(self.events) > 0:
             self.events[0].run_time_seconds = 0.0
             for i in range(1, len(self.events)):

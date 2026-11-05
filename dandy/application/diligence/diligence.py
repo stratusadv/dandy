@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class BaseDiligence(ABC):
     requires_new_llm_request: bool = False
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.is_activated = False
 
     def activate(self) -> None:

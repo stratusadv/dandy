@@ -15,8 +15,8 @@ from dandy.shared.constants import (
 )
 from dandy.shared.files import read_from_file, remove_file, write_to_file
 
-SESSION_NAME_SLUG_CHARACTER_LIMIT = 40
-SESSION_DATE_FORMAT = '%Y-%m-%d-%H-%M'
+_SESSION_NAME_SLUG_CHARACTER_LIMIT = 40
+_SESSION_DATE_FORMAT = '%Y-%m-%d-%H-%M'
 
 
 class SessionStore:
@@ -92,7 +92,7 @@ class SessionStore:
     def new_name(self, from_text: str) -> str:
         """A fresh non-colliding name derived from the first request text."""
         slug = self._slugify(from_text)
-        base_name = f'{datetime.now(UTC).strftime(SESSION_DATE_FORMAT)}-{slug or "session"}'
+        base_name = f'{datetime.now(UTC).strftime(_SESSION_DATE_FORMAT)}-{slug or "session"}'
         candidate_name = base_name
         counter = 2
 
@@ -142,4 +142,4 @@ class SessionStore:
     @staticmethod
     def _slugify(text: str) -> str:
         slug = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
-        return slug[:SESSION_NAME_SLUG_CHARACTER_LIMIT].rstrip('-')
+        return slug[:_SESSION_NAME_SLUG_CHARACTER_LIMIT].rstrip('-')

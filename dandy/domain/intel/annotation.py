@@ -1,11 +1,11 @@
 from types import NoneType
-from typing import Any, List, ParamSpec, Set, Tuple, Type, get_args, get_origin
+from typing import Any, ParamSpec, get_args, get_origin
 
 from dandy.domain.intel.exceptions import IntelCriticalError
 
 
 class FieldAnnotation:
-    def __init__(self, annotation: Type | None, field_name: str):
+    def __init__(self, annotation: type | None, field_name: str) -> None:
         self.annotation = annotation
 
         if self.first_inner_origin_is_iterable:
@@ -39,7 +39,7 @@ class FieldAnnotation:
 
     @property
     def first_inner_origin_is_iterable(self) -> bool:
-        return get_origin(self.first_inner) in (list, List, tuple, Tuple, set, Set)
+        return get_origin(self.first_inner) in (list, list, tuple, tuple, set, set)
 
     @property
     def origin(self) -> ParamSpec:

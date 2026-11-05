@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Type
 
 from dandy.shared.settings import settings
 from dandy.shared.constants import (
@@ -19,20 +18,20 @@ from dandy.infrastructure.recorder.renderer.renderer import BaseRecordingRendere
 
 class Recorder(Singleton):
     recordings: dict[str, Recording] = {}
-    renderers: dict[str, Type[BaseRecordingRenderer]] = {
+    renderers: dict[str, type[BaseRecordingRenderer]] = {
         'html': HtmlRecordingRenderer,
         'json': JsonRecordingRenderer,
         'markdown': MarkdownRecordingRenderer,
     }
 
     @classmethod
-    def add_event(cls, event: Event):
+    def add_event(cls, event: Event) -> None:
         for recording in cls.recordings.values():
             if recording.is_running:
                 recording.event_store.add_event(event)
 
     @classmethod
-    def check_recording_is_valid(cls, recording_name: str = RECORDING_DEFAULT_NAME):
+    def check_recording_is_valid(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> None:
         if recording_name not in cls.recordings:
             choices_message = ''
 
@@ -43,11 +42,11 @@ class Recorder(Singleton):
             raise RecorderCriticalError(message)
 
     @classmethod
-    def delete_all_recordings(cls):
+    def delete_all_recordings(cls) -> None:
         cls.recordings.clear()
 
     @classmethod
-    def delete_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):
+    def delete_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> None:
         cls.check_recording_is_valid(recording_name)
         del cls.recordings[recording_name]
 
@@ -61,21 +60,21 @@ class Recorder(Singleton):
         return cls.recordings[recording_name]
 
     @classmethod
-    def is_recording(cls):
+    def is_recording(cls) -> bool:
         return any(recording.is_running for recording in cls.recordings.values())
 
     @classmethod
-    def start_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):
+    def start_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> None:
         cls.recordings[recording_name] = Recording(name=recording_name)
         cls.recordings[recording_name].start()
 
     @classmethod
-    def stop_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME):
+    def stop_recording(cls, recording_name: str = RECORDING_DEFAULT_NAME) -> None:
         cls.check_recording_is_valid(recording_name)
         cls.recordings[recording_name].stop()
 
     @classmethod
-    def stop_all_recording(cls):
+    def stop_all_recording(cls) -> None:
         for recording in cls.recordings.values():
             recording.stop()
 
@@ -106,7 +105,7 @@ class Recorder(Singleton):
         return None
 
     @classmethod
-    def to_file(cls, recording_name: str, renderer: str, path: Path | str):
+    def to_file(cls, recording_name: str, renderer: str, path: Path | str) -> None:
         return cls._render(
             to_file=True, renderer=renderer, recording_name=recording_name, path=path
         )
@@ -118,7 +117,7 @@ class Recorder(Singleton):
     @classmethod
     def to_html_file(
         cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
-    ):
+    ) -> None:
         if path is None:
             path = cls.get_default_recording_path()
 
@@ -131,7 +130,7 @@ class Recorder(Singleton):
     @classmethod
     def to_json_file(
         cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
-    ):
+    ) -> None:
         if path is None:
             path = cls.get_default_recording_path()
 
@@ -144,7 +143,7 @@ class Recorder(Singleton):
     @classmethod
     def to_markdown_file(
         cls, recording_name: str = RECORDING_DEFAULT_NAME, path: Path | str | None = None
-    ):
+    ) -> None:
         if path is None:
             path = cls.get_default_recording_path()
 

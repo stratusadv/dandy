@@ -2,7 +2,6 @@ import importlib
 import sys
 from pathlib import Path
 
-import dotenv
 
 from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 

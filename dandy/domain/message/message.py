@@ -116,18 +116,18 @@ class Message(BaseModel):
 
         return model_dict
 
-    def add_content_from_text(self, text: str):
+    def add_content_from_text(self, text: str) -> None:
         self.content.append(MessageContent(type='text', text=text))
 
-    def add_content_from_image_url(self, image_url: str):
+    def add_content_from_image_url(self, image_url: str) -> None:
         self.content.append(MessageContent(type='image_url', image_url=ImageUrl(url=image_url)))
 
-    def add_content_from_image_file_path(self, image_file_path: Path | str):
+    def add_content_from_image_file_path(self, image_file_path: Path | str) -> None:
         self.add_content_from_image_base64_string(
             image_base64_string=encode_file_to_base64(image_file_path)
         )
 
-    def add_content_from_image_base64_string(self, image_base64_string: str):
+    def add_content_from_image_base64_string(self, image_base64_string: str) -> None:
         self.content.append(
             MessageContent(
                 type='image_url',
@@ -137,7 +137,7 @@ class Message(BaseModel):
             )
         )
 
-    def add_content_from_input_audio_url(self, input_audio_url: str):
+    def add_content_from_input_audio_url(self, input_audio_url: str) -> None:
         self.content.append(
             MessageContent(
                 type='input_audio',
@@ -147,12 +147,12 @@ class Message(BaseModel):
             )
         )
 
-    def add_content_from_input_audio_file_path(self, input_audio_file_path: Path | str):
+    def add_content_from_input_audio_file_path(self, input_audio_file_path: Path | str) -> None:
         self.add_content_from_input_audio_base64_string(
             input_audio_base64_string=encode_file_to_base64(input_audio_file_path)
         )
 
-    def add_content_from_input_audio_base64_string(self, input_audio_base64_string: str):
+    def add_content_from_input_audio_base64_string(self, input_audio_base64_string: str) -> None:
         self.content.append(
             MessageContent(
                 type='input_audio',

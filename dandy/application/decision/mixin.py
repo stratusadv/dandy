@@ -7,6 +7,6 @@ class DecisionServiceMixin(BaseServiceMixin):
     def decision(self) -> DecisionService:
         return self._get_service_instance(DecisionService)
 
-    def reset(self):
+    def reset(self) -> None:
         super().reset()
         self.decision.reset()

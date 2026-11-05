@@ -12,7 +12,7 @@ class Url(BaseModel):
     query_parameters: dict[str, str] | None = None
     parsed_url: ParseResult = None
 
-    def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /) -> None:
         self.parsed_url = urlparse(self.host)
 
     def __str__(self) -> str:

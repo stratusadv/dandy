@@ -7,6 +7,6 @@ class ToolServiceMixin(BaseServiceMixin):
     def tools(self) -> ToolService:
         return self._get_service_instance(ToolService)
 
-    def reset(self):
+    def reset(self) -> None:
         super().reset()
         self.tools.reset()

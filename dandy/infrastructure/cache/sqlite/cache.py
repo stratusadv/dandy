@@ -11,7 +11,7 @@ class SqliteCache(BaseCache):
     cache_name: str
     limit: int
 
-    def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /) -> None:
         self._create_table()
 
     def __len__(self) -> int:
@@ -40,7 +40,7 @@ class SqliteCache(BaseCache):
             return cursor.fetchone() is not None
 
     @staticmethod
-    def _create_table():
+    def _create_table() -> None:
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
@@ -73,7 +73,7 @@ class SqliteCache(BaseCache):
 
             return None
 
-    def set(self, key: str, value: Any):
+    def set(self, key: str, value: Any) -> None:
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
@@ -93,7 +93,7 @@ class SqliteCache(BaseCache):
             connection.commit()
             self.clean()
 
-    def clean(self):
+    def clean(self) -> None:
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
@@ -109,7 +109,7 @@ class SqliteCache(BaseCache):
             connection.commit()
 
     @classmethod
-    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME):
+    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME) -> None:
         if cls._table_exists():
             with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
                 cursor = connection.cursor()
@@ -119,7 +119,7 @@ class SqliteCache(BaseCache):
                 connection.commit()
 
     @classmethod
-    def clear_all(cls):
+    def clear_all(cls) -> None:
         if cls._table_exists():
             with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
                 cursor = connection.cursor()
@@ -127,5 +127,5 @@ class SqliteCache(BaseCache):
                 connection.commit()
 
     @classmethod
-    def destroy_all(cls):
+    def destroy_all(cls) -> None:
         SqliteConnection(SQLITE_CACHE_DB_NAME).delete_db_file()

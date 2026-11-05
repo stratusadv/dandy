@@ -1,5 +1,4 @@
 from dandy.shared.service.service import BaseService
-from dandy.application.diligence.diligence import BaseDiligence
 from dandy.application.diligence.handler import DiligenceHandler
 from dandy.application.diligence.second_pass.diligence import SecondPassRemovalDiligence
 from dandy.application.diligence.stop_word_removal.diligence import StopWordRemovalDiligence
@@ -7,12 +6,12 @@ from dandy.application.diligence.vowel_removal.diligence import VowelRemovalDili
 
 
 class DiligenceService(BaseService['dandy.application.diligence.mixin.DiligenceServiceMixin']):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.post_handler: DiligenceHandler = None
         self.pre_handler: DiligenceHandler = None
         self._reset_handlers()
 
-    def _reset_handlers(self):
+    def _reset_handlers(self) -> None:
         self.post_handler: DiligenceHandler = DiligenceHandler()
         self.pre_handler: DiligenceHandler = DiligenceHandler()
 
@@ -28,5 +27,5 @@ class DiligenceService(BaseService['dandy.application.diligence.mixin.DiligenceS
     def vowel_removal(self) -> VowelRemovalDiligence:
         return self.pre_handler.get_diligence(VowelRemovalDiligence)
 
-    def reset(self):
+    def reset(self) -> None:
         self._reset_handlers()

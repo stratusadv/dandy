@@ -1,3 +1,5 @@
+from typing import Any
+
 from dandy.shared.settings import settings
 from dandy.shared.settings.load import get_settings_module_name
 from dandy.shared.exceptions import DandyError
@@ -87,7 +89,7 @@ class LlmConfig:
     def get_response_content(response_intel: HttpResponseIntel) -> str:
         return response_intel.json_data['choices'][0]['message']['content']
 
-    def get_settings_value(self, key: str, required: bool = False):
+    def get_settings_value(self, key: str, required: bool = False) -> Any:
         value = self._settings_values.get(key)
 
         if required and value is None:
@@ -96,10 +98,10 @@ class LlmConfig:
 
         return value
 
-    def reset(self):
+    def reset(self) -> None:
         self._set_options_from_config()
 
-    def _set_options_from_config(self):
+    def _set_options_from_config(self) -> None:
         options = self._settings_values.get('options', None)
 
         if isinstance(options, dict):

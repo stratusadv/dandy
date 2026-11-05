@@ -34,7 +34,7 @@ class LlmRequestBody(BaseModel):
         return self.response_format['json_schema']['schema']
 
     @json_schema.setter
-    def json_schema(self, json_schema: dict):
+    def json_schema(self, json_schema: dict) -> None:
         if self.response_format is not None:
             self.response_format['json_schema']['schema'] = json_schema
 
@@ -44,7 +44,7 @@ class LlmRequestBody(BaseModel):
 
         return model_dict
 
-    def reset_messages(self):
+    def reset_messages(self) -> None:
         self.messages = MessageHistory()
 
     def to_dict(self) -> dict:

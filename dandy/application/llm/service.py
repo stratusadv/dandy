@@ -31,7 +31,7 @@ class LlmService(
     ToolServiceMixin,
     SkillServiceMixin,
 ):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.skills.register(self.obj.skills)
 
         self._llm_connector: LlmConnector = LlmConnector(
@@ -133,10 +133,10 @@ class LlmService(
 
         return self._llm_connector.system_prompt_str
 
-    def reset(self):
+    def reset(self) -> None:
         self._llm_connector.reset()
         self.reset_messages()
         self.skills.reset()
 
-    def reset_messages(self):
+    def reset_messages(self) -> None:
         self._llm_connector.request_body.reset_messages()

@@ -8,8 +8,14 @@ from dandy.application.agent.exceptions import AgentCriticalError, AgentRecovera
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.shared.cancellation import stop_signal
-from dandy.shared.exceptions import RunStoppedError
-from dandy.domain.message.compaction import compact_message_history, drop_incomplete_tool_round
+from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
+from dandy.domain.message.compaction import (
+    COMPACTION_TARGET_RATIO,
+    COMPACTION_TRIGGER_RATIO,
+    DEFAULT_CONTEXT_WINDOW,
+    compact_message_history,
+    drop_incomplete_tool_round,
+)
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.skill.skill import to_skill_instances
@@ -21,14 +27,6 @@ if TYPE_CHECKING:
     from dandy.domain.intel.typing import IntelType
     from dandy.domain.skill.skill import SkillType
     from dandy.domain.tool.tool import ToolType
-
-AGENT_MAX_CONTEXT_TOKENS_DEFAULT = 65536
-AGENT_COMPACTION_TARGET_RATIO = 0.70
-
-# Compaction triggers at this higher share of the window and compacts back
-# down to the target, so a loop whose rounds keep re-adding about what
-# compaction just dropped does not re-compact on every round.
-AGENT_COMPACTION_TRIGGER_RATIO = 0.80
 
 # A turn is capped at this many tool rounds by default: a model that keeps
 # requesting tools without ever giving a final answer must not burn the API
@@ -74,7 +72,7 @@ class Agent:
     def _resolve_context_size(self) -> int:
         """The bot's LLM config ``CONTEXT_SIZE``, or a safe default."""
         context_size = self.bot.llm.config.context_size
-        return context_size if context_size > 0 else AGENT_MAX_CONTEXT_TOKENS_DEFAULT
+        return context_size if context_size > 0 else DEFAULT_CONTEXT_WINDOW
 
     def turn(
         self,
@@ -90,7 +88,7 @@ class Agent:
         call with the tool name and its validated keyword arguments.
         """
         if stop_signal.is_set():
-            raise RunStoppedError('Run stopped by user.')
+            raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
         self.last_request = self._message_as_str(message)
         message = self._prepare_message(message, progress_callback, verbose_callback)
@@ -171,7 +169,7 @@ class Agent:
 
         while not self._is_done(result, is_done):
             if stop_signal.is_set():
-                raise RunStoppedError('Run stopped by user.')
+                raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
             if self.max_turns is not None and turn_count >= self.max_turns:
                 message = (
@@ -263,13 +261,13 @@ class Agent:
 
     def _compaction_target_token_count(self) -> int:
         """A fraction of the max context, reserving headroom for output."""
-        return max(1, int(self.max_context_tokens * AGENT_COMPACTION_TARGET_RATIO))
+        return max(1, int(self.max_context_tokens * COMPACTION_TARGET_RATIO))
 
     def _compaction_trigger_token_count(self) -> int:
         """The higher fraction at which compaction kicks in, above the target."""
         return max(
             self._compaction_target_token_count() + 1,
-            int(self.max_context_tokens * AGENT_COMPACTION_TRIGGER_RATIO),
+            int(self.max_context_tokens * COMPACTION_TRIGGER_RATIO),
         )
 
     def _compact_history_for_next_message(

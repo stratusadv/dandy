@@ -4,7 +4,7 @@ from typing import Any, Self
 import requests
 
 from dandy.shared.cancellation import stop_signal
-from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.shared.settings import settings
 from dandy.infrastructure.http.url import Url
 from dandy.domain.intel.intel import BaseIntel
@@ -72,7 +72,7 @@ class HttpRequestIntel(BaseIntel):
         url = self.url.to_str() if isinstance(self.url, Url) else self.url
 
         if stop_signal.is_set():
-            raise RunStoppedError('Run stopped by user.')
+            raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
         response = requests.request(
             method=self.method,

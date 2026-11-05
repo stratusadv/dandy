@@ -25,7 +25,7 @@ from dandy.application.agent.session import session  # noqa: E402
 from dandy.interfaces.cli.utils import check_or_create_settings, ensure_dandy_gitignore  # noqa: E402
 
 
-USAGE = (
+_USAGE = (
     '\n'
     'Usage:\n'
     '  dandy                         Start the interactive assistant (REPL)\n'
@@ -47,7 +47,7 @@ USAGE = (
 
 def _print_usage() -> None:
     term = Terminal()
-    print(term.bold_blue('\n Dandy') + term.normal + USAGE)
+    print(term.bold_blue('\n Dandy') + term.normal + _USAGE)
 
 
 def main() -> int:

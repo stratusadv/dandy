@@ -19,7 +19,7 @@ R = TypeVar('R')
 
 
 class AsyncFuture(Generic[R]):
-    def __init__(self, callable_: Callable[..., R], *args, **kwargs):
+    def __init__(self, callable_: Callable[..., R], *args, **kwargs) -> None:
         thread_pool_executor._max_workers = settings.FUTURES_MAX_WORKERS
 
         self._future: Future = thread_pool_executor.submit(callable_, *args, **kwargs)
@@ -60,7 +60,7 @@ class AsyncFuture(Generic[R]):
     def result(self) -> R:
         return self.get_result(self._result_timeout)
 
-    def set_timeout(self, seconds: float | None = None):
+    def set_timeout(self, seconds: float | None = None) -> None:
         if seconds is not None and seconds <= 0:
             message = f'Future timeout must be greater than 0.0, not {seconds}'
             raise FutureCriticalError(message)

@@ -8,10 +8,7 @@ from unittest import TestCase, mock
 if TYPE_CHECKING:
     from dandy.domain.tool.beat import StoryBeat
 
-from dandy.application.agent.agent import (
-    AGENT_MAX_CONTEXT_TOKENS_DEFAULT,
-    AGENT_MAX_TOOL_ROUNDS_DEFAULT,
-)
+from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT
 from dandy.application.agent.cli.cli_agent import CliAgent
 from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
@@ -20,7 +17,7 @@ from dandy.shared.settings import settings
 from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.message.message import MessageHistory
-from dandy.domain.message.compaction import compact_message_history
+from dandy.domain.message.compaction import DEFAULT_CONTEXT_WINDOW, compact_message_history
 from dandy.domain.prompt.prompt import Prompt
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 
@@ -542,7 +539,7 @@ class TestCliAgentCompaction(TestCase):
         with mock.patch.object(settings, 'LLM_CONFIGS', _coding_llm_configs(context_size=None)):
             agent = CliAgent()
 
-        self.assertEqual(agent.max_context_tokens, AGENT_MAX_CONTEXT_TOKENS_DEFAULT)
+        self.assertEqual(agent.max_context_tokens, DEFAULT_CONTEXT_WINDOW)
 
 
 def _coding_llm_configs(context_size: int | str | None) -> dict:

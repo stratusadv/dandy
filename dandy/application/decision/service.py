@@ -6,10 +6,11 @@ from dandy.shared.service.service import BaseService
 from dandy.application.decision.decision import Decision
 from dandy.domain.decision.intel import DecisionValuesIntel
 from dandy.domain.prompt.prompt import Prompt
+from dandy.domain.request.options import LlmOptions
 
 
 class DecisionService(BaseService['dandy.application.decision.mixin.DecisionServiceMixin']):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.decision = Decision(
             recorder_event_id=self.obj.recorder_event_id, llm_service_mixin=self.obj.obj
         )
@@ -20,7 +21,7 @@ class DecisionService(BaseService['dandy.application.decision.mixin.DecisionServ
         return self.prompt_to_values(prompt, keys_description, keys_values, max_return_values=1)[0]
 
     @property
-    def options(self):
+    def options(self) -> LlmOptions:
         return self.decision.llm_config.options
 
     def prompt_to_value_future(self, **kwargs) -> AsyncFuture:
@@ -43,5 +44,5 @@ class DecisionService(BaseService['dandy.application.decision.mixin.DecisionServ
     def prompt_to_values_future(self, **kwargs) -> AsyncFuture:
         return process_to_future(self.prompt_to_values, **kwargs)
 
-    def reset(self):
+    def reset(self) -> None:
         pass

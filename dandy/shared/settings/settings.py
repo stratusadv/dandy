@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 import types
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from dandy.shared.settings.load import (
     get_settings_json_candidates,
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class DandySettings:
-    def __init__(self):
+    def __init__(self) -> None:
         self._has_loaded_user_settings = False
         from dandy.shared.settings import default_settings  # noqa: PLC0415
 
@@ -28,7 +28,7 @@ class DandySettings:
 
         self.load_user_settings()
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         if self._has_loaded_user_settings:
             if hasattr(self._user_settings, name):
                 return getattr(self._user_settings, name)
@@ -43,7 +43,7 @@ class DandySettings:
         message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
         raise DandyCriticalError(message)
 
-    def load_user_settings(self):
+    def load_user_settings(self) -> None:
         self._settings_module_name = get_settings_module_name()
 
         if self._settings_module_name is not None:
@@ -80,7 +80,7 @@ class DandySettings:
 
         return False
 
-    def reload_from_os(self):
+    def reload_from_os(self) -> None:
         self._default_settings = importlib.reload(self._default_settings)
         self.load_user_settings()
 

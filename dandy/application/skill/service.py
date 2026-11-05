@@ -11,7 +11,7 @@ from dandy.domain.skill.skill import BaseSkill, SkillType, to_skill_instances
 if TYPE_CHECKING:
     from dandy.domain.tool.tool import BaseTool
 
-ACTIVATE_TOOL_NAME = 'activate_skill'
+_ACTIVATE_TOOL_NAME = 'activate_skill'
 
 
 class SkillService(BaseService['dandy.application.skill.mixin.SkillServiceMixin']):
@@ -60,7 +60,7 @@ class SkillService(BaseService['dandy.application.skill.mixin.SkillServiceMixin'
         names = {tool.name for tools in self._skill_tools.values() for tool in tools}
 
         if self._has_unactivated_passive():
-            names.add(ACTIVATE_TOOL_NAME)
+            names.add(_ACTIVATE_TOOL_NAME)
 
         return names
 
@@ -113,10 +113,10 @@ class SkillService(BaseService['dandy.application.skill.mixin.SkillServiceMixin'
         existing_tool_names = {tool.name for tools in self._skill_tools.values() for tool in tools}
 
         for tool_name in skill.tool_names:
-            if tool_name == ACTIVATE_TOOL_NAME:
+            if tool_name == _ACTIVATE_TOOL_NAME:
                 message = (
                     f'Skill "{skill.name}" generates the tool name '
-                    f'"{ACTIVATE_TOOL_NAME}", which is reserved.'
+                    f'"{_ACTIVATE_TOOL_NAME}", which is reserved.'
                 )
                 raise SkillCriticalError(message)
 

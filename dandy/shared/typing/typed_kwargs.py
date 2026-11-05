@@ -8,7 +8,7 @@ from dandy.shared.typing.typing import TypedKwargsDict
 
 
 class TypedKwargs(UserDict):
-    def __init__(self, data: TypedKwargsDict | dict[Any, Any]):
+    def __init__(self, data: TypedKwargsDict | dict[Any, Any]) -> None:
         super().__init__(data)
 
     def __contains__(self, item: Self) -> bool:

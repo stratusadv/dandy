@@ -12,7 +12,7 @@ class BaseRecordingRenderer(BaseModel, ABC):
     file_extension: str
 
     @abstractmethod
-    def to_file(self, path: Path | str):
+    def to_file(self, path: Path | str) -> None:
         raise NotImplementedError
 
     @abstractmethod

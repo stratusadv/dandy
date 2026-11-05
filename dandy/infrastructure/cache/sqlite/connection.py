@@ -5,7 +5,7 @@ from dandy.shared.settings import settings
 
 
 class SqliteConnection:
-    def __init__(self, db_name: str):
+    def __init__(self, db_name: str) -> None:
         self.db_path = Path(settings.CACHE_SQLITE_DATABASE_PATH, db_name)
 
     def __enter__(self) -> sqlite3.Connection:
@@ -13,9 +13,9 @@ class SqliteConnection:
         self.connection = sqlite3.connect(self.db_path)
         return self.connection
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         if self.connection:
             self.connection.close()
 
-    def delete_db_file(self):
-        Path.unlink(self.db_path)
+    def delete_db_file(self) -> None:
+        self.db_path.unlink()

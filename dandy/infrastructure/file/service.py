@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class FileService(BaseService['dandy.infrastructure.file.mixin.FileServiceMixin']):
     @staticmethod
-    def append(file_path: Path | str, content: str):
+    def append(file_path: Path | str, content: str) -> None:
         files.append_to_file(file_path, content)
 
     @staticmethod
@@ -19,10 +19,10 @@ class FileService(BaseService['dandy.infrastructure.file.mixin.FileServiceMixin'
         return files.file_exists(file_path)
 
     @staticmethod
-    def make_directory(directory_path: Path | str):
+    def make_directory(directory_path: Path | str) -> None:
         files.make_directory(directory_path)
 
-    def mkdir(self, file_path: Path | str):
+    def mkdir(self, file_path: Path | str) -> None:
         self.make_directory(file_path)
 
     @staticmethod
@@ -30,19 +30,19 @@ class FileService(BaseService['dandy.infrastructure.file.mixin.FileServiceMixin'
         return files.read_from_file(file_path)
 
     @staticmethod
-    def remove(file_path: Path | str):
+    def remove(file_path: Path | str) -> None:
         files.remove_file(file_path)
 
     @staticmethod
-    def remove_directory(directory_path: Path | str):
+    def remove_directory(directory_path: Path | str) -> None:
         files.remove_directory(directory_path)
 
-    def reset(self):
+    def reset(self) -> None:
         pass
 
-    def rm(self, file_path: Path | str):
+    def rm(self, file_path: Path | str) -> None:
         self.remove(file_path)
 
     @staticmethod
-    def write(file_path: Path | str, content: str):
+    def write(file_path: Path | str, content: str) -> None:
         files.write_to_file(file_path, content)

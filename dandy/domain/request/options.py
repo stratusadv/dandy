@@ -33,7 +33,7 @@ class LlmOptions(BaseModel):
 
     model_config = ConfigDict(extra='allow')
 
-    def model_post_init(self, context: Any):
+    def model_post_init(self, context: Any) -> None:
         for key, (min_value, max_value) in _VALUES_MIN_MAX.items():
             value = getattr(self, key)
 

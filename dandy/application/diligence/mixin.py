@@ -7,6 +7,6 @@ class DiligenceServiceMixin(BaseServiceMixin):
     def diligence(self) -> DiligenceService:
         return self._get_service_instance(DiligenceService)
 
-    def reset(self):
+    def reset(self) -> None:
         super().reset()
         self.diligence.reset()

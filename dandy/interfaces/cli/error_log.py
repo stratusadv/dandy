@@ -4,8 +4,8 @@ from pathlib import Path
 
 from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 
-ERROR_LOGS_DIRECTORY_NAME = 'logs'
-ERROR_LOG_FILE_NAME = 'errors.log'
+_ERROR_LOGS_DIRECTORY_NAME = 'logs'
+_ERROR_LOG_FILE_NAME = 'errors.log'
 ERROR_LOG_MAX_LINES = 10000
 
 
@@ -13,8 +13,8 @@ def error_log_path(project_base_path: Path) -> Path:
     return Path(
         project_base_path,
         DANDY_LOCAL_DIRECTORY_NAME,
-        ERROR_LOGS_DIRECTORY_NAME,
-        ERROR_LOG_FILE_NAME,
+        _ERROR_LOGS_DIRECTORY_NAME,
+        _ERROR_LOG_FILE_NAME,
     )
 
 

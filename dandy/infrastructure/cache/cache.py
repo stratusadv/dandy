@@ -19,24 +19,24 @@ class BaseCache(ABC, BaseModel):
         raise NotImplementedError
 
     @abstractmethod
-    def set(self, key: str, value: Any):
+    def set(self, key: str, value: Any) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def clean(self):
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME):
+    def clean(self) -> None:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def clear_all(cls):
+    def clear(cls, cache_name: str = CACHE_DEFAULT_NAME) -> None:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def destroy_all(cls):
+    def clear_all(cls) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def destroy_all(cls) -> None:
         raise NotImplementedError

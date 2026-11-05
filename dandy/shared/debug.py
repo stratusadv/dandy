@@ -10,7 +10,7 @@ def dandy_warning_handler(
     lineno: int,
     file: TextIO | None = None,
     line: str | None = None,
-):
+) -> None:
     print(f'Warning: {message}')
     print(f'Category: {category.__name__}')
     print(f'File: {filename}:{lineno}')

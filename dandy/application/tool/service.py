@@ -5,12 +5,21 @@ from typing import TYPE_CHECKING, Callable
 from pydantic import ValidationError
 
 from dandy.shared.cancellation import stop_signal
-from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.shared.service.service import BaseService
-from dandy.shared.utils import pascal_to_title_case, pydantic_validation_error_to_str
+from dandy.shared.utils import (
+    pascal_to_title_case,
+    pydantic_validation_error_to_str,
+    truncate_output,
+)
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
-from dandy.domain.message.compaction import compact_message_history
+from dandy.domain.message.compaction import (
+    COMPACTION_TARGET_RATIO,
+    COMPACTION_TRIGGER_RATIO,
+    DEFAULT_CONTEXT_WINDOW,
+    compact_message_history,
+)
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
 from dandy.domain.tool.repeated_call import RepeatedCallGuard
@@ -21,34 +30,6 @@ if TYPE_CHECKING:
     from dandy.application.skill.service import SkillService
     from dandy.domain.intel.typing import IntelType
     from dandy.domain.prompt.prompt import Prompt
-
-# Compaction in the tool loop keeps the accumulated conversation to this share
-# of the model's context window, matching the agent's compaction target in
-# dandy/application/agent/agent.py (0.70), so a long tool-calling session
-# never overflows the provider's context window. The fallback window mirrors
-# AGENT_MAX_CONTEXT_TOKENS_DEFAULT for configs without a CONTEXT_SIZE.
-
-TOOL_LOOP_CONTEXT_DEFAULT = 65536
-TOOL_LOOP_COMPACTION_TARGET_RATIO = 0.70
-
-# Compaction triggers at this higher share of the window and compacts back
-# down to the target, so a loop whose rounds keep re-adding about what
-# compaction just dropped does not re-compact on every round; the band
-# between trigger and target is the headroom a long loop may use.
-TOOL_LOOP_COMPACTION_TRIGGER_RATIO = 0.80
-
-# A model that keeps re-observing the same state is not gathering new
-# information; the loop guards against it with a RepeatedCallGuard (see
-# dandy/domain/tool/repeated_call.py), which steers the model at the warning
-# threshold and fails fast at the stop threshold, so a degenerate run costs
-# a bounded number of rounds instead of burning the whole tool-iteration cap.
-
-# Tool results are capped before they enter the conversation so one oversized
-# result (a huge file read, a chatty user tool) can never blow past the model's
-# context window or be silently dropped whole by compaction. The cap mirrors
-# the 8000-character limits on the built-in agent tools.
-
-_TOOL_RESULT_CHARACTER_LIMIT = 8000
 
 
 def _tool_preview(text: str, limit: int = 240) -> str:
@@ -77,11 +58,15 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_functions = tool_functions or {}
 
         iteration_count = 0
+        # A model that keeps re-observing the same state is not gathering new
+        # information; the guard steers the model at the warning threshold and
+        # fails fast at the stop threshold, so a degenerate run costs a bounded
+        # number of rounds instead of burning the whole tool-iteration cap.
         repeated_call_guard = RepeatedCallGuard()
 
         while True:
             if stop_signal.is_set():
-                raise RunStoppedError('Run stopped by user.')
+                raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
             self._compact_history_before_next_round(progress_callback=progress_callback)
 
@@ -126,7 +111,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
 
             for tool_call in intel:
                 if stop_signal.is_set():
-                    raise RunStoppedError('Run stopped by user.')
+                    raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
                 if verbose_callback is not None:
                     verbose_callback(
@@ -171,10 +156,10 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         passes the higher trigger ratio, so a steady state where each round
         re-adds about what compaction just dropped does not compact every round.
         """
-        context_size = getattr(self.obj.config, 'context_size', 0) or TOOL_LOOP_CONTEXT_DEFAULT
-        target_token_count = max(1, int(context_size * TOOL_LOOP_COMPACTION_TARGET_RATIO))
+        context_size = getattr(self.obj.config, 'context_size', 0) or DEFAULT_CONTEXT_WINDOW
+        target_token_count = max(1, int(context_size * COMPACTION_TARGET_RATIO))
         trigger_token_count = max(
-            target_token_count + 1, int(context_size * TOOL_LOOP_COMPACTION_TRIGGER_RATIO)
+            target_token_count + 1, int(context_size * COMPACTION_TRIGGER_RATIO)
         )
 
         current_token_count = self.obj.messages.estimated_token_count
@@ -254,8 +239,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
 
         result_text = result if isinstance(result, str) else result.model_dump_json()
 
-        if len(result_text) > _TOOL_RESULT_CHARACTER_LIMIT:
-            result_text = result_text[:_TOOL_RESULT_CHARACTER_LIMIT] + '\n... (truncated)'
+        result_text = truncate_output(result_text)
 
         if verbose_callback is not None:
             verbose_callback(f'  - {tool_call.name} result: {_tool_preview(result_text)}')
@@ -273,5 +257,5 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
 
         self.obj.messages.add_message(role='tool', tool_call_id=tool_call.id, text=feedback_text)
 
-    def reset(self):
+    def reset(self) -> None:
         pass

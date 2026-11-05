@@ -128,11 +128,11 @@ class BaseIntel(BaseModel, ABC):
     def model_validate_json_and_copy(self, json_data: str) -> Self:
         return self.model_validate_and_copy(update=from_json(json_data))
 
-    def save_to_file(self, file_path: Path | str):
+    def save_to_file(self, file_path: Path | str) -> None:
         write_to_file(file_path=file_path, content=self.model_dump_json(indent=2))
 
     @classmethod
-    def _validate_inc_ex_dict_or_error(cls, include_dict: dict, exclude_dict: dict):
+    def _validate_inc_ex_dict_or_error(cls, include_dict: dict, exclude_dict: dict) -> None:
         field_names = set(cls.model_fields.keys())
 
         if include_dict:
@@ -157,7 +157,7 @@ class BaseIntel(BaseModel, ABC):
         exclude: IncEx | dict | None,
         exclude_dict: dict,
         intel_object: Self | None,
-    ):
+    ) -> None:
         for field_name, field_info in cls.model_fields.items():
             include_value = include_dict.get(field_name)
             exclude_value = exclude_dict.get(field_name)
@@ -188,7 +188,7 @@ T = TypeVar('T')
 class BaseListIntel(BaseIntel, ABC, Generic[T]):
     _list_name: str = PrivateAttr(default=None)
 
-    def model_post_init(self, __context: Any, /):
+    def model_post_init(self, __context: Any, /) -> None:
         list_fields = [
             name
             for name, field in self.__class__.model_fields.items()
@@ -210,13 +210,13 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
     def __len__(self) -> int:
         return len(getattr(self, self._list_name))
 
-    def __setitem__(self, index: int, value: T):
+    def __setitem__(self, index: int, value: T) -> None:
         getattr(self, self._list_name)[index] = value
 
-    def append(self, item: T):
+    def append(self, item: T) -> None:
         getattr(self, self._list_name).append(item)
 
-    def extend(self, items: list[T]):
+    def extend(self, items: list[T]) -> None:
         getattr(self, self._list_name).extend(items)
 
 

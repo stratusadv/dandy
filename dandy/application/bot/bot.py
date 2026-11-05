@@ -44,7 +44,7 @@ class Bot(FileServiceMixin, LlmServiceMixin, HttpServiceMixin, IntelServiceMixin
 
             cls.__getattribute__ = __getattribute__
 
-    def __post_init__(self) -> None:  # noqa: B027
+    def __post_init__(self) -> None:
         pass
 
     @classmethod

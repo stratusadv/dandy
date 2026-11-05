@@ -1,6 +1,6 @@
 import inspect
 import json
-from typing import Callable, Dict, List
+from typing import Callable
 
 from dandy.shared.typing.constants import STRING_TO_TYPE_MAP
 from dandy.shared.typing.exceptions import TypingRecoverableError, TypingCriticalError
@@ -42,14 +42,14 @@ def get_typed_kwargs_from_simple_json_schema(simple_json_schema: dict | str) -> 
 
             if isinstance(type_, dict):
                 for type_1, type_2 in type_.items():
-                    typed_kwargs_dict[name] = Dict[
+                    typed_kwargs_dict[name] = dict[
                         string_to_type_or_error(type_1), string_to_type_or_error(type_2)
                     ]
                     break
 
             if isinstance(type_, list):
                 if len(type_) > 0:
-                    typed_kwargs_dict[name] = List[string_to_type_or_error(type_[0])]
+                    typed_kwargs_dict[name] = list[string_to_type_or_error(type_[0])]
                 else:
                     typed_kwargs_dict[name] = list
 

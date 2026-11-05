@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Type
+from typing import Any, Callable
 
 from pydantic.main import IncEx, create_model
 
@@ -14,7 +14,7 @@ from dandy.domain.intel.intel import BaseIntel
 class IntelFactory:
     @staticmethod
     def _run_for_intel_class_or_object(
-        intel: BaseIntel | Type[BaseIntel], class_func: Callable, object_func: Callable, **kwargs
+        intel: BaseIntel | type[BaseIntel], class_func: Callable, object_func: Callable, **kwargs
     ) -> Any:
         if isinstance(intel, BaseIntel):
             return object_func(**kwargs)
@@ -28,10 +28,10 @@ class IntelFactory:
     @classmethod
     def intel_to_json_inc_ex_schema(
         cls,
-        intel: BaseIntel | Type[BaseIntel],
+        intel: BaseIntel | type[BaseIntel],
         include: IncEx | None = None,
         exclude: IncEx | None = None,
-    ) -> Dict:
+    ) -> dict:
         inc_ex_kwargs = {'include': include, 'exclude': exclude}
 
         json_schema = cls._run_for_intel_class_or_object(
@@ -47,7 +47,7 @@ class IntelFactory:
 
     @classmethod
     def json_str_to_intel_object(
-        cls, json_str: str, intel: BaseIntel | Type[BaseIntel]
+        cls, json_str: str, intel: BaseIntel | type[BaseIntel]
     ) -> BaseIntel:
         return cls._run_for_intel_class_or_object(
             intel=intel,
@@ -57,7 +57,7 @@ class IntelFactory:
         )
 
     @classmethod
-    def _validate_json_schema_or_error(cls, json_schema: Dict):
+    def _validate_json_schema_or_error(cls, json_schema: dict) -> None:
         required_attributes = ('allOf', 'anyOf', 'not', 'oneOf', 'type', '$ref')
 
         for property_ in json_schema['properties']:
@@ -70,7 +70,7 @@ class IntelFactory:
                 raise IntelCriticalError(message) from None
 
     @classmethod
-    def callable_signature_to_intel_class(cls, callable_: Callable) -> Type[BaseIntel]:
+    def callable_signature_to_intel_class(cls, callable_: Callable) -> type[BaseIntel]:
 
         typed_kwargs = get_typed_kwargs_from_callable_signature(callable_)
 
@@ -79,7 +79,7 @@ class IntelFactory:
     @classmethod
     def simple_json_schema_to_intel_class(
         cls, simple_json_schema: dict | str, class_name: str = 'SimpleJsonSchemaIntel'
-    ) -> Type[BaseIntel]:
+    ) -> type[BaseIntel]:
         typed_kwargs = get_typed_kwargs_from_simple_json_schema(simple_json_schema)
 
         return cls.typed_kwargs_to_intel_class(class_name, typed_kwargs)
@@ -87,5 +87,5 @@ class IntelFactory:
     @staticmethod
     def typed_kwargs_to_intel_class(
         intel_class_name: str, typed_kwargs: TypedKwargs
-    ) -> Type[BaseIntel]:
+    ) -> type[BaseIntel]:
         return create_model(intel_class_name, __base__=BaseIntel, **typed_kwargs)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Type
+from typing import TYPE_CHECKING, Callable
 
 from dandy.shared.service.service import BaseService
 from dandy.domain.intel.factory import IntelFactory
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class IntelService(BaseService['dandy.domain.intel.mixin.IntelServiceMixin']):
     @staticmethod
-    def intel_class_from_callable_signature(callable_: Callable) -> Type[BaseIntel]:
+    def intel_class_from_callable_signature(callable_: Callable) -> type[BaseIntel]:
         return IntelFactory.callable_signature_to_intel_class(callable_)
 
     @staticmethod
@@ -22,5 +22,5 @@ class IntelService(BaseService['dandy.domain.intel.mixin.IntelServiceMixin']):
     def json_str_to_intel_object(json_str: str, intel: BaseIntel | type[BaseIntel]) -> BaseIntel:
         return IntelFactory.json_str_to_intel_object(json_str=json_str, intel=intel)
 
-    def reset(self):
+    def reset(self) -> None:
         pass

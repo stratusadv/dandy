@@ -368,7 +368,12 @@ class TestPrinterStory(TestCase):
             return 'done'
 
         escape = Keystroke('\x1b')
-        mock_inkey.side_effect = [escape, escape]
+        queued = [escape, escape]
+
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+            return queued.pop(0) if queued else Keystroke('')
+
+        mock_inkey.side_effect = inkey_side_effect
 
         threading.Timer(0.3, release.set).start()
 
@@ -392,7 +397,12 @@ class TestPrinterStory(TestCase):
             return 'done'
 
         # blessed may deliver two quick escapes as one keystroke.
-        mock_inkey.side_effect = [Keystroke('\x1b\x1b')]
+        queued = [Keystroke('\x1b\x1b')]
+
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+            return queued.pop(0) if queued else Keystroke('')
+
+        mock_inkey.side_effect = inkey_side_effect
 
         threading.Timer(0.3, release.set).start()
 
@@ -410,7 +420,12 @@ class TestPrinterStory(TestCase):
             release.wait(5)
             return 'done'
 
-        mock_inkey.side_effect = [Keystroke('\x1b'), Keystroke('a')]
+        queued = [Keystroke('\x1b'), Keystroke('a')]
+
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+            return queued.pop(0) if queued else Keystroke('')
+
+        mock_inkey.side_effect = inkey_side_effect
 
         threading.Timer(0.3, release.set).start()
 

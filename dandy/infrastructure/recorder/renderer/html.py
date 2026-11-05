@@ -33,7 +33,7 @@ class HtmlRecordingRenderer(BaseRecordingRenderer):
         ) as event_template_html:
             return event_template_html.read()
 
-    def to_file(self, path: Path | str):
+    def to_file(self, path: Path | str) -> None:
         Path(path).mkdir(parents=True, exist_ok=True)
 
         with open(

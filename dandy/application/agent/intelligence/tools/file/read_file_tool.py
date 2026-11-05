@@ -3,9 +3,8 @@ from typing import Any
 from dandy.application.agent.intelligence.tools.paths import resolve_project_path
 from dandy.application.agent.intelligence.tools.tool_errors import tool_error
 from dandy.shared.files import read_from_file
+from dandy.shared.utils import truncate_output
 from dandy.domain.tool.tool import BaseTool
-
-_READ_FILE_CHARACTER_LIMIT = 8000
 
 
 class ReadFileTool(BaseTool):
@@ -60,16 +59,10 @@ class ReadFileTool(BaseTool):
 
         numbered_output = '\n'.join(numbered_lines)
 
-        if len(numbered_output) > _READ_FILE_CHARACTER_LIMIT:
-            kept_output = numbered_output[:_READ_FILE_CHARACTER_LIMIT]
-            newline_position = kept_output.rfind('\n')
-
-            if newline_position > 0:
-                kept_output = kept_output[:newline_position]
-
-            return (
-                kept_output + f'\n... (truncated; the file has {len(lines)} lines, '
+        return truncate_output(
+            numbered_output,
+            marker=(
+                f'\n... (truncated; the file has {len(lines)} lines, '
                 'use start_line and end_line to read more)'
-            )
-
-        return numbered_output
+            ),
+        )

@@ -84,13 +84,13 @@ Agent(
 ### Context management
 
 The agent resolves its window once at construction: the bot's LLM config
-`CONTEXT_SIZE`, falling back to `AGENT_MAX_CONTEXT_TOKENS_DEFAULT` (65536). Before
+`CONTEXT_SIZE`, falling back to `DEFAULT_CONTEXT_WINDOW` (65536). Before
 every turn it compacts the history with the shared `compact_message_history`
 ([Options and Context](../user_guide/options_and_context.md)):
 
 - **Trigger:** the history's estimated token count exceeds 80% of the window
-  (`AGENT_COMPACTION_TRIGGER_RATIO`) minus the incoming message's estimate.
-- **Target:** compact down to 70% of the window (`AGENT_COMPACTION_TARGET_RATIO`)
+  (`COMPACTION_TRIGGER_RATIO`) minus the incoming message's estimate.
+- **Target:** compact down to 70% of the window (`COMPACTION_TARGET_RATIO`)
   minus the incoming message's estimate — the incoming prompt is part of the next
   request, so its tokens are reserved up front.
 - **Fit check:** if history plus message still exceeds the *whole* window after

@@ -3,8 +3,8 @@ import time
 from pathlib import Path
 
 from dandy.shared.cancellation import StopSignal
+from dandy.shared.utils import truncate_output
 
-_COMMAND_OUTPUT_CHARACTER_LIMIT = 8000
 _POLL_INTERVAL_SECONDS = 0.1
 
 
@@ -17,7 +17,7 @@ def run_subprocess(
 ) -> str:
     """Run a command and return its output, never raising.
 
-    Output is capped to `_COMMAND_OUTPUT_CHARACTER_LIMIT` characters and
+    Output is capped to `OUTPUT_CHARACTER_LIMIT` characters and
     combined stdout/stderr are prefixed with an exit-code line. When a
     `stop_signal` is given, the command is polled instead of blocked on: if
     the signal is set while it runs, the process is killed and a short error
@@ -65,7 +65,6 @@ def run_subprocess(
     else:
         combined = output
 
-    if len(combined) > _COMMAND_OUTPUT_CHARACTER_LIMIT:
-        combined = combined[:_COMMAND_OUTPUT_CHARACTER_LIMIT] + '\n... (truncated)'
+    combined = truncate_output(combined)
 
     return f'Exit code: {process.returncode}\n{combined}'

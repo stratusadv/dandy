@@ -31,25 +31,25 @@ class Printer:
         self.term = terminal
         self.markdown_renderer = MarkdownRenderer(terminal)
 
-    def bold_blue_divider(self):
+    def bold_blue_divider(self) -> None:
         print(self.term.bold_blue('─' * self.term.width), flush=True)
 
-    def blue_divider(self):
+    def blue_divider(self) -> None:
         print(self.term.blue('─' * self.term.width), flush=True)
 
-    def purple_divider(self):
+    def purple_divider(self) -> None:
         print(self.term.purple('─' * self.term.width), flush=True)
 
-    def bold_grey_divider(self):
+    def bold_grey_divider(self) -> None:
         print(self.term.bold_grey('─' * self.term.width), flush=True)
 
-    def bold_green_divider(self):
+    def bold_green_divider(self) -> None:
         print(self.term.bold_green('─' * self.term.width), flush=True)
 
-    def bold_red_divider(self):
+    def bold_red_divider(self) -> None:
         print(self.term.bold_red('─' * self.term.width), flush=True)
 
-    def welcome(self):
+    def welcome(self) -> None:
         print(self.term.bold_blue(f'\n{DANDY_ASCII}\n'))
         self.bold_blue_divider()
         print(self.term.bold_blue('Version      : ') + __VERSION__)
@@ -204,7 +204,7 @@ class Printer:
         """
         try:
             key = self.term.inkey(timeout=0)
-        except Exception:
+        except OSError:
             return escape_count
 
         if not key:
@@ -226,10 +226,10 @@ class Printer:
 
         return 0
 
-    def event(self, text: str, end: str = '\n'):
+    def event(self, text: str, end: str = '\n') -> None:
         print(f'{self.term.normal}{text}{self.term.normal}', end=end, flush=True)
 
-    def output(self, output: str):
+    def output(self, output: str) -> None:
         rendered_output = self.markdown_renderer.render(output)
 
         for line in rendered_output.splitlines():
@@ -267,7 +267,7 @@ class Printer:
                     f'{linkify_file_paths(path)}'
                 )
 
-    def error(self, error: str, description: str):
+    def error(self, error: str, description: str) -> None:
         self.event(text=f'\n{self.term.red}Error: {self.term.normal}{error} !!!')
         self.bold_red_divider()
         print(f'{description}')

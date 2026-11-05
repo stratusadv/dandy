@@ -12,7 +12,7 @@ from dandy.infrastructure.recorder.recorder import Recorder
 _EVENT_OBJECT_NAME = 'LLM Service'
 
 
-def recorder_add_llm_failure_event(error: Exception, event_id: str):
+def recorder_add_llm_failure_event(error: Exception, event_id: str) -> None:
     Recorder.add_event(
         Event(
             id=event_id,
@@ -35,7 +35,7 @@ def recorder_add_llm_failure_event(error: Exception, event_id: str):
 
 def recorder_add_llm_retry_event(
     description: str, event_id: str, remaining_attempts: int | None = None
-):
+) -> None:
     Recorder.add_event(
         Event(
             id=event_id,
@@ -54,7 +54,7 @@ def recorder_add_llm_retry_event(
     )
 
 
-def recorder_add_llm_request_event(request_body: LlmRequestBody, event_id: str):
+def recorder_add_llm_request_event(request_body: LlmRequestBody, event_id: str) -> None:
     skip_attributes = ('stream', 'response_format', 'messages')
     event_attributes = []
 
@@ -89,7 +89,7 @@ def recorder_add_llm_request_event(request_body: LlmRequestBody, event_id: str):
     Recorder.add_event(llm_request_event)
 
 
-def recorder_add_llm_response_event(message_content: str, event_id: str):
+def recorder_add_llm_response_event(message_content: str, event_id: str) -> None:
     Recorder.add_event(
         Event(
             id=event_id,
@@ -102,7 +102,9 @@ def recorder_add_llm_response_event(message_content: str, event_id: str):
     )
 
 
-def recorder_add_llm_success_event(description: str, event_id: str, intel: BaseIntel | None = None):
+def recorder_add_llm_success_event(
+    description: str, event_id: str, intel: BaseIntel | None = None
+) -> None:
     intel_json = None
 
     if intel:

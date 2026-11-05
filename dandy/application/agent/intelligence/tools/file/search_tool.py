@@ -4,6 +4,7 @@ from typing import Any
 
 from dandy.application.agent.intelligence.tools.paths import resolve_project_path, to_relative_path
 from dandy.application.agent.intelligence.tools.tool_errors import tool_error
+from dandy.shared.utils import truncate_output
 from dandy.domain.tool.tool import BaseTool
 
 _EXCLUDED_DIRECTORIES = {'.git', '.dandy', 'node_modules', '.venv', '__pycache__'}
@@ -11,8 +12,6 @@ _EXCLUDED_DIRECTORIES = {'.git', '.dandy', 'node_modules', '.venv', '__pycache__
 _MAX_FILE_SIZE_BYTES = 1_000_000
 
 _MAX_LINE_CHARACTERS = 300
-
-_SEARCH_RESULT_CHARACTER_LIMIT = 8000
 
 
 class SearchFilesTool(BaseTool):
@@ -49,12 +48,7 @@ class SearchFilesTool(BaseTool):
         if not matches:
             return f'No matches found for "{query}".'
 
-        output = '\n'.join(matches)
-
-        if len(output) > _SEARCH_RESULT_CHARACTER_LIMIT:
-            output = output[:_SEARCH_RESULT_CHARACTER_LIMIT] + '\n... (truncated)'
-
-        return output
+        return truncate_output('\n'.join(matches))
 
     def _search_files(self, search_path: Path, query: str, use_regex: bool) -> list[str]:
         regex = None

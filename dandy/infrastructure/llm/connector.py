@@ -8,7 +8,7 @@ from pydantic.main import IncEx
 
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.connector.connector import BaseConnector
-from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.infrastructure.http.connector import HttpConnector
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import DefaultIntel
@@ -43,7 +43,7 @@ class LlmConnector(BaseConnector):
         system_prompt: Prompt | str,
         post_diligence_handler: DiligenceHandler | None = None,
         pre_diligence_handler: DiligenceHandler | None = None,
-    ):
+    ) -> None:
         self.recorder_event_id = recorder_event_id
 
         self.llm_config = llm_config
@@ -78,7 +78,7 @@ class LlmConnector(BaseConnector):
         self.response_str = response_message.get('content') or ''
         self.tool_calls = response_message.get('tool_calls') or None
 
-    def _prepend_system_message(self):
+    def _prepend_system_message(self) -> None:
         self.request_body.messages.add_message(
             role='system', text=self.system_prompt_str, prepend=True
         )
@@ -192,16 +192,16 @@ class LlmConnector(BaseConnector):
                 image_base64_strings=image_base64_strings,
             )
 
-    def _reset_prompt_retry_attempt(self):
+    def _reset_prompt_retry_attempt(self) -> None:
         self.prompt_retry_attempt = 0
 
-    def reset(self):
+    def reset(self) -> None:
         self.llm_config.reset()
         self.request_body = self.llm_config.generate_request_body()
 
     def _request_to_intel(self) -> IntelType:
         if stop_signal.is_set():
-            raise RunStoppedError('Run stopped by user.')
+            raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
         recorder_add_llm_request_event(self.request_body, self.recorder_event_id)
 
@@ -325,7 +325,7 @@ class LlmConnector(BaseConnector):
         self, retry_event_description: str, retry_user_prompt: Prompt | str
     ) -> IntelType:
         if stop_signal.is_set():
-            raise RunStoppedError('Run stopped by user.')
+            raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
         if self.has_retry_attempts_available:
             self.prompt_retry_attempt += 1
@@ -347,7 +347,7 @@ class LlmConnector(BaseConnector):
 
     def _set_intel(
         self, intel_class: type[IntelType] | None = None, intel_object: IntelType | None = None
-    ):
+    ) -> None:
         if intel_class and intel_object:
             message = 'Cannot specify both intel_class and intel_object.'
             raise LlmCriticalError(message)
@@ -361,6 +361,6 @@ class LlmConnector(BaseConnector):
 
         self.intel = intel_class or intel_object
 
-    def _update_request_body(self):
+    def _update_request_body(self) -> None:
         for key, value in self.llm_config.options.model_dump(exclude_none=True).items():
             setattr(self.request_body, key, value)

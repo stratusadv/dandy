@@ -1,7 +1,5 @@
 from __future__ import annotations
 from dandy.application.diligence.vowel_removal.constants import VOWELS
-from dandy.application.diligence.stop_word_removal.constants import STOP_WORDS
-import re
 
 import operator
 from typing import TYPE_CHECKING, Callable

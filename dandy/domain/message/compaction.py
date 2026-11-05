@@ -1,6 +1,18 @@
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.tokens.estimate import TOKEN_COUNT_REQUEST_OVERHEAD
 
+# Fallback context window in tokens when the LLM config has no CONTEXT_SIZE.
+DEFAULT_CONTEXT_WINDOW = 65536
+
+# Compaction trims the history down to this share of the context window,
+# leaving the rest as headroom for the completion.
+COMPACTION_TARGET_RATIO = 0.70
+
+# Compaction triggers at this higher share of the window and compacts back
+# down to the target, so a loop whose rounds keep re-adding about what
+# compaction just dropped does not re-compact on every round.
+COMPACTION_TRIGGER_RATIO = 0.80
+
 
 def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
     """Trim ``history`` until its estimated token count fits the budget.

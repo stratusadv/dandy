@@ -9,7 +9,7 @@ from dandy.shared.settings import settings
 from dandy.shared.exceptions import FileCriticalError, FileRecoverableError
 
 
-def append_to_file(file_path: Path | str, content: str):
+def append_to_file(file_path: Path | str, content: str) -> None:
     if file_exists(file_path):
         with open(file_path, 'a', encoding='utf-8') as f:
             f.write(content)
@@ -93,7 +93,7 @@ def get_file_extension_from_url_string(url: str) -> str:
     return Path(parsed_url.path).suffix.lower()[1:]
 
 
-def make_directory(directory_path: Path | str):
+def make_directory(directory_path: Path | str) -> None:
     Path(directory_path).mkdir(parents=True, exist_ok=True)
 
     if not Path(directory_path).is_dir():
@@ -108,7 +108,7 @@ def read_from_file(file_path: Path | str, encoding: str = 'utf-8') -> str:
         return f.read()
 
 
-def remove_directory(directory_path: Path | str):
+def remove_directory(directory_path: Path | str) -> None:
     Path(directory_path).rmdir()
 
     if Path(directory_path).is_dir():
@@ -116,7 +116,7 @@ def remove_directory(directory_path: Path | str):
         raise FileRecoverableError(message)
 
 
-def remove_file(file_path: Path | str):
+def remove_file(file_path: Path | str) -> None:
     Path(file_path).unlink(missing_ok=True)
 
     if Path(file_path).exists():
@@ -124,7 +124,7 @@ def remove_file(file_path: Path | str):
         raise FileRecoverableError(message)
 
 
-def write_to_file(file_path: Path | str, content: str):
+def write_to_file(file_path: Path | str, content: str) -> None:
     file_path = Path(file_path)
 
     make_directory(file_path.parent)

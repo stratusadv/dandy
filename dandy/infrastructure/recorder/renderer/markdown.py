@@ -19,7 +19,7 @@ class MarkdownRecordingRenderer(BaseRecordingRenderer):
 
         return markdown_str
 
-    def to_file(self, path: Path | str):
+    def to_file(self, path: Path | str) -> None:
         Path(path).mkdir(parents=True, exist_ok=True)
 
         with open(

@@ -138,10 +138,12 @@ this is what they call.
 ::: dandy.shared.utils
     options:
         members:
+            - OUTPUT_CHARACTER_LIMIT
             - pascal_to_title_case
             - generate_recorder_event_id
             - generate_forwardable_kwargs_if_not_none
             - pydantic_validation_error_to_str
             - python_obj_to_markdown
+            - truncate_output
 
 ::: dandy.shared.constants

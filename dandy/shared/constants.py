@@ -9,12 +9,6 @@ CACHE_KEY_HASH_LAYER_LIMIT = (
     3  # This should be set to 3 as anything higher will pull in unwanted attributes for caching.
 )
 
-# LLM
-
-ESTIMATED_CHARACTERS_PER_TOKEN = (
-    3.2  # This is set to be more conservative to account for logic containing a lot of symbols.
-)
-
 # Recording
 
 RECORDING_OUTPUT_DIRECTORY = 'recordings'
@@ -24,7 +18,6 @@ RECORDING_POSTFIX_NAME = '_recording'
 # Settings
 
 DEFAULT_SETTINGS_MODULE = 'dandy_settings'
-DEFAULT_SETTINGS_FILE_NAME = f'{DEFAULT_SETTINGS_MODULE}.py'
 
 DANDY_JSON_FILE_NAME = 'dandy.json'
 DANDY_HOME_CONFIG_DIRECTORY_NAME = 'dandy'
