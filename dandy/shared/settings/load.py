@@ -33,9 +33,10 @@ def get_cli_llm_config(task: str) -> str:
 
 
 def get_settings_json_candidates(dandy_directory: str = DANDY_LOCAL_DIRECTORY_NAME) -> list[Path]:
+    home_directory_path = Path('~').expanduser()
     return [
         Path.cwd() / dandy_directory / DANDY_JSON_FILE_NAME,
-        Path.home() / '.config' / DANDY_HOME_CONFIG_DIRECTORY_NAME / DANDY_JSON_FILE_NAME,
+        home_directory_path / '.config' / DANDY_HOME_CONFIG_DIRECTORY_NAME / DANDY_JSON_FILE_NAME,
     ]
 
 

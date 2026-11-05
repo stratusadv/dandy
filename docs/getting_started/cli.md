@@ -65,7 +65,7 @@ practical shape is:
 ### One global config (recommended for system-wide use)
 
 Write `~/.config/dandy/dandy.json` once, and every project without its own settings
-picks it up:
+picks it up (on Windows the path is `%USERPROFILE%\.config\dandy\dandy.json`):
 
 ```json
 {

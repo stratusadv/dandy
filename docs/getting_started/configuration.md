@@ -54,11 +54,12 @@ local gateways. Response parsing reads `choices[0].message.content` (and
 ## The `dandy.json` fallback
 
 If no settings module imports, the framework tries JSON before the CLI scaffolds a `.py`:
-`.dandy/dandy.json` in the working directory, then `~/.config/dandy/dandy.json`. Top-level
-keys, config names, and config fields are read case-insensitively (upper-cased on load);
-`OPTIONS` sub-keys stay lowercase because they are `LlmOptions` field names;
-`BASE_PATH` / `CACHE_SQLITE_DATABASE_PATH` strings become absolute paths; a missing
-`BASE_PATH` defaults to the working directory.
+`.dandy/dandy.json` in the working directory, then `~/.config/dandy/dandy.json` in the
+user's home directory (resolved with `expanduser`, so on Windows it is
+`%USERPROFILE%\.config\dandy\dandy.json`). Top-level keys, config names, and config fields
+are read case-insensitively (upper-cased on load); `OPTIONS` sub-keys stay lowercase
+because they are `LlmOptions` field names; `BASE_PATH` / `CACHE_SQLITE_DATABASE_PATH`
+strings become absolute paths; a missing `BASE_PATH` defaults to the working directory.
 
 The CLI's `check_or_create_settings` probes the same locations and, if nothing is found,
 creates a `dandy_settings.py` from the bundled defaults and tells you which

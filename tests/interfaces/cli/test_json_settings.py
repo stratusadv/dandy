@@ -1,5 +1,8 @@
 import json
+import os
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from unittest import TestCase, mock
 
@@ -26,6 +29,17 @@ JSON_WITH_LLM_CONFIG = {
     },
     'cli_config': {'coding': 'default'},
 }
+
+
+@contextmanager
+def _patched_home(home_path: Path) -> Iterator[None]:
+    real_expanduser = os.path.expanduser
+
+    def fake_expanduser(path: str) -> str:
+        return str(home_path) if path == '~' else real_expanduser(path)
+
+    with mock.patch('os.path.expanduser', side_effect=fake_expanduser):
+        yield
 
 
 def _reset_settings_state() -> None:
@@ -145,7 +159,7 @@ class TestSettingsJsonCandidates(TestCase):
 
             with (
                 mock.patch('pathlib.Path.cwd', return_value=temp_directory),
-                mock.patch('pathlib.Path.home', return_value=temp_directory),
+                _patched_home(temp_directory),
             ):
                 candidates = get_settings_json_candidates()
                 found_file_path = find_settings_json_file()
@@ -173,7 +187,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
-                mock.patch('pathlib.Path.home', return_value=Path(project_path, 'empty_home')),
+                _patched_home(Path(project_path, 'empty_home')),
             ):
                 settings.load_user_settings()
 
@@ -202,7 +216,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
-                mock.patch('pathlib.Path.home', return_value=home_path),
+                _patched_home(home_path),
             ):
                 settings.load_user_settings()
 
@@ -244,7 +258,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
-                mock.patch('pathlib.Path.home', return_value=home_path),
+                _patched_home(home_path),
             ):
                 settings.load_user_settings()
 
@@ -281,7 +295,7 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
-                mock.patch('pathlib.Path.home', return_value=Path(project_path, 'empty_home')),
+                _patched_home(Path(project_path, 'empty_home')),
             ):
                 settings.load_user_settings()
 
@@ -298,6 +312,7 @@ class TestCheckOrCreateSettingsJson(JsonSettingsTestCase):
 
             with (
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
+                _patched_home(Path(project_path, 'empty_home')),
                 mock.patch(
                     'dandy.shared.settings.load.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
@@ -313,6 +328,7 @@ class TestCheckOrCreateSettingsJson(JsonSettingsTestCase):
 
             with (
                 mock.patch('pathlib.Path.cwd', return_value=project_path),
+                _patched_home(Path(project_path, 'empty_home')),
                 mock.patch(
                     'dandy.shared.settings.load.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
