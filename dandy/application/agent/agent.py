@@ -9,11 +9,8 @@ from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
-from dandy.domain.message.message import (
-    MessageHistory,
-    compact_message_history,
-    drop_incomplete_tool_round,
-)
+from dandy.domain.message.compaction import compact_message_history, drop_incomplete_tool_round
+from dandy.domain.message.message import MessageHistory
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.skill.skill import to_skill_instances
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string

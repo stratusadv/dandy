@@ -12,7 +12,7 @@ from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.interfaces.cli.cli import DandyCli
-from dandy.interfaces.cli.tui.printer import session_banner_line
+from dandy.interfaces.cli.tui.banner import session_banner_line
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import stop_signal

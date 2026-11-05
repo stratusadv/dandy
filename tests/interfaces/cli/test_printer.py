@@ -9,12 +9,9 @@ from blessed import Terminal
 from blessed.keyboard import Keystroke
 
 from dandy.application.agent.session import session
-from dandy.interfaces.cli.tui.printer import (
-    Printer,
-    _StoryProgress,
-    agents_md_banner_line,
-    format_verbose_duration,
-)
+from dandy.interfaces.cli.tui.banner import agents_md_banner_line, format_verbose_duration
+from dandy.interfaces.cli.tui.printer import Printer
+from dandy.interfaces.cli.tui.story_progress import StoryProgress
 from dandy.interfaces.cli.tui.text import linkify_file_paths
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
@@ -79,7 +76,7 @@ class TestPrinterStory(TestCase):
         self.addCleanup(self.print_patch.stop)
 
     def test_settled_frame_is_plain_text_without_duration(self) -> None:
-        progress = _StoryProgress(Terminal())
+        progress = StoryProgress(Terminal())
         frame = progress.settled_frame(StoryBeat(description='Reading the test file.'))
 
         self.assertIn('Reading the test file.', frame)
@@ -88,7 +85,7 @@ class TestPrinterStory(TestCase):
 
     def test_current_frame_renders_description_only_beat_plain(self) -> None:
         with mock.patch('random.choice', return_value='Polishing a Cufflink'):
-            progress = _StoryProgress(Terminal(force_styling='default'))
+            progress = StoryProgress(Terminal(force_styling='default'))
             frame = progress.frame(StoryBeat(description='Checking the forecast now.'))
 
         lines = frame.split('\n')
@@ -102,7 +99,7 @@ class TestPrinterStory(TestCase):
 
     def test_animating_frame_renders_bold_blue_phrase_on_the_next_line(self) -> None:
         with mock.patch('random.choice', return_value='Polishing a Cufflink'):
-            progress = _StoryProgress(Terminal(force_styling='default'))
+            progress = StoryProgress(Terminal(force_styling='default'))
             beat = StoryBeat(description='Checking the forecast now.')
 
             animating_frame = progress.frame(beat)
@@ -118,7 +115,7 @@ class TestPrinterStory(TestCase):
         self.assertNotIn('Polishing a Cufflink', settled_frame)
 
     def test_animating_frame_holds_the_phrase_for_three_seconds(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(description='Checking the forecast now.')
 
@@ -127,7 +124,8 @@ class TestPrinterStory(TestCase):
                 'random.choice', side_effect=['Polishing a Cufflink', 'Dusting a Tailcoat']
             ) as mock_choice,
             mock.patch(
-                'dandy.interfaces.cli.tui.printer.perf_counter', side_effect=[0.0, 1.5, 2.9, 3.1]
+                'dandy.interfaces.cli.tui.story_progress.perf_counter',
+                side_effect=[0.0, 1.5, 2.9, 3.1],
             ),
         ):
             frames = [
@@ -148,7 +146,7 @@ class TestPrinterStory(TestCase):
         self.assertEqual(mock_choice.call_count, 2)
 
     def test_frames_style_label_skyblue_and_description_plain(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
 
@@ -166,7 +164,7 @@ class TestPrinterStory(TestCase):
         self.assertIn('lines 1-10', settled_frame)
 
     def test_frames_style_mutating_label_orange(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Writing', description='src/foo.py', can_mutate_state=True)
 
@@ -182,7 +180,7 @@ class TestPrinterStory(TestCase):
         self.assertIn('src/foo.py', settled_frame)
 
     def test_narration_beat_renders_bold_blue(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(description='Let me check the weather.', kind='narration')
 
@@ -197,7 +195,7 @@ class TestPrinterStory(TestCase):
 
     def test_compaction_beat_renders_bold_purple_after_a_blank_line(self) -> None:
         with mock.patch('random.choice', return_value='Polishing a Cufflink'):
-            progress = _StoryProgress(Terminal(force_styling='default'))
+            progress = StoryProgress(Terminal(force_styling='default'))
             term = progress.term
             beat = StoryBeat(
                 description='Compacting my thoughts into a more manageable size', kind='compaction'
@@ -218,7 +216,7 @@ class TestPrinterStory(TestCase):
         self.assertNotIn(term.bold_blue, settled_frame)
 
     def test_tool_beat_renders_an_arrow_in_the_label_color(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py')
         mutating = StoryBeat(label='Executing', description='pytest -q', can_mutate_state=True)
@@ -230,7 +228,7 @@ class TestPrinterStory(TestCase):
             self.assertIn(f'{term.bold_orange}↳{term.normal} ', frame)
 
     def test_multiline_beat_animates_folded_on_one_line(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         description = 'pytest -q\nimport blessed\nprint(1)'
         beat = StoryBeat(label='Executing', description=description)
@@ -257,7 +255,7 @@ class TestPrinterStory(TestCase):
             self.assertTrue(settled_lines[index].endswith(term.clear_eol()))
 
     def test_settled_frame_clears_each_overwritten_line(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         description = (
             'a long first line that overwrites the animating line\nsecond line\nthird line'
@@ -274,7 +272,7 @@ class TestPrinterStory(TestCase):
         self.assertEqual(lines[3], '\r')
 
     def test_settling_after_multiple_ticks_clears_the_phrase_line(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Reading', description='src/a.py')
 
@@ -294,7 +292,7 @@ class TestPrinterStory(TestCase):
         self.assertTrue(next_frame.startswith('\x1b[1A\r'))
 
     def test_pause_at_fresh_line_settles_and_lands_on_the_carry_line(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(label='Reading', description='src/a.py')
 
         progress.update(beat)
@@ -309,7 +307,7 @@ class TestPrinterStory(TestCase):
         next_frame = progress.frame(StoryBeat(description='After the pause.'))
         self.assertTrue(next_frame.startswith('\r'))
 
-        fresh = _StoryProgress(Terminal(force_styling='default'))
+        fresh = StoryProgress(Terminal(force_styling='default'))
 
         self.assertEqual(fresh.pause_at_fresh_line(), '\r')
 
@@ -523,7 +521,7 @@ class TestPrinterStory(TestCase):
 
 class TestStoryProgressHeadingGrouping(TestCase):
     def setUp(self) -> None:
-        self.progress = _StoryProgress(Terminal(force_styling='default'))
+        self.progress = StoryProgress(Terminal(force_styling='default'))
 
     def test_first_labeled_beat_gets_a_heading(self) -> None:
         beat = StoryBeat(label='Reading', description='src/a.py')
@@ -687,7 +685,7 @@ class TestLinkifyFilePaths(TestCase):
         self.assertIn(f'\x1b]8;;{expected_uri}\x1b\\/etc/hosts\x1b]8;;\x1b\\', linked)
 
     def test_frames_link_file_paths_in_tool_beats(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(label='Reading', description='src/foo.py lines 1-10')
 
         animating_frame = progress.frame(beat)
@@ -700,7 +698,7 @@ class TestLinkifyFilePaths(TestCase):
             self.assertIn('lines 1-10', frame)
 
     def test_description_only_beats_are_not_linked(self) -> None:
-        progress = _StoryProgress(Terminal(force_styling='default'))
+        progress = StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(description='Checking src/foo.py now.', kind='narration')
 
         animating_frame = progress.frame(beat)

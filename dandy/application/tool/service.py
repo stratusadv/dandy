@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
 from pydantic import ValidationError
 
@@ -11,9 +10,10 @@ from dandy.shared.service.service import BaseService
 from dandy.shared.utils import pascal_to_title_case, pydantic_validation_error_to_str
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
-from dandy.domain.message.message import compact_message_history
+from dandy.domain.message.compaction import compact_message_history
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
+from dandy.domain.tool.repeated_call import RepeatedCallGuard
 from dandy.infrastructure.recorder.tool_events import recorder_add_tool_result_event
 from dandy.domain.tool.tool import BaseTool, ToolType, ToolHandler, to_tool_instances
 
@@ -38,22 +38,10 @@ TOOL_LOOP_COMPACTION_TARGET_RATIO = 0.70
 TOOL_LOOP_COMPACTION_TRIGGER_RATIO = 0.80
 
 # A model that keeps re-observing the same state is not gathering new
-# information, and the loop guards against it with two counters, both per
-# loop and neither consecutive-only. The signature counter counts calls whose
-# (name, canonical arguments, result) triple repeats: arguments are
-# canonicalized (whitespace runs folded in every string value, sorted-key
-# compact JSON) so a model that re-types a call with line-wrap, indent, or
-# key-order drift still accumulates toward one signature. The result counter
-# counts (name, result) pairs across any argument wording, so a reworded call
-# that keeps producing the same output is caught too. A model that oscillates
-# between a few near-identical calls accumulates, and a changed result never
-# accumulates toward either counter, so legitimately time-varying commands do
-# not trip them. From the warning threshold on, the tool result fed back to
-# the model carries a steering note; at the stop threshold the loop fails
-# fast, so a degenerate run costs a bounded number of rounds instead of
-# burning the whole tool-iteration cap.
-REPEATED_CALL_WARNING_THRESHOLD = 3
-REPEATED_CALL_STOP_THRESHOLD = 10
+# information; the loop guards against it with a RepeatedCallGuard (see
+# dandy/domain/tool/repeated_call.py), which steers the model at the warning
+# threshold and fails fast at the stop threshold, so a degenerate run costs
+# a bounded number of rounds instead of burning the whole tool-iteration cap.
 
 # Tool results are capped before they enter the conversation so one oversized
 # result (a huge file read, a chatty user tool) can never blow past the model's
@@ -67,26 +55,6 @@ def _tool_preview(text: str, limit: int = 240) -> str:
     """One-line preview of tool arguments or results for verbose tracing."""
     text = text.replace('\n', '\\n')
     return f'{text[:limit]}{"..." if len(text) > limit else ""}'
-
-
-def _canonical_arguments(kwargs: dict) -> str:
-    """Canonical form of validated tool arguments for repeat-call signatures.
-
-    Whitespace runs in every string value fold to a single space and the dict
-    dumps as sorted-key compact JSON, so re-typed calls that differ only in
-    line wraps, indentation, or key order share one signature.
-    """
-
-    def _fold(value: Any) -> Any:
-        if isinstance(value, str):
-            return ' '.join(value.split())
-        if isinstance(value, dict):
-            return {key: _fold(item) for key, item in value.items()}
-        if isinstance(value, list):
-            return [_fold(item) for item in value]
-        return value
-
-    return json.dumps(_fold(kwargs), sort_keys=True, separators=(',', ':'))
 
 
 class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
@@ -109,8 +77,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_functions = tool_functions or {}
 
         iteration_count = 0
-        repeated_call_tracker: dict[tuple[str, str, str], int] = {}
-        repeated_result_tracker: dict[tuple[str, str], int] = {}
+        repeated_call_guard = RepeatedCallGuard()
 
         while True:
             if stop_signal.is_set():
@@ -173,8 +140,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                     progress_callback=progress_callback,
                     verbose_callback=verbose_callback,
                     tool_call_callback=tool_call_callback,
-                    repeated_call_tracker=repeated_call_tracker,
-                    repeated_result_tracker=repeated_result_tracker,
+                    repeated_call_guard=repeated_call_guard,
                 )
 
             iteration_count += 1
@@ -235,8 +201,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
         tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
-        repeated_call_tracker: dict[tuple[str, str, str], int] | None = None,
-        repeated_result_tracker: dict[tuple[str, str], int] | None = None,
+        repeated_call_guard: RepeatedCallGuard,
     ) -> None:
         tool = tools_by_name.get(tool_call.name)
 
@@ -299,95 +264,14 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             tool_name=tool_call.name, result=result_text, event_id=self.recorder_event_id
         )
 
-        feedback_text = self._guard_repeated_call(
-            tool_call=tool_call,
-            arguments_kwargs=arguments_kwargs,
+        feedback_text = repeated_call_guard.observe(
+            name=tool_call.name,
+            arguments=arguments_kwargs,
             result_text=result_text,
-            tracker=repeated_call_tracker,
-            result_tracker=repeated_result_tracker,
             verbose_callback=verbose_callback,
         )
 
         self.obj.messages.add_message(role='tool', tool_call_id=tool_call.id, text=feedback_text)
-
-    def _guard_repeated_call(
-        self,
-        tool_call: ToolCallIntel,
-        arguments_kwargs: dict,
-        result_text: str,
-        tracker: dict[tuple[str, str, str], int] | None = None,
-        result_tracker: dict[tuple[str, str], int] | None = None,
-        verbose_callback: Callable[[str], None] | None = None,
-    ) -> str:
-        """Break up degenerate repeat loops by steering or failing fast.
-
-        Two counters, both per loop and neither consecutive-only: the signature
-        counter counts (name, canonical arguments, result) triples, so re-typed
-        calls with line-wrap, indent, or key-order drift still accumulate, and
-        the result counter counts (name, result) pairs across any argument
-        wording, so a reworded call that keeps producing the same output is
-        caught too. A changed result never accumulates toward either, so
-        legitimately time-varying commands do not trip them.
-        """
-        if tracker is None and result_tracker is None:
-            return result_text
-
-        signature_count = 0
-        result_count = 0
-
-        if tracker is not None:
-            signature = (tool_call.name, _canonical_arguments(arguments_kwargs), result_text)
-            signature_count = int(tracker.get(signature, 0)) + 1
-            tracker[signature] = signature_count
-
-        if result_tracker is not None:
-            result_key = (tool_call.name, result_text)
-            result_count = int(result_tracker.get(result_key, 0)) + 1
-            result_tracker[result_key] = result_count
-
-        if signature_count >= REPEATED_CALL_STOP_THRESHOLD:
-            message = (
-                f'LLM Tool Service stopped the loop: the model repeated the '
-                f'identical tool call "{tool_call.name}" {signature_count} times in '
-                'this conversation and the result never changed.'
-            )
-            raise LlmRecoverableError(message)
-
-        if result_count >= REPEATED_CALL_STOP_THRESHOLD:
-            message = (
-                f'LLM Tool Service stopped the loop: the tool "{tool_call.name}" '
-                f'returned the identical result {result_count} times in this '
-                'conversation, so the model is not gathering new information.'
-            )
-            raise LlmRecoverableError(message)
-
-        if signature_count >= REPEATED_CALL_WARNING_THRESHOLD:
-            if verbose_callback is not None:
-                verbose_callback(
-                    f'  - {tool_call.name} repeated {signature_count}x: steering note added'
-                )
-            result_text += (
-                '\n\n[Note: you have now run this exact same call '
-                f'{signature_count} times in this conversation and received the '
-                'identical result each time. Repeating it again will not change '
-                'anything. Either change your approach (for example, edit the '
-                'code or run a different command) or stop calling tools and give '
-                'your final answer.]'
-            )
-        elif result_count >= REPEATED_CALL_WARNING_THRESHOLD:
-            if verbose_callback is not None:
-                verbose_callback(
-                    f'  - {tool_call.name} same result {result_count}x: steering note added'
-                )
-            result_text += (
-                f'\n\n[Note: the tool "{tool_call.name}" has now returned this '
-                f'exact same result {result_count} times in this conversation. '
-                'Reading it again will not change anything. Either change your '
-                'approach (for example, edit the code or run a different command) '
-                'or stop calling tools and give your final answer.]'
-            )
-
-        return result_text
 
     def reset(self):
         pass

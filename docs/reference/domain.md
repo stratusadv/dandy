@@ -162,10 +162,11 @@ trims it to fit a context window (see [Options and Context](../user_guide/option
             - extend
             - prepend
 
-::: dandy.domain.message.message
+::: dandy.domain.message.compaction
     options:
         members:
             - compact_message_history
+            - drop_incomplete_tool_round
 
 ::: dandy.domain.request.request.LlmRequestBody
 
@@ -198,6 +199,11 @@ compaction and for prompt size estimates.
 The value objects the tool loop and the decision produce.
 
 ::: dandy.domain.tool.intel
+
+::: dandy.domain.tool.repeated_call.RepeatedCallGuard
+    options:
+        members:
+            - observe
 
 ::: dandy.domain.decision.intel
 

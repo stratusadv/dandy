@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from dandy.application.bot.bot import Bot
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.message.message import Message, MessageHistory, drop_incomplete_tool_round
+from dandy.domain.message.message import Message, MessageHistory
+from dandy.domain.message.compaction import drop_incomplete_tool_round
 from tests.consts import live_llm_test
 
 

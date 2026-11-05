@@ -29,7 +29,7 @@ line.
 
 ::: dandy.interfaces.cli.cli.DandyCli
 
-::: dandy.interfaces.cli.tui.printer.session_banner_line
+::: dandy.interfaces.cli.tui.banner.session_banner_line
 
 ::: dandy.interfaces.cli.utils.check_or_create_settings
 
@@ -38,6 +38,8 @@ line.
 ::: dandy.interfaces.cli.tui.tui.Tui
 
 ::: dandy.interfaces.cli.tui.printer.Printer
+
+::: dandy.interfaces.cli.tui.story_progress.StoryProgress
 
 ::: dandy.interfaces.cli.tui.markdown.MarkdownRenderer
     options:

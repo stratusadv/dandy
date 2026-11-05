@@ -84,10 +84,12 @@ Pure value objects and policy. Imports only `shared`. No adapters, no endpoints,
 threads.
 
 - `intel/` — `BaseIntel`, `BaseListIntel`, `IntelFactory`, `IntelService`.
-- `tool/` — `BaseTool`, the tool-descriptor machinery, and the tool-call value objects.
+- `tool/` — `BaseTool`, the tool-descriptor machinery, the tool-call value objects, and
+  the `RepeatedCallGuard` that breaks degenerate repeat loops.
 - `prompt/` — `Prompt` + snippets (LLM-agnostic).
 - `tokens/` — dependency-free token estimation.
-- `message/` — `Message` / `MessageHistory` / `compact_message_history`.
+- `message/` — `Message` / `MessageHistory`, plus the compaction policy
+  (`compact_message_history` / `drop_incomplete_tool_round`) in `compaction.py`.
 - `request/` — `LlmRequestBody` + `LlmOptions`, LLM exceptions, and the pure-string
   prompt templates.
 - `decision/` — the decision's intel and exceptions.

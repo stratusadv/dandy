@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,6 +14,7 @@ from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.intel.typing import IntelType
 from dandy.infrastructure.llm.config import LlmConfig
+from dandy.infrastructure.llm.fenced_json import extract_code_fence_json_body
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.request.prompts import service_system_validation_error_prompt
 from dandy.domain.prompt.prompt import Prompt
@@ -33,30 +32,6 @@ from dandy.domain.tool.tool import ToolType, to_tool_instances
 
 if TYPE_CHECKING:
     from dandy.application.diligence.handler import DiligenceHandler
-
-
-def _extract_code_fence_json_body(response_text: str) -> str | None:
-    """Return the body of a single fenced code block when it holds a JSON object.
-
-    Live models sometimes wrap the final JSON answer in a markdown code fence
-    (e.g. ```javascript```). When ``response_text`` contains exactly one fenced
-    block and that block's body parses as JSON, return the body so callers can
-    validate it against the target intel; otherwise return ``None``.
-    """
-    fence_pattern = re.compile(r'(?P<fence>`{3,}|~{3,})[^\n]*\n(?P<body>.*?)(?P=fence)', re.DOTALL)
-    fence_blocks = list(fence_pattern.finditer(response_text))
-
-    if len(fence_blocks) != 1:
-        return None
-
-    body = fence_blocks[0].group('body').strip()
-
-    try:
-        json.loads(body)
-    except ValueError:
-        return None
-
-    return body
 
 
 class LlmConnector(BaseConnector):
@@ -305,7 +280,7 @@ class LlmConnector(BaseConnector):
         body does not validate, so the caller falls through to the existing
         fallback/retry handling.
         """
-        fenced_json = _extract_code_fence_json_body(self.response_str or '')
+        fenced_json = extract_code_fence_json_body(self.response_str or '')
 
         if fenced_json is None:
             return None

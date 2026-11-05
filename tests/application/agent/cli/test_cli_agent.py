@@ -19,7 +19,8 @@ from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.shared.settings import settings
 from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.infrastructure.http.intel import HttpResponseIntel
-from dandy.domain.message.message import MessageHistory, compact_message_history
+from dandy.domain.message.message import MessageHistory
+from dandy.domain.message.compaction import compact_message_history
 from dandy.domain.prompt.prompt import Prompt
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
 

@@ -82,7 +82,7 @@ calibrated units.
 
 ## Compaction
 
-`compact_message_history` (domain, `dandy/domain/message/message.py`) is what keeps
+`compact_message_history` (domain, `dandy/domain/message/compaction.py`) is what keeps
 long sessions inside the window. It is called automatically:
 
 - before every coding-agent turn (with the real incoming prompt subtracted from

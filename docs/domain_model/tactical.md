@@ -56,7 +56,7 @@ Stateless logic that belongs to the domain but to no single VO.
 |---|---|---|
 | `IntelFactory` | `dandy/domain/intel/factory.py` | Python type ↔ JSON schema mapping; validates LLM responses into Intel; derives schemas from call signatures (this is how tool parameters get their schema). |
 | Token estimation | `dandy/domain/tokens/estimate.py` | A dependency-free, character-class heuristic for token counts — domain policy, not an adapter. |
-| History compaction | `compact_message_history` in `dandy/domain/message/message.py` | Enforces the MessageHistory invariants under space pressure. |
+| History compaction | `compact_message_history` in `dandy/domain/message/compaction.py` | Enforces the MessageHistory invariants under space pressure. |
 | `generate_cache_key` | `dandy/infrastructure/cache/key.py` | The key policy: function identity + layered, depth-capped argument hashing. It detects framework services structurally (by `recorder_event_id`) precisely so it never has to import them. |
 | Diligences | `dandy/application/diligence/` | Named quality policies executed around a request (stop-word removal, vowel removal, second pass). Policy lives here as application because it drives the connector; the *instructions* are domain prompts. |
 

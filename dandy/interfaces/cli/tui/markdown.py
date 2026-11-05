@@ -9,10 +9,6 @@ if TYPE_CHECKING:
     from blessed import Terminal
 
 
-def _looks_numeric(text: str) -> bool:
-    return re.match(r'^\s*[-+]?\d[\d,.]*\s*$', text) is not None
-
-
 class MarkdownRenderer:
     """Render common markdown constructs into terminal-styled text.
 
@@ -49,6 +45,10 @@ class MarkdownRenderer:
     def __init__(self, term: Terminal, width: int | None = None) -> None:
         self.term = term
         self.width = width if width is not None else term.width
+
+    @staticmethod
+    def _looks_numeric(text: str) -> bool:
+        return re.match(r'^\s*[-+]?\d[\d,.]*\s*$', text) is not None
 
     def render(self, markdown: str) -> str:
         if not markdown:
@@ -307,7 +307,7 @@ class MarkdownRenderer:
             [self.term.wrap(cell, width=column_widths[column]) for column, cell in enumerate(row)]
             for row in styled_rows
         ]
-        numeric_rows = [[_looks_numeric(cell) for cell in row] for row in padded_rows]
+        numeric_rows = [[self._looks_numeric(cell) for cell in row] for row in padded_rows]
 
         rendered = [self._table_separator('┌', '┬', '┐', column_widths)]
         rendered.extend(

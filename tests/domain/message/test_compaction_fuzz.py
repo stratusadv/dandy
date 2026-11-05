@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from hypothesis import given, settings
 
-from dandy.domain.message.message import MessageHistory, compact_message_history
+from dandy.domain.message.message import MessageHistory
+from dandy.domain.message.compaction import compact_message_history
 from tests.domain.message.intelligence.compaction_fuzz_strategies import (
     conversation_history_strategy,
     fuzz_budget_strategy,

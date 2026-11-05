@@ -9,7 +9,8 @@ from dandy.domain.tool.intel import ToolCallsIntel
 from dandy.domain.tool.tool import BaseTool
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.infrastructure.llm.config import LlmConfig
-from dandy.infrastructure.llm.connector import LlmConnector, _extract_code_fence_json_body
+from dandy.infrastructure.llm.connector import LlmConnector
+from dandy.infrastructure.llm.fenced_json import extract_code_fence_json_body
 from dandy.shared.settings import settings
 
 
@@ -403,22 +404,22 @@ class TestExtractCodeFenceJsonBody(TestCase):
     def test_single_fence_with_valid_json_returns_body(self) -> None:
         response = 'Preamble line.\n```javascript\n{"text": "hi"}\n```'
 
-        self.assertEqual(_extract_code_fence_json_body(response), '{"text": "hi"}')
+        self.assertEqual(extract_code_fence_json_body(response), '{"text": "hi"}')
 
     def test_single_tilde_fence_with_valid_json_returns_body(self) -> None:
         response = '~~~json\n{"text": "hi"}\n~~~'
 
-        self.assertEqual(_extract_code_fence_json_body(response), '{"text": "hi"}')
+        self.assertEqual(extract_code_fence_json_body(response), '{"text": "hi"}')
 
     def test_no_fence_returns_none(self) -> None:
-        self.assertIsNone(_extract_code_fence_json_body('{"text": "hi"}'))
+        self.assertIsNone(extract_code_fence_json_body('{"text": "hi"}'))
 
     def test_multiple_fences_returns_none(self) -> None:
         response = '```json\n{"text": "hi"}\n```\n```\nmore\n```'
 
-        self.assertIsNone(_extract_code_fence_json_body(response))
+        self.assertIsNone(extract_code_fence_json_body(response))
 
     def test_fence_with_invalid_json_returns_none(self) -> None:
         response = '```python\nprint("hello")\n```'
 
-        self.assertIsNone(_extract_code_fence_json_body(response))
+        self.assertIsNone(extract_code_fence_json_body(response))

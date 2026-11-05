@@ -91,7 +91,7 @@ class SessionStore:
 
     def new_name(self, from_text: str) -> str:
         """A fresh non-colliding name derived from the first request text."""
-        slug = _slugify(from_text)
+        slug = self._slugify(from_text)
         base_name = f'{datetime.now(UTC).strftime(SESSION_DATE_FORMAT)}-{slug or "session"}'
         candidate_name = base_name
         counter = 2
@@ -139,7 +139,7 @@ class SessionStore:
             message = f'Invalid session name: "{name}"'
             raise AgentCriticalError(message)
 
-
-def _slugify(text: str) -> str:
-    slug = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
-    return slug[:SESSION_NAME_SLUG_CHARACTER_LIMIT].rstrip('-')
+    @staticmethod
+    def _slugify(text: str) -> str:
+        slug = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')
+        return slug[:SESSION_NAME_SLUG_CHARACTER_LIMIT].rstrip('-')

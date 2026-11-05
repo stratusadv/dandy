@@ -8,8 +8,8 @@ from dandy.domain.message.message import (
     Message,
     MessageContent,
     MessageHistory,
-    compact_message_history,
 )
+from dandy.domain.message.compaction import compact_message_history
 from dandy.domain.tokens.estimate import (
     TOKEN_COUNT_REQUEST_OVERHEAD,
     TOKEN_COUNT_ROLE_OVERHEAD,
