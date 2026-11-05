@@ -25,13 +25,17 @@ LLM_CONFIGS = {
         'MODEL': os.getenv('LLM_DEFAULT_MODEL', 'gpt-test'),
         'CONTEXT_SIZE': 65536,
         'OPTIONS': {
+            'frequency_penalty': 1.0,
+            'temperature': 0.7,
         },
     },
     'THINKING': {
         'MODEL': os.getenv('LLM_THINKING_MODEL', 'gpt-test'),
         'CONTEXT_SIZE': 262144,
         'OPTIONS': {
-            'reasoning_effort': 'medium'
+            'max_completion_tokens': 13107,
+            'reasoning_effort': 'medium',
+            'temperature': 1.0,
         },
     },
     'AUDIO': {'MODEL': os.getenv('LLM_AUDIO_MODEL', 'gpt-test')},

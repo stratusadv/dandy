@@ -23,7 +23,7 @@ class TestLlmConfigContextSize(TestCase):
 
 class TestLlmConfigOptions(TestCase):
     def test_max_completion_tokens_comes_from_options(self) -> None:
-        config = LlmConfig('DEFAULT')
+        config = LlmConfig('THINKING')
         request_body = config.generate_request_body()
 
         self.assertEqual(request_body.max_completion_tokens, config.options.max_completion_tokens)
