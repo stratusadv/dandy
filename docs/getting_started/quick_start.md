@@ -17,7 +17,7 @@ LLM_CONFIGS = {
         'HOST': os.getenv('OPENAI_HOST', 'https://api.openai.com'),
         'PORT': int(os.getenv('OPENAI_PORT', 443)),
         'API_KEY': os.getenv('OPENAI_API_KEY'),
-        'MODEL': 'gpt-4o-mini',
+        'MODEL': 'gpt-6-luna',
     }
 }
 ```

@@ -20,11 +20,11 @@ LLM_CONFIGS = {
         'HOST': 'https://api.openai.com',
         'PORT': 443,
         'API_KEY': os.getenv('OPENAI_API_KEY'),
-        'MODEL': 'gpt-4o-mini',
-        'CONTEXT_SIZE': 128000,
+        'MODEL': 'gpt-6-luna',
+        'CONTEXT_SIZE': 1050000,  # GPT-6 Luna's 1.05M-token window (cap lower to control cost)
     },
     'THINKING': {
-        'MODEL': 'stratus.thinking'
+        'MODEL': 'gpt-6-sol'
         # HOST / PORT / API_KEY inherited from DEFAULT
     },
 }

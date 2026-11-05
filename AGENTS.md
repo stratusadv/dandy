@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Guidance for working in the **Dandy** repository (v3.0.0) — a Python AI framework for building LLM-powered software (bots, prompts, structured intel, recording, caching, decoding).
+Guidance for working in the **Dandy** repository (v3.0.0a1) — a Python AI framework for building LLM-powered software (bots, prompts, structured intel, recording, caching, decoding).
 
 > This document is the **single source of truth** for agent rules in this repo. The previous `.github/copilot-instructions.md` was removed on 2026-09-06; all of its still-accurate content has been absorbed and updated here. When the two disagree, this file wins.
 >
-> **v3.0.0 was a physical DDD restructure**: every module moved into the five-layer layout described in [DDD layering](#ddd-layering). All import paths in this document reflect the new layout; the old top-level packages (`dandy/llm/`, `dandy/core/`, `dandy/bot/`, `dandy/intel/`, `dandy/tool/`, `dandy/conf/`, `dandy/cli/`, `dandy/http/`, `dandy/file/`, `dandy/cache/`, `dandy/recorder/`) no longer exist.
+> **v3.0.0a1 was a physical DDD restructure**: every module moved into the five-layer layout described in [DDD layering](#ddd-layering). All import paths in this document reflect the new layout; the old top-level packages (`dandy/llm/`, `dandy/core/`, `dandy/bot/`, `dandy/intel/`, `dandy/tool/`, `dandy/conf/`, `dandy/cli/`, `dandy/http/`, `dandy/file/`, `dandy/cache/`, `dandy/recorder/`) no longer exist.
 
 ## Quick orientation
 
@@ -90,7 +90,7 @@ Rules:
 
 When you add a genuinely new cross-layer import, add its **exact** module-level edge to the right contract's `ignore_imports` (import-linter matches exact `a.b.c -> x.y.z` pairs — package prefixes do not match) and say in the PR why the seam is justified. Otherwise fix the design: move the symbol to a shared layer or depend through an existing port.
 
-### Package map (old → new, v3.0.0)
+### Package map (old → new, v3.0.0a1)
 
 `dandy/intel` → `dandy/domain/intel`; `dandy/tool` → `dandy/domain/tool`; `dandy/llm/prompt` → `dandy/domain/prompt`; `dandy/llm/tokens` → `dandy/domain/tokens`; `dandy/llm/request/message` → `dandy/domain/message`; `dandy/llm/{options,exceptions}` + `dandy/llm/request/request` (`LlmRequestBody`) + prompt templates → `dandy/domain/request/...`; `dandy/llm/decision/{intel,exceptions}` → `dandy/domain/decision/...`; `dandy/llm/tool/intel` → `dandy/domain/tool/intel`; `dandy/llm/{service,mixin}` → `dandy/application/llm/...`; `dandy/llm/{decision/decision,decision/service,decision/mixin}` → `dandy/application/decision/...`; `dandy/llm/{tool/service,tool/mixin}` → `dandy/application/tool/...`; `dandy/llm/diligence` → `dandy/application/diligence/...`; `dandy/bot` → `dandy/application/bot`; `dandy/cli/intelligence` + `dandy/cli/session` → `dandy/application/agent`; `dandy/llm/{connector,config}`, `dandy/{http,file,cache,recorder}`, `dandy/core/future` → `dandy/infrastructure/...`; `dandy/core/{service,connector,typing,exceptions,singleton,utils,debug}` + `dandy/constants.py` + `dandy/conf` + `dandy/default_settings.py` → `dandy/shared/...`; `dandy/cli` (rest) → `dandy/interfaces/cli`. Tests mirror the layout (`tests/domain/`, `tests/application/`, `tests/infrastructure/`, `tests/interfaces/`, `tests/shared/`; `tests/consts.py`, `tests/dandy_settings.py`, `tests/nines/`, `tests/assets/` stay at the test root — CI's `DANDY_SETTINGS_MODULE=tests.dandy_settings` depends on the last one).
 
@@ -144,7 +144,7 @@ Bot.process(prompt, intel_class=..., include/exclude=..., intel_object=...)
 - Message history persists on the connector between calls; `Bot.reset()` / `LlmService.reset()` clears messages and re-applies options from settings.
 - `include_fields`/`exclude_fields` trim the generated JSON schema so the model only needs to produce those fields (see Intel below).
 - Multimodal: `prompt_to_intel` accepts `audio_urls/file_paths/base64_strings` and `image_urls/file_paths/base64_strings` (see `tests/assets/{audio,images}` and `tests/application/bot/test_bot_vision.py`).
-- **`LlmOptions`** (`dandy/domain/request/options.py`, a pydantic model with `extra='allow'`): `frequency_penalty`, `presence_penalty`, `top_p`, `temperature`, `prompt_retry_count` (default `2`). Non-None values are range-checked (e.g. temperature 0–2); violations raise `LlmCriticalError`. `max_completion_tokens` is **not** an option — it is derived from the config's `CONTEXT_SIZE` (see [Environment & settings](#environment--settings-least-obvious-part) bullet 7).
+- **`LlmOptions`** (`dandy/domain/request/options.py`, a pydantic model with `extra='allow'`) mirrors the full OpenAI Chat Completions request parameters: `frequency_penalty`, `logit_bias`, `logprobs`, `max_completion_tokens`, `max_tokens`, `n`, `presence_penalty`, `reasoning_effort`, `response_format`, `seed`, `service_tier`, `stop`, `temperature`, `top_logprobs`, `top_p`. Non-None values are range-checked (temperature 0–2, penalties –2 to 2, `top_p` 0–1, positive minimums for `max_completion_tokens`/`max_tokens`/`n`); violations raise `LlmCriticalError`. `max_completion_tokens` is a normal option (when omitted, no output cap is sent — see [Environment & settings](#environment--settings-least-obvious-part) bullet 7), and `prompt_retry_count` is **not** an option: `LlmConfig` reads it from a config's `PROMPT_RETRY_COUNT` key (default `2`) for the validation-retry budget, so it never leaks into the request body.
 - `LlmConfig` (`dandy/infrastructure/llm/config.py`) hard-codes `url.path_parameters = ['v1','chat','completions']` — providers must be OpenAI-compatible chat completions. Non-`DEFAULT` configs inherit `HOST`/`PORT`/`API_KEY` from `DEFAULT`.
 
 ### Prompt building
@@ -263,7 +263,7 @@ Bot.process(prompt, intel_class=..., include/exclude=..., intel_object=...)
 ## Documentation
 
 - The live site is in `docs/`, configured by `mkdocs.yml` at the repo root (Material theme; plugins: search + mkdocstrings with the python handler; sphinx docstring style; a mermaid fence). Build output goes to `site/` (gitignored).
-- Structure is DDD-first and written from scratch for v3.0.0 (the old tutorial-based site was not reused): `introduction/` (what + principles), `domain_model/` (ubiquitous language, bounded contexts, tactical patterns), `architecture/` (layering + enforced rules, service pattern, LLM call anatomy), `getting_started/`, `user_guide/` (one page per domain concept), `reference/` (one hand-written API page per layer, using `::: dandy....` mkdocstrings directives), `migration/v2_to_v3.md`, `changelog/v3.md`.
+- Structure is DDD-first and written from scratch for v3.0.0a1 (the old tutorial-based site was not reused): `introduction/` (what + principles), `domain_model/` (ubiquitous language, bounded contexts, tactical patterns), `architecture/` (layering + enforced rules, service pattern, LLM call anatomy), `getting_started/`, `user_guide/` (one page per domain concept), `reference/` (one hand-written API page per layer, using `::: dandy....` mkdocstrings directives), `migration/v2_to_v3.md`, `changelog/v3.md`.
 - **Design specs**: working feature design specs live at the repo root in `specs/` (not published; one per feature named by topic, `Draft` → `Implemented` lifecycle; conventions in `specs/README.md`). When a non-trivial feature starts, write the spec before the code.
 - The `documentation` extra in `pyproject.toml` (`mkdocs`, `mkdocs-material`, `mkdocstrings[python]`) provides the build stack; `just docs` serves it and `just docs-tests` runs the strict build. The CI `documentation-testing` job mirrors that strict build.
 - **mkdocstrings imports `dandy` at build time**, so the build needs the settings module: the justfile exports `PYTHONPATH` (with `.`) and `DANDY_SETTINGS_MODULE=tests.dandy_settings` globally, and CI sets the same job-level env. Running raw `mkdocs` from elsewhere needs those two set.

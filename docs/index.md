@@ -22,7 +22,10 @@ typed, deterministic scaffolding around the one part that is genuinely probabili
 | If you... | Read |
 |---|---|
 | Want the big picture in two minutes | [What is Dandy](introduction/what_is_dandy.md) |
+| Want to know why it's worth it | [Why Dandy](introduction/why_dandy.md) |
 | Want to make a call immediately | [Quick Start](getting_started/quick_start.md) |
+| Want to use the `dandy` command | [The CLI](getting_started/cli.md) |
 | Want to understand the model | [Ubiquitous Language](domain_model/glossary.md) |
 | Want to understand the architecture | [Layering and Dependency Rules](architecture/layering.md) |
+| Want to see it all working together | [Example Project](user_guide/example_project.md) |
 | Are coming from Dandy 2.x | [Migration: 2.x to 3.0](migration/v2_to_v3.md) |

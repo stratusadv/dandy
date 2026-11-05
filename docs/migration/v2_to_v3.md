@@ -1,9 +1,11 @@
 # Migrating from 2.x to 3.0
 
 !!! warning "Breaking release"
-    3.0.0 is a breaking release. Every module moved to a new import path as part of the
-    physical [domain-driven restructure](../architecture/layering.md). Behavior, the
-    public API, and configuration semantics are unchanged; import paths are not.
+    The 3.0 line (first alpha 3.0.0a1) is a breaking release. Every module moved to a
+    new import path as part of the physical
+    [domain-driven restructure](../architecture/layering.md). The public API and
+    configuration semantics are unchanged; import paths are not — and the release
+    also adds new capabilities (see the [changelog](../changelog/v3.md)).
 
 ## What changed, what didn't
 
@@ -20,13 +22,18 @@ inside the framework (anything other than the package root) must update its impo
   `MemoryCache`, `SqliteCache`, `cache_to_memory`, `cache_to_sqlite`,
   `generate_cache_key`, `process_to_future`, `recorder_to_html_file`,
   `recorder_to_json_file`, `recorder_to_markdown_file`, and the exceptions
-  `DandyError`, `DandyCriticalError`, `DandyRecoverableError`.
+  `DandyError`, `DandyCriticalError`, `DandyRecoverableError`. The release adds
+  names on top (`Agent`, `BaseSkill`, `Decision`, `LlmOptions`, `MessageHistory`,
+  `DefaultIntel`, and the `Dandy` namespace) but removes none of these.
 - **Configuration.** `DANDY_SETTINGS_MODULE`, the `dandy_settings.py` module, the
   `dandy.json` fallback, `LLM_CONFIGS` with a required `DEFAULT` entry, `CLI_CONFIG`
   task mapping, and `CONTEXT_SIZE` all work exactly as before.
-- **Behavior.** Prompt building, Intel validation and retries, the tool loop, decision
-  retries, the reset chain, recording, caching, futures, and the CLI are unchanged.
-  The OpenAI-compatible-endpoint contract is unchanged.
+- **Core behavior.** Prompt building, Intel validation and retries, the tool loop,
+  decision retries, the reset chain, recording, caching, and futures are unchanged,
+  and the OpenAI-compatible-endpoint contract is unchanged. The CLI evolved
+  (automatic session saving, one-shot exit codes, the `question` tool, clickable
+  file links), and `LlmOptions` now mirrors the full OpenAI parameter set — see the
+  [changelog](../changelog/v3.md).
 - **Tests.** The suite is the same suite, reorganized to mirror the new layout.
 
 ## Old to new package map

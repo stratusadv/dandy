@@ -28,6 +28,7 @@ nav:
   - Home: index.md
   - Understanding Dandy:
       - What is Dandy: introduction/what_is_dandy.md
+      - Why Dandy: introduction/why_dandy.md
       - Design Principles: introduction/principles.md
   - Domain Model:
       - Ubiquitous Language: domain_model/glossary.md
@@ -42,6 +43,8 @@ nav:
       - Installation: getting_started/installation.md
       - Quick Start: getting_started/quick_start.md
       - Configuration: getting_started/configuration.md
+      - The CLI: getting_started/cli.md
+      - Project Structure: getting_started/project_structure.md
   - User Guide:
       - Intel: user_guide/intel.md
       - Prompts: user_guide/prompts.md
@@ -56,6 +59,7 @@ nav:
       - Agent: user_guide/agent.md
       - The CLI Agent: user_guide/cli_agent.md
       - Error Handling: user_guide/error_handling.md
+      - Example Project: user_guide/example_project.md
   - API Reference:
       - Shared Kernel: reference/shared.md
       - Domain Layer: reference/domain.md
@@ -64,8 +68,19 @@ nav:
       - Interfaces Layer: reference/interfaces.md
   - Migration:
       - 2.x to 3.0: migration/v2_to_v3.md
+  - Roadmap:
+      - 2026: roadmap/2026.md
+      - 2025: roadmap/2025.md
+      - 2024: roadmap/2024.md
   - Changelog:
-      - v3.0.0: changelog/v3.md
+      - v3: changelog/v3.md
+      - v2: changelog/v2.md
+      - v1: changelog/v1.md
+      - v0: changelog/v0.md
+  - About:
+      - Branding: about/branding.md
+      - Contributors: about/contributors.md
+      - Credits: about/credits.md
 
 plugins:
   - search

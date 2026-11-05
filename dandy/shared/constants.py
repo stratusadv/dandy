@@ -1,4 +1,4 @@
-__VERSION__ = '3.0.0'
+__VERSION__ = '3.0.0a1'
 
 # Cache
 
