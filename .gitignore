@@ -29,6 +29,7 @@ inspectionProfiles/
 
 dev_tool.exe
 dev_tool*.exe
+.coverage
 
 example_project_book.md
 
