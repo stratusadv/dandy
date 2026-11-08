@@ -1,12 +1,18 @@
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import dotenv
 from blessed import Terminal
 
 from dandy.interfaces.cli.error_log import log_cli_error
+from dandy.interfaces.cli.one_shot import OneShotPlan, parse_one_shot
+from dandy.interfaces.cli.usage import print_banner, print_usage
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.constants import __VERSION__
+
+if TYPE_CHECKING:
+    from dandy.interfaces.cli.cli import DandyCli
 
 CWD_PATH = Path.cwd()
 
@@ -25,36 +31,66 @@ from dandy.application.agent.session import session  # noqa: E402
 from dandy.interfaces.cli.utils import check_or_create_settings, ensure_dandy_gitignore  # noqa: E402
 
 
-_USAGE = (
-    '\n'
-    'Usage:\n'
-    '  dandy                         Start the interactive assistant (REPL)\n'
-    '  dandy "<your request>"        Run one request then exit\n'
-    '  dandy --continue "<request>"  Run one request inside the latest saved session\n'
-    '  dandy --init                  Create or refresh the project AGENTS.md then exit\n'
-    '  dandy -h, --help              Show this help message\n'
-    '  dandy -v, --version           Show the version\n'
-    '\n'
-    'With no request, dandy starts an interactive session and stays in an '
-    'agentic loop: every message you type is sent to the coding agent. '
-    'Conversations are saved automatically; use /init to create or refresh '
-    'the project AGENTS.md, /new to start over, /sessions to list saved '
-    'conversations, /resume <name> to continue one, and /quit to exit. '
-    'Pressing escape twice stops a running turn; at the prompt, pressing '
-    'escape twice exits the loop.\n'
-)
+def _dispatch_repl(cli: 'DandyCli', plan: OneShotPlan) -> int:
+    if plan.command in {'sessions', 'resume'}:
+        print_banner()
+
+        name = plan.name
+
+        if name is None or not cli.load_named_session(name):
+            return 1
+
+    if plan.command == 'new':
+        cli.run(new_name=plan.name)
+    else:
+        cli.run()
+
+    return 0
 
 
-def _print_usage() -> None:
-    term = Terminal()
-    print(term.bold_blue('\n Dandy') + term.normal + _USAGE)
+def _dispatch_one_shot(cli: 'DandyCli', plan: OneShotPlan) -> int:
+    print_banner()
+
+    if plan.continue_latest:
+        succeeded = cli.continue_latest_session(plan.request)
+        return 0 if succeeded else 1
+
+    if plan.command is None:
+        cli.process_user_input(user_input=plan.request)
+        return 0 if cli.last_turn_succeeded else 1
+
+    name = plan.name
+
+    if plan.command == 'init':
+        succeeded = cli.run_init()
+    elif plan.command == 'sessions' and name is None:
+        cli.run_sessions_list()
+        return 0
+    elif plan.command == 'new':
+        succeeded = cli.run_new_one_shot(name, plan.request)
+    elif name is None:
+        print_usage()
+        return 0
+    elif plan.command in {'sessions', 'resume'}:
+        succeeded = cli.run_in_session(name, plan.request)
+    elif plan.command == 'delete':
+        succeeded = cli.run_delete(name)
+
+    return 0 if succeeded else 1
+
+
+def _dispatch(cli: 'DandyCli', plan: OneShotPlan) -> int:
+    if plan.repl:
+        return _dispatch_repl(cli, plan)
+
+    return _dispatch_one_shot(cli, plan)
 
 
 def main() -> int:
     sys.path.append(str(CWD_PATH))
 
     if len(sys.argv) > 1 and sys.argv[1] in {'-h', '--help'}:
-        _print_usage()
+        print_usage()
         return 0
 
     if len(sys.argv) > 1 and sys.argv[1] in {'-v', '--version'}:
@@ -62,17 +98,11 @@ def main() -> int:
         print(arg_term.bold_blue(f'\nDandy {__VERSION__}'))
         return 0
 
-    if len(sys.argv) > 1:
-        is_init_request = '--init' in sys.argv[1:]
-        one_shot_arguments = [arg for arg in sys.argv[1:] if arg not in {'--continue', '--init'}]
+    plan = parse_one_shot(sys.argv[1:]) if len(sys.argv) > 1 else OneShotPlan(repl=True)
 
-        if is_init_request and one_shot_arguments:
-            _print_usage()
-            return 0
-
-        if not one_shot_arguments and not is_init_request:
-            _print_usage()
-            return 0
+    if plan is None:
+        print_usage()
+        return 0
 
     try:
         check_or_create_settings(CWD_PATH)
@@ -87,31 +117,7 @@ def main() -> int:
 
         from dandy.interfaces.cli.cli import DandyCli  # noqa: PLC0415
 
-        cli = DandyCli()
-
-        if len(sys.argv) > 1:
-            user_input = ' '.join(one_shot_arguments)
-
-            arg_term = Terminal()
-
-            print()
-
-            tui.printer.bold_grey_divider()
-
-            print(arg_term.bold_blue('\U0001f3a9 Dandy'))
-
-            tui.printer.bold_blue_divider()
-
-            if is_init_request:
-                exit_code = 0 if cli.run_init() else 1
-            elif '--continue' in sys.argv[1:]:
-                exit_code = 0 if cli.continue_latest_session(user_input) else 1
-            else:
-                cli.process_user_input(user_input=user_input)
-                exit_code = 0 if cli.last_turn_succeeded else 1
-        else:
-            cli.run()
-            exit_code = 0
+        exit_code = _dispatch(DandyCli(), plan)
     except Exception as error:
         log_cli_error(CWD_PATH, 'cli', error)
         crash_term = Terminal()

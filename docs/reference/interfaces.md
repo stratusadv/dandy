@@ -11,8 +11,12 @@ application layer through the same seams the CLI uses.
 ## Entry point
 
 `dandy` on the command line. `dandy "do a thing"` runs one turn; `dandy --continue
-"do a thing"` runs one turn inside the latest saved session; `dandy` opens the
-interactive REPL; `-h` and `-v` are handled before any settings load.
+"do a thing"` runs one turn inside the latest saved session; `dandy -s` lists the
+saved sessions, `dandy -s <name>` opens the REPL on that session, and
+`dandy -s <name> "do a thing"` runs one turn inside it; `dandy` alone opens the
+interactive REPL; `-h` and `-v` are handled before any settings load. Every
+command has a long and a short one-shot flag (the `-h` table is generated from
+the [command registry](#the-command-registry)).
 
 ::: dandy.interfaces.cli.main.main
 
@@ -22,16 +26,40 @@ interactive REPL; `-h` and `-v` are handled before any settings load.
 (`SessionStore.for_project(...)`) over the project's `.dandy/agent/sessions/`, and the
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,
-optionally pre-named), `/sessions` (list saved sessions), `/resume <name>`,
-`/delete <name>`, and `/quit` (or `/exit`); escape twice stops a running turn
-and, at the prompt, exits the REPL. The welcome banner shows a session-status
-line.
+optionally pre-named), `/sessions [name]` (list saved sessions, or load one by
+name), `/resume <name>`, `/delete <name>`, and `/quit` (or `/exit`), and every
+command also has a one-letter short (`/n`, `/s`, `/r`, `/d`, `/q` — `/i` for
+`/init`); escape twice stops a running turn and, at the prompt, exits the REPL.
+The welcome banner shows a session-status line.
 
 ::: dandy.interfaces.cli.cli.DandyCli
 
 ::: dandy.interfaces.cli.tui.banner.session_banner_line
 
 ::: dandy.interfaces.cli.utils.check_or_create_settings
+
+### The command registry
+
+One table drives both surfaces: `CLI_COMMANDS` in `dandy/interfaces/cli/commands.py`
+— a frozen `CliCommand` entry per command (name, one-letter short, long and
+short one-shot flag, argument rule, description) — feeds the REPL dispatch (name
+or short), tab completion, the one-shot flag parser (`parse_one_shot` in
+`dandy/interfaces/cli/one_shot.py`), and the `-h` usage text, so the REPL and the
+one-shot flags cannot drift.
+
+::: dandy.interfaces.cli.commands.CliCommand
+
+::: dandy.interfaces.cli.commands.CLI_COMMANDS
+
+::: dandy.interfaces.cli.commands.resolve
+
+::: dandy.interfaces.cli.commands.commands_matching_prefix
+
+::: dandy.interfaces.cli.commands.flag_lookup
+
+::: dandy.interfaces.cli.one_shot.parse_one_shot
+
+::: dandy.interfaces.cli.one_shot.OneShotPlan
 
 ## The TUI
 

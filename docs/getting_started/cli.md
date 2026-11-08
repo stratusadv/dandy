@@ -137,17 +137,23 @@ project and the banner's `Model` line confirms the switch.
 | `dandy` | interactive REPL: every message is one agent turn |
 | `dandy "fix the failing auth test"` | one turn, then exit; auto-saves a session named from the request |
 | `dandy --continue "keep going"` | one turn inside the most recently saved session, re-saved under the same name |
+| `dandy -s` | list the saved sessions and exit |
+| `dandy -s <name>` | open the REPL with that session loaded |
+| `dandy -s <name> "keep going"` | one turn inside that named session, re-saved under the same name |
 | `dandy --init` | explores the project and writes/refreshes `AGENTS.md` |
 
-One-shot modes exit with code `1` when the turn failed, so they script cleanly.
-In the REPL:
+One-shot modes exit with code `1` when the turn (or the resume) failed, so they
+script cleanly. Every command also has a long and a short one-shot flag
+(`--new`/`-n`, `--sessions`/`-s`, `--resume`/`-r`, `--delete`/`-d`,
+`--init`/`-i` — `dandy -h` shows the full table).
+In the REPL (every command has a one-letter short):
 
-- `/init` — create or refresh `AGENTS.md` (folded into the agent's system prompt)
-- `/new [name]` — start a fresh conversation, optionally pre-named
-- `/sessions` — table of saved conversations (name, updated, messages, tokens)
-- `/resume <name>` — load one back into the agent
-- `/delete <name>` — remove a saved conversation
-- `/quit` — exit; **escape twice** stops a running turn, or exits at the prompt
+- `/init` (or `/i`) — create or refresh `AGENTS.md` (folded into the agent's system prompt)
+- `/new [name]` (or `/n [name]`) — start a fresh conversation, optionally pre-named
+- `/sessions [name]` (or `/s [name]`) — table of saved conversations (name, updated, messages, tokens); with a name, load that one
+- `/resume <name>` (or `/r <name>`) — load one back into the agent
+- `/delete <name>` (or `/d <name>`) — remove a saved conversation
+- `/quit` (or `/q`) — exit; **escape twice** stops a running turn, or exits at the prompt
 
 While it works, the CLI prints a running story (`Executing ↳ pytest -q`,
 `Reading ↳ src/foo.py lines 1-60`, ...), renders the final answer as markdown with

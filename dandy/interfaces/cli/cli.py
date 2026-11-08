@@ -6,6 +6,7 @@ from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
+from dandy.interfaces.cli.commands import command_choices, resolve
 from dandy.interfaces.cli.error_log import log_cli_error
 from dandy.interfaces.cli.tui.tui import tui
 from dandy.shared.cancellation import stop_signal
@@ -13,8 +14,6 @@ from dandy.shared.constants import AGENTS_MD_FILE_NAME
 from dandy.shared.exceptions import RunStoppedError
 from dandy.shared.interaction import question_gate
 from dandy.shared.settings import settings
-
-_CLI_COMMANDS = ('init', 'new', 'sessions', 'resume', 'delete', 'quit')
 
 # Tool name to (path argument, action) for the tools whose calls show up in the
 # file sections the CLI prints below the final answer.
@@ -83,29 +82,34 @@ class DandyCli:
 
     def process_command(self, user_input: str) -> bool:
         parts = user_input.split(' ', 1)
-        command = parts[0][1:].lower()
+        command_word = parts[0][1:].lower()
         argument = parts[1].strip() if len(parts) > 1 else ''
+
+        command = resolve(command_word)
+
+        if command is None:
+            if command_word == 'exit':
+                return False
+
+            tui.printer.error(
+                error='Unknown command',
+                description=f'"{command_word}" is not a valid command. Try {command_choices()}.',
+            )
+            return True
+
+        if command.name == 'quit':
+            return False
 
         handlers = {
             'init': (self._process_init, ()),
             'new': (self._process_new, (argument,)),
-            'sessions': (self._process_sessions, ()),
+            'sessions': (self._process_sessions, (argument,)),
             'resume': (self._process_resume, (argument,)),
             'delete': (self._process_delete, (argument,)),
         }
 
-        if command in handlers:
-            handler, handler_arguments = handlers[command]
-            return handler(*handler_arguments)
-
-        if command in {'exit', 'quit', 'q'}:
-            return False
-
-        tui.printer.error(
-            error='Unknown command',
-            description=f'"{command}" is not a valid command. Try {tuple(_CLI_COMMANDS)}.',
-        )
-        return True
+        handler, handler_arguments = handlers[command.name]
+        return handler(*handler_arguments)
 
     def _process_init(self) -> bool:
         self.run_init()
@@ -123,19 +127,11 @@ class DandyCli:
 
         return True
 
-    def _process_sessions(self) -> bool:
-        records = self.session_store.list_sessions()
+    def _process_sessions(self, name: str) -> bool:
+        if name:
+            return self._process_resume(name)
 
-        if not records:
-            tui.printer.output('No sessions saved yet. The first turn saves this conversation.')
-            return True
-
-        table = (
-            '| Session | Updated | Messages | Tokens | Model |\n'
-            '|---|---|---|---|---|\n' + '\n'.join(self._session_row(record) for record in records)
-        )
-
-        tui.printer.output(table)
+        self.print_sessions()
 
         return True
 
@@ -153,11 +149,21 @@ class DandyCli:
             tui.printer.error(error='Usage', description='/resume <name>')
             return True
 
+        self.load_named_session(name)
+
+        return True
+
+    def load_named_session(self, name: str) -> bool:
+        """Load a saved session into the agent, returning whether it succeeded.
+
+        Shared by the /resume (and /s <name>) command and by one-shot mode,
+        which uses the return value as the process exit code.
+        """
         try:
             agent_session = self.session_store.load(name)
         except AgentRecoverableError as error:
             tui.printer.error(error='Could not resume session', description=str(error))
-            return True
+            return False
 
         self.agent.load_session(agent_session)
         self.active_name = name
@@ -170,11 +176,53 @@ class DandyCli:
             tui.printer.error(error='Usage', description='/delete <name>')
             return True
 
+        self.run_delete(name)
+
+        return True
+
+    def run_sessions_list(self) -> bool:
+        """Print the saved-sessions table; the one-shot listing always succeeds."""
+        self.print_sessions()
+
+        return True
+
+    def print_sessions(self) -> None:
+        records = self.session_store.list_sessions()
+
+        if not records:
+            tui.printer.output('No sessions saved yet. The first turn saves this conversation.')
+            return
+
+        table = (
+            '| Session | Updated | Messages | Tokens | Model |\n'
+            '|---|---|---|---|---|\n' + '\n'.join(self._session_row(record) for record in records)
+        )
+
+        tui.printer.output(table)
+
+    def run_in_session(self, name: str, request: str) -> bool:
+        """Resume a named session and run one turn inside it (one-shot mode)."""
+        if not self.load_named_session(name):
+            return False
+
+        self.process_user_input(request)
+
+        return self.last_turn_succeeded
+
+    def run_new_one_shot(self, name: str | None, request: str) -> bool:
+        """Start a fresh (optionally pre-named) conversation and run one turn."""
+        self._process_new(name or '')
+        self.process_user_input(request)
+
+        return self.last_turn_succeeded
+
+    def run_delete(self, name: str) -> bool:
+        """Delete a saved session, returning whether it succeeded (one-shot mode)."""
         try:
             self.session_store.delete(name)
         except AgentRecoverableError as error:
             tui.printer.error(error='Could not delete session', description=str(error))
-            return True
+            return False
 
         if self.active_name == name:
             self.active_name = None
@@ -306,7 +354,11 @@ class DandyCli:
 
         self.session_store.save(self.active_name, self.agent.save_session())
 
-    def run(self) -> None:
+    def run(self, new_name: str | None = None) -> None:
+        if new_name is not None:
+            self.agent.clear()
+            self.active_name = new_name or None
+
         tui.printer.welcome()
 
         while True:

@@ -564,6 +564,163 @@ class TestDandyCli(TestCase):
         self.assertTrue(should_continue)
         mock_error.assert_called_once()
 
+        description = mock_error.call_args.kwargs['description']
+        for choice in (
+            '/init (or /i)',
+            '/new (or /n)',
+            '/sessions (or /s)',
+            '/resume (or /r)',
+            '/delete (or /d)',
+            '/quit (or /q)',
+            '/exit',
+        ):
+            self.assertIn(choice, description)
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.run_init_pass')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
+    @mock.patch.object(tui.printer, 'output')
+    def test_init_short_form_runs_the_pass(
+        self,
+        mock_output: mock.MagicMock,
+        _mock_green_divider: mock.MagicMock,
+        mock_run_init_pass: mock.MagicMock,
+    ) -> None:
+        (self.temp_directory_path / 'AGENTS.md').write_text('# Project', encoding='utf-8')
+        mock_run_init_pass.return_value = 'Covers the project commands.'
+
+        should_continue = self.cli.process_user_input('/i')
+
+        self.assertTrue(should_continue)
+        mock_run_init_pass.assert_called_once()
+        mock_output.assert_any_call('Covers the project commands.')
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    @mock.patch.object(tui.printer, 'output')
+    def test_new_short_form_starts_fresh_conversation(
+        self, mock_output: mock.MagicMock, mock_turn: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+
+        should_continue = self.cli.process_user_input('/n')
+
+        self.assertTrue(should_continue)
+        self.assertIsNone(self.cli.active_name)
+        self.assertEqual(len(self.cli.agent.history), 0)
+        self.assertIn('new conversation', mock_output.call_args[0][0])
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    @mock.patch.object(tui.printer, 'output')
+    def test_sessions_short_form_lists_saved_sessions(
+        self, mock_output: mock.MagicMock, mock_turn: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+
+        self.cli.process_user_input('/s')
+
+        table = mock_output.call_args[0][0]
+        self.assertIn('**' + self.cli.active_name + '**', table)
+        self.assertIn('Messages', table)
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    @mock.patch.object(tui.printer, 'output')
+    def test_sessions_short_form_with_name_resumes_the_session(
+        self, mock_output: mock.MagicMock, mock_turn: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+        saved_name = self.cli.active_name
+
+        self.cli.agent.clear()
+
+        with mock.patch.object(self.cli.agent, 'load_session') as mock_load_session:
+            self.cli.process_user_input(f'/s {saved_name}')
+
+        self.assertEqual(self.cli.active_name, saved_name)
+
+        loaded_session = mock_load_session.call_args[0][0]
+        self.assertEqual(loaded_session.last_request, 'Fix the login bug')
+        self.assertIn('Resumed session', mock_output.call_args[0][0])
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    @mock.patch.object(tui.printer, 'error')
+    def test_sessions_short_form_with_unknown_name_reports_error(
+        self, mock_error: mock.MagicMock, mock_turn: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+        active_name = self.cli.active_name
+
+        self.cli.process_user_input('/s does-not-exist')
+
+        self.assertEqual(self.cli.active_name, active_name)
+        self.assertIn('does-not-exist', mock_error.call_args.kwargs['description'])
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_delete_short_form_removes_the_session(self, mock_output: mock.MagicMock) -> None:
+        self.cli.session_store.save('keeper', _make_agent_session('hello'))
+
+        self.cli.process_user_input('/d keeper')
+
+        self.assertFalse(self.cli.session_store._record_path('keeper').is_file())
+        self.assertIn('Deleted session', mock_output.call_args[0][0])
+
+    @mock.patch.object(tui, 'get_user_input', return_value='/q')
+    def test_run_exits_on_quit_short_command(self, mock_get_user_input: mock.MagicMock) -> None:
+        self.cli.run()
+
+        mock_get_user_input.assert_called_once_with()
+
+    @mock.patch.object(tui, 'get_user_input', return_value=None)
+    def test_run_with_new_name_pre_names_the_conversation(
+        self, mock_get_user_input: mock.MagicMock
+    ) -> None:
+        self.cli.run(new_name='my work')
+
+        self.assertEqual(self.cli.active_name, 'my work')
+        mock_get_user_input.assert_called_once_with()
+
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    def test_run_in_session_runs_one_turn_in_the_named_session(
+        self, mock_turn: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+        saved_name = self.cli.active_name
+
+        self.cli.agent.clear()
+
+        succeeded = self.cli.run_in_session(saved_name, 'Keep going')
+
+        self.assertTrue(succeeded)
+        self.assertEqual(self.cli.active_name, saved_name)
+        self.assertEqual(mock_turn.call_args[0][0], 'Keep going')
+
+    @mock.patch.object(tui.printer, 'error')
+    def test_run_in_session_reports_unknown_session(self, mock_error: mock.MagicMock) -> None:
+        succeeded = self.cli.run_in_session('does-not-exist', 'Keep going')
+
+        self.assertFalse(succeeded)
+        self.assertIn('does-not-exist', mock_error.call_args.kwargs['description'])
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_run_sessions_list_prints_the_table_and_succeeds(
+        self, mock_output: mock.MagicMock
+    ) -> None:
+        self.cli.session_store.save('keeper', _make_agent_session('hello'))
+
+        self.assertTrue(self.cli.run_sessions_list())
+        self.assertIn('keeper', mock_output.call_args[0][0])
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_run_delete_removes_the_session_and_succeeds(self, mock_output: mock.MagicMock) -> None:
+        self.cli.session_store.save('keeper', _make_agent_session('hello'))
+
+        self.assertTrue(self.cli.run_delete('keeper'))
+        self.assertFalse(self.cli.session_store._record_path('keeper').is_file())
+        self.assertIn('Deleted session', mock_output.call_args[0][0])
+
+    @mock.patch.object(tui.printer, 'error')
+    def test_run_delete_reports_unknown_session(self, mock_error: mock.MagicMock) -> None:
+        self.assertFalse(self.cli.run_delete('nope'))
+        self.assertIn('nope', mock_error.call_args.kwargs['description'])
+
 
 class TestSessionBannerLine(TestCase):
     def setUp(self) -> None:

@@ -17,8 +17,14 @@ single turn — the same underlying turn processing and session saving, only a d
 front end (argv in, exit code out). Every turn saves the conversation: one-shot saves a
 new auto-named session, a failed or stopped turn saves too (trimmed at the last complete
 tool round), and `dandy --continue "keep going"` runs one request inside the most recently
-saved session and re-saves it under the same name. Both one-shot forms exit with code 1
-when the agent's turn fails, so a script can detect failure; the interactive REPL shows
+saved session and re-saves it under the same name. The session commands have one-shot
+flags of their own: `dandy -s` (or `--sessions`) lists the saved sessions,
+`dandy -s <name>` opens the interactive REPL with that session loaded, and
+`dandy -s <name> "keep going"` runs one request inside that named session
+(`-r`/`--resume` does the same with a required name; `-d`/`--delete`,
+`-n`/`--new`, and `-i`/`--init` cover the other commands — run `dandy -h` for
+the full table). The one-shot session forms exit with code 1 when the turn (or
+the resume) fails, so a script can detect failure; the interactive REPL shows
 the error and keeps looping.
 
 ```text
@@ -99,11 +105,19 @@ final answers through a dependency-free `MarkdownRenderer` (headings, lists, cod
 tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 "Running pytest -q").
 
-- `/init` creates or refreshes the project `AGENTS.md` (see
-  [Project instructions](#project-instructions-agentsmd)); `/new [name]` starts a
-  fresh conversation (optionally pre-naming its session file); `/sessions` lists
-  saved sessions; `/resume <name>` loads one and keeps the current agent state;
-  `/delete <name>` removes one; `/quit` / `/exit` stop the loop.
+- Every command has a one-letter short: `/i` (`/init`) creates or refreshes the
+  project `AGENTS.md` (see [Project instructions](#project-instructions-agentsmd));
+  `/n [name]` (`/new [name]`) starts a fresh conversation (optionally pre-naming
+  its session file); `/s [name]` (`/sessions [name]`) lists saved sessions, and
+  with a name loads that one; `/r <name>` (`/resume <name>`) loads a session and
+  keeps the current agent state; `/d <name>` (`/delete <name>`) removes one;
+  `/q` (`/quit`) or `/exit` stop the loop.
+- Commands are discoverable at the prompt: when you type `/` as the first
+  character, a grey tail on the input line itself lists every command matching
+  what you have typed so far, by full name or by short (it follows your
+  keystrokes and backspaces, and disappears once you add a space or the prefix
+  stops matching), and pressing **tab** completes the command to its full name
+  (the unique match, or the longest common prefix when several match).
 - Pressing **escape twice** stops a running turn (the agent, tool loop, and
   any running command are interrupted and the prompt returns); at the prompt,
   pressing **escape twice** exits the REPL — and the same rule applies while
@@ -141,9 +155,12 @@ lives under `.dandy/`, it is gitignored along with the sessions.
 
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token
-count. `/resume <name>` loads the history back into the agent, so the next turn
-continues exactly where that conversation left off; `/delete <name>` removes the
-file. The store is plain JSON per session, so you can inspect or copy session
+count. `/resume <name>` (or the short `/s <name>`) loads the history back into the
+agent, so the next turn continues exactly where that conversation left off; the
+command line does the same with `dandy -s <name>` or `dandy -r <name>` — with a
+request it runs one turn in that session and exits, without one it opens the REPL
+on it. `/delete <name>` (or `/d <name>`, and one-shot `dandy -d <name>`) removes
+the file. The store is plain JSON per session, so you can inspect or copy session
 files by hand.
 
 Under the hood the persistence is agent-neutral: the base [Agent](agent.md) owns

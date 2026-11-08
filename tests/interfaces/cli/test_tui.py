@@ -3,6 +3,7 @@ from unittest import TestCase, mock
 from blessed import Terminal
 
 from dandy.interfaces.cli.tui.tui import tui
+from tests.interfaces.cli.intelligence.screen import MiniScreen, ScreenStdout
 
 
 class FakeKey(str):
@@ -15,6 +16,8 @@ class FakeKey(str):
 
 ESCAPE_KEY = FakeKey('\x1b', 'KEY_ESCAPE')
 ENTER_KEY = FakeKey('\n', 'KEY_ENTER')
+TAB_KEY = FakeKey('\t', 'KEY_TAB')
+BACKSPACE_KEY = FakeKey('\x7f', 'KEY_BACKSPACE')
 
 
 class TestTuiEscapeExit(TestCase):
@@ -171,3 +174,405 @@ class TestTuiQuestionPrompt(TestCase):
         self.assertNotIn(term.bold_grey, full)
         self.assertNotIn(term.bold_orange, full)
         mock_write.assert_any_call(term.purple('⦿ '))
+
+
+class TestTuiCommandCompletion(TestCase):
+    def setUp(self) -> None:
+        self.term = Terminal(force_styling='default')
+        self.term_patch = mock.patch.object(tui, 'term', self.term)
+        self.term_patch.start()
+        self.addCleanup(self.term_patch.stop)
+
+        self.printer_term_patch = mock.patch.object(tui.printer, 'term', self.term)
+        self.printer_term_patch.start()
+        self.addCleanup(self.printer_term_patch.stop)
+
+        self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
+        self.cbreak_patch.start()
+        self.addCleanup(self.cbreak_patch.stop)
+
+        self.print_patch = mock.patch('builtins.print')
+        self.mock_print = self.print_patch.start()
+        self.addCleanup(self.print_patch.stop)
+
+    @staticmethod
+    def _keys(text: str) -> list[FakeKey]:
+        return [FakeKey(char, None) for char in text]
+
+    @staticmethod
+    def _written(mock_write: mock.MagicMock) -> list[str]:
+        return [str(call.args[0]) for call in mock_write.call_args_list if call.args]
+
+    @staticmethod
+    def _all_commands_suggestion(term: Terminal) -> str:
+        return term.grey('  /init   /new   /sessions   /resume   /delete   /quit')
+
+    @mock.patch('sys.stdout.write')
+    def test_slash_shows_all_commands_inline(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/')
+
+        expected = (
+            '\r'
+            + self.term.clear_eol()
+            + self.term.bold_blue('⦿ ')
+            + '/'
+            + self._all_commands_suggestion(self.term)
+        )
+        written = self._written(mock_write)
+
+        self.assertIn(expected, written)
+
+    @mock.patch('sys.stdout.write')
+    def test_typing_narrows_the_suggestions(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/s'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/s')
+
+        narrowed = [
+            write
+            for write in self._written(mock_write)
+            if self.term.grey('  /sessions') in write and '/init' not in write
+        ]
+
+        self.assertTrue(narrowed)
+
+    @mock.patch('sys.stdout.write')
+    def test_space_hides_the_suggestions(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/s x'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/s x')
+
+        written = self._written(mock_write)
+        space_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/s '
+        space_index = written.index(space_redraw)
+
+        for write in written[space_index + 1 :]:
+            self.assertNotIn('sessions', write)
+
+    @mock.patch('sys.stdout.write')
+    def test_unknown_prefix_shows_no_suggestion(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/x'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/x')
+
+        written = self._written(mock_write)
+        unknown_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/x'
+        unknown_index = written.index(unknown_redraw)
+
+        for write in written[unknown_index + 1 :]:
+            self.assertNotIn('/init', write)
+
+    @mock.patch('sys.stdout.write')
+    def test_plain_text_shows_no_suggestion(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('hi'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, 'hi')
+
+        for write in self._written(mock_write):
+            self.assertNotIn('/init', write)
+
+    @mock.patch('sys.stdout.write')
+    def test_question_prompt_shows_no_suggestion(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/'), ENTER_KEY]):
+            result = tui.get_user_input(question='Which?', choices=['a'])
+
+        self.assertEqual(result, '/')
+
+        for write in self._written(mock_write):
+            self.assertNotIn('/init', write)
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_completes_a_unique_command(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/q'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/quit')
+        self.assertIn(self.term.bold_blue('⦿ ') + '/quit', ''.join(self._written(mock_write)))
+
+    @mock.patch('sys.stdout.write')
+    def test_typing_a_short_shows_the_full_command_suggestion(
+        self, mock_write: mock.MagicMock
+    ) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/i'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/i')
+
+        narrowed = [
+            write
+            for write in self._written(mock_write)
+            if self.term.grey('  /init') in write and '/new' not in write
+        ]
+
+        self.assertTrue(narrowed)
+
+    @mock.patch('sys.stdout.write')
+    def test_typing_a_short_hides_commands_that_only_match_by_name(
+        self, mock_write: mock.MagicMock
+    ) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/d'), ENTER_KEY]):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/d')
+
+        narrowed = [
+            write
+            for write in self._written(mock_write)
+            if self.term.grey('  /delete') in write and '/sessions' not in write
+        ]
+
+        self.assertTrue(narrowed)
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_completes_a_short_form_to_the_full_name(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/s'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/sessions')
+        self.assertIn(self.term.bold_blue('⦿ ') + '/sessions', ''.join(self._written(mock_write)))
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_completes_the_resume_short_to_the_full_name(
+        self, mock_write: mock.MagicMock
+    ) -> None:
+        keys = [*self._keys('/r'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/resume')
+        self.assertIn(self.term.bold_blue('⦿ ') + '/resume', ''.join(self._written(mock_write)))
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_keeps_an_ambiguous_prefix(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/')
+        self.assertNotIn(self.term.bold_blue('⦿ ') + '/', self._written(mock_write))
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_ignores_an_unknown_prefix(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/x'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/x')
+        self.assertNotIn(self.term.bold_blue('⦿ ') + '/x', self._written(mock_write))
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_after_a_space_leaves_the_text_unchanged(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/resume '), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/resume ')
+        self.assertNotIn(self.term.bold_blue('⦿ ') + '/resume ', self._written(mock_write))
+
+    @mock.patch('sys.stdout.write')
+    def test_backspace_updates_the_suggestions(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/s'), BACKSPACE_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/')
+
+        written = self._written(mock_write)
+        s_write = (
+            '\r'
+            + self.term.clear_eol()
+            + self.term.bold_blue('⦿ ')
+            + '/s'
+            + self.term.grey('  /sessions')
+        )
+        s_index = written.index(s_write)
+        backspace_write = (
+            '\r'
+            + self.term.clear_eol()
+            + self.term.bold_blue('⦿ ')
+            + '/'
+            + self._all_commands_suggestion(self.term)
+        )
+
+        self.assertEqual(written[s_index + 1], backspace_write)
+
+    @mock.patch('sys.stdout.write')
+    def test_suggestion_is_cleared_on_enter(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[*self._keys('/'), ENTER_KEY]):
+            tui.get_user_input()
+
+        written = self._written(mock_write)
+        suggestion_index = next(index for index, write in enumerate(written) if 'sessions' in write)
+
+        self.assertEqual(
+            written[suggestion_index + 1 :],
+            ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/', '\n'],
+        )
+
+    def test_render_writes_the_suggestion_inline(self) -> None:
+        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._buffer = ['/', 's']
+        tui._suggestions_enabled = True
+        tui._suggestion_visible = False
+
+        with mock.patch('sys.stdout.write') as mock_write:
+            tui._render()
+
+        written = [str(call.args[0]) for call in mock_write.call_args_list if call.args]
+
+        self.assertEqual(
+            written,
+            [
+                '\r'
+                + self.term.clear_eol()
+                + self.term.bold_blue('⦿ ')
+                + '/s'
+                + self.term.grey('  /sessions')
+            ],
+        )
+        self.assertTrue(tui._suggestion_visible)
+
+    def test_render_clears_the_suggestion_when_matches_go_away(self) -> None:
+        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._buffer = ['/', 'x']
+        tui._suggestions_enabled = True
+        tui._suggestion_visible = True
+
+        with mock.patch('sys.stdout.write') as mock_write:
+            tui._render()
+
+        written = [str(call.args[0]) for call in mock_write.call_args_list if call.args]
+
+        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/x'])
+        self.assertFalse(tui._suggestion_visible)
+
+    def test_clear_suggestion_render_omits_the_suggestion(self) -> None:
+        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._buffer = ['/']
+        tui._suggestions_enabled = True
+        tui._suggestion_visible = True
+
+        with mock.patch('sys.stdout.write') as mock_write:
+            tui._render(clear_suggestion=True)
+
+        written = [str(call.args[0]) for call in mock_write.call_args_list if call.args]
+
+        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/'])
+        self.assertFalse(tui._suggestion_visible)
+
+
+class TestTuiCommandCompletionScreen(TestCase):
+    def setUp(self) -> None:
+        self.term = Terminal(force_styling='default')
+        self.term_patch = mock.patch.object(tui, 'term', self.term)
+        self.term_patch.start()
+        self.addCleanup(self.term_patch.stop)
+
+        self.printer_term_patch = mock.patch.object(tui.printer, 'term', self.term)
+        self.printer_term_patch.start()
+        self.addCleanup(self.printer_term_patch.stop)
+
+        self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
+        self.cbreak_patch.start()
+        self.addCleanup(self.cbreak_patch.stop)
+
+    @staticmethod
+    def _keys(text: str) -> list[FakeKey]:
+        return [FakeKey(char, None) for char in text]
+
+    def _run_prompt_with_snapshot(
+        self, keys: list[FakeKey], char_widths: dict[str, int] | None = None
+    ) -> tuple[str | None, MiniScreen, str]:
+        screen = MiniScreen(char_widths=char_widths)
+        key_iter = iter(keys)
+        snapshots: list[str] = []
+
+        def next_key(*_args: object, **_kwargs: object) -> FakeKey:
+            key = next(key_iter)
+
+            if key is ENTER_KEY:
+                snapshots.append(screen.text())
+
+            return key
+
+        with (
+            mock.patch.object(self.term, 'inkey', side_effect=next_key),
+            mock.patch('sys.stdout', ScreenStdout(screen)),
+        ):
+            result = tui.get_user_input()
+
+        return result, screen, snapshots[-1]
+
+    @staticmethod
+    def _last_bullet_row(screen: MiniScreen) -> str:
+        bullet_rows = [
+            screen.line(row) for row in range(screen.height) if screen.line(row).startswith('⦿')
+        ]
+
+        return bullet_rows[-1]
+
+    def test_input_line_stays_intact_when_the_bullet_renders_wide(self) -> None:
+        keys = [*self._keys('/qu'), BACKSPACE_KEY, ENTER_KEY]
+
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+
+        self.assertEqual(result, '/q')
+        self.assertIn('⦿  /q  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '⦿  /q')
+        self.assertNotIn('quit', screen.text())
+
+    def test_tab_completion_stays_intact_when_the_bullet_renders_wide(self) -> None:
+        keys = [*self._keys('/q'), TAB_KEY, ENTER_KEY]
+
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+
+        self.assertEqual(result, '/quit')
+        self.assertIn('⦿  /quit  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '⦿  /quit')
+        self.assertNotIn('sessions', screen.text())
+
+    def test_keystrokes_leave_no_gaps_in_the_input_line(self) -> None:
+        keys = [*self._keys('/ses'), ENTER_KEY]
+
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+
+        self.assertEqual(result, '/ses')
+        self.assertIn('⦿  /ses  /sessions', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '⦿  /ses')
+        self.assertNotIn('sessions', screen.text())
+
+    def test_input_line_stays_intact_when_the_bullet_renders_narrow(self) -> None:
+        keys = [*self._keys('/qu'), BACKSPACE_KEY, ENTER_KEY]
+
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys)
+
+        self.assertEqual(result, '/q')
+        self.assertIn('⦿ /q  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '⦿ /q')
+        self.assertNotIn('quit', screen.text())
+
+    def test_suggestion_renders_inline_after_the_input(self) -> None:
+        keys = [*self._keys('/s'), ENTER_KEY]
+
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys)
+
+        self.assertEqual(result, '/s')
+        self.assertIn('⦿ /s  /sessions', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '⦿ /s')
+        self.assertNotIn('sessions', screen.text())
