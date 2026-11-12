@@ -122,7 +122,7 @@ class TestAgentTurn(TestCase):
         self.assertFalse(any('Austin' in text for text in user_texts))
 
     def test_turn_raises_when_history_and_message_exceed_window(self) -> None:
-        self.agent.max_context_tokens = 1
+        self.agent.bot.llm.config.context_size = 1
 
         with self.assertRaises(AgentRecoverableError):
             self.agent.turn('This message is far too big for the window.')

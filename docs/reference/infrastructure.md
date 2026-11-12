@@ -15,9 +15,12 @@ few documented seams.
 ::: dandy.infrastructure.llm.config.LlmConfig
     options:
         members:
+            - api_key
             - generate_request_body
             - get_response_content
             - get_settings_value
+            - host
+            - port
             - reset
 
 ::: dandy.infrastructure.llm.connector.LlmConnector

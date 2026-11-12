@@ -39,6 +39,7 @@ for where this sits in the pipeline.
             - options
             - prompt_to_intel
             - prompt_to_intel_future
+            - set_config
             - append_system_prompt
             - reset
             - reset_messages
@@ -144,6 +145,7 @@ Documented in [Agent](../user_guide/agent.md).
         members:
             - turn
             - run
+            - llm
             - clear
             - save_session
             - load_session

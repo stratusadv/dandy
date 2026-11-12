@@ -30,17 +30,21 @@ from dandy.infrastructure.recorder.llm_events import recorder_add_llm_failure_ev
 
 if TYPE_CHECKING:
     from dandy.application.llm.mixin import LlmServiceMixin
+    from dandy.infrastructure.llm.config import LlmConfig
 
 
 class Decision:
     def __init__(self, recorder_event_id: str, llm_service_mixin: LlmServiceMixin) -> None:
         self.recorder_event_id = recorder_event_id
         self._llm_service_mixin = llm_service_mixin
-        self.llm_config = self._llm_service_mixin.get_llm_config()
         self._llm_connector = None
 
         self.keys_description = None
         self.keys_values = None
+
+    @property
+    def llm_config(self) -> LlmConfig:
+        return self._llm_service_mixin.llm.config
 
     def __getitem__(self, item: str) -> Any:
         return self.keys_values[item]

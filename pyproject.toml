@@ -133,6 +133,7 @@ ignore_imports = [
     "dandy.application.llm.service -> dandy.infrastructure.llm.config",
     "dandy.application.llm.service -> dandy.infrastructure.llm.connector",
     "dandy.application.tool.service -> dandy.infrastructure.recorder.tool_events",
+    "dandy.application.decision.decision -> dandy.infrastructure.llm.config",
     "dandy.application.decision.decision -> dandy.infrastructure.llm.connector",
     "dandy.application.decision.decision -> dandy.infrastructure.recorder.decision_events",
     "dandy.application.decision.decision -> dandy.infrastructure.recorder.llm_events",

@@ -215,7 +215,7 @@ class TestCliAgentMultiTurn(TestCase):
     ) -> None:
         mock_post_request.side_effect = [content_response('{"text": "Within the band."}')]
 
-        self.agent.max_context_tokens = 6000
+        self.agent.bot.llm.config.context_size = 6000
 
         while self.agent.history.estimated_token_count < 4400:
             self.agent.history.add_message(role='user', text='x' * 500)
@@ -429,7 +429,7 @@ class TestCliAgentCompaction(TestCase):
             content_response('{"text": "Acknowledged and compacted."}')
         ]
 
-        self.agent.max_context_tokens = 3000
+        self.agent.bot.llm.config.context_size = 3000
 
         for _ in range(50):
             self.agent.history.add_message(
@@ -459,7 +459,7 @@ class TestCliAgentCompaction(TestCase):
     ) -> None:
         mock_post_request.side_effect = [content_response('{"text": "Should never be sent."}')]
 
-        self.agent.max_context_tokens = 1000
+        self.agent.bot.llm.config.context_size = 1000
 
         self.agent.history.add_message(role='system', text='System rules here.')
         self.agent.history.add_message(role='user', text='A huge pasted payload ' + ('h' * 50_000))

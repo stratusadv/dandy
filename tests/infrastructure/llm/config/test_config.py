@@ -56,3 +56,38 @@ class TestLlmConfigOptions(TestCase):
         config = LlmConfig('DEFAULT')
 
         self.assertNotIn('prompt_retry_count', config.options.model_dump())
+
+
+class TestLlmConfigIdentityProperties(TestCase):
+    def test_host_port_api_key_read_from_request_intel(self) -> None:
+        config = LlmConfig('DEFAULT')
+
+        self.assertEqual(config.host, config.http_request_intel.url.host)
+        self.assertEqual(config.port, config.http_request_intel.url.port)
+        self.assertEqual(config.api_key, config.http_request_intel.bearer_token)
+
+    def test_host_setter_updates_url_and_parsed_url(self) -> None:
+        config = LlmConfig('DEFAULT')
+
+        config.host = 'http://alt.example'
+
+        self.assertEqual(config.host, 'http://alt.example')
+        self.assertEqual(config.http_request_intel.url.host, 'http://alt.example')
+        self.assertEqual(config.http_request_intel.url.parsed_url.netloc, 'alt.example')
+        self.assertFalse(config.http_request_intel.url.is_https)
+
+    def test_port_setter_updates_url(self) -> None:
+        config = LlmConfig('DEFAULT')
+
+        config.port = 8443
+
+        self.assertEqual(config.port, 8443)
+        self.assertEqual(config.http_request_intel.url.port, 8443)
+
+    def test_api_key_setter_updates_bearer_token(self) -> None:
+        config = LlmConfig('DEFAULT')
+
+        config.api_key = 'sk-test'
+
+        self.assertEqual(config.api_key, 'sk-test')
+        self.assertEqual(config.http_request_intel.bearer_token, 'sk-test')

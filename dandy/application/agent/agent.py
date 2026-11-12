@@ -24,6 +24,7 @@ from dandy.domain.tool.beat import StoryBeat
 
 if TYPE_CHECKING:
     from dandy.application.bot.bot import Bot
+    from dandy.application.llm.service import LlmService
     from dandy.domain.intel.typing import IntelType
     from dandy.domain.skill.skill import SkillType
     from dandy.domain.tool.tool import ToolType
@@ -74,6 +75,10 @@ class Agent:
         context_size = self.bot.llm.config.context_size
         return context_size if context_size > 0 else DEFAULT_CONTEXT_WINDOW
 
+    @property
+    def llm(self) -> LlmService:
+        return self.bot.llm
+
     def turn(
         self,
         message: Prompt | str | None = None,
@@ -91,6 +96,7 @@ class Agent:
             raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
         self.last_request = self._message_as_str(message)
+        self.max_context_tokens = self._resolve_context_size()
         message = self._prepare_message(message, progress_callback, verbose_callback)
         self._compact_history_for_next_message(message, progress_callback)
         self._ensure_history_fits(message)

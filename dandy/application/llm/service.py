@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from dandy.infrastructure.future.process import process_to_future
 from dandy.shared.service.service import BaseService
 from dandy.infrastructure.llm.connector import LlmConnector
+from dandy.infrastructure.llm.config import LlmConfig
 from dandy.application.decision.mixin import DecisionServiceMixin
 from dandy.application.diligence.mixin import DiligenceServiceMixin
+from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.options import LlmOptions
 from dandy.domain.request.prompts import service_system_prompt
 from dandy.application.tool.mixin import ToolServiceMixin
 from dandy.application.skill.mixin import SkillServiceMixin
@@ -17,11 +20,19 @@ if TYPE_CHECKING:
 
     from dandy.infrastructure.future.future import AsyncFuture
     from dandy.domain.intel.typing import IntelType
-    from dandy.infrastructure.llm.config import LlmConfig
-    from dandy.domain.request.options import LlmOptions
     from dandy.domain.prompt.prompt import Prompt
     from dandy.domain.message.message import MessageHistory
     from dandy.domain.tool.tool import ToolType
+
+
+_CONFIG_IDENTITY_OVERRIDE_TYPES = {
+    'model': str,
+    'host': str,
+    'port': int,
+    'api_key': str,
+    'context_size': int,
+    'prompt_retry_count': int,
+}
 
 
 class LlmService(
@@ -65,6 +76,62 @@ class LlmService(
     @property
     def config(self) -> LlmConfig:
         return self._llm_connector.llm_config
+
+    @config.setter
+    def config(self, llm_config: LlmConfig) -> None:
+        if not isinstance(llm_config, LlmConfig):
+            message = f'config expects an LlmConfig instance, got {type(llm_config).__name__}.'
+            raise LlmCriticalError(message)
+
+        self._llm_connector.set_llm_config(llm_config)
+        self.obj.llm_config = llm_config.name
+
+    def set_config(self, name: str, **overrides: Any) -> LlmConfig:
+        """Swap this bot's LLM config mid-conversation, keeping the history.
+
+        `name` selects a settings `LLM_CONFIGS` entry; keyword overrides set
+        individual fields on the resolved config (model, host, port, api_key,
+        context_size, prompt_retry_count, or any LlmOptions field). The new
+        config applies to the next request and survives `reset()`.
+        """
+        identity_overrides: dict[str, Any] = {}
+        option_overrides: dict[str, Any] = {}
+
+        for key, value in overrides.items():
+            expected_type = _CONFIG_IDENTITY_OVERRIDE_TYPES.get(key)
+
+            if expected_type is not None:
+                if isinstance(value, bool) or not isinstance(value, expected_type):
+                    message = f'Invalid override for "{key}": expected {expected_type.__name__}.'
+                    raise LlmCriticalError(message)
+
+                identity_overrides[key] = value
+
+            elif key in LlmOptions.model_fields:
+                option_overrides[key] = value
+
+            else:
+                message = (
+                    f'Unknown LLM config override "{key}". Use model, host, port, api_key, '
+                    'context_size, prompt_retry_count or an LlmOptions field.'
+                )
+                raise LlmCriticalError(message)
+
+        llm_config = LlmConfig(name)
+
+        for key, value in identity_overrides.items():
+            setattr(llm_config, key, value)
+
+        if option_overrides:
+            base_options = llm_config._settings_values.get('options') or {}
+            merged_options = {**base_options, **option_overrides}
+            llm_config.options = LlmOptions(**merged_options)
+            llm_config._settings_values['options'] = merged_options
+
+        self._llm_connector.set_llm_config(llm_config)
+        self.obj.llm_config = name
+
+        return llm_config
 
     @property
     def options(self) -> LlmOptions:

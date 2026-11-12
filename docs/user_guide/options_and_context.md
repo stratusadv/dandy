@@ -109,3 +109,49 @@ conversation and retry with a shorter message.
 Without any `CONTEXT_SIZE`, compaction falls back to the `DEFAULT_CONTEXT_WINDOW` (a 65536-token window constant) —
 the system still works, it just cannot prove the fit. If you want a bounded output,
 declare `max_completion_tokens` in the config's `OPTIONS`.
+
+## Changing the config mid-conversation
+
+Each bot instance owns its resolved `LlmConfig`, and it can be swapped or tweaked
+mid-conversation without re-instantiating the bot:
+
+```python
+# switch to another LLM_CONFIGS entry (all of its settings apply)
+bot.llm.set_config('THINKING')
+
+# switch and override individual fields at the same time
+bot.llm.set_config('DEFAULT', model='gpt-5-mini', temperature=0.2, context_size=120000)
+
+# assign a fully prepared LlmConfig
+from dandy import LlmConfig
+
+bot.llm.config = LlmConfig('THINKING')
+```
+
+Overrides accept the identity fields `model`, `host`, `port`, `api_key`,
+`context_size`, and `prompt_retry_count`, plus any `LlmOptions` field
+(`temperature`, `top_p`, `max_completion_tokens`, ...). Unknown names, wrong
+types, and out-of-range option values raise `LlmCriticalError`.
+
+The switch keeps the in-flight conversation intact: the next request goes to the
+new endpoint and model with the same history. Tool-loop rounds and agents pick
+the config up live — an agent re-resolves its `CONTEXT_SIZE` window at the start
+of every turn, so a switch moves the compaction budget immediately.
+
+A `LlmConfig` also exposes its identity fields directly, so a config can be
+tweaked in place and every change reaches the next request:
+
+```python
+config = bot.llm.config
+
+config.model = 'gpt-5-mini'
+config.host = 'https://my-gateway.example'
+config.port = 8443
+config.api_key = 'sk-...'
+config.context_size = 120000
+```
+
+Per-instance changes survive `bot.reset()`: a reset re-applies the options of
+the instance's *current* config (including any overrides set through
+`set_config`) and clears the conversation. Each bot instance is independent —
+changing one bot's config never affects another.

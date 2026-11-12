@@ -199,6 +199,14 @@ class LlmConnector(BaseConnector):
         self.llm_config.reset()
         self.request_body = self.llm_config.generate_request_body()
 
+    def set_llm_config(self, llm_config: LlmConfig) -> None:
+        """Swap in a new config, keeping the current conversation intact."""
+        messages = self.request_body.messages
+
+        self.llm_config = llm_config
+        self.request_body = llm_config.generate_request_body()
+        self.request_body.messages = messages
+
     def _request_to_intel(self) -> IntelType:
         if stop_signal.is_set():
             raise RunStoppedError(RUN_STOPPED_MESSAGE)
@@ -362,5 +370,7 @@ class LlmConnector(BaseConnector):
         self.intel = intel_class or intel_object
 
     def _update_request_body(self) -> None:
+        self.request_body.model = self.llm_config.model
+
         for key, value in self.llm_config.options.model_dump(exclude_none=True).items():
             setattr(self.request_body, key, value)

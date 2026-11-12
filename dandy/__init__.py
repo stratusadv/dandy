@@ -12,6 +12,7 @@ from dandy.domain.intel.intel import BaseIntel, BaseListIntel, DefaultIntel
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.prompt.prompt import Prompt
 from dandy.domain.request.options import LlmOptions
+from dandy.infrastructure.llm.config import LlmConfig
 from dandy.infrastructure.recorder.decorators import (
     recorder_to_html_file,
     recorder_to_json_file,
@@ -34,6 +35,7 @@ __all__ = [
     'DandyRecoverableError',
     'Decision',
     'DefaultIntel',
+    'LlmConfig',
     'LlmOptions',
     'MemoryCache',
     'MessageHistory',
@@ -71,6 +73,7 @@ class Dandy:
     DandyRecoverableError = DandyRecoverableError
     Decision = Decision
     DefaultIntel = DefaultIntel
+    LlmConfig = LlmConfig
     LlmOptions = LlmOptions
     MemoryCache = MemoryCache
     MessageHistory = MessageHistory

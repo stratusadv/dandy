@@ -1,4 +1,5 @@
 from typing import Any
+from urllib.parse import urlparse
 
 from dandy.shared.settings import settings
 from dandy.shared.settings.load import get_settings_module_name
@@ -97,6 +98,32 @@ class LlmConfig:
             raise DandyError(message)
 
         return value
+
+    @property
+    def host(self) -> str:
+        return self.http_request_intel.url.host
+
+    @host.setter
+    def host(self, value: str) -> None:
+        self.http_request_intel.url.host = value
+        self.http_request_intel.url.parsed_url = urlparse(value)
+
+    @property
+    def port(self) -> int:
+        return self.http_request_intel.url.port
+
+    @port.setter
+    def port(self, value: int) -> None:
+        self.http_request_intel.url.port = value
+
+    @property
+    def api_key(self) -> str | None:
+        return self.http_request_intel.bearer_token
+
+    @api_key.setter
+    def api_key(self, value: str) -> None:
+        self.http_request_intel.bearer_token = value
+        self.http_request_intel.generate_headers()
 
     def reset(self) -> None:
         self._set_options_from_config()
