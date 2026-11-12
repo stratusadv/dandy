@@ -99,13 +99,16 @@ every turn it compacts the history with the shared `compact_message_history`
 
 The trigger sits above the target on purpose: a loop whose rounds keep re-adding about
 what compaction just dropped does not re-compact on every round. The tool loop
-compacts its own accumulated conversation before every round as well, so an uncapped
-tool-calling session can never overflow the window from either side.
+compacts its own accumulated conversation as well, whenever its guard chain requests
+it (the `ContextPressureGuard` fires the request once the conversation's estimated
+token count passes the trigger), so an uncapped tool-calling session can never
+overflow the window from either side.
 
 ### The tool round
 
-The mechanics of the loop itself — execute-and-loop, the repeated-call guard, the
-8000-character result cap, per-round compaction — belong to the core and are covered
+The mechanics of the loop itself — execute-and-loop, the guard chain (the repeat
+guard and the context-pressure guard), the 8000-character result cap, on-demand
+compaction — belong to the core and are covered
 in [Tool Calling](../user_guide/tool_calling.md). The agent's contribution is the
 cap: `max_tool_rounds` (default `AGENT_MAX_TOOL_ROUNDS_DEFAULT = 200`) is passed as
 `max_tool_iterations`, so a model that keeps requesting tools without ever giving a

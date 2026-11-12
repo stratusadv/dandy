@@ -5,6 +5,7 @@ from unittest import TestCase
 
 from pydantic import BaseModel
 
+from dandy.domain.message.message import Message
 from dandy.infrastructure.cache.key import convert_to_hashable_str, generate_cache_key
 
 from tests.domain.intel.intelligence.intel import PersonIntel, BagIntel, ThingIntel
@@ -68,6 +69,25 @@ class TestCacheHashing(TestCase):
 
         self.assertEqual(
             converted_treasure, "{'quantity': 456, 'quality': 7.8, 'contains_puppet': False}"
+        )
+
+    def test_hash_mixin_object_hashing(self) -> None:
+        message = Message(role='user', content=[{'type': 'text', 'text': 'hello'}])
+
+        self.assertEqual(convert_to_hashable_str(message), message.deep_hash())
+
+    def test_hash_mixin_cache_key_matches_across_equal_state(self) -> None:
+        spaced = Message(role='user', content=[{'type': 'text', 'text': 'hello   world'}])
+        folded = Message(role='user', content=[{'type': 'text', 'text': 'hello world'}])
+        different = Message(role='user', content=[{'type': 'text', 'text': 'goodbye world'}])
+
+        self.assertEqual(
+            generate_cache_key(mushroom_to_treasure, spaced),
+            generate_cache_key(mushroom_to_treasure, folded),
+        )
+        self.assertNotEqual(
+            generate_cache_key(mushroom_to_treasure, spaced),
+            generate_cache_key(mushroom_to_treasure, different),
         )
 
     def test_class_hashing(self):

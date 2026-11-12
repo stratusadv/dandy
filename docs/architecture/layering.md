@@ -75,6 +75,8 @@ The bottom of the graph. Imports **nothing** from any layer.
 - `subprocess.py` — the `run_subprocess` command-execution primitive that
   `BaseTool.run_subprocess` delegates to (lives here, not in the domain, so the
   domain layer itself stays I/O-free).
+- `hashing.py` — `HashMixin`, the two-level state hashing (`shallow_hash` /
+  `deep_hash`) that framework state classes and the cache-key system use.
 - `exceptions.py` — the `DandyError` hierarchy; `utils.py`, `singleton.py`, `typing/`,
   `debug.py`, `constants.py`.
 
@@ -84,8 +86,10 @@ Pure value objects and policy. Imports only `shared`. No adapters, no endpoints,
 threads.
 
 - `intel/` — `BaseIntel`, `BaseListIntel`, `IntelFactory`, `IntelService`.
-- `tool/` — `BaseTool`, the tool-descriptor machinery, the tool-call value objects, and
-  the `RepeatedCallGuard` that breaks degenerate repeat loops.
+- `tool/` — `BaseTool`, the tool-descriptor machinery, and the tool-call value objects.
+- `guard/` — the guard framework (`Guard`, `GuardChain`, events and verdicts) and the
+  loop's shipped guards (`RepeatGuard`, `ContextPressureGuard`), which break
+  degenerate repeat loops and keep the conversation inside the context window.
 - `prompt/` — `Prompt` + snippets (LLM-agnostic).
 - `tokens/` — dependency-free token estimation.
 - `message/` — `Message` / `MessageHistory`, plus the compaction policy

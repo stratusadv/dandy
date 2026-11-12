@@ -7,6 +7,7 @@ from dandy.infrastructure.cache.sqlite.cache import SqliteCache
 from dandy.infrastructure.cache.sqlite.decorators import cache_to_sqlite
 from dandy.infrastructure.cache.key import generate_cache_key
 from dandy.shared.exceptions import DandyCriticalError, DandyError, DandyRecoverableError
+from dandy.shared.hashing import HashMixin
 from dandy.infrastructure.future.process import process_to_future
 from dandy.domain.intel.intel import BaseIntel, BaseListIntel, DefaultIntel
 from dandy.domain.message.message import MessageHistory
@@ -35,6 +36,7 @@ __all__ = [
     'DandyRecoverableError',
     'Decision',
     'DefaultIntel',
+    'HashMixin',
     'LlmConfig',
     'LlmOptions',
     'MemoryCache',
@@ -73,6 +75,7 @@ class Dandy:
     DandyRecoverableError = DandyRecoverableError
     Decision = Decision
     DefaultIntel = DefaultIntel
+    HashMixin = HashMixin
     LlmConfig = LlmConfig
     LlmOptions = LlmOptions
     MemoryCache = MemoryCache

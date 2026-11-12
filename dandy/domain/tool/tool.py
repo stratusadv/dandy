@@ -6,12 +6,13 @@ from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import BaseIntel
 from dandy.domain.tool.exceptions import ToolCriticalError
 from dandy.shared.cancellation import StopSignal
+from dandy.shared.hashing import HashMixin
 from dandy.shared.subprocess import run_subprocess
 
 ToolHandler = Callable[[BaseIntel | str], str | BaseIntel]
 
 
-class BaseTool(ABC):
+class BaseTool(HashMixin, ABC):
     """Base class for defining tools.
 
     Subclasses define the tool's name, description and must override the
@@ -52,8 +53,21 @@ class BaseTool(ABC):
         self._handle_signature_intel_class: type[BaseIntel] | None = None
         self.__post_init__()
 
-    def __post_init__(self) -> None:  # noqa: B027
+    def __post_init__(self) -> None:
         pass
+
+    def hash_state(self) -> Any:
+        state = {
+            'name': self.name,
+            'description': self.description,
+            'action_label': self.action_label,
+            'can_mutate_state': self.can_mutate_state,
+            'emits_story_beat': self.emits_story_beat,
+            'timeout_seconds': self.timeout_seconds,
+            'use_shell': self.use_shell,
+        }
+        state.update(vars(self))
+        return state
 
     def get_parameters_intel_class(self) -> type[BaseIntel]:
         intel_class = self._handle_signature_intel_class

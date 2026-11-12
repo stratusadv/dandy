@@ -28,6 +28,9 @@ def convert_to_hashable_str(obj: Any, hash_layer: int = 1) -> str:
                 else:
                     hashable_string = str(obj.__qualname__)
 
+            elif hasattr(obj, 'deep_hash'):
+                hashable_string = obj.deep_hash()
+
             elif isinstance(obj, BaseModel):
                 hashable_string = str(obj.model_dump())
 

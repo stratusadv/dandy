@@ -1,9 +1,10 @@
-from typing import Callable
+from typing import Any, Callable
 
 from dandy.domain.skill.exceptions import SkillCriticalError
+from dandy.shared.hashing import HashMixin
 
 
-class BaseSkill:
+class BaseSkill(HashMixin):
     """Base class for defining skills.
 
     A skill bundles a prompt (instructions for the model) with a set of
@@ -41,6 +42,17 @@ class BaseSkill:
 
     def __post_init__(self) -> None:
         pass
+
+    def hash_state(self) -> Any:
+        state = {
+            'name': self.name,
+            'description': self.description,
+            'prompt': self.prompt,
+            'active': self.active,
+            'tools': self.tools,
+        }
+        state.update(vars(self))
+        return state
 
     @property
     def tool_names(self) -> list[str]:

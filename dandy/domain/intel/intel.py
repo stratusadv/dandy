@@ -9,6 +9,7 @@ from pydantic.main import IncEx, create_model
 from pydantic_core import from_json
 
 from dandy.shared.files import read_from_file, write_to_file
+from dandy.shared.hashing import HashMixin
 from dandy.domain.intel.exceptions import IntelCriticalError
 from dandy.domain.intel.annotation import FieldAnnotation
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class BaseIntel(BaseModel, ABC):
+class BaseIntel(HashMixin, BaseModel, ABC):
     @classmethod
     def create_from_file(cls, file_path: Path | str) -> Self:
         return cls.model_validate_json(json_data=read_from_file(file_path=file_path))

@@ -12,17 +12,18 @@ from dandy.shared.utils import (
     pydantic_validation_error_to_str,
     truncate_output,
 )
+from dandy.domain.guard.context_guard import ContextPressureGuard
+from dandy.domain.guard.guard import GuardChain, GuardEvent
+from dandy.domain.guard.repeat_guard import RepeatGuard
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.message.compaction import (
     COMPACTION_TARGET_RATIO,
-    COMPACTION_TRIGGER_RATIO,
     DEFAULT_CONTEXT_WINDOW,
     compact_message_history,
 )
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
-from dandy.domain.tool.repeated_call import RepeatedCallGuard
 from dandy.infrastructure.recorder.tool_events import recorder_add_tool_result_event
 from dandy.domain.tool.tool import BaseTool, ToolType, ToolHandler, to_tool_instances
 
@@ -58,17 +59,25 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_functions = tool_functions or {}
 
         iteration_count = 0
-        # A model that keeps re-observing the same state is not gathering new
-        # information; the guard steers the model at the warning threshold and
-        # fails fast at the stop threshold, so a degenerate run costs a bounded
-        # number of rounds instead of burning the whole tool-iteration cap.
-        repeated_call_guard = RepeatedCallGuard()
+        # The guards watch the model's behavior live: the repeat guard steers
+        # the model out of degenerate repeat loops, and the context-pressure
+        # guard keeps the conversation inside the window, failing the loop
+        # fast when a correction stops working instead of letting the
+        # provider reject the request.
+        guard_chain = GuardChain([RepeatGuard(), ContextPressureGuard()])
 
         while True:
             if stop_signal.is_set():
                 raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
-            self._compact_history_before_next_round(progress_callback=progress_callback)
+            context_size = getattr(self.obj.config, 'context_size', 0) or DEFAULT_CONTEXT_WINDOW
+
+            round_outcome = guard_chain.on_round_start(
+                self.obj.messages.estimated_token_count, context_size
+            )
+
+            if round_outcome.compact:
+                self._compact_history(progress_callback=progress_callback)
 
             skill_tools = skill_service.active_tools()
             round_tools = user_tools + skill_tools
@@ -122,10 +131,12 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                     tool_call=tool_call,
                     tools_by_name=tools_by_name,
                     tool_functions=tool_functions,
+                    guard_chain=guard_chain,
+                    round_number=round_number,
+                    context_size=context_size,
                     progress_callback=progress_callback,
                     verbose_callback=verbose_callback,
                     tool_call_callback=tool_call_callback,
-                    repeated_call_guard=repeated_call_guard,
                 )
 
             iteration_count += 1
@@ -143,29 +154,21 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             )
             raise LlmCriticalError(message)
 
-    def _compact_history_before_next_round(
+    def _compact_history(
         self, progress_callback: Callable[[StoryBeat], None] | None = None
     ) -> None:
         """Trim the accumulated conversation before the next LLM round.
 
         Long-running tool loops append a tool-call request plus its results per
-        round, which can overflow the provider's context window when the loop is
-        unbounded. Uses the resolved config's ``CONTEXT_SIZE`` (a default window
-        when unset) and compacts to a fraction of it, keeping the system message
-        and the newest exchange. Compaction only triggers once the estimate
-        passes the higher trigger ratio, so a steady state where each round
-        re-adds about what compaction just dropped does not compact every round.
+        round, which can overflow the provider's context window when the loop
+        is unbounded. Compacts to a fraction of the resolved config's
+        ``CONTEXT_SIZE`` (a default window when unset), keeping the system
+        message and the newest exchange. The context-pressure guard decides
+        when this runs, so a steady state where each round re-adds about what
+        compaction just dropped does not compact every round.
         """
         context_size = getattr(self.obj.config, 'context_size', 0) or DEFAULT_CONTEXT_WINDOW
         target_token_count = max(1, int(context_size * COMPACTION_TARGET_RATIO))
-        trigger_token_count = max(
-            target_token_count + 1, int(context_size * COMPACTION_TRIGGER_RATIO)
-        )
-
-        current_token_count = self.obj.messages.estimated_token_count
-
-        if current_token_count <= trigger_token_count:
-            return
 
         if progress_callback is not None:
             progress_callback(
@@ -183,10 +186,12 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tools_by_name: dict[str, BaseTool],
         tool_functions: dict[str, ToolHandler],
         *,
+        guard_chain: GuardChain,
+        round_number: int,
+        context_size: int,
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
         tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
-        repeated_call_guard: RepeatedCallGuard,
     ) -> None:
         tool = tools_by_name.get(tool_call.name)
 
@@ -248,10 +253,15 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             tool_name=tool_call.name, result=result_text, event_id=self.recorder_event_id
         )
 
-        feedback_text = repeated_call_guard.observe(
-            name=tool_call.name,
-            arguments=arguments_kwargs,
-            result_text=result_text,
+        feedback_text = guard_chain.on_tool_call(
+            GuardEvent(
+                tool_name=tool_call.name,
+                arguments=arguments_kwargs,
+                result_text=result_text,
+                round_number=round_number,
+                history_token_count=self.obj.messages.estimated_token_count,
+                context_window=context_size,
+            ),
             verbose_callback=verbose_callback,
         )
 

@@ -943,11 +943,12 @@ class TestRepeatedCallGuard(TestCase):
         self.assertIn('exact same call', final_request_tool_contents[2])
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_retyped_calls_with_same_result_get_a_steering_note(
+    def test_retyped_calls_with_same_result_do_not_accumulate(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        # The model re-words the command every round; the arguments never match
-        # exactly, but the result does, so the result counter accumulates.
+        # The model re-words the command every round and the tool returns the
+        # same output for every one; different arguments are different calls,
+        # so the repeat guard must not accumulate them.
         mock_post_request.side_effect = [
             tool_call_response('echo', f'{{"command": "variant {i}"}}', tool_call_id=f'call_{i}')
             for i in range(1, 4)
@@ -970,39 +971,47 @@ class TestRepeatedCallGuard(TestCase):
             if message['role'] == 'tool'
         ]
         self.assertEqual(len(final_request_tool_contents), 3)
-        self.assertNotIn('Note:', final_request_tool_contents[0])
-        self.assertNotIn('Note:', final_request_tool_contents[1])
-        self.assertIn('Note:', final_request_tool_contents[2])
-        self.assertIn('exact same result', final_request_tool_contents[2])
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_retyped_calls_with_same_result_fail_fast(
+    def test_retyped_calls_with_same_result_run_past_the_stop_threshold(
         self, mock_post_request: mock.MagicMock
     ) -> None:
+        # The headline bug: a model that keeps re-wording a command used to
+        # fail fast once its repeated results hit the stop threshold, even
+        # though every call was a different one; the loop must run on and finish.
         mock_post_request.side_effect = [
             tool_call_response('echo', f'{{"command": "variant {i}"}}', tool_call_id=f'call_{i}')
             for i in range(1, 11)
-        ]
+        ] + [content_response('{"text": "done."}')]
 
         bot = ToolBot()
 
-        with self.assertRaises(LlmRecoverableError) as context:
-            bot.llm.tools.prompt_to_intel(
-                prompt='Run the echo tool.',
-                intel_class=FinalAnswerIntel,
-                tools=[ConstantEchoTool],
-                max_tool_iterations=50,
-            )
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='Run the echo tool.',
+            intel_class=FinalAnswerIntel,
+            tools=[ConstantEchoTool],
+            max_tool_iterations=50,
+        )
 
-        self.assertIn('returned the identical result', str(context.exception))
-        self.assertEqual(mock_post_request.call_count, 10)
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 10)
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_result_counter_is_separate_per_tool_name(
+    def test_identical_results_from_different_calls_do_not_accumulate(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        # Two tools return the same output; alternating them keeps each tool's
-        # own result count at three, so notes appear but the loop never stops.
+        # Two tools return the same output for different arguments; every
+        # signature is distinct either way, so nothing accumulates at all.
         mock_post_request.side_effect = [
             tool_call_response(
                 'echo' if index % 2 == 0 else 'echo_b',
@@ -1028,15 +1037,16 @@ class TestRepeatedCallGuard(TestCase):
             for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
             if message['role'] == 'tool'
         ]
-        noted = [content for content in final_request_tool_contents if 'Note:' in content]
-        self.assertEqual(len(noted), 2)
+        self.assertEqual(len(final_request_tool_contents), 6)
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
-    def test_parallel_edits_to_one_file_do_not_trip_the_result_counter(
+    def test_parallel_edits_to_one_file_do_not_trip_the_repeat_guard(
         self, mock_post_request: mock.MagicMock
     ) -> None:
         # Distinct edits in one round used to share one generic success string,
-        # so the result counter false-positived from the third call on.
+        # so result-based counting false-positived from the third call on.
         temp_directory_context = TemporaryDirectory()
         temp_directory_path = Path(temp_directory_context.name)
         (temp_directory_path / 'example.py').write_text('first = 1\nsecond = 2\nthird = 3\n')
@@ -1112,3 +1122,30 @@ class TestRepeatedCallGuard(TestCase):
         self.assertEqual(len(set(final_request_tool_contents)), 3)
         for tool_content in final_request_tool_contents:
             self.assertNotIn('Note:', tool_content)
+
+
+class TestContextPressureGuard(TestCase):
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_over_window_after_compaction_fails_the_loop(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        # The request framing alone exceeds the deliberately tiny context
+        # window, so compaction cannot relieve the pressure; the guard fails
+        # the loop before the second LLM request.
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_1')
+        ]
+
+        bot = ToolBot()
+        bot.llm.config.context_size = 100
+
+        with self.assertRaises(LlmRecoverableError) as context:
+            bot.llm.tools.prompt_to_intel(
+                prompt='What is the weather in Oslo?',
+                intel_class=FinalAnswerIntel,
+                tools=[HandleWeatherTool],
+                max_tool_iterations=50,
+            )
+
+        self.assertIn('still exceeds', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 1)

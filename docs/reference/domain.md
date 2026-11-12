@@ -197,16 +197,39 @@ compaction and for prompt size estimates.
             - get_estimated_token_count_for_audio
             - get_estimated_token_count_for_tool_calls
 
+## Guards
+
+Middleware-style watchers over a tool loop: each guard observes the loop's events
+(round starts and executed tool calls) and returns a verdict — a steering note
+appended to the tool result, a request to compact the conversation, or a failure
+that stops the loop.
+
+::: dandy.domain.guard.guard
+    options:
+        members:
+            - Guard
+            - GuardChain
+            - GuardEvent
+            - GuardOutcome
+
+::: dandy.domain.guard.repeat_guard
+    options:
+        members:
+            - REPEATED_CALL_WARNING_THRESHOLD
+            - REPEATED_CALL_STOP_THRESHOLD
+            - canonical_tool_arguments
+            - RepeatGuard
+
+::: dandy.domain.guard.context_guard
+    options:
+        members:
+            - ContextPressureGuard
+
 ## Tool-calling and decision values
 
 The value objects the tool loop and the decision produce.
 
 ::: dandy.domain.tool.intel
-
-::: dandy.domain.tool.repeated_call.RepeatedCallGuard
-    options:
-        members:
-            - observe
 
 ::: dandy.domain.decision.intel
 

@@ -3,6 +3,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.shared.hashing import HashMixin
 
 _VALUES_MIN_MAX = {
     'frequency_penalty': (-2.0, 2.0),
@@ -14,7 +15,7 @@ _VALUES_MIN_MAX = {
 _VALUES_MIN = {'max_completion_tokens': 1, 'max_tokens': 1, 'n': 1, 'top_logprobs': 0}
 
 
-class LlmOptions(BaseModel):
+class LlmOptions(HashMixin, BaseModel):
     frequency_penalty: float | None = None
     logit_bias: dict[str, float] | None = None
     logprobs: bool | None = None

@@ -43,8 +43,11 @@ key on.
 
 Notable keying behaviors:
 
-- `BaseIntel` / pydantic values hash by their JSON schema or dumped value, so
-  semantically equal Intel key identically.
+- `HashMixin` state objects — `BaseIntel` Intel, `Message` / `MessageHistory`,
+  `LlmOptions`, `LlmRequestBody`, `LlmConfig`, `BaseTool`, `BaseSkill` — hash by
+  a digest of their state (`deep_hash()`), so equal state keys identically and
+  a changed state a new key.
+- Plain pydantic values (no mixin) hash by their dumped value.
 - Framework services hash by **class qualname**, detected structurally (by the
   `recorder_event_id` attribute) — the cache never imports them, which is how it stays a
   generic capability.

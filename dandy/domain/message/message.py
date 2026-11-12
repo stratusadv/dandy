@@ -1,9 +1,10 @@
 from pathlib import Path
-from typing import Iterator, Literal
+from typing import Any, Iterator, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
 from dandy.shared.files import encode_file_to_base64, get_file_extension_from_url_string
+from dandy.shared.hashing import HashMixin, dump_model
 from dandy.shared.media import (
     get_audio_format_from_base64_string,
     get_image_mime_type_from_base64_string,
@@ -55,11 +56,14 @@ class MessageContent(BaseModel):
         return self.__str__()
 
 
-class Message(BaseModel):
+class Message(HashMixin, BaseModel):
     role: RoleLiteralStr
     content: list[MessageContent] = Field(default_factory=list)
     tool_call_id: str | None = None
     tool_calls: list[dict] | None = None
+
+    def hash_state(self) -> Any:
+        return dump_model(super().model_dump)
 
     @field_validator('content', mode='before')
     @classmethod
@@ -164,7 +168,7 @@ class Message(BaseModel):
         )
 
 
-class MessageHistory(BaseModel):
+class MessageHistory(HashMixin, BaseModel):
     messages: list[Message] = Field(default_factory=list)
 
     def __len__(self) -> int:

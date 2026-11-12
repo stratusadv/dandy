@@ -1,10 +1,13 @@
+from typing import Any
+
 from pydantic import BaseModel, Field, ConfigDict
 
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
+from dandy.shared.hashing import HashMixin, dump_model
 
 
-class LlmRequestBody(BaseModel):
+class LlmRequestBody(HashMixin, BaseModel):
     model: str
     messages: MessageHistory = Field(default_factory=MessageHistory)
     stream: bool = False
@@ -17,6 +20,9 @@ class LlmRequestBody(BaseModel):
     }
 
     model_config = ConfigDict(extra='allow')
+
+    def hash_state(self) -> Any:
+        return dump_model(super().model_dump)
 
     @property
     def estimated_token_count(self) -> int:

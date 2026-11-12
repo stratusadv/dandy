@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 from dandy.shared.settings import settings
 from dandy.shared.settings.load import get_settings_module_name
 from dandy.shared.exceptions import DandyError
+from dandy.shared.hashing import HashMixin
 from dandy.infrastructure.http.intel import HttpResponseIntel, HttpRequestIntel
 from dandy.infrastructure.http.url import Url
 from dandy.domain.request.options import LlmOptions
@@ -14,7 +15,7 @@ _DEFAULT_TRANSFER_KEYS = ['HOST', 'PORT', 'API_KEY']
 _CONFIGS_NAME = 'LLM_CONFIGS'
 
 
-class LlmConfig:
+class LlmConfig(HashMixin):
     def __init__(self, name: str) -> None:
         self.name = name
 
@@ -80,6 +81,19 @@ class LlmConfig:
         self._set_options_from_config()
 
         self.http_request_intel.url.path_parameters = ['v1', 'chat', 'completions']
+
+    def hash_state(self) -> Any:
+        # The api key is deliberately left out: it is a secret, and hashing
+        # secrets into keys or digests lets them leak into caches and logs.
+        return {
+            'name': self.name,
+            'model': self.model,
+            'host': self.http_request_intel.url.host,
+            'port': self.http_request_intel.url.port,
+            'context_size': self.context_size,
+            'prompt_retry_count': self.prompt_retry_count,
+            'options': self.options,
+        }
 
     def generate_request_body(self) -> LlmRequestBody:
         request_body_kwargs = self.options.model_dump(exclude_none=True)

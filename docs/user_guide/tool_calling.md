@@ -60,16 +60,22 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
 
 - `max_tool_iterations` caps the rounds (default 5; `None` = no cap — the coding agent
   runs uncapped, at the cost of unbounded API spend).
-- The repeated-call guard breaks degenerate loops with two per-loop counters,
-  neither consecutive-only: a signature counter over (name, canonical arguments,
-  result) — arguments are canonicalized (whitespace runs folded in every string
-  value, sorted-key compact JSON) so re-typed calls with line-wrap, indent, or
-  key-order drift still accumulate — and a result counter over (name, result)
-  pairs that counts across any argument wording, so a reworded call that keeps
-  producing the same output is caught too. The result fed back to the model
-  carries a steering note from the third occurrence, and the loop raises
-  `LlmRecoverableError` at ten. A changed result never accumulates toward either
-  counter, so time-varying commands never trip them.
+- Guards watch the loop live (`dandy/domain/guard/`): the service runs a
+  `GuardChain` of middleware-style `Guard` watchers, each observing the loop's
+  events and returning a verdict — a steering note appended to the tool result,
+  a request to compact the conversation, or a failure that stops the loop with
+  `LlmRecoverableError` before the next request. The shipped `RepeatGuard`
+  counts every executed call against a canonical signature (whitespace runs
+  folded in every string value, sorted-key compact JSON of the validated
+  kwargs), so re-typed calls with line-wrap, indent, or key-order drift share
+  one signature, while different arguments are different calls that never
+  accumulate against each other no matter how often they produce the same
+  result: the result fed back to the model carries a steering note from the
+  third identical call, and the loop raises `LlmRecoverableError` at ten. The
+  shipped `ContextPressureGuard` requests compaction once the conversation's
+  estimated token count passes 80% of the resolved context window, and fails
+  the loop if the pressure re-asserts after a compaction while the conversation
+  still exceeds the whole window.
 - Invalid arguments are fed back to the model as a tool message so it can self-correct.
 - An explicit `tool_functions={'name': handler}` entry wins over the tool's own
   `handle()`; handlers receive the parsed argument Intel and return a string or Intel.

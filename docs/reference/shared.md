@@ -131,6 +131,21 @@ this is what they call.
             - TYPE_REGISTRY
             - resolve_type_from_registry
 
+## Hashing
+
+Two-level state hashing (`HashMixin`): a shallow level for cheap volume signals
+(long strings fingerprinted) and a deep level whose exact state digest drives
+`__hash__`, duplicate detection, and cache keys.
+
+::: dandy.shared.hashing
+    options:
+        members:
+            - SHALLOW_STRING_KEEP
+            - HASH_LENGTH
+            - canonicalize
+            - dump_model
+            - HashMixin
+
 ## Miscellany
 
 ::: dandy.shared.singleton.Singleton

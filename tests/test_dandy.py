@@ -15,6 +15,7 @@ PUBLIC_NAMES = [
     'DandyRecoverableError',
     'Decision',
     'DefaultIntel',
+    'HashMixin',
     'LlmConfig',
     'LlmOptions',
     'MemoryCache',
