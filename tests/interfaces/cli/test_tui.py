@@ -576,3 +576,143 @@ class TestTuiCommandCompletionScreen(TestCase):
         self.assertIn('⦿ /s  /sessions', snapshot.splitlines())
         self.assertEqual(self._last_bullet_row(screen), '⦿ /s')
         self.assertNotIn('sessions', screen.text())
+
+
+class TestTuiMultiLineInput(TestCase):
+    def setUp(self) -> None:
+        self.screen_width = 12
+
+        self.term = Terminal(force_styling='default')
+        self.term_patch = mock.patch.object(tui, 'term', self.term)
+        self.term_patch.start()
+        self.addCleanup(self.term_patch.stop)
+
+        self.printer_term_patch = mock.patch.object(tui.printer, 'term', self.term)
+        self.printer_term_patch.start()
+        self.addCleanup(self.printer_term_patch.stop)
+
+        # The Tui measures wraps against term.width, so the emulated screen
+        # must be exactly as wide as the terminal it is told it is.
+        self.width_patch = mock.patch.object(
+            Terminal, 'width', mock.PropertyMock(return_value=self.screen_width)
+        )
+        self.width_patch.start()
+        self.addCleanup(self.width_patch.stop)
+
+        self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
+        self.cbreak_patch.start()
+        self.addCleanup(self.cbreak_patch.stop)
+
+    @staticmethod
+    def _keys(text: str) -> list[FakeKey]:
+        return [FakeKey(char, None) for char in text]
+
+    def _run(self, keys: list[FakeKey]) -> tuple[str | None, MiniScreen, list[str]]:
+        screen = MiniScreen(width=self.screen_width)
+        key_iter = iter(keys)
+        snapshots: list[str] = []
+
+        def next_key(*_args: object, **_kwargs: object) -> FakeKey:
+            key = next(key_iter)
+            snapshots.append(screen.text())
+            return key
+
+        with (
+            mock.patch.object(self.term, 'inkey', side_effect=next_key),
+            mock.patch('sys.stdout', ScreenStdout(screen)),
+        ):
+            result = tui.get_user_input()
+
+        return result, screen, snapshots
+
+    def test_typing_past_one_line_and_backspacing_leaves_no_duplicate_rows(self) -> None:
+        # The prompt bullet takes two cells, so the row fills at ten buffer
+        # characters.
+        keys = [*self._keys('abcdefghij'), *self._keys('kl'), BACKSPACE_KEY, ENTER_KEY]
+
+        result, screen, snapshots = self._run(keys)
+
+        self.assertEqual(result, 'abcdefghijk')
+
+        # The snapshot taken while inkey returns a key shows the screen as
+        # the keys before it rendered it.
+        expected = ''
+
+        for index, key in enumerate(keys):
+            snapshot = snapshots[index]
+
+            # After wrapping, every keystroke must leave each typed character
+            # exactly once on screen: the old bug re-typed the whole line from
+            # the wrapped row and left the row above behind as a duplicate.
+            for char in set(expected):
+                self.assertEqual(snapshot.count(char), 1, f'duplicate rows in {snapshot!r}')
+
+            if key is ENTER_KEY:
+                continue
+
+            expected = expected[:-1] if key is BACKSPACE_KEY else expected + key
+
+        self.assertEqual(screen.line(0), '─' * self.screen_width)
+        self.assertEqual(screen.line(1), '⦿ abcdefghij')
+        self.assertEqual(screen.line(2), 'k')
+        self.assertEqual(screen.line(3), '─' * self.screen_width)
+
+    def test_backspacing_across_wrap_boundaries_keeps_the_screen_compact(self) -> None:
+        typed = 'abcdefghijklmnopqrstuvwxyz0123'
+        keys = [*self._keys(typed)]
+        keys += [BACKSPACE_KEY] * (len(typed) - 9)
+        keys.append(ENTER_KEY)
+
+        result, screen, snapshots = self._run(keys)
+
+        self.assertEqual(result, 'abcdefghi')
+
+        # The snapshot taken while inkey returns a key shows the screen as
+        # the keys before it rendered it.
+        expected = ''
+
+        for index, key in enumerate(keys):
+            snapshot = snapshots[index]
+
+            for char in set(expected):
+                self.assertEqual(snapshot.count(char), 1, f'duplicate rows in {snapshot!r}')
+
+            # The divider above the prompt is the only non-input row (the
+            # closing one prints after the loop ends); the block itself
+            # takes one row per twelve cells, the prompt bullet costing two
+            # of them.
+            rows = [line for line in snapshot.splitlines() if line]
+            self.assertEqual(len(rows), 1 + (len(expected) + 13) // 12, f'unexpected {snapshot!r}')
+
+            if key is ENTER_KEY:
+                continue
+
+            expected = expected[:-1] if key is BACKSPACE_KEY else expected + key
+
+        self.assertEqual(screen.line(1), '⦿ abcdefghi')
+        self.assertEqual(screen.line(2), '─' * self.screen_width)
+
+    def test_wrapped_input_wraps_at_the_row_boundary_exactly(self) -> None:
+        keys = [*self._keys('abcdefghijklmnopqrstuvwxyz0123'), ENTER_KEY]
+
+        result, screen, _snapshots = self._run(keys)
+
+        self.assertEqual(result, 'abcdefghijklmnopqrstuvwxyz0123')
+        self.assertEqual(screen.line(1), '⦿ abcdefghij')
+        self.assertEqual(screen.line(2), 'klmnopqrstuv')
+        self.assertEqual(screen.line(3), 'wxyz0123')
+        self.assertEqual(screen.line(4), '─' * self.screen_width)
+
+    def test_wrapped_input_then_wrapped_backspace_clears_the_released_row(self) -> None:
+        keys = [*self._keys('abcdefghijkl'), BACKSPACE_KEY, BACKSPACE_KEY, BACKSPACE_KEY, ENTER_KEY]
+
+        result, screen, snapshots = self._run(keys)
+
+        self.assertEqual(result, 'abcdefghi')
+
+        # The moment the buffer falls back to one row, the second row must
+        # be cleared in the same redraw (only the closing divider may sit
+        # below the block).
+        self.assertEqual(screen.line(1), '⦿ abcdefghi')
+        self.assertEqual(screen.line(2), '─' * self.screen_width)
+        self.assertNotIn('kl', snapshots[-1])

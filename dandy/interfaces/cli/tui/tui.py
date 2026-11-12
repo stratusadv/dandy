@@ -23,6 +23,7 @@ class Tui:
         self._escape_exit = False
         self._suggestion_visible = False
         self._suggestions_enabled = False
+        self._rendered_lines = 1
 
     def clear(self) -> None:
         print(self.term.clear)
@@ -57,6 +58,7 @@ class Tui:
         with self.term.cbreak():
             sys.stdout.write(self._input_prefix)
             sys.stdout.flush()
+            self._rendered_lines = 1
 
             self._processing_input = True
 
@@ -166,10 +168,31 @@ class Tui:
     def _render(self, clear_suggestion: bool = False) -> None:
         text = '' if clear_suggestion else self._suggestion_text()
         suggestion = self.term.grey(text) if text else ''
-        prefix_and_buffer = self._input_prefix + ''.join(self._buffer)
-        sys.stdout.write('\r' + self.term.clear_eol() + prefix_and_buffer + suggestion)
+        line = self._input_prefix + ''.join(self._buffer) + suggestion
+        sys.stdout.write(self._clear_rendered_lines() + line)
+        self._rendered_lines = self._visual_line_count(line)
         self._suggestion_visible = bool(text)
         sys.stdout.flush()
+
+    def _clear_rendered_lines(self) -> str:
+        if self._rendered_lines <= 1:
+            return '\r' + self.term.clear_eol()
+
+        # The cursor sits at the end of the previous render's last row, so
+        # clear that row, then climb one row at a time clearing each row
+        # the old render occupied, ending on the block's first row ready
+        # for the rewrite.
+        clear = '\r' + self.term.clear_eol()
+        climb = (self.term.cuu1 + '\r' + self.term.clear_eol()) * (self._rendered_lines - 1)
+        return clear + climb
+
+    def _visual_line_count(self, line: str) -> int:
+        width = self.term.width
+
+        if width <= 0:
+            return 1
+
+        return max(1, -(-self.term.length(line) // width))
 
     def _command_matches(self) -> list[str]:
         text = ''.join(self._buffer)
