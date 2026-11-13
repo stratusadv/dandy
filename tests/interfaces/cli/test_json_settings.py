@@ -1,15 +1,20 @@
 import json
 import os
+import sys
 import tempfile
+import types
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout
+from io import StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import TestCase, mock
 
 from dandy.interfaces.cli.utils import check_or_create_settings
 from dandy.shared.settings import settings
 from dandy.shared.exceptions import DandyCriticalError
 from dandy.shared.settings.load import (
+    check_default_llm_config,
     find_settings_json_file,
     get_settings_json_candidates,
     load_settings_from_json_file,
@@ -152,6 +157,48 @@ class TestLoadSettingsFromJsonFile(JsonSettingsTestCase):
                 load_settings_from_json_file(json_file_path)
 
 
+class TestCheckDefaultLlmConfig(TestCase):
+    def _namespace(self, llm_configs: object) -> SimpleNamespace:
+        return SimpleNamespace(BASE_PATH=Path('/tmp'), LLM_CONFIGS=llm_configs)
+
+    def test_returns_none_when_default_config_is_complete(self) -> None:
+        namespace = self._namespace(
+            {'DEFAULT': {'HOST': 'h', 'PORT': 443, 'API_KEY': 'k', 'MODEL': 'm'}}
+        )
+
+        self.assertIsNone(check_default_llm_config(namespace))
+
+    def test_reports_missing_llm_configs(self) -> None:
+        self.assertIsNotNone(check_default_llm_config(self._namespace(None)))
+
+    def test_reports_missing_default_entry(self) -> None:
+        self.assertIsNotNone(check_default_llm_config(self._namespace({'OTHER': {}})))
+
+    def test_reports_each_missing_key(self) -> None:
+        namespace = self._namespace({'DEFAULT': {'HOST': 'h'}})
+
+        reason = check_default_llm_config(namespace)
+
+        self.assertIsNotNone(reason)
+        self.assertIn('"PORT"', reason)
+        self.assertIn('"API_KEY"', reason)
+        self.assertIn('"MODEL"', reason)
+        self.assertNotIn('"HOST"', reason)
+
+    def test_reports_empty_string_values(self) -> None:
+        namespace = self._namespace(
+            {'DEFAULT': {'HOST': 'h', 'PORT': 443, 'API_KEY': '', 'MODEL': None}}
+        )
+
+        reason = check_default_llm_config(namespace)
+
+        self.assertIsNotNone(reason)
+        self.assertIn('"API_KEY"', reason)
+        self.assertIn('"MODEL"', reason)
+        self.assertNotIn('"HOST"', reason)
+        self.assertNotIn('"PORT"', reason)
+
+
 class TestSettingsJsonCandidates(TestCase):
     def test_checks_cwd_before_home(self) -> None:
         with tempfile.TemporaryDirectory() as temp_directory_str:
@@ -285,6 +332,76 @@ class TestJsonSettingsFallback(JsonSettingsTestCase):
             self.assertTrue(settings._has_loaded_user_settings)
             self.assertIsNone(settings._json_settings_path)
 
+    def test_unusable_module_falls_back_to_home_config_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_directory_str:
+            temp_directory = Path(temp_directory_str)
+            project_path = Path(temp_directory, 'project')
+            home_path = Path(temp_directory, 'home')
+            project_path.mkdir()
+            Path(home_path, '.config', 'dandy').mkdir(parents=True)
+            Path(home_path, '.config', 'dandy', 'dandy.json').write_text(
+                json.dumps(JSON_WITH_LLM_CONFIG)
+            )
+
+            unusable_module = types.ModuleType('unusable_dandy_settings')
+            unusable_module.BASE_PATH = project_path
+            unusable_module.LLM_CONFIGS = {
+                'DEFAULT': {'HOST': 'h', 'PORT': 443, 'API_KEY': 'k', 'MODEL': None}
+            }
+
+            with (
+                mock.patch(
+                    'dandy.shared.settings.settings.get_settings_module_name',
+                    return_value='unusable_dandy_settings',
+                ),
+                mock.patch.object(
+                    settings, '_import_settings_module', return_value=unusable_module
+                ),
+                mock.patch('pathlib.Path.cwd', return_value=project_path),
+                _patched_home(home_path),
+            ):
+                settings.load_user_settings()
+
+            self.assertTrue(settings._has_loaded_user_settings)
+            self.assertEqual(
+                settings._json_settings_path, Path(home_path, '.config', 'dandy', 'dandy.json')
+            )
+            self.assertEqual(settings.LLM_CONFIGS['DEFAULT']['MODEL'], 'json_model')
+
+    def test_usable_module_does_not_fall_back_to_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_directory_str:
+            temp_directory = Path(temp_directory_str)
+            project_path = Path(temp_directory, 'project')
+            project_path.mkdir()
+            Path(project_path, '.dandy').mkdir()
+            Path(project_path, '.dandy', 'dandy.json').write_text(json.dumps(JSON_WITH_LLM_CONFIG))
+
+            usable_module = types.ModuleType('usable_dandy_settings')
+            usable_module.BASE_PATH = project_path
+            usable_module.LLM_CONFIGS = {
+                'DEFAULT': {
+                    'HOST': 'py-host',
+                    'PORT': 443,
+                    'API_KEY': 'py-key',
+                    'MODEL': 'py_model',
+                }
+            }
+
+            with (
+                mock.patch(
+                    'dandy.shared.settings.settings.get_settings_module_name',
+                    return_value='usable_dandy_settings',
+                ),
+                mock.patch.object(settings, '_import_settings_module', return_value=usable_module),
+                mock.patch('pathlib.Path.cwd', return_value=project_path),
+                _patched_home(Path(project_path, 'empty_home')),
+            ):
+                settings.load_user_settings()
+
+            self.assertTrue(settings._has_loaded_user_settings)
+            self.assertIsNone(settings._json_settings_path)
+            self.assertEqual(settings.LLM_CONFIGS['DEFAULT']['MODEL'], 'py_model')
+
     def test_no_json_no_module_leaves_settings_unloaded(self) -> None:
         with tempfile.TemporaryDirectory() as temp_directory_str:
             project_path = Path(temp_directory_str)
@@ -317,6 +434,30 @@ class TestCheckOrCreateSettingsJson(JsonSettingsTestCase):
                     'dandy.shared.settings.load.get_settings_module_name',
                     return_value=INVALID_SETTINGS_MODULE_NAME,
                 ),
+            ):
+                check_or_create_settings(cwd_path=project_path, system_exit_on_import_error=False)
+
+            self.assertFalse(Path(project_path, f'{INVALID_SETTINGS_MODULE_NAME}.py').exists())
+
+    def test_does_not_create_py_file_when_json_exists_and_module_unusable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_directory_str:
+            project_path = Path(temp_directory_str)
+            Path(project_path, '.dandy').mkdir()
+            Path(project_path, '.dandy', 'dandy.json').write_text(json.dumps({'debug': True}))
+
+            unusable_module = types.ModuleType(INVALID_SETTINGS_MODULE_NAME)
+            unusable_module.BASE_PATH = project_path
+            unusable_module.LLM_CONFIGS = {'DEFAULT': {'MODEL': None}}
+
+            with (
+                mock.patch('pathlib.Path.cwd', return_value=project_path),
+                _patched_home(Path(project_path, 'empty_home')),
+                mock.patch(
+                    'dandy.shared.settings.load.get_settings_module_name',
+                    return_value=INVALID_SETTINGS_MODULE_NAME,
+                ),
+                mock.patch.dict(sys.modules, {INVALID_SETTINGS_MODULE_NAME: unusable_module}),
+                redirect_stdout(StringIO()),
             ):
                 check_or_create_settings(cwd_path=project_path, system_exit_on_import_error=False)
 

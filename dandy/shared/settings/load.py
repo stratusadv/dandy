@@ -32,6 +32,42 @@ def get_cli_llm_config(task: str) -> str:
     return 'DEFAULT'
 
 
+_REQUIRED_DEFAULT_CONFIG_KEYS = ('HOST', 'PORT', 'API_KEY', 'MODEL')
+
+
+def check_default_llm_config(settings_namespace: Any) -> str | None:
+    """A reason the loaded settings namespace lacks a usable default LLM config.
+
+    Returns ``None`` when ``LLM_CONFIGS`` holds a ``DEFAULT`` entry with
+    non-empty ``HOST``, ``PORT``, ``API_KEY``, and ``MODEL`` values, otherwise
+    a short description of what is missing. A module that imports cleanly but
+    cannot resolve those (e.g. it reads ``MODEL`` from an unset environment
+    variable) is unusable, so the ``dandy.json`` fallback should take over
+    instead of failing at first use.
+    """
+    llm_configs = getattr(settings_namespace, 'LLM_CONFIGS', None)
+
+    if not isinstance(llm_configs, dict):
+        return 'no "LLM_CONFIGS"'
+
+    default_config = llm_configs.get('DEFAULT')
+
+    if not isinstance(default_config, dict):
+        return 'no "DEFAULT" entry in "LLM_CONFIGS"'
+
+    missing_keys = [
+        key
+        for key in _REQUIRED_DEFAULT_CONFIG_KEYS
+        if default_config.get(key) is None or default_config.get(key) == ''
+    ]
+
+    if missing_keys:
+        missing_list = ', '.join(f'"{key}"' for key in missing_keys)
+        return f'{missing_list} missing or empty in "LLM_CONFIGS.DEFAULT"'
+
+    return None
+
+
 def get_settings_json_candidates(dandy_directory: str = DANDY_LOCAL_DIRECTORY_NAME) -> list[Path]:
     home_directory_path = Path('~').expanduser()
     return [

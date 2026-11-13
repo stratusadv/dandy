@@ -7,13 +7,20 @@ from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 
 
 def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool = True) -> None:
-    from dandy.shared.settings.load import find_settings_json_file, get_settings_module_name
+    from dandy.shared.settings.load import (  # noqa: PLC0415
+        check_default_llm_config,
+        find_settings_json_file,
+        get_settings_module_name,
+    )
 
     settings_module_name = get_settings_module_name()
 
     try:
-        importlib.import_module(settings_module_name)
+        settings_module = importlib.import_module(settings_module_name)
     except ImportError:
+        settings_module = None
+
+    if settings_module is None or check_default_llm_config(settings_module) is not None:
         json_settings_path = find_settings_json_file()
 
         if json_settings_path is not None:
