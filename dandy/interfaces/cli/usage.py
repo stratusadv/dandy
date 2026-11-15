@@ -5,7 +5,7 @@ from dandy.interfaces.cli.tui.tui import tui
 
 
 def _usage_line(forms: str, description: str) -> str:
-    return f'  dandy {forms:<29}{description}'
+    return f'  dandy {forms:<37}{description}'
 
 
 def _usage_text() -> str:
@@ -14,7 +14,6 @@ def _usage_text() -> str:
         'Usage:',
         _usage_line('', 'Start the interactive assistant (REPL)'),
         _usage_line('"<your request>"', 'Run one request then exit'),
-        _usage_line('--continue "<request>"', 'Run one request inside the latest saved session'),
     ]
 
     for command in CLI_COMMANDS:
@@ -32,7 +31,9 @@ def _usage_text() -> str:
             'Conversations are saved automatically; use /init (or /i) to create or '
             'refresh the project AGENTS.md, /new (or /n) to start over, /sessions '
             '(or /s) to list saved conversations, /resume (or /r) to continue one, '
-            'and /quit (or /q) to exit. Pressing escape twice stops a running turn; '
+            'and /quit (or /q) to exit. Bare dandy -r (no request) opens the '
+            'interactive session on the most recently saved conversation. '
+            'Pressing escape twice stops a running turn; '
             'at the prompt, pressing escape twice exits the loop.\n'
         ),
     ]

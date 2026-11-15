@@ -16,12 +16,13 @@ pipeline, and one-shot mode (`dandy "fix the failing test"`) runs the same pipel
 single turn — the same underlying turn processing and session saving, only a different
 front end (argv in, exit code out). Every turn saves the conversation: one-shot saves a
 new auto-named session, a failed or stopped turn saves too (trimmed at the last complete
-tool round), and `dandy --continue "keep going"` runs one request inside the most recently
+tool round), and `dandy -r "keep going"` runs one request inside the most recently
 saved session and re-saves it under the same name. The session commands have one-shot
 flags of their own: `dandy -s` (or `--sessions`) lists the saved sessions,
 `dandy -s <name>` opens the interactive REPL with that session loaded, and
 `dandy -s <name> "keep going"` runs one request inside that named session
-(`-r`/`--resume` does the same with a required name; `-d`/`--delete`,
+(`dandy -r "keep going"` does the same for the most recently saved session, and
+bare `dandy -r` opens the REPL on it; `-d`/`--delete`,
 `-n`/`--new`, and `-i`/`--init` cover the other commands — run `dandy -h` for
 the full table). The one-shot session forms exit with code 1 when the turn (or
 the resume) fails, so a script can detect failure; the interactive REPL shows
@@ -91,6 +92,47 @@ react to what went wrong. A `QuestionTool` without an `ask_user` callback (for e
 a headless `CliAgent`) answers its own question with a "no user available, assume
 and proceed" note instead of blocking.
 
+## Skills
+
+The coding agent loads [skills](skill.md) from two directories at process start:
+
+| Directory | Scope |
+|---|---|
+| `~/.config/dandy/skills/` | Global: every project on your machine |
+| `<project>/.dandy/skills/` | Project: this project only |
+
+Each skill is a **folder holding a `SKILL.md`** (the Anthropic Agent Skills
+convention):
+
+```markdown
+---
+name: deploy
+description: Deploy the app. Use when the user asks to ship or release.
+active: false
+---
+Always deploy with `just deploy`, never push tags by hand.
+```
+
+- The frontmatter supplies `name` (defaults to the folder name), `description`, and
+  `active` (defaults to `true`; a passive skill needs a `description`). Unknown keys
+  are ignored; the markdown body is the skill `prompt`. File skills are prompt-only —
+  they carry no typed methods.
+- **Project overrides global by name**: when both directories hold a skill with the
+  same final name, the project one wins.
+- Active skills put their prompt in the system message from the first turn; passive
+  ones show only `name: description` until the model calls the built-in
+  `activate_skill` tool. The loader (`dandy/application/skill/loader.py`) registers
+  them through the normal `SkillService` path, so activation works exactly as for
+  code-defined skills.
+- The welcome banner shows a `Skills` line with the loaded count (active vs
+  passive). Malformed files (missing frontmatter fence, passive without a
+  description, ...) are skipped with one `Skill skipped` notice per file — they
+  never crash the CLI.
+- Skills are loaded once at process start for both the REPL and one-shot mode.
+  `/new` keeps the registration but re-arms passive activation; a **resumed**
+  session replays its saved system message, so skill changes only apply after `/new`
+  (the same staleness as AGENTS.md in a resumed session).
+
 ## Context management
 
 The agent reads the coding config's `CONTEXT_SIZE` and compacts its own history before
@@ -109,8 +151,9 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
   project `AGENTS.md` (see [Project instructions](#project-instructions-agentsmd));
   `/n [name]` (`/new [name]`) starts a fresh conversation (optionally pre-naming
   its session file); `/s [name]` (`/sessions [name]`) lists saved sessions, and
-  with a name loads that one; `/r <name>` (`/resume <name>`) loads a session and
-  keeps the current agent state; `/d <name>` (`/delete <name>`) removes one;
+  with a name loads that one; `/r [name]` (`/resume [name]`) loads a session —
+  the most recently saved one if no name is given — and keeps the current agent
+  state; `/d <name>` (`/delete <name>`) removes one;
   `/q` (`/quit`) or `/exit` stop the loop.
 - Commands are discoverable at the prompt: when you type `/` as the first
   character, a grey tail on the input line itself lists every command matching
@@ -155,11 +198,12 @@ lives under `.dandy/`, it is gitignored along with the sessions.
 
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token
-count. `/resume <name>` (or the short `/s <name>`) loads the history back into the
-agent, so the next turn continues exactly where that conversation left off; the
-command line does the same with `dandy -s <name>` or `dandy -r <name>` — with a
-request it runs one turn in that session and exits, without one it opens the REPL
-on it. `/delete <name>` (or `/d <name>`, and one-shot `dandy -d <name>`) removes
+count. `/resume [name]` (or the short `/s <name>`) loads the history back into the
+agent — the most recently saved session if no name is given — so the next turn
+continues exactly where that conversation left off; the command line does the
+same with `dandy -s <name>` (by name) or `dandy -r` (the most recently saved
+session) — with a request it runs one turn in that session and exits, without
+one it opens the REPL on it. `/delete <name>` (or `/d <name>`, and one-shot `dandy -d <name>`) removes
 the file. The store is plain JSON per session, so you can inspect or copy session
 files by hand.
 

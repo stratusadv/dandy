@@ -14,16 +14,20 @@ from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.message.message import MessageContent
 
 if TYPE_CHECKING:
+    from dandy.domain.skill.skill import SkillType
     from dandy.domain.tool.beat import StoryBeat
 
 
 class CliAgent(Agent):
     """Multi-turn coding agent that keeps the conversation across turns."""
 
-    def __init__(self, ask_user: QuestionHandler | None = None) -> None:
+    def __init__(
+        self, ask_user: QuestionHandler | None = None, skills: list[SkillType] | None = None
+    ) -> None:
         super().__init__(
             bot=CodingBot(),
             tools=[*AGENT_TOOLS, QuestionTool(ask_user=ask_user)],
+            skills=skills,
             intel_class=DefaultIntel,
         )
 

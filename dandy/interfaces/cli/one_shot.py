@@ -17,24 +17,23 @@ class OneShotPlan:
     command: str | None = None
     name: str | None = None
     request: str = ''
-    continue_latest: bool = False
     repl: bool = False
 
 
 def _is_known_flag(arg: str) -> bool:
-    return arg == '--continue' or flag_lookup(arg) is not None
+    return flag_lookup(arg) is not None
 
 
-def _scan_flags(tokens: list[str]) -> tuple[CliCommand | None, bool, str | None, list[str]] | None:
-    """Split one-shot tokens into (command, continue flag, name, leftover tokens).
+def _scan_flags(tokens: list[str]) -> tuple[CliCommand | None, str | None, list[str]] | None:
+    """Split one-shot tokens into (command, name, leftover tokens).
 
-    A token is a flag only when it exactly equals a known long/short flag or
-    `--continue`; everything else stays in the leftovers, so free-form
-    requests may safely contain dashes. Returns None for conflicting or
-    incomplete flag usage.
+    A token is a flag only when it exactly equals a known long/short flag;
+    everything else stays in the leftovers, so free-form requests may safely
+    contain dashes. A 'request' argument (the resume flag) consumes no name:
+    its leftover tokens become the request. Returns None for conflicting
+    flag usage.
     """
     command: CliCommand | None = None
-    continue_latest = False
     name: str | None = None
     rest: list[str] = []
 
@@ -43,13 +42,6 @@ def _scan_flags(tokens: list[str]) -> tuple[CliCommand | None, bool, str | None,
     while index < len(tokens):
         arg = tokens[index]
 
-        if arg == '--continue':
-            if command is not None or continue_latest:
-                return None
-            continue_latest = True
-            index += 1
-            continue
-
         matched = flag_lookup(arg)
 
         if matched is None:
@@ -57,7 +49,7 @@ def _scan_flags(tokens: list[str]) -> tuple[CliCommand | None, bool, str | None,
             index += 1
             continue
 
-        if command is not None or continue_latest:
+        if command is not None:
             return None
 
         command = matched
@@ -73,16 +65,11 @@ def _scan_flags(tokens: list[str]) -> tuple[CliCommand | None, bool, str | None,
                 name = tokens[index]
                 index += 1
 
-    return command, continue_latest, name, rest
+    return command, name, rest
 
 
-def _plan_for(
-    command: CliCommand | None, continue_latest: bool, name: str | None, request: str
-) -> OneShotPlan | None:
+def _plan_for(command: CliCommand | None, name: str | None, request: str) -> OneShotPlan | None:
     """Turn scanned flag parts into an action plan, or None for bad combos."""
-    if continue_latest:
-        return OneShotPlan(request=request, continue_latest=True) if request else None
-
     if command is None:
         return OneShotPlan(request=request, repl=not request)
 
@@ -105,6 +92,6 @@ def parse_one_shot(tokens: list[str]) -> OneShotPlan | None:
     if scanned is None:
         return None
 
-    command, continue_latest, name, rest = scanned
+    command, name, rest = scanned
 
-    return _plan_for(command, continue_latest, name, ' '.join(rest))
+    return _plan_for(command, name, ' '.join(rest))

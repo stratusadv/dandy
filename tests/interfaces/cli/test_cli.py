@@ -14,6 +14,7 @@ from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.interfaces.cli.cli import DandyCli
 from dandy.interfaces.cli.tui.banner import session_banner_line
 from dandy.interfaces.cli.tui.tui import tui
+from dandy.domain.skill.skill import BaseSkill
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
@@ -25,6 +26,15 @@ def _make_agent_session(last_request: str) -> AgentSession:
     return AgentSession(last_request=last_request)
 
 
+def _construct_cli() -> DandyCli:
+    """Build a DandyCli with skill loading stubbed out for hermeticity."""
+    with (
+        mock.patch('dandy.interfaces.cli.cli.load_cli_skills', return_value=([], [])),
+        mock.patch.object(tui.printer, 'welcome'),
+    ):
+        return DandyCli()
+
+
 class TestDandyCli(TestCase):
     def setUp(self) -> None:
         self.temp_directory_context = TemporaryDirectory()
@@ -32,10 +42,14 @@ class TestDandyCli(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        with mock.patch.object(tui.printer, 'welcome'):
-            self.cli = DandyCli()
+        self.banner_loader_patcher = mock.patch(
+            'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=([], [])
+        )
+        self.banner_loader_patcher.start()
+        self.cli = _construct_cli()
 
     def tearDown(self) -> None:
+        self.banner_loader_patcher.stop()
         session.project_base_path = self.original_project_base_path
         self.temp_directory_context.cleanup()
 
@@ -157,7 +171,7 @@ class TestDandyCli(TestCase):
         mock_turn: mock.MagicMock,
     ) -> None:
         with mock.patch.object(settings, 'DEBUG', new=True):
-            self.cli = DandyCli()
+            self.cli = _construct_cli()
 
         self.cli.process_agent_input('do something')
 
@@ -173,7 +187,7 @@ class TestDandyCli(TestCase):
 
     def test_verbose_callback_is_none_when_debug_is_off(self) -> None:
         with mock.patch.object(settings, 'DEBUG', new=False):
-            self.cli = DandyCli()
+            self.cli = _construct_cli()
 
         self.assertIsNone(self.cli.verbose_callback)
 
@@ -358,7 +372,7 @@ class TestDandyCli(TestCase):
     )
     @mock.patch.object(tui.printer, 'output')
     @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
-    def test_continue_latest_session_runs_turn_and_resaves(
+    def test_run_in_session_without_name_runs_turn_in_the_latest_and_resaves(
         self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
     ) -> None:
         self._run_turn_with_history('Fix the login bug', mock_turn)
@@ -366,23 +380,23 @@ class TestDandyCli(TestCase):
 
         mock_turn.return_value = mock.MagicMock(text='answer')
 
-        self.cli.continue_latest_session('And the database one too')
+        self.cli.run_in_session(None, 'And the database one too')
 
         self.assertEqual(self.cli.active_name, saved_name)
         self.assertEqual(mock_turn.call_args[0][0], 'And the database one too')
         continued_lines = [call.args[0] for call in mock_output.call_args_list]
-        self.assertIn(f'Continuing session "{saved_name}".', continued_lines)
+        self.assertIn(f'Resumed session "{saved_name}".', continued_lines)
         self.assertFalse(any(line.startswith('Saved session') for line in continued_lines))
         self.assertEqual(self.cli.session_store.load(saved_name).last_request, 'Fix the login bug')
 
     @mock.patch.object(tui.printer, 'error')
-    def test_continue_latest_session_without_sessions_reports_error(
+    def test_run_in_session_without_name_and_no_sessions_reports_error(
         self, mock_error: mock.MagicMock
     ) -> None:
-        self.cli.continue_latest_session('Do something')
+        self.cli.run_in_session(None, 'Do something')
 
         mock_error.assert_called_once_with(
-            error='No session to continue',
+            error='No session to resume',
             description='There are no saved sessions for this project yet.',
         )
 
@@ -526,10 +540,38 @@ class TestDandyCli(TestCase):
         self.assertIn(self.cli.session_store.latest(), description)
 
     @mock.patch.object(tui.printer, 'error')
-    def test_resume_without_name_reports_usage(self, mock_error: mock.MagicMock) -> None:
+    def test_resume_without_name_and_no_sessions_reports_error(
+        self, mock_error: mock.MagicMock
+    ) -> None:
         self.cli.process_user_input('/resume')
 
-        mock_error.assert_called_once_with(error='Usage', description='/resume <name>')
+        mock_error.assert_called_once_with(
+            error='No session to resume',
+            description='There are no saved sessions for this project yet.',
+        )
+
+    @mock.patch(
+        'dandy.interfaces.cli.cli.session_name_for_request',
+        return_value='Fixing The Broken Login Flow',
+    )
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    def test_resume_without_name_loads_the_latest_session(
+        self, mock_turn: mock.MagicMock, mock_output: mock.MagicMock, _mock_naming: mock.MagicMock
+    ) -> None:
+        self._run_turn_with_history('Fix the login bug', mock_turn)
+        saved_name = self.cli.active_name
+
+        self.cli.agent.clear()
+
+        with mock.patch.object(self.cli.agent, 'load_session') as mock_load_session:
+            self.cli.process_user_input('/resume')
+
+        self.assertEqual(self.cli.active_name, saved_name)
+
+        loaded_session = mock_load_session.call_args[0][0]
+        self.assertEqual(loaded_session.last_request, 'Fix the login bug')
+        self.assertIn(f'Resumed session "{saved_name}"', mock_output.call_args[0][0])
 
     @mock.patch(
         'dandy.interfaces.cli.cli.session_name_for_request',
@@ -751,8 +793,7 @@ class TestCliQuestionWiring(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        with mock.patch.object(tui.printer, 'welcome'):
-            self.cli = DandyCli()
+        self.cli = _construct_cli()
 
     def tearDown(self) -> None:
         session.project_base_path = self.original_project_base_path
@@ -803,3 +844,71 @@ class TestCliQuestionWiring(TestCase):
 
         self.assertEqual(answers, ['blue'])
         self.assertIsNone(gate.pending)
+
+
+class TestDandyCliSkillLoading(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.temp_directory_path = Path(self.temp_directory_context.name)
+        self.original_project_base_path = session.project_base_path
+        session.project_base_path = self.temp_directory_path
+
+    def tearDown(self) -> None:
+        session.project_base_path = self.original_project_base_path
+        self.temp_directory_context.cleanup()
+
+    @staticmethod
+    def _file_skill(
+        name: str, prompt: str, active: bool = True, description: str = ''
+    ) -> BaseSkill:
+        skill = BaseSkill(active=active)
+        skill.name = name
+        skill.description = description
+        skill.prompt = prompt
+        skill.tools = []
+        return skill
+
+    def test_loaded_skills_are_registered_with_the_agent(self) -> None:
+        skills = [
+            self._file_skill('alpha', 'Always do alpha things.'),
+            self._file_skill('beta', 'Do beta things.', active=False, description='Beta help.'),
+        ]
+
+        with (
+            mock.patch('dandy.interfaces.cli.cli.load_cli_skills', return_value=(skills, [])),
+            mock.patch.object(tui.printer, 'welcome'),
+        ):
+            cli = DandyCli()
+
+        self.assertEqual([skill.name for skill in cli.agent.skills], ['alpha', 'beta'])
+
+        section = cli.agent.bot.llm.skills.system_prompt_section()
+        self.assertIn('Always do alpha things.', section)
+        self.assertIn('Beta help.', section)
+
+        self.assertIn('activate_skill', cli.agent.bot.llm.skills.all_tool_names())
+
+    def test_skill_issues_print_a_notice(self) -> None:
+        skills = [self._file_skill('alpha', 'Do alpha.')]
+        issues = ['/bad/SKILL.md: missing frontmatter closing "---" fence']
+
+        with (
+            mock.patch('dandy.interfaces.cli.cli.load_cli_skills', return_value=(skills, issues)),
+            mock.patch.object(tui.printer, 'welcome'),
+            mock.patch.object(tui.printer, 'error') as mock_error,
+        ):
+            cli = DandyCli()
+
+        mock_error.assert_called_once_with(error='Skill skipped', description=issues[0])
+        self.assertEqual([skill.name for skill in cli.agent.skills], ['alpha'])
+
+    def test_no_skills_registers_nothing(self) -> None:
+        with (
+            mock.patch('dandy.interfaces.cli.cli.load_cli_skills', return_value=([], [])),
+            mock.patch.object(tui.printer, 'welcome'),
+        ):
+            cli = DandyCli()
+
+        self.assertEqual(cli.agent.skills, [])
+        self.assertEqual(cli.agent.bot.llm.skills.system_prompt_section(), '')
+        self.assertEqual(cli.agent.bot.llm.skills.all_tool_names(), set())

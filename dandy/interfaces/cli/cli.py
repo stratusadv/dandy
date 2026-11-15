@@ -6,6 +6,7 @@ from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
+from dandy.application.skill.loader import load_cli_skills
 from dandy.interfaces.cli.commands import command_choices, resolve
 from dandy.interfaces.cli.error_log import log_cli_error
 from dandy.interfaces.cli.tui.tui import tui
@@ -40,12 +41,16 @@ def session_name_for_request(naming_bot: SessionNamingBot, request_text: str) ->
 
 class DandyCli:
     def __init__(self) -> None:
-        self.agent = CliAgent(ask_user=self._ask_user)
+        skills, skill_issues = load_cli_skills(session.project_base_path)
+        self.agent = CliAgent(ask_user=self._ask_user, skills=skills)
         self.session_naming_bot = SessionNamingBot()
         self.verbose_callback = DandyCli._emit_verbose if DandyCli._is_debug_enabled() else None
         self.session_store = SessionStore.for_project(session.project_base_path)
         self.active_name: str | None = None
         self.last_turn_succeeded: bool = True
+
+        for issue in skill_issues:
+            tui.printer.error(error='Skill skipped', description=issue)
 
     @staticmethod
     def _is_debug_enabled() -> bool:
@@ -146,7 +151,7 @@ class DandyCli:
 
     def _process_resume(self, name: str) -> bool:
         if not name:
-            tui.printer.error(error='Usage', description='/resume <name>')
+            self.load_latest_session()
             return True
 
         self.load_named_session(name)
@@ -170,6 +175,19 @@ class DandyCli:
         tui.printer.output(f'Resumed session "{name}".')
 
         return True
+
+    def load_latest_session(self) -> bool:
+        """Load the project's most recently saved session into the agent, if any."""
+        latest_name = self.session_store.latest()
+
+        if latest_name is None:
+            tui.printer.error(
+                error='No session to resume',
+                description='There are no saved sessions for this project yet.',
+            )
+            return False
+
+        return self.load_named_session(latest_name)
 
     def _process_delete(self, name: str) -> bool:
         if not name:
@@ -200,9 +218,12 @@ class DandyCli:
 
         tui.printer.output(table)
 
-    def run_in_session(self, name: str, request: str) -> bool:
-        """Resume a named session and run one turn inside it (one-shot mode)."""
-        if not self.load_named_session(name):
+    def run_in_session(self, name: str | None, request: str) -> bool:
+        """Resume a saved session (the latest if no name) and run one turn inside it."""
+        if name is None:
+            if not self.load_latest_session():
+                return False
+        elif not self.load_named_session(name):
             return False
 
         self.process_user_input(request)
@@ -280,29 +301,6 @@ class DandyCli:
             self._save_session_after_turn(user_input)
 
         return succeeded
-
-    def continue_latest_session(self, user_input: str) -> bool:
-        """Run one turn inside the project's most recently saved session.
-
-        Returns whether the turn succeeded, so one-shot mode can set the
-        process exit code.
-        """
-        latest_name = self.session_store.latest()
-
-        if latest_name is None:
-            tui.printer.error(
-                error='No session to continue',
-                description='There are no saved sessions for this project yet.',
-            )
-            return False
-
-        self.agent.load_session(self.session_store.load(latest_name))
-        self.active_name = latest_name
-        tui.printer.output(f'Continuing session "{latest_name}".')
-
-        self.process_user_input(user_input)
-
-        return self.last_turn_succeeded
 
     def run_init(self) -> bool:
         """Run the AGENTS.md generation pass, returning whether it succeeded.

@@ -136,10 +136,11 @@ project and the banner's `Model` line confirms the switch.
 |---|---|
 | `dandy` | interactive REPL: every message is one agent turn |
 | `dandy "fix the failing auth test"` | one turn, then exit; auto-saves a session named from the request |
-| `dandy --continue "keep going"` | one turn inside the most recently saved session, re-saved under the same name |
+| `dandy -r "keep going"` | one turn inside the most recently saved session, re-saved under the same name |
 | `dandy -s` | list the saved sessions and exit |
 | `dandy -s <name>` | open the REPL with that session loaded |
 | `dandy -s <name> "keep going"` | one turn inside that named session, re-saved under the same name |
+| `dandy -r` | open the REPL on the most recently saved session |
 | `dandy --init` | explores the project and writes/refreshes `AGENTS.md` |
 
 One-shot modes exit with code `1` when the turn (or the resume) failed, so they
@@ -151,7 +152,7 @@ In the REPL (every command has a one-letter short):
 - `/init` (or `/i`) — create or refresh `AGENTS.md` (folded into the agent's system prompt)
 - `/new [name]` (or `/n [name]`) — start a fresh conversation, optionally pre-named
 - `/sessions [name]` (or `/s [name]`) — table of saved conversations (name, updated, messages, tokens); with a name, load that one
-- `/resume <name>` (or `/r <name>`) — load one back into the agent
+- `/resume [name]` (or `/r [name]`) — load one back into the agent (the most recently saved session if no name is given)
 - `/delete <name>` (or `/d <name>`) — remove a saved conversation
 - `/quit` (or `/q`) — exit; **escape twice** stops a running turn, or exits at the prompt
 
@@ -172,3 +173,8 @@ Everything lives under `<project>/.dandy/`, gitignored by default:
  ├── logs/errors.log               failures with full tracebacks (trimmed to 10000 lines)
  └── dandy.json                    optional project-scoped settings
 ```
+
+The coding agent also reads **skills** from `<project>/.dandy/skills/<name>/SKILL.md`
+(project) and `~/.config/dandy/skills/<name>/SKILL.md` (global; project wins name
+collisions) and folds them into its system prompt — see
+[The CLI Agent - Skills](../user_guide/cli_agent.md#skills).

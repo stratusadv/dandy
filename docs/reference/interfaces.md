@@ -10,9 +10,10 @@ application layer through the same seams the CLI uses.
 
 ## Entry point
 
-`dandy` on the command line. `dandy "do a thing"` runs one turn; `dandy --continue
+`dandy` on the command line. `dandy "do a thing"` runs one turn; `dandy -r
 "do a thing"` runs one turn inside the latest saved session; `dandy -s` lists the
-saved sessions, `dandy -s <name>` opens the REPL on that session, and
+saved sessions, `dandy -s <name>` opens the REPL on that session, `dandy -r`
+opens the REPL on the latest saved session, and
 `dandy -s <name> "do a thing"` runs one turn inside it; `dandy` alone opens the
 interactive REPL; `-h` and `-v` are handled before any settings load. Every
 command has a long and a short one-shot flag (the `-h` table is generated from
@@ -27,7 +28,8 @@ the [command registry](#the-command-registry)).
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,
 optionally pre-named), `/sessions [name]` (list saved sessions, or load one by
-name), `/resume <name>`, `/delete <name>`, and `/quit` (or `/exit`), and every
+name), `/resume [name]` (load one by name, or the most recently saved one if
+no name is given), `/delete <name>`, and `/quit` (or `/exit`), and every
 command also has a one-letter short (`/n`, `/s`, `/r`, `/d`, `/q` — `/i` for
 `/init`); escape twice stops a running turn and, at the prompt, exits the REPL.
 The welcome banner shows a session-status line.

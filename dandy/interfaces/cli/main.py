@@ -37,7 +37,10 @@ def _dispatch_repl(cli: 'DandyCli', plan: OneShotPlan) -> int:
 
         name = plan.name
 
-        if name is None or not cli.load_named_session(name):
+        if name is None:
+            if plan.command != 'resume' or not cli.load_latest_session():
+                return 1
+        elif not cli.load_named_session(name):
             return 1
 
     if plan.command == 'new':
@@ -50,10 +53,6 @@ def _dispatch_repl(cli: 'DandyCli', plan: OneShotPlan) -> int:
 
 def _dispatch_one_shot(cli: 'DandyCli', plan: OneShotPlan) -> int:
     print_banner()
-
-    if plan.continue_latest:
-        succeeded = cli.continue_latest_session(plan.request)
-        return 0 if succeeded else 1
 
     if plan.command is None:
         cli.process_user_input(user_input=plan.request)
@@ -68,11 +67,11 @@ def _dispatch_one_shot(cli: 'DandyCli', plan: OneShotPlan) -> int:
         return 0
     elif plan.command == 'new':
         succeeded = cli.run_new_one_shot(name, plan.request)
+    elif plan.command in {'sessions', 'resume'}:
+        succeeded = cli.run_in_session(name, plan.request)
     elif name is None:
         print_usage()
         return 0
-    elif plan.command in {'sessions', 'resume'}:
-        succeeded = cli.run_in_session(name, plan.request)
     elif plan.command == 'delete':
         succeeded = cli.run_delete(name)
 

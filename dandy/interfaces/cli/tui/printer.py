@@ -18,6 +18,7 @@ from dandy.interfaces.cli.tui.banner import (
     agents_md_banner_line,
     format_verbose_duration,
     session_banner_line,
+    skills_banner_line,
 )
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
 from dandy.interfaces.cli.tui.story_progress import StoryProgress
@@ -64,6 +65,9 @@ class Printer:
         print(
             self.term.bold_blue('Sessions     : ')
             + session_banner_line(SessionStore.for_project(session.project_base_path))
+        )
+        print(
+            self.term.bold_blue('Skills       : ') + skills_banner_line(session.project_base_path)
         )
 
     def run_timed_task(

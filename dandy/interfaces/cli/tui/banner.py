@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from dandy.shared.constants import AGENTS_MD_FILE_NAME
 from dandy.application.agent.session_store import SessionStore
+from dandy.application.skill.loader import load_cli_skills
+from dandy.shared.constants import AGENTS_MD_FILE_NAME
 
 
 def format_verbose_duration(seconds: float) -> str:
@@ -54,3 +55,16 @@ def session_banner_line(store: SessionStore) -> str:
     session_count = len(store.list_sessions())
 
     return f'{session_count} saved, latest: {latest_name} - resume it with /resume {latest_name}'
+
+
+def skills_banner_line(project_base_path: Path) -> str:
+    """The welcome banner line summarizing the skills loaded for the agent."""
+    skills, _issues = load_cli_skills(project_base_path)
+
+    if not skills:
+        return 'none found - drop SKILL.md folders in .dandy/skills/'
+
+    active_count = sum(1 for skill in skills if skill.active)
+    passive_count = len(skills) - active_count
+
+    return f'{len(skills)} loaded ({active_count} active, {passive_count} passive)'

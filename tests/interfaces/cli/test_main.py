@@ -22,7 +22,7 @@ class TestCliMain(TestCase):
 
         self.assertIn('Usage:', out.getvalue())
         self.assertIn('dandy "<your request>"', out.getvalue())
-        self.assertIn('dandy --continue "<request>"', out.getvalue())
+        self.assertIn('dandy --resume "<request>", -r "<request>"', out.getvalue())
         self.assertIn('dandy --init', out.getvalue())
         mock_check_settings.assert_not_called()
 
@@ -73,7 +73,7 @@ class TestCliMain(TestCase):
 
         cli_instance = mock_cli_class.return_value
         cli_instance.process_user_input.assert_called_once_with(user_input='do the thing')
-        cli_instance.continue_latest_session.assert_not_called()
+        cli_instance.run_in_session.assert_not_called()
         cli_instance.run.assert_not_called()
 
     @mock.patch('dandy.interfaces.cli.cli.DandyCli')
@@ -97,7 +97,7 @@ class TestCliMain(TestCase):
     @mock.patch.object(cli_main, 'session')
     @mock.patch.object(cli_main, 'check_or_create_settings')
     @mock.patch.object(settings, 'reload_from_os')
-    def test_one_shot_continue_runs_in_the_latest_session(
+    def test_one_shot_resume_runs_in_the_latest_session(
         self,
         _mock_reload: mock.MagicMock,
         _mock_check_settings: mock.MagicMock,
@@ -105,13 +105,13 @@ class TestCliMain(TestCase):
         mock_cli_class: mock.MagicMock,
     ) -> None:
         with (
-            mock.patch.object(sys, 'argv', ['dandy', '--continue', 'keep', 'going']),
+            mock.patch.object(sys, 'argv', ['dandy', '-r', 'keep', 'going']),
             redirect_stdout(StringIO()),
         ):
             cli_main.main()
 
         cli_instance = mock_cli_class.return_value
-        cli_instance.continue_latest_session.assert_called_once_with('keep going')
+        cli_instance.run_in_session.assert_called_once_with(None, 'keep going')
         cli_instance.process_user_input.assert_not_called()
         cli_instance.run.assert_not_called()
 
@@ -161,7 +161,7 @@ class TestCliMain(TestCase):
     @mock.patch.object(cli_main, 'session')
     @mock.patch.object(cli_main, 'check_or_create_settings')
     @mock.patch.object(settings, 'reload_from_os')
-    def test_continue_mode_exits_with_the_turn_outcome(
+    def test_resume_mode_exits_with_the_turn_outcome(
         self,
         _mock_reload: mock.MagicMock,
         _mock_check_settings: mock.MagicMock,
@@ -169,20 +169,20 @@ class TestCliMain(TestCase):
         mock_cli_class: mock.MagicMock,
     ) -> None:
         cli_instance = mock_cli_class.return_value
-        cli_instance.continue_latest_session.return_value = True
+        cli_instance.run_in_session.return_value = True
 
         with (
-            mock.patch.object(sys, 'argv', ['dandy', '--continue', 'keep', 'going']),
+            mock.patch.object(sys, 'argv', ['dandy', '-r', 'keep', 'going']),
             redirect_stdout(StringIO()),
         ):
             exit_code = cli_main.main()
 
         self.assertEqual(exit_code, 0)
 
-        cli_instance.continue_latest_session.return_value = False
+        cli_instance.run_in_session.return_value = False
 
         with (
-            mock.patch.object(sys, 'argv', ['dandy', '--continue', 'keep', 'going']),
+            mock.patch.object(sys, 'argv', ['dandy', '-r', 'keep', 'going']),
             redirect_stdout(StringIO()),
         ):
             exit_code = cli_main.main()
@@ -210,7 +210,7 @@ class TestCliMain(TestCase):
         cli_instance = mock_cli_class.return_value
         cli_instance.run_init.assert_called_once_with()
         cli_instance.process_user_input.assert_not_called()
-        cli_instance.continue_latest_session.assert_not_called()
+        cli_instance.run_in_session.assert_not_called()
         cli_instance.run.assert_not_called()
 
     @mock.patch('dandy.interfaces.cli.cli.DandyCli')
@@ -251,25 +251,6 @@ class TestCliMain(TestCase):
         mock_check_settings.assert_not_called()
         mock_cli_class.assert_not_called()
 
-    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
-    @mock.patch.object(cli_main, 'session')
-    @mock.patch.object(cli_main, 'check_or_create_settings')
-    def test_bare_continue_flag_prints_usage(
-        self,
-        mock_check_settings: mock.MagicMock,
-        _mock_session: mock.MagicMock,
-        mock_cli_class: mock.MagicMock,
-    ) -> None:
-        with (
-            mock.patch.object(sys, 'argv', ['dandy', '--continue']),
-            redirect_stdout(StringIO()) as out,
-        ):
-            cli_main.main()
-
-        self.assertIn('Usage:', out.getvalue())
-        mock_check_settings.assert_not_called()
-        mock_cli_class.assert_not_called()
-
 
 class TestParseOneShot(TestCase):
     def test_bare_call_is_the_repl(self) -> None:
@@ -294,13 +275,11 @@ class TestParseOneShot(TestCase):
         self.assertEqual(plan.request, '-q')
         self.assertIsNone(plan.command)
 
-    def test_continue_needs_a_request(self) -> None:
-        self.assertIsNone(parse_one_shot(['--continue']))
-
+    def test_old_continue_word_is_now_plain_request_text(self) -> None:
         plan = parse_one_shot(['--continue', 'keep', 'going'])
 
-        self.assertTrue(plan.continue_latest)
-        self.assertEqual(plan.request, 'keep going')
+        self.assertEqual(plan.request, '--continue keep going')
+        self.assertIsNone(plan.command)
 
     def test_init_flag_stands_alone(self) -> None:
         self.assertEqual(parse_one_shot(['-i']).command, 'init')
@@ -330,24 +309,33 @@ class TestParseOneShot(TestCase):
         self.assertEqual(plan.request, 'do it')
         self.assertFalse(plan.repl)
 
-    def test_resume_flag_requires_a_name(self) -> None:
-        self.assertIsNone(parse_one_shot(['-r']))
-        self.assertIsNone(parse_one_shot(['--resume', '--continue']))
+    def test_bare_resume_flag_is_a_repl_resume_of_the_latest(self) -> None:
+        for tokens in (['-r'], ['--resume']):
+            plan = parse_one_shot(tokens)
 
-    def test_resume_flag_with_name_only_is_a_repl_resume(self) -> None:
+            self.assertEqual(plan.command, 'resume')
+            self.assertIsNone(plan.name)
+            self.assertTrue(plan.repl)
+
+    def test_resume_flag_with_request_runs_one_turn_in_the_latest(self) -> None:
         plan = parse_one_shot(['--resume', 'my-session'])
 
         self.assertEqual(plan.command, 'resume')
-        self.assertEqual(plan.name, 'my-session')
-        self.assertTrue(plan.repl)
+        self.assertIsNone(plan.name)
+        self.assertEqual(plan.request, 'my-session')
+        self.assertFalse(plan.repl)
 
-    def test_resume_flag_with_name_and_request_runs_a_turn(self) -> None:
+    def test_resume_flag_keeps_every_leftover_token_in_the_request(self) -> None:
         plan = parse_one_shot(['-r', 'my-session', 'do', 'it'])
 
         self.assertEqual(plan.command, 'resume')
-        self.assertEqual(plan.name, 'my-session')
-        self.assertEqual(plan.request, 'do it')
+        self.assertIsNone(plan.name)
+        self.assertEqual(plan.request, 'my-session do it')
         self.assertFalse(plan.repl)
+
+    def test_resume_flag_conflicts_with_other_action_flags(self) -> None:
+        self.assertIsNone(parse_one_shot(['-r', '-s']))
+        self.assertIsNone(parse_one_shot(['--resume', '--init']))
 
     def test_delete_flag_requires_a_name_and_no_request(self) -> None:
         self.assertIsNone(parse_one_shot(['-d']))
@@ -379,8 +367,7 @@ class TestParseOneShot(TestCase):
 
     def test_conflicting_action_flags_print_usage(self) -> None:
         self.assertIsNone(parse_one_shot(['-s', 'x', '-r', 'y']))
-        self.assertIsNone(parse_one_shot(['--continue', 'x', '--init']))
-        self.assertIsNone(parse_one_shot(['-s', '--continue', 'x']))
+        self.assertIsNone(parse_one_shot(['-r', 'x', '--init']))
         self.assertIsNone(parse_one_shot(['-s', 'x', '-s', 'y']))
 
 
@@ -484,7 +471,7 @@ class TestOneShotCommandFlags(TestCase):
     @mock.patch.object(cli_main, 'session')
     @mock.patch.object(cli_main, 'check_or_create_settings')
     @mock.patch.object(settings, 'reload_from_os')
-    def test_resume_flag_with_name_and_request_runs_one_turn_in_it(
+    def test_resume_flag_with_request_runs_one_turn_in_the_latest_session(
         self,
         _mock_reload: mock.MagicMock,
         _mock_check_settings: mock.MagicMock,
@@ -502,7 +489,49 @@ class TestOneShotCommandFlags(TestCase):
         self.assertEqual(exit_code, 1)
 
         cli_instance = mock_cli_class.return_value
-        cli_instance.run_in_session.assert_called_once_with('my-session', 'do the thing')
+        cli_instance.run_in_session.assert_called_once_with(None, 'my-session do the thing')
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_bare_resume_flag_opens_the_repl_on_the_latest_session(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.load_latest_session.return_value = True
+
+        with mock.patch.object(sys, 'argv', ['dandy', '-r']), redirect_stdout(StringIO()):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 0)
+
+        cli_instance = mock_cli_class.return_value
+        cli_instance.load_latest_session.assert_called_once_with()
+        cli_instance.load_named_session.assert_not_called()
+        cli_instance.run.assert_called_once_with()
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
+    def test_bare_resume_flag_without_saved_sessions_exits_nonzero(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.load_latest_session.return_value = False
+
+        with mock.patch.object(sys, 'argv', ['dandy', '--resume']), redirect_stdout(StringIO()):
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 1)
+        mock_cli_class.return_value.run.assert_not_called()
 
     @mock.patch('dandy.interfaces.cli.cli.DandyCli')
     @mock.patch.object(cli_main, 'session')

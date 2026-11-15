@@ -137,7 +137,7 @@ count). `load_session(session)` restores the history into a fresh
 
 The [CLI agent](cli_agent.md)'s REPL is the built-in consumer: it auto-saves
 after every turn and exposes the store through the `/new`, `/sessions`, `/resume`,
-and `/delete` commands plus the one-shot `--continue` flag.
+and `/delete` commands plus the one-shot `dandy -r "<request>"` form.
 
 ## Relationship to Bot and to the CLI agent
 

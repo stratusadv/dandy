@@ -81,6 +81,17 @@ passive skill is unactivated. Access via `bot.llm.skills`.
 
 ::: dandy.application.skill.tools.ActivateSkillTool
 
+### Skill file loader
+
+Loads prompt-only skills from `SKILL.md` files (the CLI skill directories, see
+[The CLI Agent - Skills](../user_guide/cli_agent.md#skills)):
+
+::: dandy.application.skill.loader.load_skill_files
+
+::: dandy.application.skill.loader.load_cli_skills
+
+::: dandy.application.skill.loader.parse_skill_file
+
 ## Decision
 
 The "pick one of these" use case, documented in [Decision](../user_guide/decision.md).

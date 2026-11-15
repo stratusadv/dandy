@@ -9,7 +9,11 @@ from blessed import Terminal
 from blessed.keyboard import Keystroke
 
 from dandy.application.agent.session import session
-from dandy.interfaces.cli.tui.banner import agents_md_banner_line, format_verbose_duration
+from dandy.interfaces.cli.tui.banner import (
+    agents_md_banner_line,
+    format_verbose_duration,
+    skills_banner_line,
+)
 from dandy.interfaces.cli.tui.printer import Printer
 from dandy.interfaces.cli.tui.story_progress import StoryProgress
 from dandy.interfaces.cli.tui.text import linkify_file_paths
@@ -61,6 +65,29 @@ class TestAgentsMdBannerLine(TestCase):
             agents_md_banner_line(self.project_base_path),
             'found (2.0 KB) - loaded into the agent system prompt',
         )
+
+
+class TestSkillsBannerLine(TestCase):
+    def test_banner_line_when_no_skills_are_found(self) -> None:
+        with mock.patch('dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=([], [])):
+            self.assertEqual(
+                skills_banner_line(Path('/nonexistent')),
+                'none found - drop SKILL.md folders in .dandy/skills/',
+            )
+
+    def test_banner_line_counts_active_and_passive_skills(self) -> None:
+        skills = [
+            mock.MagicMock(active=True),
+            mock.MagicMock(active=True),
+            mock.MagicMock(active=False),
+        ]
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
+        ):
+            self.assertEqual(
+                skills_banner_line(Path('/nonexistent')), '3 loaded (2 active, 1 passive)'
+            )
 
 
 class TestPrinterStory(TestCase):

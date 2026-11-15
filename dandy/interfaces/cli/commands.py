@@ -6,8 +6,11 @@ class CliCommand:
     """One CLI command as used by both the REPL (`/name`) and one-shot mode (flags).
 
     `argument` is 'none', 'optional', or 'required' and names the session
-    name the command works on; `flag`/`short_flag` are the one-shot forms
-    (absent for commands that have no one-shot meaning, like quit).
+    name the command works on; 'request' marks the resume flag, whose
+    one-shot form runs the leftover tokens as a request inside the latest
+    saved session (a bare flag opens the REPL on it). `flag`/`short_flag`
+    are the one-shot forms (absent for commands that have no one-shot
+    meaning, like quit).
     """
 
     name: str
@@ -31,7 +34,9 @@ CLI_COMMANDS = (
         'optional',
         'List saved sessions, or resume one by name',
     ),
-    CliCommand('resume', 'r', '--resume', '-r', 'required', 'Resume a saved session by name'),
+    CliCommand(
+        'resume', 'r', '--resume', '-r', 'request', 'Run one request inside the latest session'
+    ),
     CliCommand('delete', 'd', '--delete', '-d', 'required', 'Delete a saved session by name'),
     CliCommand('quit', 'q', None, None, 'none', 'Exit the assistant'),
 )
@@ -79,4 +84,6 @@ def flag_usage(command: CliCommand) -> str | None:
         return f'{command.flag} <name>, {command.short_flag} <name>'
     if command.argument == 'optional':
         return f'{command.flag} [name], {command.short_flag} [name]'
+    if command.argument == 'request':
+        return f'{command.flag} "<request>", {command.short_flag} "<request>"'
     return f'{command.flag}, {command.short_flag}'

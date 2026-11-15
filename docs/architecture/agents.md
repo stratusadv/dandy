@@ -255,16 +255,18 @@ The save is in a `finally` block on purpose: a turn saves regardless of outcome
 - **Commands:** `/init` (the AGENTS.md generation pass), `/new [name]` (fresh
   conversation, optionally pre-naming its session), `/sessions [name]` (a table of
   name/updated/messages/tokens/model, or — with a name — loads that session),
-  `/resume <name>`, `/delete <name>`,
+  `/resume [name]` (the most recently saved session if no name is given),
+  `/delete <name>`,
   `/quit`/`/exit` (anything else reports "Unknown command"); every command also
   has a one-letter short (`/i`, `/n`, `/s`, `/r`, `/d`, `/q`), all read from the
   shared `CLI_COMMANDS` registry in `dandy/interfaces/cli/commands.py`.
 - **One-shot mode:** `dandy "<request>"` runs the same `process_user_input` path for a
   single turn (auto-saving a new session named from the request); the process exits
-  with code 1 when the turn failed. `dandy --continue "<request>"` loads the most
+  with code 1 when the turn failed. `dandy -r "<request>"` loads the most
   recently saved session, runs the one turn inside it, and re-saves it under the same
   name. `dandy -s` lists the saved sessions, `dandy -s <name>` opens the REPL on that
-  session, and `dandy -s <name> "<request>"` runs the one turn inside it (the other
+  session, `dandy -r` opens the REPL on the most recently saved session, and
+  `dandy -s <name> "<request>"` runs the one turn inside it (the other
   commands have long and short flags too: `--new`/`-n`, `--resume`/`-r`,
   `--delete`/`-d`, `--init`/`-i`). `dandy --init` runs the AGENTS.md pass and exits 1 when the file was not
   written.

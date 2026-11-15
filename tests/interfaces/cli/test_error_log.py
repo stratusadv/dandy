@@ -94,7 +94,10 @@ class TestCliErrorLogIntegration(TestCase):
         self.original_project_base_path = session.project_base_path
         session.project_base_path = self.temp_directory_path
 
-        with mock.patch.object(tui.printer, 'welcome'):
+        with (
+            mock.patch('dandy.interfaces.cli.cli.load_cli_skills', return_value=([], [])),
+            mock.patch.object(tui.printer, 'welcome'),
+        ):
             self.cli = DandyCli()
 
     def tearDown(self) -> None:
