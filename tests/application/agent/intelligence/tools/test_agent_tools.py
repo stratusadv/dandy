@@ -1,13 +1,19 @@
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
+from zoneinfo import ZoneInfo
 
+from dandy.application.agent.intelligence.tools import AGENT_TOOLS
+from dandy.application.agent.intelligence.tools.clock.clock_tool import ClockTool
 from dandy.application.agent.intelligence.tools.command.command_tool import RunCommandTool
 from dandy.application.agent.intelligence.tools.git.git_diff_tool import GitDiffTool
 from dandy.application.agent.intelligence.tools.git.git_status_tool import GitStatusTool
 from dandy.application.agent.intelligence.tools.file.search_tool import SearchFilesTool
 from dandy.application.agent.session import session
 from dandy.shared.cancellation import stop_signal
+
+_CLOCK_DATETIME = 'dandy.application.agent.intelligence.tools.clock.clock_tool.datetime'
 
 
 class TestSearchFilesTool(TestCase):
@@ -172,6 +178,51 @@ class TestGitTools(TestCase):
         self.assertIn('outside the project', result)
 
 
+class TestClockTool(TestCase):
+    def test_handle_returns_local_date_and_time(self) -> None:
+        fixed_now = datetime(2026, 11, 13, 14, 35, 7, tzinfo=ZoneInfo('UTC'))
+
+        with mock.patch(_CLOCK_DATETIME) as mock_datetime:
+            mock_datetime.now.return_value = fixed_now
+
+            result = ClockTool().handle()
+
+        self.assertEqual(result, 'Friday, 2026-11-13 14:35:07 UTC')
+
+    def test_handle_passes_requested_timezone(self) -> None:
+        fixed_now = datetime(2026, 11, 13, 14, 35, 7, tzinfo=ZoneInfo('UTC'))
+
+        def fake_now(tz: ZoneInfo | None = None) -> datetime:
+            return fixed_now.astimezone(tz)
+
+        with mock.patch(_CLOCK_DATETIME) as mock_datetime:
+            mock_datetime.now.side_effect = fake_now
+
+            result = ClockTool().handle(timezone='America/New_York')
+
+        mock_datetime.now.assert_called_once_with(ZoneInfo('America/New_York'))
+        self.assertEqual(result, 'Friday, 2026-11-13 09:35:07 EST')
+
+    def test_handle_naive_local_time_is_reported_with_zone(self) -> None:
+        fixed_now = datetime(2026, 11, 13, 14, 35, 7)  # noqa: DTZ001 - naive local time is the case under test
+
+        with mock.patch(_CLOCK_DATETIME) as mock_datetime:
+            mock_datetime.now.return_value = fixed_now
+
+            result = ClockTool().handle()
+
+        self.assertTrue(result.endswith(fixed_now.astimezone().tzname()))
+
+    def test_handle_unknown_timezone_returns_error(self) -> None:
+        result = ClockTool().handle(timezone='Not/AZone')
+
+        self.assertIn('Error getting time', result)
+        self.assertIn('Not/AZone', result)
+
+    def test_clock_tool_is_part_of_agent_tools(self) -> None:
+        self.assertIn(ClockTool, AGENT_TOOLS)
+
+
 class TestToolActionLabelsAndOutputs(TestCase):
     def test_search_output_names_query_and_path(self) -> None:
         tool = SearchFilesTool()
@@ -196,7 +247,14 @@ class TestToolActionLabelsAndOutputs(TestCase):
         self.assertIsNone(GitDiffTool().action_output())
         self.assertEqual(GitDiffTool().action_output(path='src/foo.py'), 'for src/foo.py')
 
+    def test_clock_labels_and_outputs_describe_the_action(self) -> None:
+        self.assertEqual(ClockTool().action_label, 'Getting current time')
+        self.assertIsNone(ClockTool().action_output())
+        self.assertIsNone(ClockTool().action_output(timezone='local'))
+        self.assertEqual(ClockTool().action_output(timezone='UTC'), 'in UTC')
+
     def test_can_mutate_state_flags_the_command_tool(self) -> None:
         self.assertTrue(RunCommandTool().can_mutate_state)
         self.assertFalse(GitStatusTool().can_mutate_state)
         self.assertFalse(GitDiffTool().can_mutate_state)
+        self.assertFalse(ClockTool().can_mutate_state)

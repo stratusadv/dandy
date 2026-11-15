@@ -81,6 +81,8 @@ project-aware toolset (`dandy/application/agent/intelligence/tools/`):
   `create_directory`, `list_directory`, plus `search_files` (grep-style, skipping
   `.git`/`.dandy`/`node_modules`/`.venv`/`__pycache__`, capped output).
 - **Commands** — `run_command` (no user confirmation), `git_status`, `git_diff`.
+- **Clock** — `get_time` (the local date and time, or the date and time in a
+  named IANA timezone such as `UTC` or `America/New_York`).
 - **Questions** — `question`, on the CLI agent only (the init pass does
   not ask): the model pauses the turn, shows you a question with
   optional numbered choices, and waits for your answer (a choice number or

@@ -187,7 +187,7 @@ the file is part of the system message for every turn. `InitBot` deliberately do
 pointed at a project-aware toolset:
 
 ```python
-AGENT_TOOLS = [*CODE_EDITING_TOOLS, *SEARCH_TOOLS, *COMMAND_TOOLS, *GIT_TOOLS]
+AGENT_TOOLS = [*CODE_EDITING_TOOLS, *SEARCH_TOOLS, *COMMAND_TOOLS, *GIT_TOOLS, *CLOCK_TOOLS]
 ```
 
 | Group | Tools |
@@ -196,6 +196,7 @@ AGENT_TOOLS = [*CODE_EDITING_TOOLS, *SEARCH_TOOLS, *COMMAND_TOOLS, *GIT_TOOLS]
 | `SEARCH_TOOLS` | `search_files` (grep-style; skips `.git`/`.dandy`/`node_modules`/`.venv`/`__pycache__`, 1 MB file and 300-char line caps, 8000-char result cap) |
 | `COMMAND_TOOLS` | `run_command` (shell, 30 s default timeout, no user confirmation) |
 | `GIT_TOOLS` | `git_status` (`git status --short`), `git_diff` |
+| `CLOCK_TOOLS` | `get_time` (local date and time, or a named IANA timezone such as `UTC`) |
 
 Three rules make the toolset safe to run unattended:
 
