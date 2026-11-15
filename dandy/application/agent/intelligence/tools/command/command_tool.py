@@ -15,7 +15,7 @@ class RunCommandTool(BaseTool):
         'The command can use shell features such as pipes and environment variables.'
     )
 
-    action_label = 'Executing'
+    action_label = 'Running'
     can_mutate_state = True
 
     timeout_seconds = 30

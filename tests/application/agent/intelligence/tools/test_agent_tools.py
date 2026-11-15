@@ -241,7 +241,7 @@ class TestToolActionLabelsAndOutputs(TestCase):
 
     def test_git_labels_and_outputs_describe_the_action(self) -> None:
         self.assertEqual(GitStatusTool().action_label, 'Checking git status')
-        self.assertIsNone(GitStatusTool().action_output())
+        self.assertEqual(GitStatusTool().action_output(), 'for the working tree')
 
         self.assertEqual(GitDiffTool().action_label, 'Showing git diff')
         self.assertIsNone(GitDiffTool().action_output())

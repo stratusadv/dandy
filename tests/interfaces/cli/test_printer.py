@@ -111,7 +111,10 @@ class TestPrinterStory(TestCase):
         self.assertNotIn('took', frame)
 
     def test_current_frame_renders_description_only_beat_plain(self) -> None:
-        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
             progress = StoryProgress(Terminal(force_styling='default'))
             frame = progress.frame(StoryBeat(description='Checking the forecast now.'))
 
@@ -125,7 +128,10 @@ class TestPrinterStory(TestCase):
         self.assertIn(phrase_line, lines[1])
 
     def test_animating_frame_renders_bold_blue_phrase_on_the_next_line(self) -> None:
-        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
             progress = StoryProgress(Terminal(force_styling='default'))
             beat = StoryBeat(description='Checking the forecast now.')
 
@@ -148,7 +154,8 @@ class TestPrinterStory(TestCase):
 
         with (
             mock.patch(
-                'random.choice', side_effect=['Polishing a Cufflink', 'Dusting a Tailcoat']
+                'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+                side_effect=['Polishing a Cufflink', 'Dusting a Tailcoat'],
             ) as mock_choice,
             mock.patch(
                 'dandy.interfaces.cli.tui.story_progress.perf_counter',
@@ -221,7 +228,10 @@ class TestPrinterStory(TestCase):
             self.assertNotIn(term.bold_grey, frame)
 
     def test_compaction_beat_renders_bold_purple_after_a_blank_line(self) -> None:
-        with mock.patch('random.choice', return_value='Polishing a Cufflink'):
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
             progress = StoryProgress(Terminal(force_styling='default'))
             term = progress.term
             beat = StoryBeat(

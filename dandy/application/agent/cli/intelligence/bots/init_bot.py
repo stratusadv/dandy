@@ -1,4 +1,4 @@
-from dandy.application.agent.cli.intelligence.prompts import init_guidelines_prompt
+from dandy.application.agent.cli.intelligence.prompts.init_prompts import init_guidelines_prompt
 from dandy.application.agent.intelligence.tools import AGENT_TOOLS
 from dandy.application.bot.bot import Bot
 from dandy.shared.settings.load import get_cli_llm_config

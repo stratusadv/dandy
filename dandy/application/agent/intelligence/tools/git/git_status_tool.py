@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from dandy.application.agent.session import session
 from dandy.domain.tool.tool import BaseTool
@@ -14,6 +15,9 @@ class GitStatusTool(BaseTool):
     action_label = 'Checking git status'
 
     timeout_seconds = 10
+
+    def action_output(self, **_kwargs: Any) -> str | None:
+        return 'for the working tree'
 
     @property
     def working_directory(self) -> Path:

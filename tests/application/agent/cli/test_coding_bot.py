@@ -18,6 +18,14 @@ class TestCodingBotToolLoop(TestCase):
         session.project_base_path = self.original_project_base_path
         self.temp_directory_context.cleanup()
 
+    def test_coding_bot_guidelines_include_the_environment_section(self) -> None:
+        (self.temp_directory_path / 'main.py').touch()
+
+        guidelines = CodingBot.build_guidelines()
+
+        self.assertIn('### Environment', guidelines.to_str())
+        self.assertIn(str(self.temp_directory_path), guidelines.to_str())
+
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_coding_bot_reads_then_edits_a_file(self, mock_post_request: mock.MagicMock) -> None:
         target_path = Path(self.temp_directory_path, 'sample.txt')

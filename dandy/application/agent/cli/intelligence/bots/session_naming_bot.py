@@ -1,5 +1,5 @@
 from dandy.application.agent.intel import SessionNameIntel
-from dandy.application.agent.cli.intelligence.prompts import session_name_prompt
+from dandy.application.agent.cli.intelligence.prompts.session_name_prompt import session_name_prompt
 from dandy.application.bot.bot import Bot
 from dandy.shared.settings.load import get_cli_llm_config
 from dandy.domain.prompt.prompt import Prompt
@@ -29,7 +29,7 @@ class SessionNamingBot(Bot):
         )
 
     task = (
-        'Create a short title for the user\'s coding request: 8 to 10 words, '
+        "Create a short title for the user's coding request: 6 to 10 words, "
         'title case, plain words only.'
     )
 

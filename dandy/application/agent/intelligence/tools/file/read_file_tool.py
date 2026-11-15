@@ -17,7 +17,7 @@ class ReadFileTool(BaseTool):
         'Long files are returned truncated; page through them with start_line and end_line.'
     )
 
-    action_label = 'Reading'
+    action_label = 'Viewing'
 
     def action_output(self, **kwargs: Any) -> str:
         file_path = kwargs['file_path']

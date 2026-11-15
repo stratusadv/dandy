@@ -1,10 +1,9 @@
-import random
 import threading
 from time import perf_counter
 
 from blessed import Terminal
 
-from dandy.interfaces.cli.thinking_phrases import THINKING_PHRASES
+from dandy.interfaces.cli.thinking_phrases import thinking_phrase
 from dandy.interfaces.cli.tui.text import linkify_file_paths
 from dandy.domain.tool.beat import StoryBeat
 
@@ -114,7 +113,7 @@ class StoryProgress:
             self._evaluating_phrase is None
             or now - self._evaluating_phrase_since >= EVALUATING_PHRASE_CHANGE_SECONDS
         ):
-            self._evaluating_phrase = random.choice(THINKING_PHRASES)
+            self._evaluating_phrase = thinking_phrase()
             self._evaluating_phrase_since = now
 
         return self._evaluating_phrase
@@ -231,7 +230,7 @@ class StoryProgress:
 
         beat_text = self._styled_description(beat, description_part)
         beat_line = f'{prefix}{beat_text}'
-        evaluating_line = f'{self.term.bold_blue}{phrase}{self.term.normal}'
+        evaluating_line = f'{self.term.bold_grey}{phrase}{self.term.normal}'
 
         if self._live_frame:
             # A narration region's own text begins with a leading newline,

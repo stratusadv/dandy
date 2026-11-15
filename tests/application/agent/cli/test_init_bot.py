@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from dandy.application.agent.cli.intelligence.bots.init_bot import InitBot
 from dandy.application.agent.cli.cli_agent import CliAgent
-from dandy.application.agent.cli.intelligence.prompts import init_prompt
+from dandy.application.agent.cli.intelligence.prompts.init_prompts import init_prompt
 from dandy.application.agent.session import session
 from dandy.shared.settings.load import get_cli_llm_config
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response

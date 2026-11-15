@@ -6,7 +6,7 @@ from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT, Agent
 from dandy.application.agent.cli.agents_md import read_agents_md
 from dandy.application.agent.cli.intelligence.bots.coding_bot import CodingBot
 from dandy.application.agent.cli.intelligence.bots.init_bot import InitBot
-from dandy.application.agent.cli.intelligence.prompts import init_prompt
+from dandy.application.agent.cli.intelligence.prompts.init_prompts import init_prompt
 from dandy.application.agent.session import session
 from dandy.application.agent.intelligence.tools import AGENT_TOOLS
 from dandy.application.agent.intelligence.tools.question import QuestionHandler, QuestionTool
