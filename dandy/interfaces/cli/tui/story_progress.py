@@ -230,7 +230,7 @@ class StoryProgress:
 
         beat_text = self._styled_description(beat, description_part)
         beat_line = f'{prefix}{beat_text}'
-        evaluating_line = f'{self.term.bold_grey}{phrase}{self.term.normal}'
+        evaluating_line = f'{self.term.bold_grey}✦{phrase}{self.term.normal}'
 
         if self._live_frame:
             # A narration region's own text begins with a leading newline,

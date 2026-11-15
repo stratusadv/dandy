@@ -39,7 +39,7 @@ print(intel.capital)  # 'Paris'
 
 The class attributes (`llm_config`, `role`, `task`, `guidelines`, `intel_class`) are the
 Bot's configuration surface. They are enforced at class-creation time by the
-`ServiceCriticalError` guards, so a Bot missing a required attribute fails the moment it
+`ServiceConfigurationError` guards, so a Bot missing a required attribute fails the moment it
 is defined, not on first use.
 
 ## Customizing `process`

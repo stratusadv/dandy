@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Any
 
 from dandy.infrastructure.llm.connector import LlmConnector
 from dandy.domain.decision.exceptions import (
-    DecisionCriticalError,
-    DecisionNoChoicesRecoverableError,
-    DecisionRecoverableError,
-    DecisionTooManyChoicesRecoverableError,
+    DecisionUsageError,
+    DecisionNoChoicesExternalError,
+    DecisionExternalError,
+    DecisionTooManyChoicesExternalError,
 )
 from dandy.domain.decision.intel import (
     DecisionChoiceIntel,
@@ -85,7 +85,7 @@ class Decision:
         for key in keys_values:
             if not isinstance(key, str):
                 message = f'all keys in `keys_values` must be strings to be selected, found {key} ({type(key)}).'
-                raise DecisionCriticalError(message)
+                raise DecisionUsageError(message)
 
         self.keys_description = keys_description
         self.keys_values = keys_values
@@ -135,7 +135,7 @@ class Decision:
                 self._validate_return_keys_intel(return_keys_intel, max_return_values)
                 break
 
-            except DecisionNoChoicesRecoverableError as error:
+            except DecisionNoChoicesExternalError as error:
                 recorder_add_llm_failure_event(error, self.recorder_event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
@@ -146,7 +146,7 @@ class Decision:
                 else:
                     raise
 
-            except DecisionTooManyChoicesRecoverableError as error:
+            except DecisionTooManyChoicesExternalError as error:
                 recorder_add_llm_failure_event(error, self.recorder_event_id)
 
                 if self._llm_connector.has_retry_attempts_available:
@@ -164,7 +164,7 @@ class Decision:
         try:
             self._validate_return_keys_intel(return_keys_intel, max_return_values)
 
-        except DecisionRecoverableError as error:
+        except DecisionExternalError as error:
             recorder_add_llm_failure_event(error, self.recorder_event_id)
             raise
 
@@ -198,8 +198,8 @@ class Decision:
     ) -> None:
         if len(return_keys_intel) == 0:
             message = f'No {self.keys_description} found.'
-            raise DecisionNoChoicesRecoverableError(message)
+            raise DecisionNoChoicesExternalError(message)
 
         if max_return_values is not None and len(return_keys_intel) > max_return_values:
             message = f'Too many {self.keys_description} found.'
-            raise DecisionTooManyChoicesRecoverableError(message)
+            raise DecisionTooManyChoicesExternalError(message)

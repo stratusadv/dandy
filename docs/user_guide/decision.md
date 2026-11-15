@@ -48,13 +48,13 @@ variants run on the thread pool.
 
 ## Rules the decision enforces
 
-1. **All keys must be strings.** Non-string keys raise `DecisionCriticalError` (values
+1. **All keys must be strings.** Non-string keys raise `DecisionUsageError` (values
    can be any type).
 2. **The keys are auto-numbered 1..n** in the prompt, and the model returns the number
    it chose; the framework validates it against the declared answer space.
 3. **Retry with a reason.** An empty selection raises
-   `DecisionNoChoicesRecoverableError` and a too-long one raises
-   `DecisionTooManyChoicesRecoverableError` — each re-prompts the model with a specific
+   `DecisionNoChoicesExternalError` and a too-long one raises
+   `DecisionTooManyChoicesExternalError` — each re-prompts the model with a specific
    instruction until `prompt_retry_count` is exhausted, then re-raises.
 4. **Typed answer space.** `as_enum()` builds a runtime `Enum` from the mapping, so the
    model's choice is validated as an enum member before it is mapped back to your value.

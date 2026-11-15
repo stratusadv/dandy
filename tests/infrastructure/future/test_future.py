@@ -4,7 +4,7 @@ from itertools import combinations
 
 from dandy.application.bot.bot import Bot
 from dandy.infrastructure.future.future import AsyncFuture
-from dandy.infrastructure.future.exceptions import FutureRecoverableError
+from dandy.infrastructure.future.exceptions import FutureExternalError
 from dandy.domain.intel.intel import BaseIntel
 from tests.application.bot.intelligence.bots import ParrotBot, OtherBot
 from tests.consts import live_llm_test
@@ -44,7 +44,7 @@ class TestFuture(TestCase):
         self.assertTrue(perf_counter() - self.start_time <= TEST_FUTURE_PROCESS_TIME)
 
     def test_future_timeout(self):
-        with self.assertRaises(FutureRecoverableError):
+        with self.assertRaises(FutureExternalError):
             squared_future = AsyncFuture(square_number, 5)
             squared_future.set_timeout(0.1)
             _ = squared_future.result

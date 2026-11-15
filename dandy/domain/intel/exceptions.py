@@ -1,9 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyUsageError
 
 
-class IntelCriticalError(DandyCriticalError):
-    pass
-
-
-class IntelRecoverableError(DandyCriticalError):
+class IntelUsageError(DandyUsageError):
     pass

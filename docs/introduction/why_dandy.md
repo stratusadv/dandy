@@ -149,8 +149,8 @@ class CachedEvaluationBot(EmployeeEvaluationBot):
 ## Self-recovery
 
 AI endpoints fail in transient ways — timeouts, rate limits, malformed responses,
-wrong-shape JSON. Dandy classifies every failure as [Critical or
-Recoverable](../user_guide/error_handling.md) and recovers from the recoverable ones
+wrong-shape JSON. Dandy classifies every failure as [Configuration, Usage,
+External, or Flow](../user_guide/error_handling.md) and recovers from the external ones
 automatically:
 
 - A wrong-shape response is re-prompted with the validation errors until

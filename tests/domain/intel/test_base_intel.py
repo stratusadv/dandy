@@ -5,7 +5,7 @@ from dandy.shared.settings import settings
 from dandy.shared.constants import DANDY_LOCAL_DIRECTORY_NAME
 from dandy.shared.files import remove_file
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.intel.exceptions import IntelCriticalError
+from dandy.domain.intel.exceptions import IntelUsageError
 from tests.domain.intel.intelligence.intel import ThingIntel, BagIntel, PersonIntel
 
 
@@ -18,19 +18,19 @@ class TestBaseIntel(TestCase):
         self.assertIsInstance(intel, TestingIntel)
 
     def test_base_intel_include_invalid_field(self):
-        with self.assertRaises(IntelCriticalError):
+        with self.assertRaises(IntelUsageError):
             _ = PersonIntel.model_inc_ex_class_copy(include={'height'})
 
     def test_base_intel_include_with_required_field(self):
-        with self.assertRaises(IntelCriticalError):
+        with self.assertRaises(IntelUsageError):
             _ = PersonIntel.model_inc_ex_class_copy(include={'middle_name'})
 
     def test_base_intel_exclude_with_required_field(self):
-        with self.assertRaises(IntelCriticalError):
+        with self.assertRaises(IntelUsageError):
             _ = PersonIntel.model_inc_ex_class_copy(exclude={'first_name'})
 
     def test_base_intel_include_and_exclude(self):
-        with self.assertRaises(IntelCriticalError):
+        with self.assertRaises(IntelUsageError):
             _ = PersonIntel.model_inc_ex_class_copy(include={'middle_name'}, exclude={'first_name'})
 
     def test_base_intel_include_json_schema(self):
@@ -69,7 +69,7 @@ class TestBaseIntel(TestCase):
         try:
             _ = PersonIntel.model_inc_ex_class_copy(exclude={'height'})
 
-        except IntelCriticalError:
+        except IntelUsageError:
             self.assertTrue(True)
 
     def test_base_intel_exclude_json_schema(self):
@@ -131,11 +131,11 @@ class TestBaseIntel(TestCase):
             _ = bag.model_inc_ex_class_copy(exclude={'stylish'}, intel_object=bag)
 
             self.assertTrue(True)
-        except IntelCriticalError:
+        except IntelUsageError:
             self.assertFalse(True)
 
     def test_base_intel_object_include_required_empty_field(self):
-        with self.assertRaises(IntelCriticalError):
+        with self.assertRaises(IntelUsageError):
             bag = BagIntel(color='blue', stylish=True)
 
             bag.stylish = None

@@ -7,7 +7,7 @@ from dandy.shared.typing.signature import (
     get_typed_kwargs_from_simple_json_schema,
 )
 from dandy.shared.typing.typed_kwargs import TypedKwargs
-from dandy.domain.intel.exceptions import IntelCriticalError
+from dandy.domain.intel.exceptions import IntelUsageError
 from dandy.domain.intel.intel import BaseIntel
 
 
@@ -23,7 +23,7 @@ class IntelFactory:
             return class_func(**kwargs)
 
         message = f'{intel} is not subclass of BaseIntel or an instance of BaseIntel'
-        raise IntelCriticalError(message)
+        raise IntelUsageError(message)
 
     @classmethod
     def intel_to_json_inc_ex_schema(
@@ -67,7 +67,7 @@ class IntelFactory:
 
             else:
                 message = f'JSON Schema property "{property_}" did not have one of f{required_attributes}.'
-                raise IntelCriticalError(message) from None
+                raise IntelUsageError(message) from None
 
     @classmethod
     def callable_signature_to_intel_class(cls, callable_: Callable) -> type[BaseIntel]:

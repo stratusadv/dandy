@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dandy.shared.exceptions import FileRecoverableError
+from dandy.shared.exceptions import FileUsageError
 
 _BASE64_AUDIO_MIME_SIGNATURES = {
     'SUQzA': 'audio/mp3',
@@ -31,7 +31,7 @@ def get_audio_mime_type_from_base64_string(base64_string: str) -> str:
             return _BASE64_AUDIO_MIME_SIGNATURES[signature]
 
     message = 'Unable to determine audio format from base64 string'
-    raise FileRecoverableError(message)
+    raise FileUsageError(message)
 
 
 def get_image_format_from_base64_string(base64_string: str) -> str | None:
@@ -45,4 +45,4 @@ def get_image_mime_type_from_base64_string(base64_string: str) -> str | None:
             return _BASE64_IMAGE_MIME_SIGNATURES[signature]
 
     message = 'Unable to determine image format from base64 string'
-    raise FileRecoverableError(message)
+    raise FileUsageError(message)

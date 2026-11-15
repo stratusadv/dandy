@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from dandy.application.skill.service import SkillService
-from dandy.domain.skill.exceptions import SkillCriticalError
+from dandy.domain.skill.exceptions import SkillUsageError
 from dandy.domain.skill.skill import BaseSkill
 from tests.application.skill.intelligence.skills import NotesSkill, WeatherSkill
 
@@ -94,39 +94,39 @@ class TestSkillServiceRegister(TestCase):
     def test_nameless_skill_raises(self) -> None:
         service = make_skill_service()
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([NamelessSkill])
 
     def test_passive_skill_without_description_raises(self) -> None:
         service = make_skill_service()
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([PassiveNoDescriptionSkill])
 
     def test_duplicate_skill_names_raise(self) -> None:
         service = make_skill_service()
         service.register([NotesSkill])
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([NotesSkill()])
 
     def test_duplicate_generated_tool_names_raise(self) -> None:
         service = make_skill_service()
         service.register([FirstClashSkill])
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([SecondClashSkill])
 
     def test_reserved_activate_tool_name_raises(self) -> None:
         service = make_skill_service()
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([ReservedToolNameSkill])
 
     def test_missing_declared_method_raises(self) -> None:
         service = make_skill_service()
 
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             service.register([MissingMethodSkill])
 
 

@@ -10,7 +10,7 @@ from dandy.shared.constants import (
     DANDY_LOCAL_DIRECTORY_NAME,
     DEFAULT_SETTINGS_MODULE,
 )
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyConfigurationError
 
 
 def get_settings_module_name() -> str:
@@ -93,14 +93,14 @@ def load_settings_from_json_file(json_file_path: Path) -> SimpleNamespace:
             json_data = json.load(json_file)
     except (OSError, json.JSONDecodeError) as error:
         message = f'Failed to load settings from "{json_file_path}".'
-        raise DandyCriticalError(message) from error
+        raise DandyConfigurationError(message) from error
 
     if not isinstance(json_data, dict):
         message = (
             f'The settings file "{json_file_path}" must contain a JSON object of '
             'settings attributes.'
         )
-        raise DandyCriticalError(message)
+        raise DandyConfigurationError(message)
 
     normalized_data = _normalize_json_settings_keys(json_data)
     normalized_data.setdefault('BASE_PATH', Path.cwd())

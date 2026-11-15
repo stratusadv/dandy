@@ -25,7 +25,7 @@ imports from the root; framework code imports from the defining module.
 
 The bases for the [three-part service pattern](../architecture/service_pattern.md)
 (documented there): a lazily built, cached service owned through a mixin, with
-`ServiceCriticalError` guarding required class attributes.
+`ServiceConfigurationError` guarding required class attributes.
 
 ::: dandy.shared.service.service.BaseService
     members:
@@ -43,8 +43,6 @@ The bases for the [three-part service pattern](../architecture/service_pattern.m
 ## Connectors
 
 ::: dandy.shared.connector.connector.BaseConnector
-
-::: dandy.shared.connector.exceptions
 
 ## Settings
 

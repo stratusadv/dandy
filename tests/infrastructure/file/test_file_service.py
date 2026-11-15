@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from dandy.infrastructure.file.mixin import FileServiceMixin
 
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyUsageError
 from dandy.infrastructure.file.service import FileService
 
 
@@ -66,7 +66,7 @@ class TestFileService(TestCase):
 
     def test_read_raises_for_missing_file(self):
         missing = self.tmpdir / 'nope' / 'missing.txt'
-        with self.assertRaises(DandyCriticalError):
+        with self.assertRaises(DandyUsageError):
             FileService.read(missing)
 
     def test_reset_callable(self):

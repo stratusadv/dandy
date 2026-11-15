@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.shared.service.exceptions import ServiceCriticalError
+from dandy.shared.service.exceptions import ServiceConfigurationError
 from dandy.shared.service.mixin import BaseServiceMixin
 
 
@@ -39,7 +39,7 @@ class TestBaseServiceMixin(TestCase):
         self.assertIs(other_instance.obj, user)
 
     def test_required_attrs_raise_service_critical_error_when_none(self) -> None:
-        with self.assertRaises(ServiceCriticalError) as context:
+        with self.assertRaises(ServiceConfigurationError) as context:
 
             class BadMixinUser(BaseServiceMixin):
                 _required_attrs = ('llm_config',)

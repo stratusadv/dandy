@@ -9,7 +9,7 @@ from dandy.application.agent.intelligence.tools import EditFileTool
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.guard.guard import Guard, GuardEvent, GuardOutcome
 from dandy.domain.guard.repeat_guard import RepeatGuard
-from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallsIntel
 from dandy.domain.tool.tool import BaseTool
@@ -517,7 +517,7 @@ class TestToolService(TestCase):
 
         bot = ToolBot()
 
-        with self.assertRaises(LlmRecoverableError):
+        with self.assertRaises(LlmExternalError):
             bot.llm.tools.prompt_to_intel(
                 prompt='What is the weather in San Francisco?',
                 intel_class=FinalAnswerIntel,
@@ -580,7 +580,7 @@ class TestToolService(TestCase):
         def get_weather_handler(arguments_intel) -> str:
             return 'Sunny.'
 
-        with self.assertRaises(LlmRecoverableError):
+        with self.assertRaises(LlmExternalError):
             bot.llm.tools.prompt_to_intel(
                 prompt='What is the weather in Paris?',
                 intel_class=FinalAnswerIntel,
@@ -659,7 +659,7 @@ class TestToolService(TestCase):
 
         bot = ToolBot()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.tools.prompt_to_intel(
                 prompt='What is the weather in Paris?',
                 intel_class=FinalAnswerIntel,
@@ -845,7 +845,7 @@ class TestRepeatedCallGuard(TestCase):
 
         bot = ToolBot()
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             bot.llm.tools.prompt_to_intel(
                 prompt='What is the weather in Oslo?',
                 intel_class=FinalAnswerIntel,
@@ -904,7 +904,7 @@ class TestRepeatedCallGuard(TestCase):
 
         bot = ToolBot()
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             bot.llm.tools.prompt_to_intel(
                 prompt='Weather in Oslo and Tromso?',
                 intel_class=FinalAnswerIntel,
@@ -1153,7 +1153,7 @@ class TestContextPressureGuard(TestCase):
         bot = ToolBot()
         bot.llm.config.context_size = 100
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             bot.llm.tools.prompt_to_intel(
                 prompt='What is the weather in Oslo?',
                 intel_class=FinalAnswerIntel,

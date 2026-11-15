@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 import requests
 
 from dandy.infrastructure.http.connector import HttpConnector
-from dandy.infrastructure.http.exceptions import HttpConnectorRecoverableError
+from dandy.infrastructure.http.exceptions import HttpConnectorError
 from dandy.infrastructure.http.intel import HttpRequestIntel, HttpResponseIntel
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
@@ -87,7 +87,7 @@ class TestHttpConnector(TestCase):
     ) -> None:
         mock_to_response.side_effect = requests.exceptions.Timeout()
 
-        with self.assertRaises(HttpConnectorRecoverableError) as context:
+        with self.assertRaises(HttpConnectorError) as context:
             HttpConnector.request_to_response(self.make_request_intel())
 
         self.assertEqual(mock_to_response.call_count, 5)
@@ -103,7 +103,7 @@ class TestHttpConnector(TestCase):
             "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
         )
 
-        with self.assertRaises(HttpConnectorRecoverableError) as context:
+        with self.assertRaises(HttpConnectorError) as context:
             HttpConnector.request_to_response(self.make_request_intel())
 
         self.assertEqual(mock_to_response.call_count, 5)
@@ -125,7 +125,7 @@ class TestHttpConnector(TestCase):
             requests.exceptions.ConnectionError('Connection reset by peer'),
         ]
 
-        with self.assertRaises(HttpConnectorRecoverableError) as context:
+        with self.assertRaises(HttpConnectorError) as context:
             HttpConnector.request_to_response(self.make_request_intel())
 
         self.assertEqual(mock_to_response.call_count, 5)
@@ -140,7 +140,7 @@ class TestHttpConnector(TestCase):
     ) -> None:
         mock_to_response.return_value = response(500, reason='Server Error', text='Bad Day')
 
-        with self.assertRaises(HttpConnectorRecoverableError) as context:
+        with self.assertRaises(HttpConnectorError) as context:
             HttpConnector.request_to_response(self.make_request_intel())
 
         self.assertEqual(mock_to_response.call_count, 5)

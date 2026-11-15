@@ -18,7 +18,7 @@ from dandy.shared.files import (
     remove_file,
     write_to_file,
 )
-from dandy.shared.exceptions import FileCriticalError
+from dandy.shared.exceptions import FileUsageError
 
 
 class TestFiles(TestCase):
@@ -36,14 +36,14 @@ class TestFiles(TestCase):
         self.assertEqual(get_file_path_or_exception(file_path), file_path)
 
     def test_get_file_path_or_exception_missing_path_raises(self) -> None:
-        with self.assertRaises(FileCriticalError):
+        with self.assertRaises(FileUsageError):
             get_file_path_or_exception('this/path/doesnt/exist')
 
     def test_get_directory_path_or_exception_returns_existing_path(self) -> None:
         self.assertEqual(get_directory_path_or_exception(self.temp_path), self.temp_path)
 
     def test_get_directory_path_or_exception_missing_path_raises(self) -> None:
-        with self.assertRaises(FileCriticalError):
+        with self.assertRaises(FileUsageError):
             get_directory_path_or_exception('this/dir/doesnt/exist')
 
     def test_file_exists(self) -> None:
@@ -60,7 +60,7 @@ class TestFiles(TestCase):
         self.assertEqual(read_from_file(file_path), 'hello')
 
     def test_read_from_file_missing_raises(self) -> None:
-        with self.assertRaises(FileCriticalError):
+        with self.assertRaises(FileUsageError):
             read_from_file(self.temp_path / 'missing.txt')
 
     def test_append_to_file_creates_when_missing(self) -> None:
@@ -111,7 +111,7 @@ class TestFiles(TestCase):
         )
 
     def test_encode_file_to_base64_missing_raises(self) -> None:
-        with self.assertRaises(FileCriticalError):
+        with self.assertRaises(FileUsageError):
             encode_file_to_base64(self.temp_path / 'missing.bin')
 
     def test_get_directory_listing(self) -> None:

@@ -15,7 +15,7 @@ from dandy.shared.utils import (
 from dandy.domain.guard.defaults import default_guards
 from dandy.domain.guard.guard import Guard, GuardChain, GuardEvent
 from dandy.domain.intel.factory import IntelFactory
-from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.domain.message.compaction import (
     COMPACTION_TARGET_RATIO,
     DEFAULT_CONTEXT_WINDOW,
@@ -109,7 +109,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                     f'LLM Tool Service gave up after {max_tool_iterations} tool '
                     f'iterations without a final response.'
                 )
-                raise LlmRecoverableError(message)
+                raise LlmExternalError(message)
 
             round_number = iteration_count + 1
 
@@ -153,7 +153,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                 f'The tool name(s) {colliding} collide with skill tool names; '
                 f'rename the tool or the skill method.'
             )
-            raise LlmCriticalError(message)
+            raise LlmUsageError(message)
 
     def _compact_history(
         self, progress_callback: Callable[[StoryBeat], None] | None = None
@@ -198,7 +198,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
 
         if tool is None:
             message = f'No BaseTool with the name "{tool_call.name}" was provided.'
-            raise LlmCriticalError(message)
+            raise LlmUsageError(message)
 
         tool_function = tool_functions.get(tool_call.name)
 

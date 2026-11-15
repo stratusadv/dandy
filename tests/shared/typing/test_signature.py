@@ -1,8 +1,8 @@
 from typing import Any
 from unittest import TestCase
 
-from dandy.shared.exceptions import DandyCriticalError
-from dandy.shared.typing.exceptions import TypingCriticalError, TypingRecoverableError
+from dandy.shared.exceptions import DandyUsageError
+from dandy.shared.typing.exceptions import TypingUsageError, TypingUsageError
 from dandy.shared.typing.registry import resolve_type_from_registry
 from dandy.shared.typing.typed_kwargs import TypedKwargs
 from dandy.shared.typing.typing import TypedKwargsDict
@@ -39,7 +39,7 @@ class TestTypingTools(TestCase):
         self.assertEqual(typed_kwargs['empty'], list)
 
     def test_typed_kwargs_from_simple_json_schema_unknown_type_raises(self) -> None:
-        with self.assertRaises(TypingRecoverableError):
+        with self.assertRaises(TypingUsageError):
             get_typed_kwargs_from_simple_json_schema({'name': 'not-a-type'})
 
     def test_typed_kwargs_from_callable_signature(self) -> None:
@@ -67,7 +67,7 @@ class TestTypingTools(TestCase):
         def sample_function(required: str, unannotated):
             return required, unannotated
 
-        with self.assertRaises(TypingCriticalError):
+        with self.assertRaises(TypingUsageError):
             get_typed_kwargs_from_callable_signature(sample_function)
 
     def test_string_to_type_or_error(self) -> None:
@@ -76,7 +76,7 @@ class TestTypingTools(TestCase):
         self.assertEqual(string_to_type_or_error('Float'), float)
         self.assertEqual(string_to_type_or_error('number'), int)
 
-        with self.assertRaises(TypingCriticalError):
+        with self.assertRaises(TypingUsageError):
             string_to_type_or_error('not-a-type')
 
 
@@ -84,7 +84,7 @@ class TestTypedKwargs(TestCase):
     def test_contains_rejects_non_typed_kwargs(self) -> None:
         typed_kwargs = TypedKwargs({'a': (str, ...)})
 
-        with self.assertRaises(DandyCriticalError):
+        with self.assertRaises(DandyUsageError):
             _ = 'a' in typed_kwargs
 
     def test_contains_true_for_matching_sub_set(self) -> None:

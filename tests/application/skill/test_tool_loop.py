@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.application.bot.bot import Bot
-from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.exceptions import LlmUsageError
 from dandy.domain.request.request import LlmRequestBody
 from dandy.domain.tool.tool import BaseTool
 
@@ -193,7 +193,7 @@ class TestSkillToolNameCollision(TestCase):
     def test_user_tool_colliding_with_skill_tool_raises_before_http(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             PassiveSkillBot().llm.tools.prompt_to_intel(
                 prompt='Weather?', tools=[CollidingTool()], intel_class=FinalAnswerIntel
             )

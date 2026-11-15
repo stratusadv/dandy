@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import BaseIntel
-from dandy.domain.tool.exceptions import ToolCriticalError
+from dandy.domain.tool.exceptions import ToolUsageError
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.hashing import HashMixin
 from dandy.shared.subprocess import run_subprocess
@@ -105,7 +105,7 @@ class BaseTool(HashMixin, ABC):
                 f'"{self.__class__.__name__}" does not have a "name" attribute, '
                 f'every BaseTool subclass must define one.'
             )
-            raise ToolCriticalError(message)
+            raise ToolUsageError(message)
 
         parameters_intel_class = self.get_parameters_intel_class()
 

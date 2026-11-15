@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.domain.request.exceptions import LlmRecoverableError
+from dandy.domain.request.exceptions import LlmExternalError
 from dandy.domain.guard.context_guard import ContextPressureGuard
 from dandy.domain.guard.guard import Guard, GuardChain, GuardEvent, GuardOutcome
 from dandy.domain.intel.typing import IntelType
@@ -147,7 +147,7 @@ class TestGuardChain(TestCase):
     def test_a_failing_guard_stops_the_loop(self) -> None:
         chain = GuardChain([_PassiveGuard(), _FailingGuard()])
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             chain.on_tool_call(_event())
 
         self.assertIn('failing guard', str(context.exception))
@@ -164,7 +164,7 @@ class TestGuardChain(TestCase):
         pressure_guard.on_round_start(int(65536 * 0.85), 65536)
         chain = GuardChain([pressure_guard])
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             chain.on_round_start(65536 + 100, 65536)
 
         self.assertIn('still exceeds', str(context.exception))
@@ -190,7 +190,7 @@ class TestGuardTurnEvents(TestCase):
     def test_turn_start_failure_stops_the_run(self) -> None:
         chain = GuardChain([_PassiveGuard(), _TurnStartFailingGuard()])
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             chain.on_turn_start(1, 'go', 100, 65536)
 
         self.assertIn('turn-start guard', str(context.exception))
@@ -198,7 +198,7 @@ class TestGuardTurnEvents(TestCase):
     def test_turn_end_failure_stops_the_run(self) -> None:
         chain = GuardChain([_PassiveGuard(), _TurnEndFailingGuard()])
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             chain.on_turn_end(1, 'the answer', 200, 65536)
 
         self.assertIn('turn-end guard', str(context.exception))

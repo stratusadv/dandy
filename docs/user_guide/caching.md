@@ -51,7 +51,7 @@ Notable keying behaviors:
 - Framework services hash by **class qualname**, detected structurally (by the
   `recorder_event_id` attribute) — the cache never imports them, which is how it stays a
   generic capability.
-- Unhashable arguments raise `CacheCriticalError` with the object named.
+- Unhashable arguments raise `CacheUsageError` with the object named.
 
 ## Manual use
 

@@ -113,7 +113,7 @@ class Printer:
         """
         start_time = perf_counter()
 
-        self.event(text=f'{self.term.bold_orange}"{task}"{self.term.normal}')
+        self.event(text=f'{self.term.bold_orange}Executing "{task}..."{self.term.normal}')
 
         progress = StoryProgress(self.term)
         result_holder: dict[str, T] = {}
@@ -267,7 +267,7 @@ class Printer:
 
             for path in paths:
                 print(
-                    f'{self.term.normal}{bullet_style}•{self.term.normal} '
+                    f'{self.term.normal}{bullet_style}◆{self.term.normal} '
                     f'{linkify_file_paths(path)}'
                 )
 

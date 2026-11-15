@@ -1,9 +1,9 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyExternalError, DandyUsageError
 
 
-class AgentCriticalError(DandyCriticalError):
+class AgentUsageError(DandyUsageError):
     pass
 
 
-class AgentRecoverableError(DandyRecoverableError):
+class AgentExternalError(DandyExternalError):
     pass

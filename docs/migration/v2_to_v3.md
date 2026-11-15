@@ -21,10 +21,14 @@ inside the framework (anything other than the package root) must update its impo
   still works: `Bot`, `Prompt`, `BaseIntel`, `BaseListIntel`, `BaseTool`, `Recorder`,
   `MemoryCache`, `SqliteCache`, `cache_to_memory`, `cache_to_sqlite`,
   `generate_cache_key`, `process_to_future`, `recorder_to_html_file`,
-  `recorder_to_json_file`, `recorder_to_markdown_file`, and the exceptions
-  `DandyError`, `DandyCriticalError`, `DandyRecoverableError`. The release adds
+  `recorder_to_json_file`, `recorder_to_markdown_file`. The release adds
   names on top (`Agent`, `BaseSkill`, `Decision`, `LlmOptions`, `MessageHistory`,
-  `DefaultIntel`, and the `Dandy` namespace) but removes none of these.
+  `DefaultIntel`, and the `Dandy` namespace) but removes none of these. The one
+  exception (pun intended) is the error hierarchy: 2.x exported
+  `DandyCriticalError` / `DandyRecoverableError`, and 3.0 replaces that two-branch
+  split with the four-branch taxonomy (`DandyConfigurationError`, `DandyUsageError`,
+  `DandyExternalError`, `DandyFlowError` under `DandyError`) — see
+  [Error Handling](../user_guide/error_handling.md).
 - **Configuration.** `DANDY_SETTINGS_MODULE`, the `dandy_settings.py` module, the
   `dandy.json` fallback, `LLM_CONFIGS` with a required `DEFAULT` entry, `CLI_CONFIG`
   task mapping, and `CONTEXT_SIZE` all work exactly as before.

@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 from dandy.shared.settings import settings
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.intel.intel import BaseIntel, DefaultIntel
-from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.application.bot.bot import Bot
 from tests.consts import live_llm_test
 from tests.shared.decorators import run_llm_configs
@@ -37,7 +37,7 @@ class TestService(TestCase):
             json_data={'choices': [{'message': {'content': '{"invalid_key": "Hello, World!"}'}}]},
         )
 
-        with self.assertRaises(LlmRecoverableError):
+        with self.assertRaises(LlmExternalError):
             response = Bot().llm.prompt_to_intel(
                 prompt='Hello, World!', intel_class=LlmDefaultIntel
             )
@@ -121,7 +121,7 @@ class TestService(TestCase):
         self.assertEqual(response.text, content)
 
     def test_prompt_to_intel_with_no_prompt_argument(self):
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             _ = Bot().llm.prompt_to_intel()
 
     @live_llm_test

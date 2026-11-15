@@ -64,14 +64,14 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   `GuardChain` of middleware-style `Guard` watchers, each observing the loop's
   events and returning a verdict — a steering note appended to the tool result,
   a request to compact the conversation, or a failure that stops the loop with
-  `LlmRecoverableError` before the next request. The shipped `RepeatGuard`
+  `LlmExternalError` before the next request. The shipped `RepeatGuard`
   counts every executed call against a canonical signature (whitespace runs
   folded in every string value, sorted-key compact JSON of the validated
   kwargs), so re-typed calls with line-wrap, indent, or key-order drift share
   one signature, while different arguments are different calls that never
   accumulate against each other no matter how often they produce the same
   result: the result fed back to the model carries a steering note from the
-  third identical call, and the loop raises `LlmRecoverableError` at ten. The
+  third identical call, and the loop raises `LlmExternalError` at ten. The
   shipped `ContextPressureGuard` requests compaction once the conversation's
   estimated token count passes 80% of the resolved context window, and fails
   the loop if the pressure re-asserts after a compaction while the conversation

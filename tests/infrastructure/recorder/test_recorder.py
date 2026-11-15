@@ -13,7 +13,7 @@ from dandy.infrastructure.recorder.decorators import (
 )
 from dandy.infrastructure.recorder.diligence_events import recorder_add_llm_diligence_event
 from dandy.infrastructure.recorder.events import Event, EventType, EventStore, EventAttribute
-from dandy.infrastructure.recorder.exceptions import RecorderCriticalError
+from dandy.infrastructure.recorder.exceptions import RecorderUsageError
 from dandy.infrastructure.recorder.recorder import Recorder
 from tests.consts import live_llm_test
 
@@ -136,7 +136,7 @@ class TestRecorder(TestCase):
 
         invalid_recorder_name = f'invalid_{RECORDING_NAME}'
 
-        with self.assertRaises(RecorderCriticalError):
+        with self.assertRaises(RecorderUsageError):
             Recorder.check_recording_is_valid(invalid_recorder_name)
 
 
@@ -215,7 +215,7 @@ class TestRecorderHermetic(TestCase):
         self.assertFalse(Recorder.get_recording(self.recording_name).is_running)
 
     def test_check_recording_is_valid_missing_raises(self) -> None:
-        with self.assertRaises(RecorderCriticalError) as context:
+        with self.assertRaises(RecorderUsageError) as context:
             Recorder.check_recording_is_valid('never_started_recording')
 
         self.assertIn('does not exist', str(context.exception))
@@ -225,17 +225,17 @@ class TestRecorderHermetic(TestCase):
 
         Recorder.delete_recording(self.recording_name)
 
-        with self.assertRaises(RecorderCriticalError):
+        with self.assertRaises(RecorderUsageError):
             Recorder.check_recording_is_valid(self.recording_name)
 
     def test_stop_recording_missing_raises(self) -> None:
-        with self.assertRaises(RecorderCriticalError):
+        with self.assertRaises(RecorderUsageError):
             Recorder.stop_recording('never_started_recording')
 
     def test_invalid_renderer_raises(self) -> None:
         Recorder.start_recording(self.recording_name)
 
-        with self.assertRaises(RecorderCriticalError) as context:
+        with self.assertRaises(RecorderUsageError) as context:
             Recorder.to_file(self.recording_name, 'bogus', Path(tempfile.gettempdir()))
 
         self.assertIn('does not exist', str(context.exception))

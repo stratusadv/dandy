@@ -26,7 +26,7 @@ Supported fields: `frequency_penalty`, `logit_bias`, `logprobs`,
 `extra='allow'`, so any other option the endpoint understands is forwarded as-is.
 Non-None values are range-checked (temperature 0–2, penalties –2 to 2,
 `top_p` 0–1, and positive minimums for `max_completion_tokens` / `max_tokens` /
-`n`) and a violation raises `LlmCriticalError`.
+`n`) and a violation raises `LlmUsageError`.
 
 ### `max_completion_tokens`
 
@@ -103,7 +103,7 @@ Tool results are capped at 8000 characters (`OUTPUT_CHARACTER_LIMIT`) before the
 built-in `read_file`, `list_directory`, and `search_files` tools cap their own output the same way — so
 a single oversized result can never overflow the window or be dropped whole. If the
 conversation still cannot fit the window after compaction, the coding agent raises
-`AgentRecoverableError` (the CLI shows it instead of an opaque provider 400); clear the
+`AgentExternalError` (the CLI shows it instead of an opaque provider 400); clear the
 conversation and retry with a shorter message.
 
 Without any `CONTEXT_SIZE`, compaction falls back to the `DEFAULT_CONTEXT_WINDOW` (a 65536-token window constant) —
@@ -131,7 +131,7 @@ bot.llm.config = LlmConfig('THINKING')
 Overrides accept the identity fields `model`, `host`, `port`, `api_key`,
 `context_size`, and `prompt_retry_count`, plus any `LlmOptions` field
 (`temperature`, `top_p`, `max_completion_tokens`, ...). Unknown names, wrong
-types, and out-of-range option values raise `LlmCriticalError`.
+types, and out-of-range option values raise `LlmUsageError`.
 
 The switch keeps the in-flight conversation intact: the next request goes to the
 new endpoint and model with the same history. Tool-loop rounds and agents pick

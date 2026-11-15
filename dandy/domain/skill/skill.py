@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from dandy.domain.skill.exceptions import SkillCriticalError
+from dandy.domain.skill.exceptions import SkillUsageError
 from dandy.shared.hashing import HashMixin
 
 
@@ -62,7 +62,7 @@ class BaseSkill(HashMixin):
     def get_method(self, method_name: str) -> Callable:
         """The bound method a declared tool name refers to, validated.
 
-        Raises SkillCriticalError when the method is missing, private, or not
+        Raises SkillUsageError when the method is missing, private, or not
         callable.
         """
         method = getattr(self, method_name, None)
@@ -72,13 +72,13 @@ class BaseSkill(HashMixin):
                 f'Skill "{self.name}" declares "{method_name}" in "tools" '
                 f'but no such method exists.'
             )
-            raise SkillCriticalError(message)
+            raise SkillUsageError(message)
 
         if not callable(method):
             message = (
                 f'Skill "{self.name}" declares "{method_name}" in "tools" but it is not callable.'
             )
-            raise SkillCriticalError(message)
+            raise SkillUsageError(message)
 
         return method
 

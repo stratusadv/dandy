@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, ClassVar, Sequence
 
-from dandy.domain.request.exceptions import LlmRecoverableError
+from dandy.domain.request.exceptions import LlmExternalError
 
 if TYPE_CHECKING:
     from dandy.domain.intel.typing import IntelType
@@ -36,7 +36,7 @@ class GuardOutcome:
     ``note`` is a steering text to append to the tool result fed back to the
     model (the live course correction), ``compact`` asks the loop to compact
     the conversation before the next LLM round, ``failure_message`` stops the
-    loop (raised by the chain as ``LlmRecoverableError``), and ``verbose_line``
+    loop (raised by the chain as ``LlmExternalError``), and ``verbose_line``
     is an optional debug line for the loop's verbose callback.
     """
 
@@ -124,7 +124,7 @@ class Guard:
 class GuardChain:
     """Run an ordered set of guards over one tool loop and one agent conversation.
 
-    Every guard sees every event; the chain raises ``LlmRecoverableError``
+    Every guard sees every event; the chain raises ``LlmExternalError``
     the moment any guard reports a failure (before the next HTTP call on
     loop events, before any LLM spend on turn events), appends every guard's
     steering notes to the tool result fed back to the model, and forwards any
@@ -146,7 +146,7 @@ class GuardChain:
             guard_outcome = guard.on_round_start(history_token_count, context_window)
 
             if guard_outcome.failure_message:
-                raise LlmRecoverableError(guard_outcome.failure_message)
+                raise LlmExternalError(guard_outcome.failure_message)
 
             if guard_outcome.compact:
                 outcome.compact = True
@@ -170,7 +170,7 @@ class GuardChain:
             )
 
             if guard_outcome.failure_message:
-                raise LlmRecoverableError(guard_outcome.failure_message)
+                raise LlmExternalError(guard_outcome.failure_message)
 
             if guard_outcome.verbose_line and verbose_callback is not None:
                 verbose_callback(guard_outcome.verbose_line)
@@ -201,7 +201,7 @@ class GuardChain:
             )
 
             if guard_outcome.failure_message:
-                raise LlmRecoverableError(guard_outcome.failure_message)
+                raise LlmExternalError(guard_outcome.failure_message)
 
             if guard_outcome.verbose_line and verbose_callback is not None:
                 verbose_callback(guard_outcome.verbose_line)
@@ -221,7 +221,7 @@ class GuardChain:
         """Watch an executed tool call through every guard.
 
         Returns the result text to feed back to the model with any steering
-        notes appended, and raises ``LlmRecoverableError`` when a guard fails
+        notes appended, and raises ``LlmExternalError`` when a guard fails
         the loop.
         """
         result_text = event.result_text
@@ -230,7 +230,7 @@ class GuardChain:
             guard_outcome = guard.observe(event)
 
             if guard_outcome.failure_message:
-                raise LlmRecoverableError(guard_outcome.failure_message)
+                raise LlmExternalError(guard_outcome.failure_message)
 
             if guard_outcome.verbose_line and verbose_callback is not None:
                 verbose_callback(guard_outcome.verbose_line)

@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 
 from dandy.shared.settings import default_settings
 from dandy.shared.settings import DandySettings, settings
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyConfigurationError
 from dandy.shared.settings.load import get_settings_module_name
 
 
@@ -35,7 +35,7 @@ class TestSettings(TestCase):
         original_settings_base_path = settings_module.BASE_PATH
         settings_module.BASE_PATH = None
 
-        with self.assertRaises(DandyCriticalError):
+        with self.assertRaises(DandyConfigurationError):
             DandySettings()
 
         default_settings.BASE_PATH = original_default_base_path

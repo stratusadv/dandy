@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.shared.exceptions import FileRecoverableError
+from dandy.shared.exceptions import FileUsageError
 from dandy.shared.media import (
     get_audio_format_from_base64_string,
     get_audio_mime_type_from_base64_string,
@@ -17,7 +17,7 @@ class TestMediaUtils(TestCase):
         self.assertEqual(get_image_mime_type_from_base64_string('iVBORw0KGgo'), 'image/png')
         self.assertEqual(get_image_mime_type_from_base64_string('/9j/'), 'image/jpg')
 
-        with self.assertRaises(FileRecoverableError):
+        with self.assertRaises(FileUsageError):
             get_image_mime_type_from_base64_string('random nonsense')
 
     def test_get_audio_mime_type_from_base64_string(self) -> None:
@@ -30,7 +30,7 @@ class TestMediaUtils(TestCase):
         # with '//O' resolves through the mp3 signature.
         self.assertEqual(get_audio_mime_type_from_base64_string('//OyL9'), 'audio/mp3')
 
-        with self.assertRaises(FileRecoverableError):
+        with self.assertRaises(FileUsageError):
             get_audio_mime_type_from_base64_string('random nonsense')
 
     def test_get_audio_format_from_base64_string(self) -> None:

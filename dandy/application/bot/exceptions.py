@@ -1,9 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyUsageError
 
 
-class BotCriticalError(DandyCriticalError):
-    pass
-
-
-class BotRecoverableError(DandyRecoverableError):
+class BotError(DandyUsageError):
     pass

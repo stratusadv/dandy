@@ -10,7 +10,7 @@ from dandy.shared.settings.load import (
     get_settings_module_name,
     load_settings_from_json_file,
 )
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyConfigurationError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -39,10 +39,10 @@ class DandySettings:
 
         else:
             message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.'
-            raise DandyCriticalError(message)
+            raise DandyConfigurationError(message)
 
         message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
-        raise DandyCriticalError(message)
+        raise DandyConfigurationError(message)
 
     def load_user_settings(self) -> None:
         self._settings_module_name = get_settings_module_name()
@@ -76,7 +76,7 @@ class DandySettings:
 
         if self._default_settings.BASE_PATH is None and module_settings.BASE_PATH is None:
             message = f'You need a BASE_PATH in your "{self._settings_module_name}".'
-            raise DandyCriticalError(message)
+            raise DandyConfigurationError(message)
 
     def _import_settings_module(self) -> types.ModuleType | None:
         try:

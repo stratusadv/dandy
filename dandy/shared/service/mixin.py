@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import ClassVar, TypeVar
 
-from dandy.shared.service.exceptions import ServiceCriticalError
+from dandy.shared.service.exceptions import ServiceConfigurationError
 
 T = TypeVar('T')
 
@@ -14,7 +14,7 @@ class BaseServiceMixin(ABC):
         for attr in cls._required_attrs:
             if getattr(cls, attr) is None:
                 message = f'"{cls.__name__}.{attr}" is not set'
-                raise ServiceCriticalError(message)
+                raise ServiceConfigurationError(message)
 
     def _get_service_instance(self, service_class: type[T]) -> T:
         service_instance_attr = f'_{service_class.__name__}_instance'

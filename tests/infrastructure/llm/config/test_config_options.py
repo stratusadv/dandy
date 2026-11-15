@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.exceptions import LlmUsageError
 from dandy.domain.request.options import LlmOptions
 
 
@@ -34,15 +34,15 @@ class TestLlmOptions(TestCase):
         self.assertEqual(options.top_logprobs, 5)
 
     def test_out_of_range_temperature_raises(self) -> None:
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             LlmOptions(temperature=3.0)
 
     def test_out_of_range_penalty_raises(self) -> None:
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             LlmOptions(frequency_penalty=-3.0)
 
     def test_negative_n_raises(self) -> None:
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             LlmOptions(n=0)
 
     def test_prompt_retry_count_is_not_a_declared_option(self) -> None:

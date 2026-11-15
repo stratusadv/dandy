@@ -73,7 +73,7 @@ are framework-agnostic.
 
 ::: dandy.domain.tool.beat.StoryBeat
 
-::: dandy.domain.tool.exceptions.ToolCriticalError
+::: dandy.domain.tool.exceptions.ToolUsageError
 
 ## Skills
 
@@ -98,7 +98,7 @@ skill. Documented in [Skills](../user_guide/skill.md).
         members:
             - to_skill_instances
 
-::: dandy.domain.skill.exceptions.SkillCriticalError
+::: dandy.domain.skill.exceptions.SkillUsageError
 
 ## Prompts
 

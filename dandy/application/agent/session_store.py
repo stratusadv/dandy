@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
+from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, SessionRecord
 from dandy.shared.constants import (
     AGENT_WORKING_DIRECTORY,
@@ -115,7 +115,7 @@ class SessionStore:
             return SessionRecord.model_validate_json(read_from_file(record_path))
         except (OSError, ValidationError):
             message = f'Session "{name}" could not be read from {record_path}.'
-            raise AgentRecoverableError(message) from None
+            raise AgentExternalError(message) from None
 
     def _existing_created_at(self, record_path: Path, fallback: datetime) -> datetime:
         if not record_path.is_file():
@@ -131,13 +131,13 @@ class SessionStore:
         available_str = ', '.join(available_names) if available_names else '(none)'
 
         message = f'Session "{name}" not found. Available sessions: {available_str}'
-        raise AgentRecoverableError(message)
+        raise AgentExternalError(message)
 
     @staticmethod
     def _validate_name(name: str) -> None:
         if not name or name in {'.', '..'} or '/' in name or '\\' in name:
             message = f'Invalid session name: "{name}"'
-            raise AgentCriticalError(message)
+            raise AgentUsageError(message)
 
     @staticmethod
     def _slugify(text: str) -> str:

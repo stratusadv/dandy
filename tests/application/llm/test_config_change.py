@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 from dandy.application.agent.agent import Agent
 from dandy.application.bot.bot import Bot
 from dandy.domain.intel.intel import DefaultIntel
-from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.exceptions import LlmUsageError
 from dandy.shared.exceptions import DandyError
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.infrastructure.llm.config import LlmConfig
@@ -53,7 +53,7 @@ class TestSetConfigNamedSwitch(TestCase):
 
         bot.llm.set_config('THINKING')
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.set_config('DEFAULT', temperature=9.0)
 
         self.assertEqual(bot.llm.config.name, 'THINKING')
@@ -114,22 +114,22 @@ class TestSetConfigOverrides(TestCase):
     def test_unknown_override_raises(self) -> None:
         bot = Bot()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.set_config('DEFAULT', temprature=0.5)
 
     def test_out_of_range_option_override_raises(self) -> None:
         bot = Bot()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.set_config('DEFAULT', temperature=9.0)
 
     def test_wrong_type_override_raises(self) -> None:
         bot = Bot()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.set_config('DEFAULT', model=123)
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.set_config('DEFAULT', port='8443')
 
     def test_reset_preserves_instance_option_override(self) -> None:
@@ -168,7 +168,7 @@ class TestConfigDirectAssignment(TestCase):
     def test_assignment_rejects_non_llm_config(self) -> None:
         bot = Bot()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             bot.llm.config = 'THINKING'
 
         self.assertEqual(bot.llm.config.name, 'DEFAULT')

@@ -5,7 +5,7 @@ from faker import Faker
 from dandy import Recorder
 from dandy.application.bot.bot import Bot
 from dandy.infrastructure.http.intel import HttpResponseIntel
-from dandy.domain.decision.exceptions import DecisionCriticalError, DecisionRecoverableError
+from dandy.domain.decision.exceptions import DecisionUsageError, DecisionExternalError
 from tests.domain.decision.intelligence.decisions import FunDecisionBot
 from tests.consts import live_llm_test
 from tests.nines.decorators import nines_testing
@@ -13,7 +13,7 @@ from tests.nines.decorators import nines_testing
 
 class TestDecision(TestCase):
     def test_invalid_decision(self):
-        with self.assertRaises(DecisionCriticalError):
+        with self.assertRaises(DecisionUsageError):
             _ = Bot().llm.decision.prompt_to_values(
                 prompt='I would like to see a single cat.',
                 keys_description='Numbers to a String',
@@ -66,7 +66,7 @@ class TestDecision(TestCase):
             status_code=200, json_data={'choices': [{'message': {'content': '{"keys": []}'}}]}
         )
 
-        with self.assertRaises(DecisionRecoverableError):
+        with self.assertRaises(DecisionExternalError):
             value = FunDecisionBot().process(
                 'I really like my pet dog and hope to get another one', 2
             )
@@ -78,7 +78,7 @@ class TestDecision(TestCase):
             json_data={'choices': [{'message': {'content': '{"keys": ["1", "2", "3", "4"]}'}}]},
         )
 
-        with self.assertRaises(DecisionRecoverableError):
+        with self.assertRaises(DecisionExternalError):
             value = FunDecisionBot().process(
                 'I really like my pet dog and hope to get another one', 2
             )

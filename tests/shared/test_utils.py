@@ -3,14 +3,14 @@ from pathlib import Path
 from unittest import TestCase
 
 from dandy.shared.settings import settings
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyUsageError
 from dandy.shared.utils import python_obj_to_markdown
 from dandy.shared.files import encode_file_to_base64
 
 
 class TestCoreUtils(TestCase):
     def test_encode_file_to_base64(self):
-        with self.assertRaises(DandyCriticalError):
+        with self.assertRaises(DandyUsageError):
             encode_file_to_base64('this/path/doesnt/exist')
 
         file_path = Path(

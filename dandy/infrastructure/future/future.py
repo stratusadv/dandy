@@ -6,7 +6,7 @@ import threading
 from typing import TYPE_CHECKING, Callable, Generic, TypeVar
 
 from dandy.shared.settings import settings
-from dandy.infrastructure.future.exceptions import FutureCriticalError, FutureRecoverableError
+from dandy.infrastructure.future.exceptions import FutureUsageError, FutureExternalError
 
 if TYPE_CHECKING:
     from concurrent.futures import Future
@@ -52,7 +52,7 @@ class AsyncFuture(Generic[R]):
             except concurrent.futures.TimeoutError as error:
                 self.cancel()
                 message = f'Future timed out after {self._result_timeout} seconds'
-                raise FutureRecoverableError(message) from error
+                raise FutureExternalError(message) from error
 
             return self._result
 
@@ -63,6 +63,6 @@ class AsyncFuture(Generic[R]):
     def set_timeout(self, seconds: float | None = None) -> None:
         if seconds is not None and seconds <= 0:
             message = f'Future timeout must be greater than 0.0, not {seconds}'
-            raise FutureCriticalError(message)
+            raise FutureUsageError(message)
 
         self._result_timeout = seconds

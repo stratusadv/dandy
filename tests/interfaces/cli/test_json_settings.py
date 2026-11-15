@@ -12,7 +12,7 @@ from unittest import TestCase, mock
 
 from dandy.interfaces.cli.utils import check_or_create_settings
 from dandy.shared.settings import settings
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyConfigurationError
 from dandy.shared.settings.load import (
     check_default_llm_config,
     find_settings_json_file,
@@ -145,7 +145,7 @@ class TestLoadSettingsFromJsonFile(JsonSettingsTestCase):
             json_file_path = Path(temp_directory_str, 'settings.json')
             json_file_path.write_text('{invalid')
 
-            with self.assertRaises(DandyCriticalError):
+            with self.assertRaises(DandyConfigurationError):
                 load_settings_from_json_file(json_file_path)
 
     def test_non_object_json_raises_critical_error(self) -> None:
@@ -153,7 +153,7 @@ class TestLoadSettingsFromJsonFile(JsonSettingsTestCase):
             json_file_path = Path(temp_directory_str, 'settings.json')
             json_file_path.write_text('[1, 2, 3]')
 
-            with self.assertRaises(DandyCriticalError):
+            with self.assertRaises(DandyConfigurationError):
                 load_settings_from_json_file(json_file_path)
 
 

@@ -37,7 +37,7 @@ turn(message)
   │                                          compact down to 70% (minus the
   │                                          incoming message's tokens)
   │  4. _ensure_history_fits               ← still over the whole window?
-  │                                          AgentRecoverableError, no request sent
+  │                                          AgentExternalError, no request sent
   ▼
 bot.llm.tools.prompt_to_intel(
     prompt=message,
@@ -76,7 +76,7 @@ Agent(
 - **`run(request)`** — drives turns until completion: the first turn receives the
   request, later turns receive a continuation nudge. A turn is done when its result's
   `done` field is true or an `is_done` callback says so. `max_turns` exhausted →
-  `AgentRecoverableError`; no `done` field and no `is_done` → `AgentCriticalError`
+  `AgentExternalError`; no `done` field and no `is_done` → `AgentUsageError`
   (fail fast — an agent that cannot tell when it is finished should not be running).
 - **`clear()`** — fresh `MessageHistory`, `last_request = None`, `bot.reset()`.
   Subclasses call `super().clear()` first and then reset their own extras.
@@ -94,7 +94,7 @@ every turn it compacts the history with the shared `compact_message_history`
   minus the incoming message's estimate — the incoming prompt is part of the next
   request, so its tokens are reserved up front.
 - **Fit check:** if history plus message still exceeds the *whole* window after
-  compaction, `turn` raises `AgentRecoverableError` instead of sending a request the
+  compaction, `turn` raises `AgentExternalError` instead of sending a request the
   provider would 400.
 
 The trigger sits above the target on purpose: a loop whose rounds keep re-adding about
@@ -118,7 +118,7 @@ the constructor replaces the loop's shipped guard set for every turn (the same
 instances persist across the conversation; `clear()` resets them), and the agent
 fans the guards out on the turn boundaries — `on_turn_start` before any LLM spend
 and `on_turn_end` with the final result, a failure surfacing as
-`AgentRecoverableError` and a turn-end note riding the next `run()` continuation.
+`AgentExternalError` and a turn-end note riding the next `run()` continuation.
 
 ### Sessions
 

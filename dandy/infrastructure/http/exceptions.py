@@ -1,9 +1,5 @@
-from dandy.shared.connector.exceptions import ConnectorCriticalError, ConnectorRecoverableError
+from dandy.shared.exceptions import DandyExternalError
 
 
-class HttpConnectorCriticalError(ConnectorCriticalError):
-    pass
-
-
-class HttpConnectorRecoverableError(ConnectorRecoverableError):
+class HttpConnectorError(DandyExternalError):
     pass

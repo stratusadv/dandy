@@ -23,8 +23,8 @@ print(future.get_result(timeout_seconds=5))  # 3
 and returns the value.)
 
 - The pool is module-level with `FUTURES_MAX_WORKERS` workers (from settings).
-- Timeout exceeded ⇒ `FutureRecoverableError`; a non-positive timeout ⇒
-  `FutureCriticalError`.
+- Timeout exceeded ⇒ `FutureExternalError`; a non-positive timeout ⇒
+  `FutureUsageError`.
 - `future.cancel()`, `future.cancelled()`, `future.done()` track the worker's state;
   `future.result` is the result property once complete; `future.set_timeout(seconds)`
   adjusts the wait.

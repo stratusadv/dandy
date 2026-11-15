@@ -1,9 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyConfigurationError
 
 
-class ServiceCriticalError(DandyCriticalError):
-    pass
-
-
-class ServiceRecoverableError(DandyRecoverableError):
+class ServiceConfigurationError(DandyConfigurationError):
     pass

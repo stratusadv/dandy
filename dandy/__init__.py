@@ -6,7 +6,13 @@ from dandy.infrastructure.cache.memory.decorators import cache_to_memory
 from dandy.infrastructure.cache.sqlite.cache import SqliteCache
 from dandy.infrastructure.cache.sqlite.decorators import cache_to_sqlite
 from dandy.infrastructure.cache.key import generate_cache_key
-from dandy.shared.exceptions import DandyCriticalError, DandyError, DandyRecoverableError
+from dandy.shared.exceptions import (
+    DandyConfigurationError,
+    DandyError,
+    DandyExternalError,
+    DandyFlowError,
+    DandyUsageError,
+)
 from dandy.shared.hashing import HashMixin
 from dandy.infrastructure.future.process import process_to_future
 from dandy.domain.intel.intel import BaseIntel, BaseListIntel, DefaultIntel
@@ -31,9 +37,11 @@ __all__ = [
     'BaseTool',
     'Bot',
     'Dandy',
-    'DandyCriticalError',
+    'DandyConfigurationError',
     'DandyError',
-    'DandyRecoverableError',
+    'DandyExternalError',
+    'DandyFlowError',
+    'DandyUsageError',
     'Decision',
     'DefaultIntel',
     'HashMixin',
@@ -70,9 +78,11 @@ class Dandy:
     BaseSkill = BaseSkill
     BaseTool = BaseTool
     Bot = Bot
-    DandyCriticalError = DandyCriticalError
+    DandyConfigurationError = DandyConfigurationError
     DandyError = DandyError
-    DandyRecoverableError = DandyRecoverableError
+    DandyExternalError = DandyExternalError
+    DandyFlowError = DandyFlowError
+    DandyUsageError = DandyUsageError
     Decision = Decision
     DefaultIntel = DefaultIntel
     HashMixin = HashMixin

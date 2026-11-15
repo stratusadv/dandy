@@ -9,7 +9,7 @@ from dandy.infrastructure.llm.connector import LlmConnector
 from dandy.infrastructure.llm.config import LlmConfig
 from dandy.application.decision.mixin import DecisionServiceMixin
 from dandy.application.diligence.mixin import DiligenceServiceMixin
-from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.exceptions import LlmUsageError
 from dandy.domain.request.options import LlmOptions
 from dandy.domain.request.prompts import service_system_prompt
 from dandy.application.tool.mixin import ToolServiceMixin
@@ -81,7 +81,7 @@ class LlmService(
     def config(self, llm_config: LlmConfig) -> None:
         if not isinstance(llm_config, LlmConfig):
             message = f'config expects an LlmConfig instance, got {type(llm_config).__name__}.'
-            raise LlmCriticalError(message)
+            raise LlmUsageError(message)
 
         self._llm_connector.set_llm_config(llm_config)
         self.obj.llm_config = llm_config.name
@@ -103,7 +103,7 @@ class LlmService(
             if expected_type is not None:
                 if isinstance(value, bool) or not isinstance(value, expected_type):
                     message = f'Invalid override for "{key}": expected {expected_type.__name__}.'
-                    raise LlmCriticalError(message)
+                    raise LlmUsageError(message)
 
                 identity_overrides[key] = value
 
@@ -115,7 +115,7 @@ class LlmService(
                     f'Unknown LLM config override "{key}". Use model, host, port, api_key, '
                     'context_size, prompt_retry_count or an LlmOptions field.'
                 )
-                raise LlmCriticalError(message)
+                raise LlmUsageError(message)
 
         llm_config = LlmConfig(name)
 

@@ -1,9 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyUsageError
 
 
-class RecorderCriticalError(DandyCriticalError):
-    pass
-
-
-class RecorderRecoverableError(DandyRecoverableError):
+class RecorderUsageError(DandyUsageError):
     pass

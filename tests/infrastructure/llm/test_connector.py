@@ -2,7 +2,7 @@ import copy
 from unittest import TestCase, mock
 
 from dandy.domain.intel.intel import BaseIntel, DefaultIntel
-from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.request.request import LlmRequestBody
 from dandy.domain.tool.intel import ToolCallsIntel
@@ -147,7 +147,7 @@ class TestLlmConnector(TestCase):
     def test_prompt_to_intel_requires_at_least_one_user_message(self) -> None:
         connector = self.make_connector(intel_class=AnswerIntel)
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             connector.prompt_to_intel(prompt=None)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
@@ -257,7 +257,7 @@ class TestLlmConnector(TestCase):
 
         connector = self.make_connector(intel_class=AnswerIntel)
 
-        with self.assertRaises(LlmRecoverableError) as context:
+        with self.assertRaises(LlmExternalError) as context:
             connector.prompt_to_intel(prompt='Hi')
 
         self.assertEqual(mock_post_request.call_count, 3)
@@ -280,7 +280,7 @@ class TestLlmConnector(TestCase):
                 system_prompt='System prompt.',
             )
 
-            with self.assertRaises(LlmRecoverableError) as context:
+            with self.assertRaises(LlmExternalError) as context:
                 connector.prompt_to_intel(prompt='Hi')
 
         self.assertEqual(mock_post_request.call_count, 1)
@@ -346,7 +346,7 @@ class TestLlmConnector(TestCase):
     ) -> None:
         connector = self.make_connector()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             connector.prompt_to_intel(
                 prompt='Hi', intel_class=AnswerIntel, intel_object=AnswerIntel(text='x')
             )
@@ -359,7 +359,7 @@ class TestLlmConnector(TestCase):
     ) -> None:
         connector = self.make_connector()
 
-        with self.assertRaises(LlmCriticalError):
+        with self.assertRaises(LlmUsageError):
             connector.prompt_to_intel(prompt='Hi')
 
         self.assertEqual(mock_post_request.call_count, 0)

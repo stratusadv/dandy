@@ -92,9 +92,9 @@ print(final.text)
   wins, and it is also what lets you `run` with an `intel_class` that has no
   `done` field.
 - **Budget.** If `max_turns` is set and the request is still incomplete after
-  that many turns, `run` raises `AgentRecoverableError` (the same
+  that many turns, `run` raises `AgentExternalError` (the same
   give-up semantics as the tool loop). With no `done` field and no `is_done`,
-  `run` fails fast with `AgentCriticalError` — an agent that cannot tell when it
+  `run` fails fast with `AgentUsageError` — an agent that cannot tell when it
   is finished should not be running.
 
 ## Guards
@@ -132,7 +132,7 @@ agent = Agent(MyBot(), tools=[...], guards=[BigTurnGuard()])
   (with the turn's final result); each hook sees the conversation turn number
   (1-based, reset by `clear()`) plus the history's estimated token count
   against the resolved context window. A `failure_message` stops the turn and
-  surfaces as `AgentRecoverableError`; a combined `note` from `on_turn_end` is
+  surfaces as `AgentExternalError`; a combined `note` from `on_turn_end` is
   appended to the next `run()` continuation prompt, steering the model
   mid-run (guard authors prefix their note with their own whitespace —
   snippets join with no separator). `compact` is not honored on turn events:
@@ -170,7 +170,7 @@ count). `load_session(session)` restores the history into a fresh
   `save_session_json()` back. One agent instance serves many conversations
   this way, because `load_session_json` fully replaces the history and
   resets the bot. A string that does not validate as an `AgentSession`
-  raises `AgentRecoverableError` without touching the live conversation.
+  raises `AgentExternalError` without touching the live conversation.
 - `SessionStore` (`dandy/application/agent/session_store.py`) is the file side:
   one JSON record per named session under a directory (each record pairs the
   `AgentSession` with a name and created/updated timestamps). `for_project(path)`
@@ -178,9 +178,9 @@ count). `load_session(session)` restores the history into a fresh
   same project shares the location. It also gives you `list_sessions()`,
   `latest()`, `delete(name)`, and `new_name(text)`, which derives a fresh
   non-colliding `YYYY-MM-DD-HH-MM-<slug>` name from a piece of request text. Unknown
-  names raise `AgentRecoverableError` listing the available sessions; invalid
+  names raise `AgentExternalError` listing the available sessions; invalid
   names (empty, `.`/`..`, or containing path separators) raise
-  `AgentCriticalError`.
+  `AgentUsageError`.
 
 The [CLI agent](cli_agent.md)'s REPL is the built-in consumer: it auto-saves
 after every turn and exposes the store through the `/new`, `/sessions`, `/resume`,

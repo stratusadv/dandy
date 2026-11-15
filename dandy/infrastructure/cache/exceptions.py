@@ -1,9 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyUsageError
 
 
-class CacheCriticalError(DandyCriticalError):
-    pass
-
-
-class CacheRecoverableError(DandyRecoverableError):
+class CacheUsageError(DandyUsageError):
     pass

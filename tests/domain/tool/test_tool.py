@@ -3,7 +3,7 @@ from typing import Any
 from unittest import TestCase
 
 from dandy.domain.message.message import Message, MessageHistory
-from dandy.domain.tool.exceptions import ToolCriticalError
+from dandy.domain.tool.exceptions import ToolUsageError
 from dandy.domain.tool.tool import BaseTool, to_tool_instances
 
 from tests.application.tool.intelligence.tools import (
@@ -81,7 +81,7 @@ class TestBaseTool(TestCase):
         self.assertEqual(parameters['required'], ['location'])
 
     def test_to_function_dict_without_name_raises(self):
-        with self.assertRaises(ToolCriticalError):
+        with self.assertRaises(ToolUsageError):
             MissingNameTool().to_function_dict()
 
     def test_handle_derives_intel_class_from_signature(self):

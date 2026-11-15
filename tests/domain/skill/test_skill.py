@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from dandy.domain.skill.exceptions import SkillCriticalError
+from dandy.domain.skill.exceptions import SkillUsageError
 from dandy.domain.skill.prompts import skill_system_prompt_section
 from dandy.domain.skill.skill import BaseSkill, to_skill_instances
 
@@ -65,15 +65,15 @@ class TestBaseSkill(TestCase):
         self.assertEqual(skill.get_method('greet')(), 'hello world')
 
     def test_get_method_missing_raises(self) -> None:
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             ActiveDemoSkill().get_method('nope')
 
     def test_get_method_private_raises(self) -> None:
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             ActiveDemoSkill().get_method('_private_helper')
 
     def test_get_method_non_callable_raises(self) -> None:
-        with self.assertRaises(SkillCriticalError):
+        with self.assertRaises(SkillUsageError):
             ActiveDemoSkill().get_method('not_a_method')
 
     def test_method_description_from_docstring(self) -> None:

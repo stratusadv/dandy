@@ -10,12 +10,12 @@ if TYPE_CHECKING:
 
 from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT
 from dandy.application.agent.cli.cli_agent import CliAgent
-from dandy.application.agent.exceptions import AgentRecoverableError
+from dandy.application.agent.exceptions import AgentExternalError
 from dandy.application.agent.session import session
 from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.shared.settings import settings
 from dandy.domain.guard.context_guard import ContextPressureGuard
-from dandy.domain.request.exceptions import LlmRecoverableError
+from dandy.domain.request.exceptions import LlmExternalError
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.message.compaction import DEFAULT_CONTEXT_WINDOW, compact_message_history
@@ -205,7 +205,7 @@ class TestCliAgentMultiTurn(TestCase):
             for index in range(AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
         ]
 
-        with self.assertRaises(LlmRecoverableError):
+        with self.assertRaises(LlmExternalError):
             self.agent.turn('Find needle')
 
         self.assertEqual(mock_post_request.call_count, AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
@@ -465,7 +465,7 @@ class TestCliAgentCompaction(TestCase):
         self.agent.history.add_message(role='system', text='System rules here.')
         self.agent.history.add_message(role='user', text='A huge pasted payload ' + ('h' * 50_000))
 
-        with self.assertRaises(AgentRecoverableError) as context:
+        with self.assertRaises(AgentExternalError) as context:
             self.agent.turn('tiny question')
 
         self.assertIn('context window', str(context.exception))

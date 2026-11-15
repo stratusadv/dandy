@@ -6,7 +6,7 @@ from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.shared.settings import settings
 from dandy.shared.connector.connector import BaseConnector
-from dandy.infrastructure.http.exceptions import HttpConnectorRecoverableError
+from dandy.infrastructure.http.exceptions import HttpConnectorError
 from dandy.infrastructure.http.intel import HttpRequestIntel, HttpResponseIntel
 
 
@@ -43,4 +43,4 @@ class HttpConnector(BaseConnector):
             f'and body text "{response_intel.text}" '
             f'after {settings.HTTP_CONNECTION_RETRY_COUNT} attempts'
         )
-        raise HttpConnectorRecoverableError(message)
+        raise HttpConnectorError(message)

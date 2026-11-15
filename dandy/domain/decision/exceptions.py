@@ -1,17 +1,17 @@
-from dandy.shared.exceptions import DandyCriticalError, DandyRecoverableError
+from dandy.shared.exceptions import DandyExternalError, DandyUsageError
 
 
-class DecisionCriticalError(DandyCriticalError):
+class DecisionUsageError(DandyUsageError):
     pass
 
 
-class DecisionRecoverableError(DandyRecoverableError):
+class DecisionExternalError(DandyExternalError):
     pass
 
 
-class DecisionNoChoicesRecoverableError(DecisionRecoverableError):
+class DecisionNoChoicesExternalError(DecisionExternalError):
     pass
 
 
-class DecisionTooManyChoicesRecoverableError(DecisionRecoverableError):
+class DecisionTooManyChoicesExternalError(DecisionExternalError):
     pass

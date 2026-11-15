@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from dandy.domain.request.exceptions import LlmCriticalError
+from dandy.domain.request.exceptions import LlmUsageError
 from dandy.shared.hashing import HashMixin
 
 _VALUES_MIN_MAX = {
@@ -42,11 +42,11 @@ class LlmOptions(HashMixin, BaseModel):
                 message = (
                     f'Invalid value for {key}: {value}. Must be between {min_value} and {max_value}'
                 )
-                raise LlmCriticalError(message)
+                raise LlmUsageError(message)
 
         for key, min_value in _VALUES_MIN.items():
             value = getattr(self, key)
 
             if value is not None and value < min_value:
                 message = f'Invalid value for {key}: {value}. Must be at least {min_value}.'
-                raise LlmCriticalError(message)
+                raise LlmUsageError(message)

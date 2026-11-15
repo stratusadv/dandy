@@ -1,5 +1,5 @@
-from dandy.shared.exceptions import DandyCriticalError
+from dandy.shared.exceptions import DandyUsageError
 
 
-class SkillCriticalError(DandyCriticalError):
+class SkillUsageError(DandyUsageError):
     pass

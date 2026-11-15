@@ -88,7 +88,7 @@ infrastructure.
 
 ## Domain rules that are easy to break
 
-- Decision keys must be strings (`DecisionCriticalError` otherwise).
+- Decision keys must be strings (`DecisionUsageError` otherwise).
 - `Bot.process` requires a prompt argument (it forwards `args[0]`).
 - `Bot` subclasses must call `super().__post_init__()` first, and must never override
   `__getattribute__` (the recorder wrapper lives there).

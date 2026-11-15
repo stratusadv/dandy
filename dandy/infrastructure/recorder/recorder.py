@@ -8,7 +8,7 @@ from dandy.shared.constants import (
 )
 from dandy.shared.singleton import Singleton
 from dandy.infrastructure.recorder.events import Event
-from dandy.infrastructure.recorder.exceptions import RecorderCriticalError
+from dandy.infrastructure.recorder.exceptions import RecorderUsageError
 from dandy.infrastructure.recorder.recording import Recording
 from dandy.infrastructure.recorder.renderer.html import HtmlRecordingRenderer
 from dandy.infrastructure.recorder.renderer.json import JsonRecordingRenderer
@@ -39,7 +39,7 @@ class Recorder(Singleton):
                 choices_message = f' Choices are {list(cls.recordings.keys())}'
 
             message = f'Recording "{recording_name}" does not exist. {choices_message}'
-            raise RecorderCriticalError(message)
+            raise RecorderUsageError(message)
 
     @classmethod
     def delete_all_recordings(cls) -> None:
@@ -93,7 +93,7 @@ class Recorder(Singleton):
             message = (
                 f'Renderer "{renderer}" does not exist. Choices are {list(cls.renderers.keys())}'
             )
-            raise RecorderCriticalError(message)
+            raise RecorderUsageError(message)
 
         cls.check_recording_is_valid(recording_name)
 

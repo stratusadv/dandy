@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from pydantic import ValidationError
 
-from dandy.shared.typing.exceptions import TypingCriticalError
+from dandy.shared.typing.exceptions import TypingUsageError
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import BaseIntel
 from tests.shared.typing.consts import SIMPLE_JSON_SCHEMA
@@ -49,7 +49,7 @@ class TestIntelClassGenerator(TestCase):
         self.assertEqual(chaos_math(**new_chaos_math_args.model_to_kwargs()), 34.0)
 
     def test_from_class_signature_no_annotations(self):
-        with self.assertRaises(TypingCriticalError):
+        with self.assertRaises(TypingUsageError):
 
             def subtract(a, b: int):
                 return a - b

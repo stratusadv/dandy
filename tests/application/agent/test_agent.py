@@ -1,7 +1,7 @@
 from unittest import TestCase, mock
 
 from dandy.application.agent.agent import Agent
-from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
+from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from tests.application.tool.intelligence.tools import ToolBot, WeatherTool
 from dandy.domain.guard.guard import Guard, GuardOutcome
@@ -191,7 +191,7 @@ class TestAgentTurn(TestCase):
     def test_turn_raises_when_history_and_message_exceed_window(self) -> None:
         self.agent.bot.llm.config.context_size = 1
 
-        with self.assertRaises(AgentRecoverableError):
+        with self.assertRaises(AgentExternalError):
             self.agent.turn('This message is far too big for the window.')
 
         self.assertEqual(len(self.agent.history), 0)
@@ -330,7 +330,7 @@ class TestAgentSession(TestCase):
 
     def test_load_session_json_rejects_invalid_json(self) -> None:
         for invalid_json in ('not a session', '{"messages": "nope"}', '{"token_count": "lots"}'):
-            with self.assertRaises(AgentRecoverableError):
+            with self.assertRaises(AgentExternalError):
                 self.agent.load_session_json(invalid_json)
 
         self.assertEqual(len(self.agent.history), 0)
@@ -395,7 +395,7 @@ class TestAgentRun(TestCase):
     ) -> None:
         agent = Agent(ToolBot(), intel_class=DefaultIntel)
 
-        with self.assertRaises(AgentCriticalError):
+        with self.assertRaises(AgentUsageError):
             agent.run('Go.')
 
         self.assertEqual(mock_post_request.call_count, 0)
@@ -409,7 +409,7 @@ class TestAgentRun(TestCase):
             content_response('{"text": "Still working.", "done": false}'),
         ]
 
-        with self.assertRaises(AgentRecoverableError):
+        with self.assertRaises(AgentExternalError):
             agent.run('Do the thing.')
 
         self.assertEqual(mock_post_request.call_count, 3)
@@ -423,7 +423,7 @@ class TestAgentGuards(TestCase):
         agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[_TurnStartFailingGuard()])
         mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
 
-        with self.assertRaises(AgentRecoverableError) as context:
+        with self.assertRaises(AgentExternalError) as context:
             agent.turn('What is the weather in Austin?')
 
         self.assertIn('turn-start guard', str(context.exception))
@@ -437,7 +437,7 @@ class TestAgentGuards(TestCase):
         agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[_TurnEndFailingGuard()])
         mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
 
-        with self.assertRaises(AgentRecoverableError) as context:
+        with self.assertRaises(AgentExternalError) as context:
             agent.turn('What is the weather in Austin?')
 
         self.assertIn('turn-end guard', str(context.exception))

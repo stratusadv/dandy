@@ -6,7 +6,7 @@ from typing import Sequence
 from urllib.parse import urlparse
 
 from dandy.shared.settings import settings
-from dandy.shared.exceptions import FileCriticalError, FileRecoverableError
+from dandy.shared.exceptions import FileUsageError, FileExternalError
 
 
 def append_to_file(file_path: Path | str, content: str) -> None:
@@ -25,7 +25,7 @@ def clean_file_extensions(file_extensions: Sequence[str]) -> Sequence[str]:
 def encode_file_to_base64(file_path: str | Path) -> str:
     if not Path(file_path).is_file():
         message = f'File "{file_path}" does not exist'
-        raise FileCriticalError(message)
+        raise FileUsageError(message)
 
     with open(file_path, 'rb') as f:
         return base64.b64encode(f.read()).decode('utf-8')
@@ -43,7 +43,7 @@ def get_file_path_or_exception(file_path: str | Path) -> Path:
         return Path(settings.BASE_PATH, file_path)
 
     message = f'File "{file_path}" does not exist'
-    raise FileCriticalError(message)
+    raise FileUsageError(message)
 
 
 def get_directory_path_or_exception(dir_path: str | Path) -> Path:
@@ -54,7 +54,7 @@ def get_directory_path_or_exception(dir_path: str | Path) -> Path:
         return Path(settings.BASE_PATH, dir_path)
 
     message = f'Directory "{dir_path}" does not exist'
-    raise FileCriticalError(message)
+    raise FileUsageError(message)
 
 
 def get_directory_listing(
@@ -98,7 +98,7 @@ def make_directory(directory_path: Path | str) -> None:
 
     if not Path(directory_path).is_dir():
         message = f'Failed to create directory "{directory_path}"'
-        raise FileRecoverableError(message)
+        raise FileExternalError(message)
 
 
 def read_from_file(file_path: Path | str, encoding: str = 'utf-8') -> str:
@@ -113,7 +113,7 @@ def remove_directory(directory_path: Path | str) -> None:
 
     if Path(directory_path).is_dir():
         message = f'Failed to remove directory "{directory_path}"'
-        raise FileRecoverableError(message)
+        raise FileExternalError(message)
 
 
 def remove_file(file_path: Path | str) -> None:
@@ -121,7 +121,7 @@ def remove_file(file_path: Path | str) -> None:
 
     if Path(file_path).exists():
         message = f'Failed to remove file "{file_path}"'
-        raise FileRecoverableError(message)
+        raise FileExternalError(message)
 
 
 def write_to_file(file_path: Path | str, content: str) -> None:

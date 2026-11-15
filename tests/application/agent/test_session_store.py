@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from unittest import TestCase
 
-from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
+from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, SessionRecord
 from dandy.application.agent.session_store import SessionStore
 from dandy.domain.message.message import MessageHistory
@@ -58,7 +58,7 @@ class TestSessionStore(TestCase):
     def test_load_unknown_session_lists_available(self) -> None:
         self.store.save('one', _make_session())
 
-        with self.assertRaises(AgentRecoverableError) as context:
+        with self.assertRaises(AgentExternalError) as context:
             self.store.load('missing')
 
         self.assertIn('one', str(context.exception))
@@ -73,7 +73,7 @@ class TestSessionStore(TestCase):
     def test_delete_unknown_session_lists_available(self) -> None:
         self.store.save('one', _make_session())
 
-        with self.assertRaises(AgentRecoverableError) as context:
+        with self.assertRaises(AgentExternalError) as context:
             self.store.delete('missing')
 
         self.assertIn('one', str(context.exception))
@@ -116,7 +116,7 @@ class TestSessionStore(TestCase):
 
     def test_save_rejects_path_traversal_names(self) -> None:
         for bad_name in ('', '.', '..', 'a/b', '../evil'):
-            with self.assertRaises(AgentCriticalError):
+            with self.assertRaises(AgentUsageError):
                 self.store.save(bad_name, _make_session())
 
     def _write_record(self, name: str, updated_at: datetime) -> None:

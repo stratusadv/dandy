@@ -15,7 +15,7 @@ from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.intel.typing import IntelType
 from dandy.infrastructure.llm.config import LlmConfig
 from dandy.infrastructure.llm.fenced_json import extract_code_fence_json_body
-from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
+from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.domain.request.prompts import service_system_validation_error_prompt
 from dandy.domain.prompt.prompt import Prompt
 from dandy.infrastructure.recorder.llm_events import (
@@ -127,7 +127,7 @@ class LlmConnector(BaseConnector):
             message = (
                 'You cannot prompt the LlmService without at least one system and one user message.'
             )
-            raise LlmCriticalError(message)
+            raise LlmUsageError(message)
 
         if self.pre_diligence_handler is not None:
             self.pre_diligence_handler.apply(llm_connector=self)
@@ -241,7 +241,7 @@ class LlmConnector(BaseConnector):
                 return intel_object
 
             message = 'Failed to validate response from prompt into intel object.'
-            raise LlmRecoverableError(message)
+            raise LlmExternalError(message)
 
         except ValidationError as error:
             fenced_intel_object = self._validate_fenced_json_response()
@@ -351,21 +351,21 @@ class LlmConnector(BaseConnector):
             return self._request_to_intel()
 
         message = f'Failed to get the correct response from the LlmService after {self.llm_config.prompt_retry_count} attempts.'
-        raise LlmRecoverableError(message)
+        raise LlmExternalError(message)
 
     def _set_intel(
         self, intel_class: type[IntelType] | None = None, intel_object: IntelType | None = None
     ) -> None:
         if intel_class and intel_object:
             message = 'Cannot specify both intel_class and intel_object.'
-            raise LlmCriticalError(message)
+            raise LlmUsageError(message)
 
         if intel_class is None and intel_object is None:
             if self.intel_class:
                 intel_class = self.intel_class
             else:
                 message = 'Must specify either intel_class, intel_object or llm_intel_class on the processor.'
-                raise LlmCriticalError(message)
+                raise LlmUsageError(message)
 
         self.intel = intel_class or intel_object
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from dandy.infrastructure import recorder
-from dandy.shared.exceptions import DandyRecoverableError
+from dandy.shared.exceptions import DandyExternalError
 from dandy.infrastructure.recorder.decorators import recorder_to_html_file
 from tests.domain.intel.intelligence.bots import JsonSchemaBot
 from tests.domain.intel.intelligence.intel import OfficeIntel, PersonIntel
@@ -20,7 +20,7 @@ class TestJsonSchemaWithLlm(TestCase):
             )
 
             self.assertTrue(True)
-        except DandyRecoverableError:
+        except DandyExternalError:
             self.assertTrue(False)
 
     @run_llm_configs()
@@ -34,5 +34,5 @@ class TestJsonSchemaWithLlm(TestCase):
             )
 
             self.assertTrue(True)
-        except DandyRecoverableError:
+        except DandyExternalError:
             self.assertTrue(False)

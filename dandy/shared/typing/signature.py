@@ -3,7 +3,7 @@ import json
 from typing import Callable
 
 from dandy.shared.typing.constants import STRING_TO_TYPE_MAP
-from dandy.shared.typing.exceptions import TypingRecoverableError, TypingCriticalError
+from dandy.shared.typing.exceptions import TypingUsageError
 from dandy.shared.typing.typed_kwargs import TypedKwargs
 
 
@@ -17,7 +17,7 @@ def get_typed_kwargs_from_callable_signature(
     for name, param in signature.parameters.items():
         if param.annotation is inspect._empty:
             message = f'Parameter {name} of {callable_.__qualname__} has no typed annotation'
-            raise TypingCriticalError(message)
+            raise TypingUsageError(message)
 
         if param.default is inspect._empty:
             typed_kwargs_dict[name] = (param.annotation, ...)
@@ -55,7 +55,7 @@ def get_typed_kwargs_from_simple_json_schema(simple_json_schema: dict | str) -> 
 
     except KeyError as error:
         message = f'Type {simple_json_schema} is not recognized'
-        raise TypingRecoverableError(message) from error
+        raise TypingUsageError(message) from error
 
     return TypedKwargs(typed_kwargs_dict)
 
@@ -65,4 +65,4 @@ def string_to_type_or_error(string: str) -> type:
         return STRING_TO_TYPE_MAP[string.lower()]
 
     message = f'Type {string} is not recognized'
-    raise TypingCriticalError(message)
+    raise TypingUsageError(message)

@@ -2,7 +2,7 @@ import sys
 
 from dandy.application.agent.cli.intelligence.bots.session_naming_bot import SessionNamingBot
 from dandy.application.agent.cli.cli_agent import CliAgent
-from dandy.application.agent.exceptions import AgentRecoverableError
+from dandy.application.agent.exceptions import AgentExternalError
 from dandy.application.agent.intel import SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
@@ -166,7 +166,7 @@ class DandyCli:
         """
         try:
             agent_session = self.session_store.load(name)
-        except AgentRecoverableError as error:
+        except AgentExternalError as error:
             tui.printer.error(error='Could not resume session', description=str(error))
             return False
 
@@ -241,7 +241,7 @@ class DandyCli:
         """Delete a saved session, returning whether it succeeded (one-shot mode)."""
         try:
             self.session_store.delete(name)
-        except AgentRecoverableError as error:
+        except AgentExternalError as error:
             tui.printer.error(error='Could not delete session', description=str(error))
             return False
 

@@ -180,9 +180,9 @@ Documented in [Agent](../user_guide/agent.md).
             - list_sessions
             - new_name
 
-::: dandy.application.agent.exceptions.AgentCriticalError
+::: dandy.application.agent.exceptions.AgentUsageError
 
-::: dandy.application.agent.exceptions.AgentRecoverableError
+::: dandy.application.agent.exceptions.AgentExternalError
 
 ## The CLI agent
 

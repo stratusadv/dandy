@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable, Sequence
 
 from pydantic import ValidationError
 
-from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
+from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.shared.cancellation import stop_signal
@@ -19,7 +19,7 @@ from dandy.domain.message.compaction import (
 )
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.prompt.prompt import Prompt
-from dandy.domain.request.exceptions import LlmRecoverableError
+from dandy.domain.request.exceptions import LlmExternalError
 from dandy.domain.skill.skill import to_skill_instances
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
 from dandy.domain.tool.beat import StoryBeat
@@ -152,8 +152,8 @@ class Agent:
                 context_window=self.max_context_tokens,
                 verbose_callback=verbose_callback,
             )
-        except LlmRecoverableError as error:
-            raise AgentRecoverableError(str(error)) from error
+        except LlmExternalError as error:
+            raise AgentExternalError(str(error)) from error
 
     def _watch_turn_end(
         self, result: IntelType, verbose_callback: Callable[[str], None] | None
@@ -167,8 +167,8 @@ class Agent:
                 context_window=self.max_context_tokens,
                 verbose_callback=verbose_callback,
             )
-        except LlmRecoverableError as error:
-            raise AgentRecoverableError(str(error)) from error
+        except LlmExternalError as error:
+            raise AgentExternalError(str(error)) from error
 
         if outcome.note is not None:
             self._pending_turn_note = outcome.note
@@ -201,7 +201,7 @@ class Agent:
             'after dropping everything droppable. Clear the conversation and retry, '
             'with a shorter message if possible.'
         )
-        raise AgentRecoverableError(error_message)
+        raise AgentExternalError(error_message)
 
     def run(
         self,
@@ -223,7 +223,7 @@ class Agent:
                 f'{self.intel_class.__name__} has no `done` field and no `is_done` '
                 f'callback was given.'
             )
-            raise AgentCriticalError(message)
+            raise AgentUsageError(message)
 
         self._pending_turn_note = None
 
@@ -244,7 +244,7 @@ class Agent:
                     f'Agent gave up after {self.max_turns} turns without the request '
                     f'being complete.'
                 )
-                raise AgentRecoverableError(message)
+                raise AgentExternalError(message)
 
             result = self.turn(
                 self._continuation_with_pending_note(),
@@ -301,7 +301,7 @@ class Agent:
             session = AgentSession.model_validate_json(session_json)
         except ValidationError:
             message = 'The session JSON is not a valid agent session snapshot.'
-            raise AgentRecoverableError(message) from None
+            raise AgentExternalError(message) from None
 
         self.load_session(session)
 

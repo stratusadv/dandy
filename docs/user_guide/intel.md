@@ -54,7 +54,7 @@ intel = bot.process(
 - `include_fields` / `exclude_fields` on a call trim the generated schema.
 - `model_inc_ex_class_copy(include=..., exclude=...)` builds a runtime subclass with only
   (or except) the listed fields — for reusing one Intel across several bots. Nested dicts
-  drill into nested Intel. Passing both include and exclude is an `IntelCriticalError`,
+  drill into nested Intel. Passing both include and exclude is an `IntelUsageError`,
   as are unknown field names.
 
 ## File round-trips

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from dandy.shared.service.service import BaseService
 from dandy.application.skill.tools import ActivateSkillTool, SkillMethodTool
-from dandy.domain.skill.exceptions import SkillCriticalError
+from dandy.domain.skill.exceptions import SkillUsageError
 from dandy.domain.skill.prompts import skill_system_prompt_section
 from dandy.domain.skill.skill import BaseSkill, SkillType, to_skill_instances
 
@@ -97,18 +97,18 @@ class SkillService(BaseService['dandy.application.skill.mixin.SkillServiceMixin'
                 f'"{skill.__class__.__name__}" does not have a "name" attribute, '
                 f'every BaseSkill subclass must define one.'
             )
-            raise SkillCriticalError(message)
+            raise SkillUsageError(message)
 
         if not skill.active and not skill.description:
             message = (
                 f'Passive skill "{skill.name}" needs a "description" so the model '
                 f'knows when to activate it.'
             )
-            raise SkillCriticalError(message)
+            raise SkillUsageError(message)
 
         if any(other.name == skill.name for other in self._skills):
             message = f'Two registered skills share the name "{skill.name}".'
-            raise SkillCriticalError(message)
+            raise SkillUsageError(message)
 
         existing_tool_names = {tool.name for tools in self._skill_tools.values() for tool in tools}
 
@@ -118,11 +118,11 @@ class SkillService(BaseService['dandy.application.skill.mixin.SkillServiceMixin'
                     f'Skill "{skill.name}" generates the tool name '
                     f'"{_ACTIVATE_TOOL_NAME}", which is reserved.'
                 )
-                raise SkillCriticalError(message)
+                raise SkillUsageError(message)
 
             if tool_name in existing_tool_names:
                 message = f'Two registered skills generate the tool name "{tool_name}".'
-                raise SkillCriticalError(message)
+                raise SkillUsageError(message)
 
         for method_name in skill.tools:
             skill.get_method(method_name)

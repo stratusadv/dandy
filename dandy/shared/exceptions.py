@@ -2,23 +2,31 @@ class DandyError(Exception):
     pass
 
 
-class DandyCriticalError(DandyError):
+class DandyConfigurationError(DandyError):
     pass
 
 
-class DandyRecoverableError(DandyError):
+class DandyUsageError(DandyError):
     pass
 
 
-class FileCriticalError(DandyCriticalError):
+class DandyExternalError(DandyError):
     pass
 
 
-class FileRecoverableError(DandyRecoverableError):
+class DandyFlowError(DandyError):
     pass
 
 
-class RunStoppedError(DandyRecoverableError):
+class FileUsageError(DandyUsageError):
+    pass
+
+
+class FileExternalError(DandyExternalError):
+    pass
+
+
+class RunStoppedError(DandyFlowError):
     """Raised at a stop checkpoint when the user asked to stop a running turn.
 
     Lives in the shared layer so application, infrastructure, and interfaces

@@ -82,7 +82,7 @@ agent = Agent(bot, tools=[...], skills=[GitSkill])
 - Two registered skills cannot share a `name`.
 - Generated tool names (`{skill}_{method}`) cannot collide with each other or with a
   tool you pass to `prompt_to_intel`; a collision fails fast with
-  `LlmCriticalError` before any request goes out.
+  `LlmUsageError` before any request goes out.
 - `activate_skill` is reserved; a skill must not generate it as a tool name.
 - A passive skill must have a `description` — it is the only thing the model sees
   before activation, so write it as a trigger: what the skill does and *when* to

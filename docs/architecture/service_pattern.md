@@ -27,7 +27,7 @@ class LlmServiceMixin(BaseServiceMixin):
 1. `Bot` subclasses declare their configuration as **class attributes** (`llm_config`,
    `role`, `task`, `intel_class`, ...).
 2. `BaseServiceMixin._required_attrs` + `__init_subclass__` raise
-   `ServiceCriticalError` at class-creation time if a required attribute is still
+   `ServiceConfigurationError` at class-creation time if a required attribute is still
    `None` — misconfiguration fails early and loudly.
 3. First access to `bot.llm` calls `_get_service_instance(LlmService)`, which
    instantiates the service, stores it on the owner, and runs its `__post_init__` hook.
@@ -61,6 +61,6 @@ from settings — this is what the CLI's `/new` command (via `Agent.clear()`) do
    recorder wrapper around `process()` through `__getattribute__` at class-creation
    time; overriding it silently disables auto-recording.
 2. **`super().__post_init__()` first**, in any `__post_init__` you write — the
-   `ServiceCriticalError` guards depend on it.
+   `ServiceConfigurationError` guards depend on it.
 3. **Class attributes, not instance state**, for service configuration: the guards run
    at class definition, so instance-level configuration is not visible to them.
