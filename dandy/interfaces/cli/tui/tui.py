@@ -32,7 +32,7 @@ class Tui:
         self, question: str | None = None, choices: list[str] | None = None
     ) -> str | None:
         if question:
-            self._input_prefix = self.term.purple('⦿ ')
+            self._input_prefix = self.term.purple('❯ ')
             self.printer.event(
                 text=f'\n{self.term.purple}{QuestionTool.action_label}{self.term.normal}'
             )
@@ -46,7 +46,7 @@ class Tui:
             self.printer.purple_divider()
 
         else:
-            self._input_prefix = self.term.bold_blue('⦿ ')
+            self._input_prefix = self.term.bold_blue('❯ ')
             self.printer.bold_blue_divider()
 
         self._buffer = []

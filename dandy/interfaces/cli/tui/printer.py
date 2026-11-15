@@ -247,13 +247,13 @@ class Printer:
 
         One section per non-empty action, in the order Added Files, Modified
         Files, Removed Files: a bold blue title, a thin blue bottom border,
-        one line per path with the action-colored bullet (green added, blue
+        one line per path with the action-colored bullet (green added, purple
         modified, red removed) beside a clickable file:// link, and an empty
         line before each section; prints nothing when every list is empty.
         """
         sections = (
             ('Added Files', added_files, self.term.green),
-            ('Modified Files', modified_files, self.term.blue),
+            ('Modified Files', modified_files, self.term.purple),
             ('Removed Files', removed_files, self.term.red),
         )
 

@@ -57,6 +57,9 @@ def session_banner_line(store: SessionStore) -> str:
     return f'{session_count} saved, latest: {latest_name} - resume with /r'
 
 
+SKILL_BANNER_LIST_LIMIT = 10
+
+
 def skills_banner_line(project_base_path: Path) -> str:
     """The welcome banner line summarizing the skills loaded for the agent."""
     skills, _issues = load_cli_skills(project_base_path)
@@ -67,4 +70,9 @@ def skills_banner_line(project_base_path: Path) -> str:
     active_count = sum(1 for skill in skills if skill.active)
     passive_count = len(skills) - active_count
 
-    return f'{len(skills)} loaded ({active_count} active, {passive_count} passive)'
+    listed = [skill.name for skill in skills[:SKILL_BANNER_LIST_LIMIT]]
+    extra = len(skills) - len(listed)
+
+    names = ', '.join(listed) + (f', ... +{extra} more' if extra else '')
+
+    return f'{len(skills)} loaded ({active_count} active, {passive_count} passive): {names}'

@@ -251,8 +251,8 @@ class TestToolActionLabelsAndOutputs(TestCase):
 
     def test_clock_labels_and_outputs_describe_the_action(self) -> None:
         self.assertEqual(ClockTool().action_label, 'Getting current time')
-        self.assertIsNone(ClockTool().action_output())
-        self.assertIsNone(ClockTool().action_output(timezone='local'))
+        self.assertEqual(ClockTool().action_output(), 'system time')
+        self.assertEqual(ClockTool().action_output(timezone='local'), 'system time')
         self.assertEqual(ClockTool().action_output(timezone='UTC'), 'in UTC')
 
     def test_can_mutate_state_flags_the_command_tool(self) -> None:

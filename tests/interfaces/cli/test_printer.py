@@ -75,19 +75,41 @@ class TestSkillsBannerLine(TestCase):
                 'none found - drop SKILL.md folders in .dandy/skills/',
             )
 
+    @staticmethod
+    def _skill(name: str, active: bool) -> mock.MagicMock:
+        skill = mock.MagicMock(active=active)
+        skill.name = name
+        return skill
+
     def test_banner_line_counts_active_and_passive_skills(self) -> None:
         skills = [
-            mock.MagicMock(active=True),
-            mock.MagicMock(active=True),
-            mock.MagicMock(active=False),
+            self._skill('alpha', True),
+            self._skill('bravo', True),
+            self._skill('charlie', False),
         ]
 
         with mock.patch(
             'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
         ):
             self.assertEqual(
-                skills_banner_line(Path('/nonexistent')), '3 loaded (2 active, 1 passive)'
+                skills_banner_line(Path('/nonexistent')),
+                '3 loaded (2 active, 1 passive): alpha, bravo, charlie',
             )
+
+    def test_banner_line_lists_only_the_first_ten_skills(self) -> None:
+        skills = [self._skill(f'skill-{index}', True) for index in range(13)]
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
+        ):
+            line = skills_banner_line(Path('/nonexistent'))
+
+        self.assertIn('13 loaded (13 active, 0 passive): ', line)
+        self.assertIn('skill-0, skill-1, skill-2, skill-3, skill-4, skill-5, skill-6', line)
+        self.assertIn('skill-7, skill-8, skill-9, ... +3 more', line)
+        self.assertNotIn('skill-10', line)
+        self.assertNotIn('skill-11', line)
+        self.assertNotIn('skill-12', line)
 
 
 class TestPrinterStory(TestCase):
@@ -848,7 +870,7 @@ class TestPrinterFileChangeSections(TestCase):
         self.assertEqual(lines[1], f'{term.bold_blue}Added Files{term.normal}')
         self.assertEqual(lines[2], term.blue('─' * term.width))
         self.assertEqual(
-            lines[3], f'{term.normal}{term.green}•{term.normal} {self._expected_link("src/foo.py")}'
+            lines[3], f'{term.normal}{term.green}◈{term.normal} {self._expected_link("src/foo.py")}'
         )
 
     def test_bullets_are_colored_per_action(self) -> None:
@@ -856,12 +878,12 @@ class TestPrinterFileChangeSections(TestCase):
 
         lines = self.printed_lines
         term = self.printer.term
-        bullet_lines = [line for line in lines if '•' in line]
+        bullet_lines = [line for line in lines if '◈' in line]
 
         self.assertEqual(len(bullet_lines), 3)
-        self.assertIn(f'{term.green}•{term.normal}', bullet_lines[0])
-        self.assertIn(f'{term.blue}•{term.normal}', bullet_lines[1])
-        self.assertIn(f'{term.red}•{term.normal}', bullet_lines[2])
+        self.assertIn(f'{term.green}◈{term.normal}', bullet_lines[0])
+        self.assertIn(f'{term.purple}◈{term.normal}', bullet_lines[1])
+        self.assertIn(f'{term.red}◈{term.normal}', bullet_lines[2])
 
     def test_sections_print_in_order_and_skip_empty(self) -> None:
         self.printer.file_change_sections(['src/a.py'], [], ['src/c.py'])
@@ -886,4 +908,4 @@ class TestPrinterFileChangeSections(TestCase):
         self.assertEqual(lines[0], '')
         self.assertEqual(lines[4], '')
         self.assertEqual(lines[8], '')
-        self.assertIn(f'{term.red}•{term.normal}', lines[11])
+        self.assertIn(f'{term.red}◈{term.normal}', lines[11])

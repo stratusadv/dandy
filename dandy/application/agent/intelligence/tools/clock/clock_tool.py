@@ -18,10 +18,10 @@ class ClockTool(BaseTool):
 
     action_label = 'Getting current time'
 
-    def action_output(self, **kwargs: Any) -> str | None:
+    def action_output(self, **kwargs: Any) -> str:
         timezone = kwargs.get('timezone') or ''
 
-        return f'in {timezone}' if timezone and timezone != LOCAL_TIMEZONE else None
+        return f'in {timezone}' if timezone and timezone != LOCAL_TIMEZONE else 'system time'
 
     @tool_error('getting time')
     def handle(self, timezone: str = LOCAL_TIMEZONE) -> str:

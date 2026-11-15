@@ -153,7 +153,7 @@ class TestTuiQuestionPrompt(TestCase):
         self.assertIn('blue', printed[3])
         self.assertEqual(printed[4], term.purple('─' * term.width))
         self.assertEqual(printed[5], term.purple('─' * term.width))
-        mock_write.assert_any_call(term.purple('⦿ '))
+        mock_write.assert_any_call(term.purple('❯ '))
 
     @mock.patch('sys.stdout.write')
     def test_question_label_and_arrow_are_plain_purple_and_text_is_plain_black(
@@ -173,7 +173,7 @@ class TestTuiQuestionPrompt(TestCase):
         self.assertNotIn(term.bold_skyblue, full)
         self.assertNotIn(term.bold_grey, full)
         self.assertNotIn(term.bold_orange, full)
-        mock_write.assert_any_call(term.purple('⦿ '))
+        mock_write.assert_any_call(term.purple('❯ '))
 
 
 class TestTuiCommandCompletion(TestCase):
@@ -217,7 +217,7 @@ class TestTuiCommandCompletion(TestCase):
         expected = (
             '\r'
             + self.term.clear_eol()
-            + self.term.bold_blue('⦿ ')
+            + self.term.bold_blue('❯ ')
             + '/'
             + self._all_commands_suggestion(self.term)
         )
@@ -248,7 +248,7 @@ class TestTuiCommandCompletion(TestCase):
         self.assertEqual(result, '/s x')
 
         written = self._written(mock_write)
-        space_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/s '
+        space_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('❯ ') + '/s '
         space_index = written.index(space_redraw)
 
         for write in written[space_index + 1 :]:
@@ -262,7 +262,7 @@ class TestTuiCommandCompletion(TestCase):
         self.assertEqual(result, '/x')
 
         written = self._written(mock_write)
-        unknown_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/x'
+        unknown_redraw = '\r' + self.term.clear_eol() + self.term.bold_blue('❯ ') + '/x'
         unknown_index = written.index(unknown_redraw)
 
         for write in written[unknown_index + 1 :]:
@@ -296,7 +296,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/quit')
-        self.assertIn(self.term.bold_blue('⦿ ') + '/quit', ''.join(self._written(mock_write)))
+        self.assertIn(self.term.bold_blue('❯ ') + '/quit', ''.join(self._written(mock_write)))
 
     @mock.patch('sys.stdout.write')
     def test_typing_a_short_shows_the_full_command_suggestion(
@@ -340,7 +340,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/sessions')
-        self.assertIn(self.term.bold_blue('⦿ ') + '/sessions', ''.join(self._written(mock_write)))
+        self.assertIn(self.term.bold_blue('❯ ') + '/sessions', ''.join(self._written(mock_write)))
 
     @mock.patch('sys.stdout.write')
     def test_tab_completes_the_resume_short_to_the_full_name(
@@ -352,7 +352,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/resume')
-        self.assertIn(self.term.bold_blue('⦿ ') + '/resume', ''.join(self._written(mock_write)))
+        self.assertIn(self.term.bold_blue('❯ ') + '/resume', ''.join(self._written(mock_write)))
 
     @mock.patch('sys.stdout.write')
     def test_tab_keeps_an_ambiguous_prefix(self, mock_write: mock.MagicMock) -> None:
@@ -362,7 +362,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/')
-        self.assertNotIn(self.term.bold_blue('⦿ ') + '/', self._written(mock_write))
+        self.assertNotIn(self.term.bold_blue('❯ ') + '/', self._written(mock_write))
 
     @mock.patch('sys.stdout.write')
     def test_tab_ignores_an_unknown_prefix(self, mock_write: mock.MagicMock) -> None:
@@ -372,7 +372,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/x')
-        self.assertNotIn(self.term.bold_blue('⦿ ') + '/x', self._written(mock_write))
+        self.assertNotIn(self.term.bold_blue('❯ ') + '/x', self._written(mock_write))
 
     @mock.patch('sys.stdout.write')
     def test_tab_after_a_space_leaves_the_text_unchanged(self, mock_write: mock.MagicMock) -> None:
@@ -382,7 +382,7 @@ class TestTuiCommandCompletion(TestCase):
             result = tui.get_user_input()
 
         self.assertEqual(result, '/resume ')
-        self.assertNotIn(self.term.bold_blue('⦿ ') + '/resume ', self._written(mock_write))
+        self.assertNotIn(self.term.bold_blue('❯ ') + '/resume ', self._written(mock_write))
 
     @mock.patch('sys.stdout.write')
     def test_backspace_updates_the_suggestions(self, mock_write: mock.MagicMock) -> None:
@@ -397,7 +397,7 @@ class TestTuiCommandCompletion(TestCase):
         s_write = (
             '\r'
             + self.term.clear_eol()
-            + self.term.bold_blue('⦿ ')
+            + self.term.bold_blue('❯ ')
             + '/s'
             + self.term.grey('  /sessions')
         )
@@ -405,7 +405,7 @@ class TestTuiCommandCompletion(TestCase):
         backspace_write = (
             '\r'
             + self.term.clear_eol()
-            + self.term.bold_blue('⦿ ')
+            + self.term.bold_blue('❯ ')
             + '/'
             + self._all_commands_suggestion(self.term)
         )
@@ -422,11 +422,11 @@ class TestTuiCommandCompletion(TestCase):
 
         self.assertEqual(
             written[suggestion_index + 1 :],
-            ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/', '\n'],
+            ['\r' + self.term.clear_eol() + self.term.bold_blue('❯ ') + '/', '\n'],
         )
 
     def test_render_writes_the_suggestion_inline(self) -> None:
-        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._input_prefix = self.term.bold_blue('❯ ')
         tui._buffer = ['/', 's']
         tui._suggestions_enabled = True
         tui._suggestion_visible = False
@@ -441,7 +441,7 @@ class TestTuiCommandCompletion(TestCase):
             [
                 '\r'
                 + self.term.clear_eol()
-                + self.term.bold_blue('⦿ ')
+                + self.term.bold_blue('❯ ')
                 + '/s'
                 + self.term.grey('  /sessions')
             ],
@@ -449,7 +449,7 @@ class TestTuiCommandCompletion(TestCase):
         self.assertTrue(tui._suggestion_visible)
 
     def test_render_clears_the_suggestion_when_matches_go_away(self) -> None:
-        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._input_prefix = self.term.bold_blue('❯ ')
         tui._buffer = ['/', 'x']
         tui._suggestions_enabled = True
         tui._suggestion_visible = True
@@ -459,11 +459,11 @@ class TestTuiCommandCompletion(TestCase):
 
         written = [str(call.args[0]) for call in mock_write.call_args_list if call.args]
 
-        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/x'])
+        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('❯ ') + '/x'])
         self.assertFalse(tui._suggestion_visible)
 
     def test_clear_suggestion_render_omits_the_suggestion(self) -> None:
-        tui._input_prefix = self.term.bold_blue('⦿ ')
+        tui._input_prefix = self.term.bold_blue('❯ ')
         tui._buffer = ['/']
         tui._suggestions_enabled = True
         tui._suggestion_visible = True
@@ -473,7 +473,7 @@ class TestTuiCommandCompletion(TestCase):
 
         written = [str(call.args[0]) for call in mock_write.call_args_list if call.args]
 
-        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('⦿ ') + '/'])
+        self.assertEqual(written, ['\r' + self.term.clear_eol() + self.term.bold_blue('❯ ') + '/'])
         self.assertFalse(tui._suggestion_visible)
 
 
@@ -522,7 +522,7 @@ class TestTuiCommandCompletionScreen(TestCase):
     @staticmethod
     def _last_bullet_row(screen: MiniScreen) -> str:
         bullet_rows = [
-            screen.line(row) for row in range(screen.height) if screen.line(row).startswith('⦿')
+            screen.line(row) for row in range(screen.height) if screen.line(row).startswith('❯')
         ]
 
         return bullet_rows[-1]
@@ -530,31 +530,31 @@ class TestTuiCommandCompletionScreen(TestCase):
     def test_input_line_stays_intact_when_the_bullet_renders_wide(self) -> None:
         keys = [*self._keys('/qu'), BACKSPACE_KEY, ENTER_KEY]
 
-        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'❯': 2})
 
         self.assertEqual(result, '/q')
-        self.assertIn('⦿  /q  /quit', snapshot.splitlines())
-        self.assertEqual(self._last_bullet_row(screen), '⦿  /q')
+        self.assertIn('❯  /q  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '❯  /q')
         self.assertNotIn('quit', screen.text())
 
     def test_tab_completion_stays_intact_when_the_bullet_renders_wide(self) -> None:
         keys = [*self._keys('/q'), TAB_KEY, ENTER_KEY]
 
-        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'❯': 2})
 
         self.assertEqual(result, '/quit')
-        self.assertIn('⦿  /quit  /quit', snapshot.splitlines())
-        self.assertEqual(self._last_bullet_row(screen), '⦿  /quit')
+        self.assertIn('❯  /quit  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '❯  /quit')
         self.assertNotIn('sessions', screen.text())
 
     def test_keystrokes_leave_no_gaps_in_the_input_line(self) -> None:
         keys = [*self._keys('/ses'), ENTER_KEY]
 
-        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'⦿': 2})
+        result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'❯': 2})
 
         self.assertEqual(result, '/ses')
-        self.assertIn('⦿  /ses  /sessions', snapshot.splitlines())
-        self.assertEqual(self._last_bullet_row(screen), '⦿  /ses')
+        self.assertIn('❯  /ses  /sessions', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '❯  /ses')
         self.assertNotIn('sessions', screen.text())
 
     def test_input_line_stays_intact_when_the_bullet_renders_narrow(self) -> None:
@@ -563,8 +563,8 @@ class TestTuiCommandCompletionScreen(TestCase):
         result, screen, snapshot = self._run_prompt_with_snapshot(keys)
 
         self.assertEqual(result, '/q')
-        self.assertIn('⦿ /q  /quit', snapshot.splitlines())
-        self.assertEqual(self._last_bullet_row(screen), '⦿ /q')
+        self.assertIn('❯ /q  /quit', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '❯ /q')
         self.assertNotIn('quit', screen.text())
 
     def test_suggestion_renders_inline_after_the_input(self) -> None:
@@ -573,8 +573,8 @@ class TestTuiCommandCompletionScreen(TestCase):
         result, screen, snapshot = self._run_prompt_with_snapshot(keys)
 
         self.assertEqual(result, '/s')
-        self.assertIn('⦿ /s  /sessions', snapshot.splitlines())
-        self.assertEqual(self._last_bullet_row(screen), '⦿ /s')
+        self.assertIn('❯ /s  /sessions', snapshot.splitlines())
+        self.assertEqual(self._last_bullet_row(screen), '❯ /s')
         self.assertNotIn('sessions', screen.text())
 
 
@@ -653,7 +653,7 @@ class TestTuiMultiLineInput(TestCase):
             expected = expected[:-1] if key is BACKSPACE_KEY else expected + key
 
         self.assertEqual(screen.line(0), '─' * self.screen_width)
-        self.assertEqual(screen.line(1), '⦿ abcdefghij')
+        self.assertEqual(screen.line(1), '❯ abcdefghij')
         self.assertEqual(screen.line(2), 'k')
         self.assertEqual(screen.line(3), '─' * self.screen_width)
 
@@ -689,7 +689,7 @@ class TestTuiMultiLineInput(TestCase):
 
             expected = expected[:-1] if key is BACKSPACE_KEY else expected + key
 
-        self.assertEqual(screen.line(1), '⦿ abcdefghi')
+        self.assertEqual(screen.line(1), '❯ abcdefghi')
         self.assertEqual(screen.line(2), '─' * self.screen_width)
 
     def test_wrapped_input_wraps_at_the_row_boundary_exactly(self) -> None:
@@ -698,7 +698,7 @@ class TestTuiMultiLineInput(TestCase):
         result, screen, _snapshots = self._run(keys)
 
         self.assertEqual(result, 'abcdefghijklmnopqrstuvwxyz0123')
-        self.assertEqual(screen.line(1), '⦿ abcdefghij')
+        self.assertEqual(screen.line(1), '❯ abcdefghij')
         self.assertEqual(screen.line(2), 'klmnopqrstuv')
         self.assertEqual(screen.line(3), 'wxyz0123')
         self.assertEqual(screen.line(4), '─' * self.screen_width)
@@ -713,6 +713,6 @@ class TestTuiMultiLineInput(TestCase):
         # The moment the buffer falls back to one row, the second row must
         # be cleared in the same redraw (only the closing divider may sit
         # below the block).
-        self.assertEqual(screen.line(1), '⦿ abcdefghi')
+        self.assertEqual(screen.line(1), '❯ abcdefghi')
         self.assertEqual(screen.line(2), '─' * self.screen_width)
         self.assertNotIn('kl', snapshots[-1])
