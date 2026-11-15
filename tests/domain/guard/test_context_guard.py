@@ -48,3 +48,14 @@ class TestContextPressureGuard(TestCase):
 
         self.assertTrue(outcome.compact)
         self.assertIsNone(outcome.failure_message)
+
+    def test_reset_forgets_the_issued_compaction(self) -> None:
+        guard = ContextPressureGuard()
+        pressured = int(65536 * 0.85)
+
+        guard.on_round_start(pressured, 65536)
+        guard.reset()
+        outcome = guard.on_round_start(pressured, 65536)
+
+        self.assertTrue(outcome.compact)
+        self.assertIsNone(outcome.failure_message)

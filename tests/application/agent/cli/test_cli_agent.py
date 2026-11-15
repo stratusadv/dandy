@@ -14,6 +14,7 @@ from dandy.application.agent.exceptions import AgentRecoverableError
 from dandy.application.agent.session import session
 from dandy.application.agent.intelligence.tools.question import QuestionTool
 from dandy.shared.settings import settings
+from dandy.domain.guard.context_guard import ContextPressureGuard
 from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.message.message import MessageHistory
@@ -628,3 +629,12 @@ class TestCliAgentQuestionTool(TestCase):
         tool_messages = [message for message in second_call_messages if message['role'] == 'tool']
 
         self.assertIn('No user is available', json.dumps(tool_messages))
+
+
+class TestCliAgentGuards(TestCase):
+    def test_guards_are_forwarded_to_the_agent(self) -> None:
+        guard = ContextPressureGuard()
+
+        agent = CliAgent(guards=[guard])
+
+        self.assertEqual(agent.guards, [guard])

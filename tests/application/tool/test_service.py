@@ -7,6 +7,8 @@ from unittest import TestCase, mock
 from dandy.application.agent.session import session
 from dandy.application.agent.intelligence.tools import EditFileTool
 from dandy.infrastructure.http.intel import HttpResponseIntel
+from dandy.domain.guard.guard import Guard, GuardEvent, GuardOutcome
+from dandy.domain.guard.repeat_guard import RepeatGuard
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallsIntel
@@ -74,6 +76,18 @@ class ConstantEchoBTool(BaseTool):
 
     def handle(self, command: str = '') -> str:
         return 'always the same output'
+
+
+class _SpyGuard(Guard):
+    name = 'spy'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.observed_tool_calls = 0
+
+    def observe(self, event: GuardEvent) -> GuardOutcome:
+        self.observed_tool_calls += 1
+        return GuardOutcome()
 
 
 def tool_call_response(
@@ -1149,3 +1163,100 @@ class TestContextPressureGuard(TestCase):
 
         self.assertIn('still exceeds', str(context.exception))
         self.assertEqual(mock_post_request.call_count, 1)
+
+
+class TestGuardInjection(TestCase):
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_explicit_guards_replace_the_defaults(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id=f'call_{i}')
+            for i in range(1, 4)
+        ] + [content_response('{"text": "Still sunny."}')]
+
+        bot = ToolBot()
+        spy_guard = _SpyGuard()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=5,
+            guards=[spy_guard],
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+        self.assertEqual(spy_guard.observed_tool_calls, 3)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+
+        self.assertEqual(len(final_request_tool_contents), 3)
+        for tool_content in final_request_tool_contents:
+            self.assertNotIn('Note:', tool_content)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_empty_guards_list_disables_guarding(self, mock_post_request: mock.MagicMock) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id=f'call_{i}')
+            for i in range(1, 11)
+        ] + [content_response('{"text": "Still sunny."}')]
+
+        bot = ToolBot()
+
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=50,
+            guards=[],
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+        self.assertEqual(mock_post_request.call_count, 11)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_passed_guard_instances_keep_state_across_calls(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_1'),
+            content_response('{"text": "Still sunny."}'),
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_2'),
+            tool_call_response('get_weather', '{"location": "Oslo"}', tool_call_id='call_3'),
+            content_response('{"text": "Still sunny."}'),
+        ]
+
+        bot = ToolBot()
+        repeat_guard = RepeatGuard(warning_threshold=3, stop_threshold=10)
+
+        bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=5,
+            guards=[repeat_guard],
+        )
+        result = bot.llm.tools.prompt_to_intel(
+            prompt='What is the weather in Oslo?',
+            intel_class=FinalAnswerIntel,
+            tools=[HandleWeatherTool],
+            max_tool_iterations=5,
+            guards=[repeat_guard],
+        )
+
+        self.assertIsInstance(result, FinalAnswerIntel)
+
+        final_request_tool_contents = [
+            message['content']
+            for message in get_request_messages(mock_post_request, mock_post_request.call_count - 1)
+            if message['role'] == 'tool'
+        ]
+
+        self.assertEqual(len(final_request_tool_contents), 3)
+        self.assertNotIn('Note:', final_request_tool_contents[0])
+        self.assertNotIn('Note:', final_request_tool_contents[1])
+        self.assertIn('Note:', final_request_tool_contents[2])
+        self.assertIn('3 times in this conversation', final_request_tool_contents[2])

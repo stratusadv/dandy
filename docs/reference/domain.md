@@ -199,10 +199,13 @@ compaction and for prompt size estimates.
 
 ## Guards
 
-Middleware-style watchers over a tool loop: each guard observes the loop's events
-(round starts and executed tool calls) and returns a verdict — a steering note
-appended to the tool result, a request to compact the conversation, or a failure
-that stops the loop.
+Middleware-style watchers over a tool loop and an agent's turn boundaries:
+each guard observes the events (round starts, executed tool calls, turn
+starts, turn ends) and returns a verdict — a steering note appended to the
+tool result, a request to compact the conversation, or a failure that stops
+the loop. `default_guards()` is the shipped default set (a fresh
+`RepeatGuard` + `ContextPressureGuard` pair) used when no `guards=` list is
+given.
 
 ::: dandy.domain.guard.guard
     options:
@@ -211,6 +214,11 @@ that stops the loop.
             - GuardChain
             - GuardEvent
             - GuardOutcome
+
+::: dandy.domain.guard.defaults
+    options:
+        members:
+            - default_guards
 
 ::: dandy.domain.guard.repeat_guard
     options:

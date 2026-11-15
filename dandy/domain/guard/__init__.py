@@ -1,4 +1,5 @@
 from dandy.domain.guard.context_guard import ContextPressureGuard
+from dandy.domain.guard.defaults import default_guards
 from dandy.domain.guard.guard import Guard, GuardChain, GuardEvent, GuardOutcome
 from dandy.domain.guard.repeat_guard import (
     REPEATED_CALL_STOP_THRESHOLD,
@@ -17,4 +18,5 @@ __all__ = [
     'GuardOutcome',
     'RepeatGuard',
     'canonical_tool_arguments',
+    'default_guards',
 ]

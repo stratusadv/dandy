@@ -64,6 +64,10 @@ class RepeatGuard(Guard):
         self.stop_threshold = stop_threshold
         self._full_counts: dict[str, int] = {}
 
+    def reset(self) -> None:
+        super().reset()
+        self._full_counts = {}
+
     def observe(self, event: GuardEvent) -> GuardOutcome:
         """Count one executed call and return the correction to apply.
 

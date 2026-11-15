@@ -87,9 +87,11 @@ threads.
 
 - `intel/` — `BaseIntel`, `BaseListIntel`, `IntelFactory`, `IntelService`.
 - `tool/` — `BaseTool`, the tool-descriptor machinery, and the tool-call value objects.
-- `guard/` — the guard framework (`Guard`, `GuardChain`, events and verdicts) and the
-  loop's shipped guards (`RepeatGuard`, `ContextPressureGuard`), which break
-  degenerate repeat loops and keep the conversation inside the context window.
+- `guard/` — the guard framework (`Guard`, `GuardChain`, events and verdicts,
+  `default_guards`), the loop's shipped guards (`RepeatGuard`,
+  `ContextPressureGuard`), which break degenerate repeat loops and keep the
+  conversation inside the context window, and the turn-level hooks
+  (`on_turn_start` / `on_turn_end`) the agent fans out at the turn boundaries.
 - `prompt/` — `Prompt` + snippets (LLM-agnostic).
 - `tokens/` — dependency-free token estimation.
 - `message/` — `Message` / `MessageHistory`, plus the compaction policy

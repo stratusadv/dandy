@@ -4,7 +4,11 @@ from dandy.application.agent.agent import Agent
 from dandy.application.agent.exceptions import AgentCriticalError, AgentRecoverableError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from tests.application.tool.intelligence.tools import ToolBot, WeatherTool
+from dandy.domain.guard.guard import Guard, GuardOutcome
+from dandy.domain.guard.repeat_guard import RepeatGuard
 from dandy.domain.intel.intel import DefaultIntel
+from dandy.domain.intel.typing import IntelType
+from dandy.domain.prompt.prompt import Prompt
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
 from tests.application.agent.intelligence.llm_responses import content_response, tool_call_response
@@ -22,6 +26,69 @@ def _message_text(message: dict) -> str:
         return ''.join(part.get('text') or '' for part in content)
 
     return content or ''
+
+
+class _TurnStartFailingGuard(Guard):
+    name = 'turn-start-failing'
+
+    def on_turn_start(
+        self,
+        _turn_number: int,
+        _message: Prompt | str | None,
+        _history_token_count: int,
+        _context_window: int,
+    ) -> GuardOutcome:
+        return GuardOutcome(failure_message='the turn-start guard stopped the turn')
+
+
+class _TurnEndFailingGuard(Guard):
+    name = 'turn-end-failing'
+
+    def on_turn_end(
+        self, _turn_number: int, _result: IntelType, _history_token_count: int, _context_window: int
+    ) -> GuardOutcome:
+        return GuardOutcome(failure_message='the turn-end guard stopped the run')
+
+
+class _TurnEndNotingGuard(Guard):
+    name = 'turn-end-noting'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.notes_issued = 0
+
+    def on_turn_end(
+        self, _turn_number: int, _result: IntelType, _history_token_count: int, _context_window: int
+    ) -> GuardOutcome:
+        if self.notes_issued == 0:
+            self.notes_issued += 1
+            return GuardOutcome(note='\n\n[Turn note: check the failing test next.]')
+        return GuardOutcome()
+
+
+class _TurnSpyingGuard(Guard):
+    name = 'turn-spy'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.turn_starts: list[tuple] = []
+        self.turn_ends: list[tuple] = []
+
+    def on_turn_start(
+        self,
+        turn_number: int,
+        message: Prompt | str | None,
+        history_token_count: int,
+        context_window: int,
+    ) -> GuardOutcome:
+        self.turn_starts.append((turn_number, message, history_token_count, context_window))
+        return GuardOutcome()
+
+    def on_turn_end(
+        self, turn_number: int, result: IntelType, history_token_count: int, context_window: int
+    ) -> GuardOutcome:
+        self.turn_ends.append((turn_number, result, history_token_count, context_window))
+        return GuardOutcome()
 
 
 class TestAgentTurn(TestCase):
@@ -346,3 +413,137 @@ class TestAgentRun(TestCase):
             agent.run('Do the thing.')
 
         self.assertEqual(mock_post_request.call_count, 3)
+
+
+class TestAgentGuards(TestCase):
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_start_guard_failure_stops_before_any_llm_call(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[_TurnStartFailingGuard()])
+        mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
+
+        with self.assertRaises(AgentRecoverableError) as context:
+            agent.turn('What is the weather in Austin?')
+
+        self.assertIn('turn-start guard', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 0)
+        self.assertEqual(len(agent.history), 0)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_end_guard_failure_stops_after_the_turn(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[_TurnEndFailingGuard()])
+        mock_post_request.side_effect = [content_response('{"text": "It is sunny.", "done": true}')]
+
+        with self.assertRaises(AgentRecoverableError) as context:
+            agent.turn('What is the weather in Austin?')
+
+        self.assertIn('turn-end guard', str(context.exception))
+        self.assertEqual(mock_post_request.call_count, 1)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_end_note_steers_the_next_continuation(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        noting_guard = _TurnEndNotingGuard()
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[noting_guard])
+        mock_post_request.side_effect = [
+            content_response('{"text": "First answer.", "done": false}'),
+            content_response('{"text": "Second answer.", "done": true}'),
+        ]
+
+        result = agent.run('What is the weather in Austin?')
+
+        self.assertEqual(result.text, 'Second answer.')
+        self.assertEqual(mock_post_request.call_count, 2)
+        self.assertIsNone(agent._pending_turn_note)
+
+        second_turn_messages = _request_messages_for_call(mock_post_request, 1)
+        user_texts = [
+            _message_text(message) for message in second_turn_messages if message['role'] == 'user'
+        ]
+        self.assertTrue(any('Continue working on the request' in text for text in user_texts))
+        self.assertTrue(any('check the failing test next' in text for text in user_texts))
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_passed_tool_guards_replace_the_defaults_and_persist_across_turns(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        repeat_guard = RepeatGuard(warning_threshold=3, stop_threshold=10)
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[repeat_guard])
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "First answer.", "done": false}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "Second answer.", "done": true}'),
+        ]
+
+        agent.turn('What is the weather in Austin?')
+        result = agent.turn('What is the weather in Austin?')
+
+        self.assertEqual(result.text, 'Second answer.')
+
+        # The connector mutates one shared request body, so every captured
+        # request shows the final conversation; the final state carries all
+        # four executions in order, and the note appears only from the third
+        # (the first turn's executions stay note-free, proving the guard
+        # instance's count carried across the turns rather than a fresh
+        # default guard per turn).
+        final_request_tool_contents = [
+            message['content']
+            for message in _request_messages_for_call(
+                mock_post_request, mock_post_request.call_count - 1
+            )
+            if message['role'] == 'tool'
+        ]
+        self.assertEqual(len(final_request_tool_contents), 4)
+        self.assertNotIn('Note:', final_request_tool_contents[0])
+        self.assertNotIn('Note:', final_request_tool_contents[1])
+        self.assertIn('Note:', final_request_tool_contents[2])
+        self.assertIn('3 times in this conversation', final_request_tool_contents[2])
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_clear_resets_guard_state(self, mock_post_request: mock.MagicMock) -> None:
+        # Two identical calls per turn: without the clear() reset, the second
+        # turn's second call would hit the stop threshold on the persisted
+        # count and fail the loop.
+        repeat_guard = RepeatGuard(warning_threshold=3, stop_threshold=4)
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[repeat_guard])
+        mock_post_request.side_effect = [
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "First answer.", "done": true}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            tool_call_response('get_weather', '{"location": "Austin"}'),
+            content_response('{"text": "Second answer.", "done": true}'),
+        ]
+
+        agent.turn('What is the weather in Austin?')
+        agent.clear()
+        result = agent.turn('What is the weather in Austin?')
+
+        self.assertEqual(result.text, 'Second answer.')
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_number_counts_conversation_turns_and_resets_on_clear(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        spy_guard = _TurnSpyingGuard()
+        agent = Agent(ToolBot(), tools=[WeatherTool()], guards=[spy_guard])
+        mock_post_request.side_effect = [
+            content_response('{"text": "One.", "done": true}'),
+            content_response('{"text": "Two.", "done": true}'),
+            content_response('{"text": "Three.", "done": true}'),
+        ]
+
+        agent.turn('First')
+        agent.turn('Second')
+        agent.clear()
+        agent.turn('Third')
+
+        self.assertEqual([entry[0] for entry in spy_guard.turn_starts], [1, 2, 1])
+        self.assertEqual([entry[0] for entry in spy_guard.turn_ends], [1, 2, 1])

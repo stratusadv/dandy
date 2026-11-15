@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from pydantic import ValidationError
 
@@ -9,6 +9,7 @@ from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
+from dandy.domain.guard.guard import GuardChain
 from dandy.domain.message.compaction import (
     COMPACTION_TARGET_RATIO,
     COMPACTION_TRIGGER_RATIO,
@@ -18,6 +19,7 @@ from dandy.domain.message.compaction import (
 )
 from dandy.domain.message.message import MessageHistory
 from dandy.domain.prompt.prompt import Prompt
+from dandy.domain.request.exceptions import LlmRecoverableError
 from dandy.domain.skill.skill import to_skill_instances
 from dandy.domain.tokens.estimate import get_estimated_token_count_for_string
 from dandy.domain.tool.beat import StoryBeat
@@ -25,6 +27,7 @@ from dandy.domain.tool.beat import StoryBeat
 if TYPE_CHECKING:
     from dandy.application.bot.bot import Bot
     from dandy.application.llm.service import LlmService
+    from dandy.domain.guard.guard import Guard
     from dandy.domain.intel.typing import IntelType
     from dandy.domain.skill.skill import SkillType
     from dandy.domain.tool.tool import ToolType
@@ -55,6 +58,7 @@ class Agent:
         max_turns: int | None = None,
         max_tool_rounds: int | None = AGENT_MAX_TOOL_ROUNDS_DEFAULT,
         intel_class: type[IntelType] | None = None,
+        guards: Sequence[Guard] | None = None,
     ) -> None:
         self.bot = bot
         self.tools = tools
@@ -62,9 +66,13 @@ class Agent:
         self.max_turns = max_turns
         self.max_tool_rounds = max_tool_rounds
         self.intel_class = intel_class or AgentTurnIntel
+        self.guards = list(guards) if guards is not None else None
         self.history = MessageHistory()
         self.max_context_tokens = self._resolve_context_size()
         self.last_request: str | None = None
+        self._guard_chain = GuardChain(self.guards or [])
+        self._turn_count = 0
+        self._pending_turn_note: str | None = None
 
         if self.skills:
             self.bot.llm.skills.register(self.skills)
@@ -90,18 +98,23 @@ class Agent:
 
         The conversation accumulates in ``self.history`` across turns. When
         ``tool_call_callback`` is given, it is called once per executed tool
-        call with the tool name and its validated keyword arguments.
+        call with the tool name and its validated keyword arguments. The
+        agent's guards (when given) watch the turn boundaries: a turn-start
+        failure stops the turn before any LLM spend, and a combined
+        turn-end ``note`` is appended to the next ``run()`` continuation.
         """
         if stop_signal.is_set():
             raise RunStoppedError(RUN_STOPPED_MESSAGE)
 
+        self._turn_count += 1
         self.last_request = self._message_as_str(message)
         self.max_context_tokens = self._resolve_context_size()
         message = self._prepare_message(message, progress_callback, verbose_callback)
+        self._watch_turn_start(message, verbose_callback)
         self._compact_history_for_next_message(message, progress_callback)
         self._ensure_history_fits(message)
 
-        return self.bot.llm.tools.prompt_to_intel(
+        result = self.bot.llm.tools.prompt_to_intel(
             prompt=message,
             tools=self.tools,
             intel_class=self.intel_class,
@@ -111,7 +124,12 @@ class Agent:
             verbose_callback=verbose_callback,
             tool_call_callback=tool_call_callback,
             max_tool_iterations=self.max_tool_rounds,
+            guards=self.guards,
         )
+
+        self._watch_turn_end(result, verbose_callback)
+
+        return result
 
     def _prepare_message(
         self,
@@ -121,6 +139,48 @@ class Agent:
     ) -> Prompt | str | None:
         """Subclass hook to shape the incoming message before it goes to the bot."""
         return message
+
+    def _watch_turn_start(
+        self, message: Prompt | str | None, verbose_callback: Callable[[str], None] | None
+    ) -> None:
+        """Run the turn-start guards; a failure stops the turn before any LLM spend."""
+        try:
+            self._guard_chain.on_turn_start(
+                turn_number=self._turn_count,
+                message=message,
+                history_token_count=self.history.estimated_token_count,
+                context_window=self.max_context_tokens,
+                verbose_callback=verbose_callback,
+            )
+        except LlmRecoverableError as error:
+            raise AgentRecoverableError(str(error)) from error
+
+    def _watch_turn_end(
+        self, result: IntelType, verbose_callback: Callable[[str], None] | None
+    ) -> None:
+        """Run the turn-end guards; a combined note steers the next run() continuation."""
+        try:
+            outcome = self._guard_chain.on_turn_end(
+                turn_number=self._turn_count,
+                result=result,
+                history_token_count=self.history.estimated_token_count,
+                context_window=self.max_context_tokens,
+                verbose_callback=verbose_callback,
+            )
+        except LlmRecoverableError as error:
+            raise AgentRecoverableError(str(error)) from error
+
+        if outcome.note is not None:
+            self._pending_turn_note = outcome.note
+
+    def _continuation_with_pending_note(self) -> Prompt:
+        continuation = continuation_prompt()
+
+        if self._pending_turn_note is not None:
+            continuation.text(self._pending_turn_note)
+            self._pending_turn_note = None
+
+        return continuation
 
     def _ensure_history_fits(self, message: Prompt | str | None) -> None:
         """Fail clearly when compaction could not bring the conversation under the window.
@@ -165,6 +225,8 @@ class Agent:
             )
             raise AgentCriticalError(message)
 
+        self._pending_turn_note = None
+
         result = self.turn(
             request,
             progress_callback=progress_callback,
@@ -185,7 +247,7 @@ class Agent:
                 raise AgentRecoverableError(message)
 
             result = self.turn(
-                continuation_prompt(),
+                self._continuation_with_pending_note(),
                 progress_callback=progress_callback,
                 verbose_callback=verbose_callback,
                 tool_call_callback=tool_call_callback,
@@ -195,10 +257,15 @@ class Agent:
         return result
 
     def clear(self) -> None:
-        """Reset the conversation history and the bot."""
+        """Reset the conversation history, the bot, and the guard state."""
         self.history = MessageHistory()
         self.last_request = None
         self.bot.reset()
+        self._turn_count = 0
+        self._pending_turn_note = None
+
+        for guard in self.guards or []:
+            guard.reset()
 
     def save_session(self) -> AgentSession:
         """Snapshot the conversation and LLM context for later loading.

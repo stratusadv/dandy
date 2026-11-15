@@ -113,7 +113,12 @@ in [Tool Calling](../user_guide/tool_calling.md). The agent's contribution is th
 cap: `max_tool_rounds` (default `AGENT_MAX_TOOL_ROUNDS_DEFAULT = 200`) is passed as
 `max_tool_iterations`, so a model that keeps requesting tools without ever giving a
 final answer burns a bounded number of rounds. Pass `max_tool_rounds=None` to a
-specific agent to disable the cap.
+specific agent to disable the cap. The agent is also the guard seam: `guards=` on
+the constructor replaces the loop's shipped guard set for every turn (the same
+instances persist across the conversation; `clear()` resets them), and the agent
+fans the guards out on the turn boundaries — `on_turn_start` before any LLM spend
+and `on_turn_end` with the final result, a failure surfacing as
+`AgentRecoverableError` and a turn-end note riding the next `run()` continuation.
 
 ### Sessions
 

@@ -102,3 +102,13 @@ class TestRepeatGuard(TestCase):
         self.assertIsNone(guard.observe(_event(arguments)).failure_message)
         outcome = guard.observe(_event(arguments))
         self.assertIn('repeated the identical tool call', outcome.failure_message)
+
+    def test_reset_clears_the_call_counts(self) -> None:
+        guard = RepeatGuard(warning_threshold=2, stop_threshold=4)
+        arguments = {'path': 'src/foo.py'}
+
+        guard.observe(_event(arguments))
+        guard.observe(_event(arguments))
+        guard.reset()
+
+        self.assertIsNone(guard.observe(_event(arguments)).note)

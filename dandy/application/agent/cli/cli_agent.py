@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT, Agent
 from dandy.application.agent.cli.agents_md import read_agents_md
@@ -14,6 +14,7 @@ from dandy.domain.intel.intel import DefaultIntel
 from dandy.domain.message.message import MessageContent
 
 if TYPE_CHECKING:
+    from dandy.domain.guard.guard import Guard
     from dandy.domain.skill.skill import SkillType
     from dandy.domain.tool.beat import StoryBeat
 
@@ -22,13 +23,17 @@ class CliAgent(Agent):
     """Multi-turn coding agent that keeps the conversation across turns."""
 
     def __init__(
-        self, ask_user: QuestionHandler | None = None, skills: list[SkillType] | None = None
+        self,
+        ask_user: QuestionHandler | None = None,
+        skills: list[SkillType] | None = None,
+        guards: Sequence[Guard] | None = None,
     ) -> None:
         super().__init__(
             bot=CodingBot(),
             tools=[*AGENT_TOOLS, QuestionTool(ask_user=ask_user)],
             skills=skills,
             intel_class=DefaultIntel,
+            guards=guards,
         )
 
     def reload_agents_md(self) -> str:

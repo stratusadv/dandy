@@ -39,7 +39,7 @@ answer = agent.turn('What is the weather in Austin?')
 answer = agent.turn('And in Dallas?')  # same conversation
 ```
 
-`Agent(bot, tools=None, skills=None, max_turns=None, intel_class=None)`:
+`Agent(bot, tools=None, skills=None, max_turns=None, max_tool_rounds=None, intel_class=None, guards=None)`:
 
 - `bot` — the Bot that performs the work (its role/task/guidelines become the
   system prompt; give it guidelines that say `done` means the *whole request* is
@@ -52,6 +52,11 @@ answer = agent.turn('And in Dallas?')  # same conversation
 - `intel_class` — the per-turn result model; defaults to `AgentTurnIntel`
   (`text` + `done`).
 - `max_turns` — the `run` budget; `None` (the default) means unbounded.
+- `max_tool_rounds` — the tool-round budget per turn (default 200); `None`
+  disables the cap, at the cost of unbounded API spend.
+- `guards` — the guard set (see [Guards](#guards)) that replaces the tool
+  loop's shipped defaults for every turn and watches the turn boundaries;
+  `None` (the default) keeps the shipped guards.
 
 ## `turn` — one exchange
 
@@ -91,6 +96,48 @@ print(final.text)
   give-up semantics as the tool loop). With no `done` field and no `is_done`,
   `run` fails fast with `AgentCriticalError` — an agent that cannot tell when it
   is finished should not be running.
+
+## Guards
+
+An agent can run its own [guards](tool_calling.md) — the middleware-style
+`Guard` watchers — instead of the tool loop's shipped defaults, and the same
+guards watch the turn boundaries:
+
+```python
+from dandy import Agent
+from dandy.domain.guard import Guard, GuardOutcome
+
+
+class BigTurnGuard(Guard):
+    name = 'big-turn'
+
+    def on_turn_end(self, turn_number, result, history_token_count, context_window):
+        if history_token_count > 50_000:
+            return GuardOutcome(
+                note='\n\n[Turn note: the context is getting large; verify and wrap up.]'
+            )
+
+
+agent = Agent(MyBot(), tools=[...], guards=[BigTurnGuard()])
+```
+
+- **Tool loop.** With `guards=` given, the tool loop runs your chain instead
+  of the shipped `RepeatGuard` + `ContextPressureGuard` pair, and the same
+  instances are reused for every turn, so a guard's state (for example the
+  repeat guard's per-signature counts) accumulates across the conversation.
+  `clear()` resets each guard through `Guard.reset()`, so a fresh conversation
+  starts from clean guard state.
+- **Turn boundaries.** Each `turn` fans the guards out at `on_turn_start`
+  (after the message is prepared, before any LLM spend) and `on_turn_end`
+  (with the turn's final result); each hook sees the conversation turn number
+  (1-based, reset by `clear()`) plus the history's estimated token count
+  against the resolved context window. A `failure_message` stops the turn and
+  surfaces as `AgentRecoverableError`; a combined `note` from `on_turn_end` is
+  appended to the next `run()` continuation prompt, steering the model
+  mid-run (guard authors prefix their note with their own whitespace —
+  snippets join with no separator). `compact` is not honored on turn events:
+  the turn's compaction and the loop's `ContextPressureGuard` already govern
+  window pressure.
 
 ## Sessions — save and load the conversation
 

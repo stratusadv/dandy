@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from pydantic import ValidationError
 
@@ -12,9 +12,8 @@ from dandy.shared.utils import (
     pydantic_validation_error_to_str,
     truncate_output,
 )
-from dandy.domain.guard.context_guard import ContextPressureGuard
-from dandy.domain.guard.guard import GuardChain, GuardEvent
-from dandy.domain.guard.repeat_guard import RepeatGuard
+from dandy.domain.guard.defaults import default_guards
+from dandy.domain.guard.guard import Guard, GuardChain, GuardEvent
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.request.exceptions import LlmCriticalError, LlmRecoverableError
 from dandy.domain.message.compaction import (
@@ -51,6 +50,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
         tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
+        guards: Sequence[Guard] | None = None,
         **kwargs,
     ) -> IntelType:
         skill_service = self.obj.skills
@@ -59,12 +59,13 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
         tool_functions = tool_functions or {}
 
         iteration_count = 0
-        # The guards watch the model's behavior live: the repeat guard steers
-        # the model out of degenerate repeat loops, and the context-pressure
-        # guard keeps the conversation inside the window, failing the loop
-        # fast when a correction stops working instead of letting the
-        # provider reject the request.
-        guard_chain = GuardChain([RepeatGuard(), ContextPressureGuard()])
+        # The guards watch the model's behavior live: by default the repeat
+        # guard steers the model out of degenerate repeat loops, and the
+        # context-pressure guard keeps the conversation inside the window,
+        # failing the loop fast when a correction stops working instead of
+        # letting the provider reject the request. An explicit guards list
+        # replaces the defaults; an empty list disables guarding.
+        guard_chain = GuardChain(guards) if guards is not None else GuardChain(default_guards())
 
         while True:
             if stop_signal.is_set():

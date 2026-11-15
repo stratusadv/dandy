@@ -75,7 +75,14 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   shipped `ContextPressureGuard` requests compaction once the conversation's
   estimated token count passes 80% of the resolved context window, and fails
   the loop if the pressure re-asserts after a compaction while the conversation
-  still exceeds the whole window.
+  still exceeds the whole window. The chain is injectable: `prompt_to_intel`
+  accepts `guards=` (a list replaces the shipped defaults, an empty list
+  disables guarding), and `Agent` / `CliAgent` accept `guards=` and pass the
+  same instances through every turn, so a guard's state (for example the
+  repeat guard's counts) accumulates across the conversation until
+  `Agent.clear()` resets it through `Guard.reset()`. The same guards can also
+  watch the turn boundaries (`Guard.on_turn_start` / `Guard.on_turn_end`) —
+  see [Agent](agent.md#guards).
 - Invalid arguments are fed back to the model as a tool message so it can self-correct.
 - An explicit `tool_functions={'name': handler}` entry wins over the tool's own
   `handle()`; handlers receive the parsed argument Intel and return a string or Intel.

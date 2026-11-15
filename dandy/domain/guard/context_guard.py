@@ -23,6 +23,10 @@ class ContextPressureGuard(Guard):
         self.trigger_ratio = trigger_ratio
         self._compaction_issued = False
 
+    def reset(self) -> None:
+        super().reset()
+        self._compaction_issued = False
+
     def on_round_start(self, history_token_count: int, context_window: int) -> GuardOutcome:
         if context_window <= 0:
             return GuardOutcome()
