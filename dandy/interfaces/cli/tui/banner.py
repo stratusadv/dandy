@@ -54,7 +54,7 @@ def session_banner_line(store: SessionStore) -> str:
 
     session_count = len(store.list_sessions())
 
-    return f'{session_count} saved, latest: {latest_name} - resume it with /resume {latest_name}'
+    return f'{session_count} saved, latest: {latest_name} - resume with /r'
 
 
 def skills_banner_line(project_base_path: Path) -> str:

@@ -197,7 +197,7 @@ class TestPrinterStory(TestCase):
         self.assertIn('src/foo.py', settled_frame)
         self.assertIn('lines 1-10', settled_frame)
 
-    def test_frames_style_mutating_label_orange(self) -> None:
+    def test_frames_style_mutating_label_purple(self) -> None:
         progress = StoryProgress(Terminal(force_styling='default'))
         term = progress.term
         beat = StoryBeat(label='Writing', description='src/foo.py', can_mutate_state=True)
@@ -205,13 +205,53 @@ class TestPrinterStory(TestCase):
         animating_frame = progress.frame(beat)
         settled_frame = progress.settled_frame(beat)
 
-        self.assertIn(f'{term.bold_orange}Writing{term.normal}', animating_frame)
+        self.assertIn(f'{term.bold_purple}Writing{term.normal}', animating_frame)
         self.assertNotIn(term.bold_skyblue, animating_frame)
         self.assertIn('src/foo.py', animating_frame)
 
         self.assertNotIn('Writing', settled_frame)
         self.assertNotIn(term.bold_skyblue, settled_frame)
         self.assertIn('src/foo.py', settled_frame)
+
+    def test_frames_style_system_affecting_label_orange(self) -> None:
+        progress = StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
+        beat = StoryBeat(
+            label='Executing',
+            description='pytest -q',
+            can_mutate_state=True,
+            can_affect_system=True,
+        )
+
+        animating_frame = progress.frame(beat)
+        settled_frame = progress.settled_frame(beat)
+
+        self.assertIn(f'{term.bold_orange}Executing{term.normal}', animating_frame)
+        self.assertNotIn(term.bold_purple, animating_frame)
+        self.assertNotIn(term.bold_skyblue, animating_frame)
+        self.assertNotIn('Executing', settled_frame)
+        self.assertIn('pytest -q', settled_frame)
+
+    def test_frames_style_dangerous_label_red_wins_over_orange_and_purple(self) -> None:
+        progress = StoryProgress(Terminal(force_styling='default'))
+        term = progress.term
+        beat = StoryBeat(
+            label='Executing',
+            description='rm -rf .',
+            can_mutate_state=True,
+            can_affect_system=True,
+            is_dangerous=True,
+        )
+
+        animating_frame = progress.frame(beat)
+        settled_frame = progress.settled_frame(beat)
+
+        self.assertIn(f'{term.bold_red}Executing{term.normal}', animating_frame)
+        self.assertNotIn(term.bold_orange, animating_frame)
+        self.assertNotIn(term.bold_purple, animating_frame)
+        self.assertNotIn(term.bold_skyblue, animating_frame)
+        self.assertNotIn('Executing', settled_frame)
+        self.assertIn('rm -rf .', settled_frame)
 
     def test_narration_beat_renders_bold_blue(self) -> None:
         progress = StoryProgress(Terminal(force_styling='default'))
@@ -257,12 +297,20 @@ class TestPrinterStory(TestCase):
         term = progress.term
         beat = StoryBeat(label='Reading', description='src/foo.py')
         mutating = StoryBeat(label='Executing', description='pytest -q', can_mutate_state=True)
+        system = StoryBeat(label='Executing', description='pytest -q', can_affect_system=True)
+        dangerous = StoryBeat(label='Executing', description='pytest -q', is_dangerous=True)
 
         for frame in (progress.frame(beat), progress.settled_frame(beat)):
             self.assertIn(f'{term.bold_skyblue}↳{term.normal} ', frame)
 
         for frame in (progress.frame(mutating), progress.settled_frame(mutating)):
+            self.assertIn(f'{term.bold_purple}↳{term.normal} ', frame)
+
+        for frame in (progress.frame(system), progress.settled_frame(system)):
             self.assertIn(f'{term.bold_orange}↳{term.normal} ', frame)
+
+        for frame in (progress.frame(dangerous), progress.settled_frame(dangerous)):
+            self.assertIn(f'{term.bold_red}↳{term.normal} ', frame)
 
     def test_multiline_beat_animates_folded_on_one_line(self) -> None:
         progress = StoryProgress(Terminal(force_styling='default'))

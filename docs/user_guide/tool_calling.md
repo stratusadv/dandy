@@ -33,8 +33,11 @@ class GetWeatherTool(BaseTool):
   doing while it runs — for example, label `'Reading'` with output
   `'src/foo.py lines 1-10'`. Without a label, the title-cased tool name is used;
   without an output override, the label stands alone. The `can_mutate_state`
-  class attribute (default `False`) marks tools that can change state; the CLI
-  renders their beat labels in bold orange instead of grey, and the fixed `↳`
+  class attribute (default `False`) marks tools that can change state, the
+  `is_dangerous` class attribute (default `False`) marks tools whose calls can
+  do real harm, and the `can_affect_system` class attribute (default `False`)
+  marks tools that reach outside the project; the CLI renders their beat
+  labels in bold purple, bold red, and bold orange respectively, and the fixed `↳`
   arrow that prefixes each tool beat line is colored like the label. The
   `emits_story_beat` class attribute (default `True`) suppresses the execution
   beat entirely for a tool that renders its own story while it runs; the CLI's
@@ -92,11 +95,13 @@ types (booleans and integers parsed, not left as JSON text), feeds the result ba
   that emits a story beat (a tool sets `emits_story_beat = False` to render its
   own story instead of a beat), carrying the tool's `action_label` as `label`, its
   `action_output(**validated_args)` result as `description`, and its
-  `can_mutate_state` flag as `can_mutate_state`. Compaction notices are description-only
-  beats too. The split exists so a UI can style the parts independently (the CLI
+  `can_mutate_state`, `is_dangerous`, and `can_affect_system` flags under the
+  same field names. Compaction notices are description-only beats too. The split exists so a UI can style the parts independently (the CLI
   renders every line flush left as a running list: consecutive tool beats with
-  the same label share one heading line — the label in bold skyblue, bold orange
-  when `can_mutate_state` is set — printed once when the label appears and
+  the same label share one heading line — the label in bold skyblue, bold
+  purple when `can_mutate_state` is set, bold orange when `can_affect_system`
+  is set, or bold red when `is_dangerous` is set (red wins) — printed once when
+  the label appears and
   again whenever the label changes or a non-tool line (a thought or a notice)
   has printed in between, with each description on its own
   line below the heading prefixed by a `↳` arrow colored like the label, so

@@ -55,6 +55,8 @@ are framework-agnostic.
             - description
             - action_label
             - can_mutate_state
+            - is_dangerous
+            - can_affect_system
             - emits_story_beat
             - working_directory
             - timeout_seconds

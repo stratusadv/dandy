@@ -17,6 +17,7 @@ class RunCommandTool(BaseTool):
 
     action_label = 'Running'
     can_mutate_state = True
+    can_affect_system = True
 
     timeout_seconds = 30
     use_shell = True

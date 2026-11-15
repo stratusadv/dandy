@@ -25,7 +25,11 @@ class BaseTool(HashMixin, ABC):
     The optional action_output method builds the per-call detail shown next to
     the label while the tool runs, from the validated keyword arguments. The
     can_mutate_state class attribute (default False) marks tools that can
-    change state; the CLI renders their beat labels in orange. The
+    change state; the CLI renders their beat labels in purple. The
+    is_dangerous class attribute (default False) marks tools whose calls can
+    do real harm, and the can_affect_system class attribute (default False)
+    marks tools that reach outside the project; the CLI renders dangerous
+    labels in red and system-affecting ones in orange. The
     emits_story_beat class attribute (default True) controls whether the tool's
     execution beat is emitted at all; a tool that renders its own story while
     it runs, like the CLI's question prompt, sets it to False.
@@ -44,6 +48,8 @@ class BaseTool(HashMixin, ABC):
     description: str = ''
     action_label: str = ''
     can_mutate_state: bool = False
+    is_dangerous: bool = False
+    can_affect_system: bool = False
     emits_story_beat: bool = True
 
     timeout_seconds: int = 30
@@ -62,6 +68,8 @@ class BaseTool(HashMixin, ABC):
             'description': self.description,
             'action_label': self.action_label,
             'can_mutate_state': self.can_mutate_state,
+            'is_dangerous': self.is_dangerous,
+            'can_affect_system': self.can_affect_system,
             'emits_story_beat': self.emits_story_beat,
             'timeout_seconds': self.timeout_seconds,
             'use_shell': self.use_shell,

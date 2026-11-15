@@ -115,6 +115,12 @@ class TestBaseTool(TestCase):
 
         self.assertFalse(tool.can_mutate_state)
 
+    def test_is_dangerous_and_can_affect_system_default_to_false(self) -> None:
+        tool = WeatherTool()
+
+        self.assertFalse(tool.is_dangerous)
+        self.assertFalse(tool.can_affect_system)
+
     def test_action_output_returns_override_detail(self):
         tool = ActionOutputTool()
 

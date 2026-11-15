@@ -267,7 +267,7 @@ class Printer:
 
             for path in paths:
                 print(
-                    f'{self.term.normal}{bullet_style}◆{self.term.normal} '
+                    f'{self.term.normal}{bullet_style}◈ {self.term.normal} '
                     f'{linkify_file_paths(path)}'
                 )
 

@@ -783,7 +783,7 @@ class TestSessionBannerLine(TestCase):
         line = session_banner_line(self.store)
 
         self.assertIn('1 saved, latest: 2026-10-31-fix-the-login-bug', line)
-        self.assertIn('/resume 2026-10-31-fix-the-login-bug', line)
+        self.assertIn('resume with /r', line)
 
 
 class TestCliQuestionWiring(TestCase):

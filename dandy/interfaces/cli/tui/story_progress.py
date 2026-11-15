@@ -77,7 +77,16 @@ class StoryProgress:
         return True
 
     def _label_style(self, beat: StoryBeat) -> str:
-        return self.term.bold_orange if beat.can_mutate_state else self.term.bold_skyblue
+        if beat.is_dangerous:
+            return self.term.bold_red
+
+        if beat.can_affect_system:
+            return self.term.bold_orange
+
+        if beat.can_mutate_state:
+            return self.term.bold_purple
+
+        return self.term.bold_skyblue
 
     def _styled_label(self, beat: StoryBeat) -> str:
         return f'\n{self._label_style(beat)}{beat.label}{self.term.normal}'
@@ -230,7 +239,7 @@ class StoryProgress:
 
         beat_text = self._styled_description(beat, description_part)
         beat_line = f'{prefix}{beat_text}'
-        evaluating_line = f'{self.term.bold_grey}✦{phrase}{self.term.normal}'
+        evaluating_line = f'{self.term.bold_grey}✦ {phrase}{self.term.normal}'
 
         if self._live_frame:
             # A narration region's own text begins with a leading newline,

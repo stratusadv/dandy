@@ -9,7 +9,9 @@ from dandy.application.agent.intelligence.tools.clock.clock_tool import ClockToo
 from dandy.application.agent.intelligence.tools.command.command_tool import RunCommandTool
 from dandy.application.agent.intelligence.tools.git.git_diff_tool import GitDiffTool
 from dandy.application.agent.intelligence.tools.git.git_status_tool import GitStatusTool
+from dandy.application.agent.intelligence.tools.file.delete_file_tool import DeleteFileTool
 from dandy.application.agent.intelligence.tools.file.search_tool import SearchFilesTool
+from dandy.application.agent.intelligence.tools.file.write_file_tool import WriteFileTool
 from dandy.application.agent.session import session
 from dandy.shared.cancellation import stop_signal
 
@@ -258,3 +260,11 @@ class TestToolActionLabelsAndOutputs(TestCase):
         self.assertFalse(GitStatusTool().can_mutate_state)
         self.assertFalse(GitDiffTool().can_mutate_state)
         self.assertFalse(ClockTool().can_mutate_state)
+
+    def test_can_affect_system_flags_the_command_tool(self) -> None:
+        self.assertTrue(RunCommandTool().can_affect_system)
+        self.assertFalse(GitStatusTool().can_affect_system)
+        self.assertFalse(GitDiffTool().can_affect_system)
+        self.assertFalse(ClockTool().can_affect_system)
+        self.assertFalse(WriteFileTool().can_affect_system)
+        self.assertFalse(DeleteFileTool().can_affect_system)

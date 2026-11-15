@@ -54,7 +54,7 @@ Version      : 3.0.0a1
 Model        : gpt-6-luna
 Project Dir  : /home/nathanj/projects/api
 AGENTS.md    : found (12.4 KB) - loaded into the agent system prompt
-Sessions     : 3 saved, latest: 2026-11-05-14-20-fix-auth - resume it with /resume 2026-11-05-14-20-fix-auth
+Sessions     : 3 saved, latest: 2026-11-05-14-20-fix-auth - resume with /r
 ```
 
 ## Configure it

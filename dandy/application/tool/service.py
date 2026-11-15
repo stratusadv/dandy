@@ -231,7 +231,11 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
             description = tool.action_output(**arguments_kwargs) or ''
             progress_callback(
                 StoryBeat(
-                    label=label, description=description, can_mutate_state=tool.can_mutate_state
+                    label=label,
+                    description=description,
+                    can_mutate_state=tool.can_mutate_state,
+                    is_dangerous=tool.is_dangerous,
+                    can_affect_system=tool.can_affect_system,
                 )
             )
 
