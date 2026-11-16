@@ -45,10 +45,12 @@ def check_or_create_settings(cwd_path: Path, system_exit_on_import_error: bool =
                 user_settings.write(default_settings.read())
 
         print(
-            f'You need to add "DANDY_SETTINGS_MODULE={settings_module_name}" to your environment variables.'
+            f'You need to add "DANDY_SETTINGS_MODULE={settings_module_name}" '
+            'to your environment variables.'
         )
         print(
-            'Setup of "BASE_PATH" and "LLM_CONFIGS" are required in your new settings before proceeding.'
+            'Setup of "BASE_PATH" and "LLM_CONFIGS" are required in your '
+            'new settings before proceeding.'
         )
 
         if system_exit_on_import_error:

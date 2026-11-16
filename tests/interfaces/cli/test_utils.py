@@ -55,7 +55,8 @@ class TestUtils(TestCase):
                 check_or_create_settings(cwd_path=BASE_PATH)
             except ImportError:
                 self.fail(
-                    'check_or_create_settings() did not properly handle invalid settings module name!'
+                    'check_or_create_settings() did not properly handle '
+                    'invalid settings module name!'
                 )
 
             finally:

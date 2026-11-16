@@ -153,7 +153,10 @@ class TestMessages(TestCase):
         message_history = MessageHistory()
         message_history.add_message(
             role='system',
-            text='You are chatting about a birthday. Ask when it is, then how old they are now, then react with surprise.',
+            text=(
+                'You are chatting about a birthday. Ask when it is, then how old '
+                'they are now, then react with surprise.'
+            ),
         )
         message_history.add_message(role='user', text='I was 91 years old a few days ago')
         message_history.add_message(role='user', text='It is my birthday today!')

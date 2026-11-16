@@ -32,7 +32,7 @@ def create_book(user_input: str, chapter_count: int = 10) -> Book:
     logging.info('Writing the chapters for all to read')
     book_intel.chapters = chapters_creation(book_intel=book_intel, chapter_count=chapter_count)
 
-    new_book = Book(
+    return Book(
         title=book_intel.start.title,
         author='Dandy McAuthor',
         theme=book_intel.theme,
@@ -42,5 +42,3 @@ def create_book(user_input: str, chapter_count: int = 10) -> Book:
             for chapter_intel in book_intel.chapters
         ],
     )
-
-    return new_book

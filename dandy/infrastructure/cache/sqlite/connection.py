@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from types import TracebackType
 
 from dandy.shared.settings import settings
 
@@ -13,7 +14,12 @@ class SqliteConnection:
         self.connection = sqlite3.connect(self.db_path)
         return self.connection
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         if self.connection:
             self.connection.close()
 

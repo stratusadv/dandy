@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from dandy import Bot, Prompt, cache_to_sqlite
+from dandy import Bot, Prompt
 from tests.application.example_project.book.intelligence.plot.intel import (
     PlotPointIntel,
     PlotPointsIntel,
@@ -28,7 +28,7 @@ class PlotPointDescriptionBot(Bot):
         self,
         plot_point_intel: PlotPointIntel,
         book_intel: BookIntel,
-        previous_plot_point_intels: List[PlotPointIntel],
+        previous_plot_point_intels: list[PlotPointIntel],
     ) -> PlotPointIntel:
         plot_point_prompt = Prompt()
 

@@ -117,10 +117,7 @@ class EmployeeAssignmentBot(Bot):
         return self.llm.decision.prompt_to_value(
             prompt=prompt,
             keys_description='employee skill evaluations',
-            keys_values={
-                str(evaluation.primary_skills): evaluation
-                for evaluation in evaluations
-            },
+            keys_values={str(evaluation.primary_skills): evaluation for evaluation in evaluations},
         )
 
 

@@ -13,7 +13,10 @@ class TypedKwargs(UserDict):
 
     def __contains__(self, item: Self) -> bool:
         if not isinstance(item, TypedKwargs):
-            message = f'Cannot compare TypedKwargs with {type(item)}. TypedKwargs can only be compared with TypedKwargs.'
+            message = (
+                f'Cannot compare TypedKwargs with {type(item)}. '
+                'TypedKwargs can only be compared with TypedKwargs.'
+            )
             raise DandyUsageError(message)
 
         if not self._is_valid_sub_set_typed_kwargs(item):

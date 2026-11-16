@@ -1,6 +1,5 @@
 from unittest import TestCase, mock
 
-from dandy.shared.settings import settings
 from dandy.infrastructure.http.intel import HttpResponseIntel
 from dandy.domain.intel.intel import BaseIntel, DefaultIntel
 from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
@@ -38,9 +37,7 @@ class TestService(TestCase):
         )
 
         with self.assertRaises(LlmExternalError):
-            response = Bot().llm.prompt_to_intel(
-                prompt='Hello, World!', intel_class=LlmDefaultIntel
-            )
+            Bot().llm.prompt_to_intel(prompt='Hello, World!', intel_class=LlmDefaultIntel)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_plain_text_response_is_stored_in_default_intel(

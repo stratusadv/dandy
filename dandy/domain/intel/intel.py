@@ -140,14 +140,22 @@ class BaseIntel(HashMixin, BaseModel, ABC):
             include_field_names = set(include_dict.keys())
 
             if not include_field_names.issubset(field_names):
-                message = f'include failed on {cls.__name__} because it does not have the following fields: {field_names.difference(include_field_names)}.'
+                missing_fields = field_names.difference(include_field_names)
+                message = (
+                    f'include failed on {cls.__name__} because it does not '
+                    f'have the following fields: {missing_fields}.'
+                )
                 raise IntelUsageError(message)
 
         if exclude_dict:
             exclude_field_names = set(exclude_dict.keys())
 
             if not exclude_field_names.issubset(field_names):
-                message = f'exclude failed on {cls.__name__} because it does not have the following fields: {field_names.difference(exclude_field_names)}.'
+                missing_fields = field_names.difference(exclude_field_names)
+                message = (
+                    f'exclude failed on {cls.__name__} because it does not '
+                    f'have the following fields: {missing_fields}.'
+                )
                 raise IntelUsageError(message)
 
     @classmethod
@@ -170,7 +178,10 @@ class BaseIntel(HashMixin, BaseModel, ABC):
                         raise IntelUsageError(message)
 
                     if getattr(intel_object, field_name) is None:
-                        message = f'{field_name} is required and has no value therefore cannot be excluded'
+                        message = (
+                            f'{field_name} is required and has no value '
+                            'therefore cannot be excluded'
+                        )
                         raise IntelUsageError(message)
 
                 if exclude is None and include_value is None and field_info.is_required():
@@ -179,7 +190,10 @@ class BaseIntel(HashMixin, BaseModel, ABC):
                         raise IntelUsageError(message)
 
                     if getattr(intel_object, field_name) is None:
-                        message = f'{field_name} is required and has no value therefore it must be included'
+                        message = (
+                            f'{field_name} is required and has no value '
+                            'therefore it must be included'
+                        )
                         raise IntelUsageError(message)
 
 
@@ -197,7 +211,10 @@ class BaseListIntel(BaseIntel, ABC, Generic[T]):
         ]
 
         if len(list_fields) != 1:
-            message = 'BaseListIntel sub classes can only have exactly one list field attribute and must be declared with typing'
+            message = (
+                'BaseListIntel sub classes can only have exactly one list '
+                'field attribute and it must be declared with typing'
+            )
             raise ValueError(message)
 
         self._list_name = list_fields[0]

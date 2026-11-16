@@ -21,7 +21,7 @@ HTTP_CONNECTION_TIMEOUT_SECONDS: int | None = 60
 LLM_CONFIGS = {
     'DEFAULT': {
         'HOST': os.getenv('AI_API_HOST'),
-        'PORT': int(os.getenv('AI_API_POST', 443)),
+        'PORT': int(os.getenv('AI_API_PORT', '443') or 443),
         'API_KEY': os.getenv('AI_API_KEY'),
         'MODEL': os.getenv('AI_API_MODEL'),
         'CONTEXT_SIZE': 65536,

@@ -11,7 +11,12 @@ from dandy.infrastructure.future.exceptions import FutureUsageError, FutureExter
 if TYPE_CHECKING:
     from concurrent.futures import Future
 
-thread_pool_executor = concurrent.futures.ThreadPoolExecutor()
+# max_workers must be set before the first submit: the pool starts lazily and
+# the size is fixed for the executor's lifetime, so reading the setting once
+# here (instead of per future) is what actually takes effect.
+thread_pool_executor = concurrent.futures.ThreadPoolExecutor(
+    max_workers=getattr(settings, 'FUTURES_MAX_WORKERS', 10)
+)
 
 atexit.register(thread_pool_executor.shutdown, wait=True)
 
@@ -20,8 +25,6 @@ R = TypeVar('R')
 
 class AsyncFuture(Generic[R]):
     def __init__(self, callable_: Callable[..., R], *args, **kwargs) -> None:
-        thread_pool_executor._max_workers = settings.FUTURES_MAX_WORKERS
-
         self._future: Future = thread_pool_executor.submit(callable_, *args, **kwargs)
 
         self._result: R = None

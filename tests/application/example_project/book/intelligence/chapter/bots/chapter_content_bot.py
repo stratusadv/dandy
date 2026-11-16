@@ -15,11 +15,18 @@ if TYPE_CHECKING:
 
 class ChapterContentLlmBot(Bot):
     role = 'Chapter Content Writer'
-    task = 'You are a chapter writing bot that will use all the information provided to write the content for a new chapter.'
+    task = (
+        'You are a chapter writing bot that will use all the information '
+        'provided to write the content for a new chapter.'
+    )
     guidelines = Prompt().list(
         [
-            'Do not include a chapter titles, chapter numbers or scene information when you write the content.'
-            'The content for a chapter should be at least 10 paragraphs long or longer including dialog.'
+            (
+                'Do not include a chapter titles, chapter numbers or scene '
+                'information when you write the content.'
+                'The content for a chapter should be at least 10 paragraphs '
+                'long or longer including dialog.'
+            )
         ]
     )
 

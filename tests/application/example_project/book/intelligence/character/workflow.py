@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from dandy import Bot
 from tests.application.example_project.book.intelligence.character.bots import CharacterGeneratorBot
 from tests.application.example_project.book.intelligence.character.enums import CharacterType
 from tests.application.example_project.book.intelligence.character.intel import CharactersIntel

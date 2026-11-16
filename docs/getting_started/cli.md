@@ -21,7 +21,7 @@ right for a CLI you run from everywhere.
 ```bash
 uv tool upgrade dandy      # when a new version ships
 uv tool uninstall dandy    # remove it
-dandy -v                   # verify: prints "Dandy 3.0.0a1"
+dandy -v                   # verify: prints "Dandy 3.0.0a5"
 ```
 
 Prefer other installers? `pipx install dandy` or `pip install dandy` give you the
@@ -50,7 +50,7 @@ The banner shows what it resolved, so you always know which model you are talkin
 to:
 
 ```text
-Version      : 3.0.0a1
+Version      : 3.0.0a5
 Model        : gpt-6-luna
 Project Dir  : /home/nathanj/projects/api
 AGENTS.md    : found (12.4 KB) - loaded into the agent system prompt
@@ -121,7 +121,7 @@ LLM_CONFIGS = {
 }
 
 CLI_CONFIG = {'CODING': 'DEFAULT'}
-DEBUG = False   # True adds a "↳" trace line per tool round
+DEBUG = False  # True adds a "↳" trace line per tool round
 ```
 
 ### Picking the model

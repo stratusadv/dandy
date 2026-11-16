@@ -51,6 +51,11 @@ jobs:
         run: |
           lint-imports
 
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
   live-llm:
     needs: hermetic
     runs-on: ubuntu-latest

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from pydantic import BaseModel
 
@@ -18,7 +17,7 @@ class Book(BaseModel):
     author: str
     theme: BookTheme
     overview: str
-    chapters: List[Chapter]
+    chapters: list[Chapter]
 
     def to_markdown_file(self):
         with open(

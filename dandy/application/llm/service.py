@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from dandy.infrastructure.future.process import process_to_future
@@ -16,6 +15,8 @@ from dandy.application.tool.mixin import ToolServiceMixin
 from dandy.application.skill.mixin import SkillServiceMixin
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pydantic.main import IncEx
 
     from dandy.infrastructure.future.future import AsyncFuture

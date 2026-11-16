@@ -206,7 +206,8 @@ class TestClockTool(TestCase):
         self.assertEqual(result, 'Friday, 2026-11-13 09:35:07 EST')
 
     def test_handle_naive_local_time_is_reported_with_zone(self) -> None:
-        fixed_now = datetime(2026, 11, 13, 14, 35, 7)  # noqa: DTZ001 - naive local time is the case under test
+        # The naive datetime is the case under test: ClockTool localizes it.
+        fixed_now = datetime(2026, 11, 13, 14, 35, 7)  # noqa: DTZ001
 
         with mock.patch(_CLOCK_DATETIME) as mock_datetime:
             mock_datetime.now.return_value = fixed_now
@@ -238,7 +239,7 @@ class TestToolActionLabelsAndOutputs(TestCase):
     def test_run_command_output_names_the_command(self) -> None:
         tool = RunCommandTool()
 
-        self.assertEqual(tool.action_label, 'Executing')
+        self.assertEqual(tool.action_label, 'Running')
         self.assertEqual(tool.action_output(command='pytest -q'), 'pytest -q')
 
     def test_git_labels_and_outputs_describe_the_action(self) -> None:

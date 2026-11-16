@@ -29,14 +29,14 @@ class Bot(FileServiceMixin, LlmServiceMixin, HttpServiceMixin, IntelServiceMixin
         super().__init_subclass__()
 
         if ABC not in cls.__bases__:
-            # Typing Does not work properly for processors if you override __getattribute__ in the BaseProcessor class.
-            # This is a workaround and should be fixed in future versions of the python lsp.
+            # Typing does not work properly if you override __getattribute__ in the
+            # base class; this is a workaround for the python lsp.
             def __getattribute__(self: Self, name: str) -> Any:  # noqa: N807
                 attr = super().__getattribute__(name)
 
                 if name == 'process' and callable(attr) and not hasattr(attr, '_wrapped'):
                     wrapped = record_process_wrapper(self, attr)
-                    setattr(wrapped, '_wrapped', True)
+                    wrapped._wrapped = True  # type: ignore[attr-defined]
 
                     return wrapped
 
@@ -45,10 +45,6 @@ class Bot(FileServiceMixin, LlmServiceMixin, HttpServiceMixin, IntelServiceMixin
             cls.__getattribute__ = __getattribute__
 
     def __post_init__(self) -> None:
-        pass
-
-    @classmethod
-    def get_description(cls) -> str | None:
         pass
 
     def process(self, *args, **kwargs) -> Any:

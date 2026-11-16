@@ -75,10 +75,7 @@ class TestRunSubprocess(TestCase):
         signal = StopSignal()
 
         output = run_subprocess(
-            [sys.executable, '-c', 'print("done")'],
-            cwd=CWD,
-            timeout_seconds=10,
-            stop_signal=signal,
+            [sys.executable, '-c', 'print("done")'], cwd=CWD, timeout_seconds=10, stop_signal=signal
         )
 
         self.assertEqual(output, 'Exit code: 0\ndone\n')

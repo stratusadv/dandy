@@ -3,6 +3,12 @@ line-length = 100
 target-version = "py311"
 
 exclude = [
+    # The old docs site is read-only reference material (see AGENTS.md); it is
+    # never linted, and its sample scripts are intentionally pre-v3 style.
+    "archived_docs",
+    # The eval harness is a self-contained package: its hidden tests are gated
+    # by EVAL_TESTING and must not be touched by the repo's tooling.
+    "evals",
     "*/migrations/*",
     "/site",
     ".DS_Store",
@@ -95,6 +101,7 @@ ignore = [
     "INP001",
     "PLR0913",
     "PLR0915",
+    "PLR0917",
     "PLR2004",
     "PLW2901",
     "PT019",
@@ -116,7 +123,41 @@ unfixable = []
 # The test suite is unittest-style by design (it must run under both pytest and
 # `python -m unittest discover`), so ruff's pytest-style (PT) prescriptions do
 # not apply to it.
-per-file-ignores = { "tests/**" = ["PT"] }
+per-file-ignores = {
+    # The test suite is unittest-style by design (it must run under both pytest and
+    # `python -m unittest discover`), so ruff's pytest-style (PT) prescriptions do
+    # not apply to it. The style rules below are deliberately not enforced in
+    # tests either: annotations on hundreds of unittest methods, mock lambdas,
+    # and the intentional terminal glyphs in TUI assertions would be churn, not
+    # quality. Real defects (F401/F841/F811, etc.) are still enforced.
+    "tests/**" = [
+        "ANN",
+        "ARG",
+        "EM",
+        "FBT003",
+        "PT",
+        "LOG015",
+        "N802",
+        "N806",
+        "PERF401",
+        "PLC0415",
+        "PYI034",
+        "RUF001",
+        "RUF013",
+        "S108",
+        "SIM117",
+        "SLOT000",
+        "TC001",
+        "TRY003",
+    ],
+    # The ASCII banner is box-drawing art; trailing whitespace is structural.
+    "dandy/interfaces/cli/tui/ascii.py" = ["W291"],
+    # The sqlite queries are built from module-level constants plus bound
+    # parameters only; the f-string interpolation is not a user-input vector.
+    "dandy/infrastructure/cache/sqlite/cache.py" = ["S608"],
+    # The question prompt deliberately uses the ❯ glyph (RUF001/2/3).
+    "dandy/interfaces/cli/tui/tui.py" = ["RUF001", "RUF002", "RUF003"],
+}
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [format]

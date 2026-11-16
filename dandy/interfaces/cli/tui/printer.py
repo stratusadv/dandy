@@ -113,7 +113,7 @@ class Printer:
         """
         start_time = perf_counter()
 
-        self.event(text=f'{self.term.bold_orange}Executing "{task}..."{self.term.normal}')
+        self.event(text=f'{self.term.bold_orange}Executing request "{task}..."{self.term.normal}')
 
         progress = StoryProgress(self.term)
         result_holder: dict[str, T] = {}

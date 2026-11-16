@@ -41,7 +41,8 @@ class Event(BaseModel):
 
     def model_post_init(self, __context: Any, /) -> None:
         if settings.DEBUG:
-            logging.debug(str(self))
+            # DEBUG is an opt-in tracing mode with no logging hierarchy.
+            logging.debug(str(self))  # noqa: LOG015
 
     def calculate_run_time(self, pre_event: Self) -> None:
         self.run_time_seconds = self.start_time - pre_event.start_time

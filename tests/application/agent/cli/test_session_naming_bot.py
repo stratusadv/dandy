@@ -87,9 +87,7 @@ class TestSessionNamingBot(unittest.TestCase):
 
         self.assertEqual(len(captured_requests), 2)
         second_messages = captured_requests[1]['messages']
-        second_user_messages = [
-            message for message in second_messages if message['role'] == 'user'
-        ]
+        second_user_messages = [message for message in second_messages if message['role'] == 'user']
 
         self.assertEqual(len(second_user_messages), 1)
         second_user_text = ''.join(

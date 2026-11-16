@@ -32,7 +32,7 @@ class TestIntelClassGenerator(TestCase):
             y: float
 
         def chaos_math(a: float, b: int, chaos_list: list[Chaos]) -> float:
-            return a + b + sum((chaos.x + chaos.y for chaos in chaos_list))
+            return a + b + sum(chaos.x + chaos.y for chaos in chaos_list)
 
         new_intel_class = IntelFactory.callable_signature_to_intel_class(chaos_math)
 

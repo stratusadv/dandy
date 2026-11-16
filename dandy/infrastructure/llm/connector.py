@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
-from pydantic.main import IncEx
 
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.connector.connector import BaseConnector
@@ -12,8 +10,6 @@ from dandy.shared.exceptions import RUN_STOPPED_MESSAGE, RunStoppedError
 from dandy.infrastructure.http.connector import HttpConnector
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.intel.intel import DefaultIntel
-from dandy.domain.intel.typing import IntelType
-from dandy.infrastructure.llm.config import LlmConfig
 from dandy.infrastructure.llm.fenced_json import extract_code_fence_json_body
 from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
 from dandy.domain.request.prompts import service_system_validation_error_prompt
@@ -25,13 +21,19 @@ from dandy.infrastructure.recorder.llm_events import (
     recorder_add_llm_retry_event,
     recorder_add_llm_success_event,
 )
-from dandy.domain.message.message import MessageHistory
 from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
 from dandy.infrastructure.recorder.tool_events import recorder_add_tool_call_event
 from dandy.domain.tool.tool import ToolType, to_tool_instances
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pydantic.main import IncEx
+
     from dandy.application.diligence.handler import DiligenceHandler
+    from dandy.domain.intel.typing import IntelType
+    from dandy.domain.message.message import MessageHistory
+    from dandy.infrastructure.llm.config import LlmConfig
 
 
 class LlmConnector(BaseConnector):
@@ -192,9 +194,6 @@ class LlmConnector(BaseConnector):
                 image_base64_strings=image_base64_strings,
             )
 
-    def _reset_prompt_retry_attempt(self) -> None:
-        self.prompt_retry_attempt = 0
-
     def reset(self) -> None:
         self.llm_config.reset()
         self.request_body = self.llm_config.generate_request_body()
@@ -263,7 +262,10 @@ class LlmConnector(BaseConnector):
             recorder_add_llm_failure_event(error, self.recorder_event_id)
 
             return self.retry_request_to_intel(
-                retry_event_description='Validation of response to intel object failed, retrying with validation errors prompt.',
+                retry_event_description=(
+                    'Validation of response to intel object failed, '
+                    'retrying with validation errors prompt.'
+                ),
                 retry_user_prompt=service_system_validation_error_prompt(error),
             )
 
@@ -350,7 +352,10 @@ class LlmConnector(BaseConnector):
 
             return self._request_to_intel()
 
-        message = f'Failed to get the correct response from the LlmService after {self.llm_config.prompt_retry_count} attempts.'
+        message = (
+            f'Failed to get the correct response from the LlmService after '
+            f'{self.llm_config.prompt_retry_count} attempts.'
+        )
         raise LlmExternalError(message)
 
     def _set_intel(
@@ -364,7 +369,10 @@ class LlmConnector(BaseConnector):
             if self.intel_class:
                 intel_class = self.intel_class
             else:
-                message = 'Must specify either intel_class, intel_object or llm_intel_class on the processor.'
+                message = (
+                    'Must specify either intel_class, intel_object or '
+                    'llm_intel_class on the processor.'
+                )
                 raise LlmUsageError(message)
 
         self.intel = intel_class or intel_object

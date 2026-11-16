@@ -14,7 +14,9 @@ def cache_decorator_function(cache: BaseCache, func: Callable, *args, **kwargs) 
 
     cached_value = cache.get(cache_key)
 
-    if cached_value:
+    # `is not None` because a cached falsy value ('', 0, False, an empty
+    # Intel) is still a hit and must be served, not recomputed.
+    if cached_value is not None:
         if Recorder.is_recording:
             if isinstance(cached_value, BaseIntel):
                 response = cached_value.model_dump_json(indent=4)

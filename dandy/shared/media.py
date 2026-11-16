@@ -26,23 +26,23 @@ def get_audio_format_from_base64_string(base64_string: str) -> str:
 
 def get_audio_mime_type_from_base64_string(base64_string: str) -> str:
 
-    for signature in _BASE64_AUDIO_MIME_SIGNATURES:
+    for signature, mime_type in _BASE64_AUDIO_MIME_SIGNATURES.items():
         if base64_string.startswith(signature):
-            return _BASE64_AUDIO_MIME_SIGNATURES[signature]
+            return mime_type
 
     message = 'Unable to determine audio format from base64 string'
     raise FileUsageError(message)
 
 
-def get_image_format_from_base64_string(base64_string: str) -> str | None:
+def get_image_format_from_base64_string(base64_string: str) -> str:
     return get_image_mime_type_from_base64_string(base64_string).split('/')[1]
 
 
-def get_image_mime_type_from_base64_string(base64_string: str) -> str | None:
+def get_image_mime_type_from_base64_string(base64_string: str) -> str:
 
-    for signature in _BASE64_IMAGE_MIME_SIGNATURES:
+    for signature, mime_type in _BASE64_IMAGE_MIME_SIGNATURES.items():
         if base64_string.startswith(signature):
-            return _BASE64_IMAGE_MIME_SIGNATURES[signature]
+            return mime_type
 
     message = 'Unable to determine image format from base64 string'
     raise FileUsageError(message)

@@ -35,7 +35,7 @@ class Recorder(Singleton):
         if recording_name not in cls.recordings:
             choices_message = ''
 
-            if len(cls.recordings.keys()) == 0:
+            if cls.recordings:
                 choices_message = f' Choices are {list(cls.recordings.keys())}'
 
             message = f'Recording "{recording_name}" does not exist. {choices_message}'

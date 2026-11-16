@@ -9,7 +9,7 @@ def chapter_intel_overview_prompt(chapter_intel: ChapterIntel) -> Prompt:
     prompt = Prompt()
     prompt.text(label='Title', text=chapter_intel.title)
     prompt.text(label='Covered Plot Points')
-    prompt.list([plot_point for plot_point in chapter_intel.covered_plot_points])
+    prompt.list(list(chapter_intel.covered_plot_points))
     if chapter_intel.scenes:
         prompt.line_break()
         prompt.text(label='Scenes')

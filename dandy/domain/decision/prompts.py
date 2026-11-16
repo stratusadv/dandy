@@ -9,7 +9,10 @@ def decision_guidelines_prompt(
     prompt = Prompt()
 
     guidelines = [
-        f'Read through all of the "{keys_description}" dict values and return the numbered {key_str} that matches the values with information relevant to the user\'s request.'
+        (
+            f'Read through all of the "{keys_description}" dict values and return the numbered '
+            f"{key_str} that matches the values with information relevant to the user's request."
+        )
     ]
 
     if max_return_values is not None and max_return_values > 0:
@@ -19,7 +22,8 @@ def decision_guidelines_prompt(
             guidelines.append(f'Return up to a maximum of {max_return_values} numbered {key_str}.')
     else:
         guidelines.append(
-            f"Return as many numbered {key_str} as you find that are relevant to the user's response."
+            f'Return as many numbered {key_str} as you find that are '
+            f"relevant to the user's response."
         )
 
     guidelines.append("Always return at least one numbered key closest to the user's request.")

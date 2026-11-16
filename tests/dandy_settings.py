@@ -5,10 +5,12 @@ ALLOW_RECORDING_TO_FILE = True
 
 BASE_PATH = Path.resolve(Path(__file__)).parent
 
-DEBUG = bool(int(os.getenv('DEBUG', 0)))
+DEBUG = bool(int(os.getenv('DEBUG', '0') or 0))
 
 if DEBUG:
-    from dandy.shared.debug import *
+    # DEBUG mode installs the stack-trace warning handler; the star import is
+    # deliberate and module-level by design (see dandy/shared/debug.py).
+    from dandy.shared.debug import *  # noqa: F403
 
 # These defaults keep the test suite hermetic: hermetic (mocked) tests can build
 # LLM configs without a live endpoint, while live-LLM tests still skip unless a
@@ -24,10 +26,7 @@ LLM_CONFIGS = {
         **AI_API,
         'MODEL': os.getenv('LLM_DEFAULT_MODEL', 'gpt-test'),
         'CONTEXT_SIZE': 65536,
-        'OPTIONS': {
-            'frequency_penalty': 1.0,
-            'temperature': 0.7,
-        },
+        'OPTIONS': {'frequency_penalty': 1.0, 'temperature': 0.7},
     },
     'THINKING': {
         'MODEL': os.getenv('LLM_THINKING_MODEL', 'gpt-test'),

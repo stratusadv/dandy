@@ -1,5 +1,3 @@
-from typing import List
-
 from dandy import BaseIntel
 
 
@@ -11,4 +9,4 @@ class LocationIntel(BaseIntel):
 class WorldIntel(BaseIntel):
     name: str
     description: str
-    locations: List[LocationIntel]
+    locations: list[LocationIntel]

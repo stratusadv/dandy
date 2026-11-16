@@ -1,19 +1,16 @@
 from __future__ import annotations
-from dandy.application.diligence.stop_word_removal.constants import STOP_WORDS
-import re
 
-import operator
-from typing import TYPE_CHECKING, Callable
+import re
+from typing import TYPE_CHECKING
 
 from dandy.application.diligence.diligence import BaseDiligence
+from dandy.application.diligence.stop_word_removal.constants import STOP_WORDS
 
 if TYPE_CHECKING:
     from dandy.infrastructure.llm.connector import LlmConnector
 
 
 class StopWordRemovalDiligence(BaseDiligence):
-    trigger_level: float = 0.2
-    trigger_operator: Callable[[float, float], bool] = operator.le
     requires_new_llm_request: bool = False
 
     @classmethod

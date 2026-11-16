@@ -133,7 +133,9 @@ class TestCodeEditingTools(TestCase):
         target_path.write_text('alpha\nbeta\ngamma\n')
 
         first = EditFileTool().handle(file_path='example.txt', old_string='alpha', new_string='one')
-        second = EditFileTool().handle(file_path='example.txt', old_string='gamma', new_string='three')
+        second = EditFileTool().handle(
+            file_path='example.txt', old_string='gamma', new_string='three'
+        )
 
         self.assertNotEqual(first, second)
 
@@ -235,7 +237,7 @@ class TestCodeEditingTools(TestCase):
             self.assertIsInstance(label, str)
             self.assertTrue(label)
 
-        self.assertEqual(ReadFileTool().action_label, 'Reading')
+        self.assertEqual(ReadFileTool().action_label, 'Viewing')
         self.assertEqual(ReadFileTool().action_output(file_path='a.txt'), 'a.txt')
         self.assertEqual(
             ReadFileTool().action_output(file_path='a.txt', start_line=5, end_line=10),

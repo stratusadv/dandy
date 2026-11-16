@@ -590,7 +590,7 @@ class TestCliAgentQuestionTool(TestCase):
     def test_turn_feeds_the_user_answer_back_to_the_model(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        agent = CliAgent(ask_user=lambda question, choices: 'blue')
+        agent = CliAgent(ask_user=lambda _question, _choices: 'blue')
         mock_post_request.side_effect = [
             tool_call_response(
                 'question',

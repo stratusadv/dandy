@@ -34,7 +34,8 @@ class SqliteCache(BaseCache):
             cursor = connection.cursor()
 
             cursor.execute(
-                f'SELECT name FROM sqlite_master WHERE type="table" AND name="{SQLITE_CACHE_TABLE_NAME}";'
+                f'SELECT name FROM sqlite_master WHERE type="table" '
+                f'AND name="{SQLITE_CACHE_TABLE_NAME}";'
             )
 
             return cursor.fetchone() is not None
@@ -44,10 +45,11 @@ class SqliteCache(BaseCache):
         with SqliteConnection(SQLITE_CACHE_DB_NAME) as connection:
             cursor = connection.cursor()
 
+            # The value column is BLOB because entries are pickled bytes.
             cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {SQLITE_CACHE_TABLE_NAME} (
                     key TEXT PRIMARY KEY,
-                    value TEXT,
+                    value BLOB,
                     cache_name TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
@@ -81,12 +83,14 @@ class SqliteCache(BaseCache):
 
             try:
                 cursor.execute(
-                    f'INSERT INTO {SQLITE_CACHE_TABLE_NAME} (key, value, cache_name) VALUES (?, ?, ?)',
+                    f'INSERT INTO {SQLITE_CACHE_TABLE_NAME} '
+                    f'(key, value, cache_name) VALUES (?, ?, ?)',
                     (key, value_string, self.cache_name),
                 )
             except sqlite3.IntegrityError:
                 cursor.execute(
-                    f'UPDATE {SQLITE_CACHE_TABLE_NAME} SET value = ? WHERE key = ? AND cache_name = ?',
+                    f'UPDATE {SQLITE_CACHE_TABLE_NAME} SET value = ? '
+                    f'WHERE key = ? AND cache_name = ?',
                     (value_string, key, self.cache_name),
                 )
 
@@ -100,9 +104,13 @@ class SqliteCache(BaseCache):
             excess_threshold = int(self.limit * 0.10)
             excess_rows = self.__len__() - self.limit
 
+            # clean only deletes once the overage reaches a tenth of the
+            # limit, so the table can temporarily hold up to ~20% extra rows.
             if excess_rows >= excess_threshold:
                 cursor.execute(
-                    f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE key IN (SELECT key FROM {SQLITE_CACHE_TABLE_NAME} WHERE cache_name = ? ORDER BY created_at LIMIT ?)',
+                    f'DELETE FROM {SQLITE_CACHE_TABLE_NAME} WHERE key IN '
+                    f'(SELECT key FROM {SQLITE_CACHE_TABLE_NAME} '
+                    f'WHERE cache_name = ? ORDER BY created_at LIMIT ?)',
                     (self.cache_name, excess_threshold),
                 )
 

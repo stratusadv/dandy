@@ -2,7 +2,7 @@ from typing import Any
 from unittest import TestCase
 
 from dandy.shared.exceptions import DandyUsageError
-from dandy.shared.typing.exceptions import TypingUsageError, TypingUsageError
+from dandy.shared.typing.exceptions import TypingUsageError
 from dandy.shared.typing.registry import resolve_type_from_registry
 from dandy.shared.typing.typed_kwargs import TypedKwargs
 from dandy.shared.typing.typing import TypedKwargsDict

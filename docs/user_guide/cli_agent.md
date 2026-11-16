@@ -39,7 +39,7 @@ CliAgent.turn               (dandy/application/agent/cli/cli_agent.py)
   │           ..., tools=AGENT_TOOLS,
   │           message_history=self.history,
   │           replace_message_history=True,
-  │           max_tool_iterations=None)      # uncapped
+  │           max_tool_iterations=max_tool_rounds)  # 200 per turn by default
   ▼
 the agent's final answer (rendered as terminal markdown)
 ```
@@ -138,9 +138,9 @@ Always deploy with `just deploy`, never push tags by hand.
 ## Context management
 
 The agent reads the coding config's `CONTEXT_SIZE` and compacts its own history before
-every LLM call to 70% of it ([Options and Context](options_and_context.md)), so an
-uncapped tool loop cannot overflow the window. The tool loop also compacts before every
-round, and both report progress through the TUI's story.
+every LLM call to 70% of it ([Options and Context](options_and_context.md)), so a
+long-running tool loop cannot overflow the window. The tool loop also compacts before
+every round, and both report progress through the TUI's story.
 
 ## The TUI
 

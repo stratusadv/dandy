@@ -69,6 +69,5 @@ class EditFileTool(BaseTool):
             location = f'lines {start_line}-{end_line}'
 
         return (
-            f'Applied {occurrence_count} replacement(s) to "{file_path}" '
-            f'({location}: "{snippet}").'
+            f'Applied {occurrence_count} replacement(s) to "{file_path}" ({location}: "{snippet}").'
         )

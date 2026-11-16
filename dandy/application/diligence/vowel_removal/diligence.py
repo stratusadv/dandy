@@ -1,19 +1,15 @@
 from __future__ import annotations
-from dandy.application.diligence.vowel_removal.constants import VOWELS
 
-import operator
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from dandy.application.diligence.diligence import BaseDiligence
+from dandy.application.diligence.vowel_removal.constants import VOWELS
 
 if TYPE_CHECKING:
     from dandy.infrastructure.llm.connector import LlmConnector
 
 
 class VowelRemovalDiligence(BaseDiligence):
-    trigger_level: float = 0.0
-    trigger_operator: Callable[[float, float], bool] = operator.le
-
     @classmethod
     def apply(cls, llm_connector: LlmConnector) -> None:
         for i in range(len(llm_connector.request_body.messages)):

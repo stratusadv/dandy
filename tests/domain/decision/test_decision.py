@@ -67,9 +67,7 @@ class TestDecision(TestCase):
         )
 
         with self.assertRaises(DecisionExternalError):
-            value = FunDecisionBot().process(
-                'I really like my pet dog and hope to get another one', 2
-            )
+            FunDecisionBot().process('I really like my pet dog and hope to get another one', 2)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_to_many_keys_decision_retry(self, mock_post_request: mock.MagicMock):
@@ -79,6 +77,4 @@ class TestDecision(TestCase):
         )
 
         with self.assertRaises(DecisionExternalError):
-            value = FunDecisionBot().process(
-                'I really like my pet dog and hope to get another one', 2
-            )
+            FunDecisionBot().process('I really like my pet dog and hope to get another one', 2)

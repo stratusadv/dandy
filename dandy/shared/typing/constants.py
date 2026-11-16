@@ -7,6 +7,4 @@ STRING_TO_TYPE_MAP = {
     'number': int,
     'float': float,
     'bool': bool,
-    'null': None,
-    'undefined': None,
 }

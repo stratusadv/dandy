@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import Field
 
 from dandy import BaseIntel, BaseListIntel
@@ -20,4 +18,4 @@ class CharacterIntel(BaseIntel):
 
 
 class CharactersIntel(BaseListIntel[CharacterIntel]):
-    characters: List[CharacterIntel] = Field(default_factory=list)
+    characters: list[CharacterIntel] = Field(default_factory=list)

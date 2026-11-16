@@ -66,7 +66,9 @@ class IntelFactory:
                     break
 
             else:
-                message = f'JSON Schema property "{property_}" did not have one of f{required_attributes}.'
+                message = (
+                    f'JSON Schema property "{property_}" did not have one of {required_attributes}.'
+                )
                 raise IntelUsageError(message) from None
 
     @classmethod

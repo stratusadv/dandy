@@ -28,10 +28,16 @@ The `dandy` command runs the coding assistant against the current project. Run i
 ```bash
 dandy                          # start an interactive agentic loop
 dandy "fix the failing tests"  # run one request, then exit
+dandy -r "one more fix"        # run one request inside the latest session
+dandy -s my-session "resume me"  # run one request inside a named session
+dandy -n new-name              # start a fresh, pre-named conversation
+dandy --sessions               # list saved sessions
+dandy --init                   # create or refresh the project AGENTS.md
+dandy -d old-session           # delete a saved session
 dandy -h                       # show usage
 ```
 
-Inside the interactive session every message goes to the coding agent. `/clear` resets the conversation, and pressing `escape` twice (or `/quit`) exits the loop. Use the one-shot form when you only want a single answer without entering the REPL.
+Inside the interactive session every message goes to the coding agent. `/new` (or `/n`) starts a fresh conversation, `/sessions` (or `/s`) lists or resumes saved sessions, and pressing `escape` twice (or `/quit`) exits the loop. Use the one-shot form when you only want a single answer without entering the REPL.
 
 The CLI's model is set with `CLI_CONFIG` in `dandy_settings.py`, e.g. `CLI_CONFIG = {'CODING': 'DEFAULT'}` points the coding agent at the `DEFAULT` entry in `LLM_CONFIGS`.
 

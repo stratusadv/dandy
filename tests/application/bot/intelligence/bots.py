@@ -29,11 +29,17 @@ class MoneyBagBot(Bot):
 
 class ParrotBot(Bot):
     role = 'Parrot Assistant'
-    task = 'Say the sentence the user provided back to them like a parrot along with a happiness level to match the sentence.'
+    task = (
+        'Say the sentence the user provided back to them like a parrot '
+        'along with a happiness level to match the sentence.'
+    )
     intel_class = HappyIntel
 
 
 class OtherBot(Bot):
     role = 'Cockatiel Assistant'
-    task = 'Say the sentence the user provided back to them like a cockatiel along with a sadness level to match the sentence.'
+    task = (
+        'Say the sentence the user provided back to them like a cockatiel '
+        'along with a sadness level to match the sentence.'
+    )
     intel_class = SadIntel

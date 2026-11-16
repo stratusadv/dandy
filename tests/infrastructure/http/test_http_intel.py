@@ -16,7 +16,7 @@ class TestHttpRequestIntel(TestCase):
         request_intel = HttpRequestIntel(
             method='POST',
             url='https://example.com',
-            bearer_token='secret',  # noqa: S106
+            bearer_token='secret',  # noqa: S106 - a fake bearer token, not a credential
         )
 
         self.assertEqual(request_intel.headers, {'Authorization': 'Bearer secret'})
@@ -26,7 +26,7 @@ class TestHttpRequestIntel(TestCase):
             method='POST',
             url='https://example.com',
             headers={'X-Custom': 'value'},
-            bearer_token='secret',  # noqa: S106
+            bearer_token='secret',  # noqa: S106 - a fake bearer token, not a credential
         )
 
         self.assertEqual(

@@ -36,6 +36,9 @@ cli *ARGS:
 # loaded context. Implementation: scripts/repl-smoke.sh
 repl-smoke:
     bash scripts/repl-smoke.sh
+lint:
+    {{ PYTHON }} -m ruff check .
+    {{ PYTHON }} -m ruff format --check .
 lint-imports:
     {{ LINT_IMPORTS }}
 docs:

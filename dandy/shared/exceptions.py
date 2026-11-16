@@ -33,8 +33,6 @@ class RunStoppedError(DandyFlowError):
     can all raise and catch it without cross-layer imports.
     """
 
-    pass
-
 
 # The message every stop checkpoint raises with, so a stopped run reads the
 # same way no matter which layer noticed the signal.

@@ -48,7 +48,7 @@ def _patched_home(home_path: Path) -> Iterator[None]:
 
 
 def _reset_settings_state() -> None:
-    settings._user_settings = ...
+    settings._user_settings = None
     settings._has_loaded_user_settings = False
     settings._json_settings_path = None
 

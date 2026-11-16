@@ -359,7 +359,7 @@ class Agent:
         if progress_callback is not None:
             progress_callback(
                 StoryBeat(
-                    description='Compacting my thoughts into a more manageable size',
+                    description='... Compacting my thoughts into a more manageable size',
                     kind='compaction',
                 )
             )

@@ -62,12 +62,12 @@ the conversation alone.
 
 ```python
 Agent(
-    bot,                          # the Bot that performs the work
-    tools=None,                    # the tool set every turn may call
-    skills=None,                   # skills registered on the bot at construction
-    max_turns=None,                # the run() budget; None = unbounded
-    max_tool_rounds=200,           # AGENT_MAX_TOOL_ROUNDS_DEFAULT; None = no cap
-    intel_class=None,              # per-turn result model; default AgentTurnIntel
+    bot,  # the Bot that performs the work
+    tools=None,  # the tool set every turn may call
+    skills=None,  # skills registered on the bot at construction
+    max_turns=None,  # the run() budget; None = unbounded
+    max_tool_rounds=200,  # AGENT_MAX_TOOL_ROUNDS_DEFAULT; None = no cap
+    intel_class=None,  # per-turn result model; default AgentTurnIntel
 )
 ```
 

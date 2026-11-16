@@ -69,7 +69,7 @@ class TestCliMain(TestCase):
 
         mock_check_settings.assert_called_once_with(cli_main.CWD_PATH)
         mock_reload.assert_called_once()
-        mock_session.post_init.assert_called_once_with(project_base_path=cli_main.CWD_PATH)
+        self.assertEqual(mock_session.project_base_path, cli_main.CWD_PATH)
 
         cli_instance = mock_cli_class.return_value
         cli_instance.process_user_input.assert_called_once_with(user_input='do the thing')

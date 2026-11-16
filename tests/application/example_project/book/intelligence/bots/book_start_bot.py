@@ -1,4 +1,4 @@
-from dandy import Bot, Prompt, cache_to_sqlite
+from dandy import Bot, Prompt
 from tests.application.example_project.book.intelligence.intel import BookStartIntel
 
 

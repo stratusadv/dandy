@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Type
 from unittest import TestCase
 
 from dandy.application.bot.bot import Bot
@@ -28,7 +27,7 @@ class ImageBreakdownLlmBot(Bot):
     config_options = LlmOptions(temperature=0.1)
 
     def process(
-        self, prompt: Prompt, intel_class: Type[ImageBreakdownIntel], image_files: List[str | Path]
+        self, prompt: Prompt, intel_class: type[ImageBreakdownIntel], image_files: list[str | Path]
     ) -> ImageBreakdownIntel:
         return self.llm.prompt_to_intel(
             prompt=prompt, intel_class=intel_class, image_files=image_files

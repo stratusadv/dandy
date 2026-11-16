@@ -21,8 +21,6 @@ env_file_names = ['dandy.env', 'development.env', 'dev.env', '.env']
 for env_file_name in env_file_names:
     env_file_path = Path(CWD_PATH, env_file_name)
     if env_file_path.exists():
-        env_term = Terminal()
-        # print(env_term.blue(f'\nLoading environment variables from "{env_file_path}"'))
         dotenv.load_dotenv(env_file_path)
 
 sys.path.append(str(CWD_PATH))
@@ -86,8 +84,6 @@ def _dispatch(cli: 'DandyCli', plan: OneShotPlan) -> int:
 
 
 def main() -> int:
-    sys.path.append(str(CWD_PATH))
-
     if len(sys.argv) > 1 and sys.argv[1] in {'-h', '--help'}:
         print_usage()
         return 0
@@ -110,7 +106,7 @@ def main() -> int:
 
         settings.reload_from_os()
 
-        session.post_init(project_base_path=CWD_PATH)
+        session.project_base_path = CWD_PATH
 
         ensure_dandy_gitignore(CWD_PATH)
 

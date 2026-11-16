@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy import Bot, Prompt, cache_to_sqlite
+from dandy import Bot, Prompt
 from tests.application.example_project.book.intelligence.plot.intel import PlotPointsIntel
 from tests.application.example_project.book.intelligence.prompts import book_intel_prompt
 

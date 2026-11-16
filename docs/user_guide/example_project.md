@@ -52,10 +52,7 @@ Orchestration is plain Python — no orchestration class. `workflow.py` at the b
 
 ```python
 def create_book(user_input: str, chapter_count: int = 10) -> Book:
-    book_intel = BookIntel(
-        user_input=user_input,
-        theme=BookThemeDecisionBot().process(user_input),
-    )
+    book_intel = BookIntel(user_input=user_input, theme=BookThemeDecisionBot().process(user_input))
     book_intel.start = BookStartLlmBot().process(user_input)
     book_intel.characters = characters_creation(book_intel)
     book_intel.world = WorldCreationBot().process(book_intel)

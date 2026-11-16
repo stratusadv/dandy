@@ -220,6 +220,16 @@ class TestRecorderHermetic(TestCase):
 
         self.assertIn('does not exist', str(context.exception))
 
+    def test_check_recording_is_valid_missing_lists_existing_choices(self) -> None:
+        Recorder.start_recording(RECORDING_NAME)
+        self.addCleanup(Recorder.delete_all_recordings)
+
+        with self.assertRaises(RecorderUsageError) as context:
+            Recorder.check_recording_is_valid('never_started_recording')
+
+        self.assertIn('Choices are [', str(context.exception))
+        self.assertIn(RECORDING_NAME, str(context.exception))
+
     def test_delete_recording_removes_it(self) -> None:
         Recorder.start_recording(self.recording_name)
 

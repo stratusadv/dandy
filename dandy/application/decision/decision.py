@@ -84,7 +84,10 @@ class Decision:
     ) -> DecisionValuesIntel:
         for key in keys_values:
             if not isinstance(key, str):
-                message = f'all keys in `keys_values` must be strings to be selected, found {key} ({type(key)}).'
+                message = (
+                    f'all keys in `keys_values` must be strings to be selected, '
+                    f'found {key} ({type(key)}).'
+                )
                 raise DecisionUsageError(message)
 
         self.keys_description = keys_description
@@ -140,7 +143,10 @@ class Decision:
 
                 if self._llm_connector.has_retry_attempts_available:
                     return_keys_intel = self._llm_connector.retry_request_to_intel(
-                        retry_event_description='Decision keys intel object came back empty, retrying with no key(s) prompt.',
+                        retry_event_description=(
+                            'Decision keys intel object came back empty, '
+                            'retrying with no key(s) prompt.'
+                        ),
                         retry_user_prompt=decision_no_choices_error_prompt(),
                     )
                 else:
@@ -151,7 +157,10 @@ class Decision:
 
                 if self._llm_connector.has_retry_attempts_available:
                     return_keys_intel = self._llm_connector.retry_request_to_intel(
-                        retry_event_description='Decision keys intel object came back with to many keys, retrying with to many key(s) prompt.',
+                        retry_event_description=(
+                            'Decision keys intel object came back with too many keys, '
+                            'retrying with too many key(s) prompt.'
+                        ),
                         retry_user_prompt=decision_too_many_choices_error_prompt(
                             returned_count=len(return_keys_intel),
                             max_count=max_return_values if max_return_values is not None else 0,
@@ -183,7 +192,10 @@ class Decision:
     def _generate_service_system_prompt(self, max_return_values: int | None) -> Prompt:
         return service_system_prompt(
             role=f'{self.keys_description} Relationship Identifier',
-            task=f'Identify the "{self.keys_description}" that best matches the user provided information or request.',
+            task=(
+                f'Identify the "{self.keys_description}" that best matches '
+                'the user provided information or request.'
+            ),
             guidelines=decision_guidelines_prompt(
                 keys_description=self.keys_description,
                 keyed_mapping_choices_dict=self._keyed_mapping_choices_dict,

@@ -32,6 +32,7 @@ class Tui:
         self, question: str | None = None, choices: list[str] | None = None
     ) -> str | None:
         if question:
+            # NB: the heavy-right-quot glyph is the intended question prompt mark.
             self._input_prefix = self.term.purple('❯ ')
             self.printer.event(
                 text=f'\n{self.term.purple}{QuestionTool.action_label}{self.term.normal}'

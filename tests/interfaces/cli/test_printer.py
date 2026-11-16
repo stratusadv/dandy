@@ -145,11 +145,10 @@ class TestPrinterStory(TestCase):
         self.assertEqual(len(lines), 2)
         self.assertIn('Checking the forecast now.', lines[0])
         self.assertNotIn('•', frame)
-        self.assertNotIn(progress.term.bold_grey, frame)
-        phrase_line = f'{progress.term.bold_blue}Polishing a Cufflink{progress.term.normal}'
+        phrase_line = f'{progress.term.bold_grey}✦ Polishing a Cufflink{progress.term.normal}'
         self.assertIn(phrase_line, lines[1])
 
-    def test_animating_frame_renders_bold_blue_phrase_on_the_next_line(self) -> None:
+    def test_animating_frame_renders_bold_grey_phrase_on_the_next_line(self) -> None:
         with mock.patch(
             'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
             return_value='Polishing a Cufflink',
@@ -164,7 +163,7 @@ class TestPrinterStory(TestCase):
         self.assertEqual(len(lines), 2)
         self.assertIn('Checking the forecast now.', lines[0])
         self.assertNotIn('Polishing a Cufflink', lines[0])
-        phrase_line = f'{progress.term.bold_blue}Polishing a Cufflink{progress.term.normal}'
+        phrase_line = f'{progress.term.bold_grey}✦ Polishing a Cufflink{progress.term.normal}'
         self.assertIn(phrase_line, lines[1])
         self.assertNotIn('Checking the forecast now.', lines[1])
         self.assertNotIn('Polishing a Cufflink', settled_frame)
@@ -191,8 +190,8 @@ class TestPrinterStory(TestCase):
                 progress.frame(beat),
             ]
 
-        first_phrase = f'{term.bold_blue}Polishing a Cufflink'
-        second_phrase = f'{term.bold_blue}Dusting a Tailcoat'
+        first_phrase = f'{term.bold_grey}✦ Polishing a Cufflink'
+        second_phrase = f'{term.bold_grey}✦ Dusting a Tailcoat'
 
         self.assertIn(first_phrase, frames[0])
         self.assertIn(first_phrase, frames[1])
@@ -287,7 +286,8 @@ class TestPrinterStory(TestCase):
             self.assertNotIn('•', frame)
             self.assertIn(term.bold_blue, frame)
             self.assertIn('Let me check the weather.', frame)
-            self.assertNotIn(term.bold_grey, frame)
+
+        self.assertNotIn(term.bold_grey, settled_frame)
 
     def test_compaction_beat_renders_bold_purple_after_a_blank_line(self) -> None:
         with mock.patch(
@@ -477,7 +477,7 @@ class TestPrinterStory(TestCase):
         escape = Keystroke('\x1b')
         queued = [escape, escape]
 
-        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:
             return queued.pop(0) if queued else Keystroke('')
 
         mock_inkey.side_effect = inkey_side_effect
@@ -506,7 +506,7 @@ class TestPrinterStory(TestCase):
         # blessed may deliver two quick escapes as one keystroke.
         queued = [Keystroke('\x1b\x1b')]
 
-        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:
             return queued.pop(0) if queued else Keystroke('')
 
         mock_inkey.side_effect = inkey_side_effect
@@ -529,7 +529,7 @@ class TestPrinterStory(TestCase):
 
         queued = [Keystroke('\x1b'), Keystroke('a')]
 
-        def inkey_side_effect(timeout: float = 0) -> Keystroke:  # noqa: ARG001
+        def inkey_side_effect(timeout: float = 0) -> Keystroke:
             return queued.pop(0) if queued else Keystroke('')
 
         mock_inkey.side_effect = inkey_side_effect
@@ -870,7 +870,8 @@ class TestPrinterFileChangeSections(TestCase):
         self.assertEqual(lines[1], f'{term.bold_blue}Added Files{term.normal}')
         self.assertEqual(lines[2], term.blue('─' * term.width))
         self.assertEqual(
-            lines[3], f'{term.normal}{term.green}◈{term.normal} {self._expected_link("src/foo.py")}'
+            lines[3],
+            f'{term.normal}{term.green}◈ {term.normal} {self._expected_link("src/foo.py")}',
         )
 
     def test_bullets_are_colored_per_action(self) -> None:
@@ -881,9 +882,9 @@ class TestPrinterFileChangeSections(TestCase):
         bullet_lines = [line for line in lines if '◈' in line]
 
         self.assertEqual(len(bullet_lines), 3)
-        self.assertIn(f'{term.green}◈{term.normal}', bullet_lines[0])
-        self.assertIn(f'{term.purple}◈{term.normal}', bullet_lines[1])
-        self.assertIn(f'{term.red}◈{term.normal}', bullet_lines[2])
+        self.assertIn(f'{term.green}◈ {term.normal}', bullet_lines[0])
+        self.assertIn(f'{term.purple}◈ {term.normal}', bullet_lines[1])
+        self.assertIn(f'{term.red}◈ {term.normal}', bullet_lines[2])
 
     def test_sections_print_in_order_and_skip_empty(self) -> None:
         self.printer.file_change_sections(['src/a.py'], [], ['src/c.py'])
@@ -908,4 +909,4 @@ class TestPrinterFileChangeSections(TestCase):
         self.assertEqual(lines[0], '')
         self.assertEqual(lines[4], '')
         self.assertEqual(lines[8], '')
-        self.assertIn(f'{term.red}◈{term.normal}', lines[11])
+        self.assertIn(f'{term.red}◈ {term.normal}', lines[11])

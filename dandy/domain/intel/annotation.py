@@ -30,8 +30,10 @@ class FieldAnnotation:
 
         if len(inner) > 1:
             message = (
-                f'Failed to get annotation on field "{self.field_name}" because a "{self.origin}" had more than one '
-                f"non-None type or this field's annotation was beyond the complexity of 2 annotation origins."
+                f'Failed to get annotation on field "{self.field_name}" '
+                f'because a "{self.origin}" had more than one '
+                f"non-None type or this field's annotation was beyond "
+                'the complexity of 2 annotation origins.'
             )
             raise IntelUsageError(message)
 

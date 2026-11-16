@@ -21,10 +21,6 @@ def generate_recorder_event_id() -> str:
     return ''.join(random.choices(alphabet, k=4))
 
 
-def generate_forwardable_kwargs_if_not_none(**kwargs) -> dict:
-    return {key: value for key, value in kwargs.items() if value is not None}
-
-
 def pydantic_validation_error_to_str(error: ValidationError) -> str:
     return error.__str__()
 

@@ -101,7 +101,8 @@ class TestCacheHashing(TestCase):
         self.assertEqual(len(classes), len(converted_classes))
 
     def cache_key_performance_test(self) -> float:
-        args = (
+        # The concatenation mirrors the API call under test.
+        args = (  # noqa: RUF005
             self.puppet,
             Puppet,
             self.treasure,

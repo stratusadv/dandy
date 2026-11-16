@@ -20,30 +20,45 @@ class LlmConfig(HashMixin):
         self.name = name
 
         settings_configs = getattr(settings, _CONFIGS_NAME)
+        settings_module_name = get_settings_module_name()
 
         if not isinstance(settings_configs, dict) or not settings_configs:
-            message = f'Your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module is configured incorrectly.'
+            message = (
+                f'Your "{_CONFIGS_NAME}" in your "{settings_module_name}" '
+                'module is configured incorrectly.'
+            )
             raise DandyError(message)
 
         if 'DEFAULT' not in settings_configs:
-            message = f'You need a "DEFAULT" in your "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module.'
+            message = (
+                f'You need a "DEFAULT" in your "{_CONFIGS_NAME}" '
+                f'in your "{settings_module_name}" module.'
+            )
             raise DandyError(message)
 
         config = settings_configs.get(name)
 
         if config is None:
-            message = f'The "{name}" in "{_CONFIGS_NAME}" in your "{get_settings_module_name()}" module is not configured.'
+            message = (
+                f'The "{name}" in "{_CONFIGS_NAME}" in your '
+                f'"{settings_module_name}" module is not configured.'
+            )
             raise DandyError(message)
 
         if not isinstance(config, dict):
-            message = f'the "{_CONFIGS_NAME}" in the "{get_settings_module_name()}" module are configured incorrectly.'
+            message = (
+                f'the "{_CONFIGS_NAME}" in the "{settings_module_name}" '
+                'module are configured incorrectly.'
+            )
             raise DandyError(message)
 
         for key in _DEFAULT_TRANSFER_KEYS:
-            if key in config:
-                if config[key] is None or config[key] == '':
-                    message = f'The "{key}" in "{_CONFIGS_NAME}.{name}" in your "{get_settings_module_name()}" cannot be empty.'
-                    raise DandyError(message)
+            if key in config and not config[key]:
+                message = (
+                    f'The "{key}" in "{_CONFIGS_NAME}.{name}" in your '
+                    f'"{settings_module_name}" cannot be empty.'
+                )
+                raise DandyError(message)
 
             config[key] = config[key] if config.get(key) else settings_configs['DEFAULT'][key]
 
@@ -55,8 +70,8 @@ class LlmConfig(HashMixin):
         self.http_request_intel = HttpRequestIntel(
             method='POST',
             url=Url(
-                host=self.get_settings_value('host', True),
-                port=self.get_settings_value('port', True),
+                host=self.get_settings_value('host', required=True),
+                port=self.get_settings_value('port', required=True),
                 path_parameters=self.get_settings_value('path_parameters'),
                 query_parameters=self.get_settings_value('query_parameters'),
             ),
@@ -65,7 +80,7 @@ class LlmConfig(HashMixin):
             or self.get_settings_value('bearer_token'),
         )
 
-        self.model = self.get_settings_value('model', True)
+        self.model = self.get_settings_value('model', required=True)
 
         context_size_value = self.get_settings_value('context_size')
 
@@ -108,7 +123,10 @@ class LlmConfig(HashMixin):
         value = self._settings_values.get(key)
 
         if required and value is None:
-            message = f'The "{key.upper()}" was not found in your settings and is required by "{self.__class__.__name__}".'
+            message = (
+                f'The "{key.upper()}" was not found in your settings '
+                f'and is required by "{self.__class__.__name__}".'
+            )
             raise DandyError(message)
 
         return value

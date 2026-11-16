@@ -9,11 +9,11 @@ class TestDandyCliSession(TestCase):
     def make_session(self, project_base_path: Path) -> DandyCliSession:
         return DandyCliSession(project_base_path=project_base_path)
 
-    def test_post_init_sets_project_base_path(self) -> None:
+    def test_project_base_path_is_reassignable(self) -> None:
         session = DandyCliSession(project_base_path=Path(tempfile.gettempdir()))
         project_base_path = Path('/some/project')
 
-        session.post_init(project_base_path=project_base_path)
+        session.project_base_path = project_base_path
 
         self.assertEqual(session.project_base_path, project_base_path)
 
@@ -22,5 +22,4 @@ class TestDandyCliSession(TestCase):
         session = self.make_session(project_base_path)
 
         self.assertEqual(session.project_dandy_path, project_base_path / '.dandy')
-        self.assertEqual(session.project_dandy_cli_path, project_base_path / '.dandy' / 'cli')
         self.assertEqual(session.agents_md_path, project_base_path / 'AGENTS.md')

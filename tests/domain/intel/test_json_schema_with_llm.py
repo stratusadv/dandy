@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from dandy.infrastructure import recorder
 from dandy.shared.exceptions import DandyExternalError
 from dandy.infrastructure.recorder.decorators import recorder_to_html_file
 from tests.domain.intel.intelligence.bots import JsonSchemaBot

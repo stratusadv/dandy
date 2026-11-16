@@ -15,10 +15,16 @@ if TYPE_CHECKING:
 
 class SceneLlmBot(Bot):
     role = 'Book Scene Planner'
-    task = 'You are a scene planning bot. You will be given information on a book that is being written.'
+    task = (
+        'You are a scene planning bot. You will be given information on a '
+        'book that is being written.'
+    )
     guidelines = Prompt().list(
         [
-            'For the current chapter you will create all the required scenes needed to cover the plot points in the chapter.'
+            (
+                'For the current chapter you will create all the required scenes '
+                'needed to cover the plot points in the chapter.'
+            )
         ]
     )
 

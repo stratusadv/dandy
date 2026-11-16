@@ -21,8 +21,8 @@ class DandySettings:
         self._has_loaded_user_settings = False
         from dandy.shared.settings import default_settings  # noqa: PLC0415
 
-        self._settings_module_name = ...
-        self._user_settings = ...
+        self._settings_module_name: str | None = None
+        self._user_settings: types.ModuleType | Any | None = None
         self._json_settings_path: Path | None = None
 
         self._default_settings = default_settings
@@ -38,10 +38,16 @@ class DandySettings:
                 return getattr(self._default_settings, name)
 
         else:
-            message = f'Failed to import settings module "{self._settings_module_name}", make sure it exists in your project or python path directory.'
+            message = (
+                f'Failed to import settings module "{self._settings_module_name}", '
+                'make sure it exists in your project or python path directory.'
+            )
             raise DandyConfigurationError(message)
 
-        message = f'No attribute "{name}" found in settings, check your "{self._settings_module_name}" file.'
+        message = (
+            f'No attribute "{name}" found in settings, '
+            f'check your "{self._settings_module_name}" file.'
+        )
         raise DandyConfigurationError(message)
 
     def load_user_settings(self) -> None:
@@ -50,7 +56,7 @@ class DandySettings:
         module_settings = self._import_settings_module()
 
         if module_settings is None:
-            self._user_settings = ...
+            self._user_settings = None
             self._json_settings_path = None
 
             if self._load_user_settings_from_json():
@@ -64,7 +70,7 @@ class DandySettings:
             # (e.g. MODEL read from an unset environment variable) is unusable,
             # so the dandy.json fallback gets a chance before the CLI scaffolds
             # a new .py on top of it.
-            self._user_settings = ...
+            self._user_settings = None
             self._json_settings_path = None
 
             if self._load_user_settings_from_json():
@@ -80,7 +86,9 @@ class DandySettings:
 
     def _import_settings_module(self) -> types.ModuleType | None:
         try:
-            if self._user_settings is not ... and isinstance(self._user_settings, types.ModuleType):
+            if self._user_settings is not None and isinstance(
+                self._user_settings, types.ModuleType
+            ):
                 return importlib.reload(self._user_settings)
 
             return importlib.import_module(self._settings_module_name)

@@ -18,7 +18,8 @@ def nines_testing(nines: int = int(os.getenv('TESTING_NINES', '0'))):
                 nines_string = str(float('0.' + '9' * nines) * 100)
 
                 print(
-                    f'\nRunning "{func.__qualname__}" with Nines Testing at {nines_string}% Pass Rate Requirement ...'
+                    f'\nRunning "{func.__qualname__}" with Nines Testing at '
+                    f'{nines_string}% Pass Rate Requirement ...'
                 )
 
                 has_raised_one_exception = False
