@@ -169,6 +169,15 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
   an agent question is on screen: double escape skips the answer and stops
   the run.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
+- **Desktop notifications**: when a request completes (or the `AGENTS.md`
+  init pass finishes) and whenever the agent parks a question on screen, the
+  CLI asks the terminal for a desktop notification with raw OSC sequences —
+  OSC 777 (`xterm`-family terminals such as GNOME Terminal, Kitty, and
+  Alacritty) and OSC 9 (tmux and iTerm2), BEL-terminated, from
+  `dandy/interfaces/cli/tui/notify.py`. The message is the completion line or
+  the question text, folded to one line and capped at 100 characters.
+  Terminals that ignore both sequences are unaffected (no visible output, no
+  sound), and the notification never blocks or crashes the run.
 - File paths are clickable: a tool beat's description, the final answer's prose
   (paragraphs, headings, list items, table cells, blockquotes, and inline code
   spans), and the file-change sections below the final answer (one

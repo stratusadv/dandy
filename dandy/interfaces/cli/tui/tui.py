@@ -5,6 +5,7 @@ from blessed.keyboard import Keystroke
 
 from dandy.application.agent.intelligence.tools.question.question_tool import QuestionTool
 from dandy.interfaces.cli.commands import commands_matching_prefix
+from dandy.interfaces.cli.tui.notify import desktop_notify
 from dandy.interfaces.cli.tui.printer import Printer
 from dandy.interfaces.cli.tui.text import linkify_file_paths
 
@@ -32,6 +33,8 @@ class Tui:
         self, question: str | None = None, choices: list[str] | None = None
     ) -> str | None:
         if question:
+            desktop_notify(question)
+
             # NB: the heavy-right-quot glyph is the intended question prompt mark.
             self._input_prefix = self.term.purple('❯ ')
             self.printer.event(

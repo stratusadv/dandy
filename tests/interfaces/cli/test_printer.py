@@ -456,6 +456,29 @@ class TestPrinterStory(TestCase):
 
         self.assertEqual(len(completion_lines), 1)
 
+        written_text = ''.join(
+            str(call.args[0]) for call in self.mock_write.call_args_list if call.args
+        )
+        self.assertIn('\x1b]777;notify\x07Dandy\x07Request Completed in ', written_text)
+        self.assertIn('\x1b]9;Request Completed in ', written_text)
+
+    def test_run_timed_task_failed_work_does_not_notify(self) -> None:
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            raise RunStoppedError('Run stopped by user.')
+
+        with self.assertRaises(RunStoppedError):
+            self.printer.run_timed_task(task='stop me', work=work)
+
+        written_text = ''.join(
+            str(call.args[0]) for call in self.mock_write.call_args_list if call.args
+        )
+        printed_text = ''.join(
+            str(call.args[0]) for call in self.mock_print.call_args_list if call.args
+        )
+        self.assertNotIn('\x1b]777;', written_text)
+        self.assertNotIn('\x1b]9;', written_text)
+        self.assertNotIn('Request Completed in ', printed_text)
+
     def test_run_timed_task_propagates_stop_error_from_work(self) -> None:
         def work(update: Callable[[StoryBeat], None]) -> object:
             raise RunStoppedError('Run stopped by user.')

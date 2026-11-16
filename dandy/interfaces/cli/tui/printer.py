@@ -21,6 +21,7 @@ from dandy.interfaces.cli.tui.banner import (
     skills_banner_line,
 )
 from dandy.interfaces.cli.tui.markdown import MarkdownRenderer
+from dandy.interfaces.cli.tui.notify import desktop_notify
 from dandy.interfaces.cli.tui.story_progress import StoryProgress
 from dandy.interfaces.cli.tui.text import linkify_file_paths
 
@@ -91,7 +92,9 @@ class Printer:
         recent beat is rendered with a bold blue thinking-phrase line
         below it (a random phrase held for 3 seconds, so it is clear the
         task is still running). When `work`
-        finishes, a completion sentence reports the total elapsed time.
+        finishes, a desktop notification asks the terminal to alert the
+        desktop (OSC 777 / OSC 9, so it shows even when the terminal is not
+        focused) and a completion sentence reports the total elapsed time.
         Rendering happens only on the
         calling thread (`work` runs on a daemon thread), and any exception
         raised by `work` is re-raised here.
@@ -183,12 +186,11 @@ class Printer:
         if error_holder:
             raise error_holder[0]
 
+        duration = format_verbose_duration(perf_counter() - start_time)
+        desktop_notify(f'Request Completed in {duration}')
+
         self.event(
-            text=(
-                '\n'
-                f'{self.term.bold_green}Request Completed in '
-                f'{format_verbose_duration(perf_counter() - start_time)}'
-            )
+            text=f'\n{self.term.bold_green}Request Completed in {duration}{self.term.normal}'
         )
 
         return result_holder['value']

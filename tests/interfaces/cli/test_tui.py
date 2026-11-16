@@ -156,6 +156,29 @@ class TestTuiQuestionPrompt(TestCase):
         mock_write.assert_any_call(term.purple('❯ '))
 
     @mock.patch('sys.stdout.write')
+    def test_question_prompt_sends_a_desktop_notification(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
+            tui.get_user_input(question='Which color?', choices=['red', 'blue'])
+
+        self.assertTrue(
+            any(
+                call.args
+                and call.args[0]
+                == '\x1b]777;notify\x07Dandy\x07Which color?\x07\x1b]9;Which color?\x07'
+                for call in mock_write.call_args_list
+            )
+        )
+
+    @mock.patch('sys.stdout.write')
+    def test_plain_input_does_not_send_a_notification(self, mock_write: mock.MagicMock) -> None:
+        with mock.patch.object(self.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
+            tui.get_user_input()
+
+        written = ''.join(str(call.args[0]) for call in mock_write.call_args_list if call.args)
+        self.assertNotIn('\x1b]777;', written)
+        self.assertNotIn('\x1b]9;', written)
+
+    @mock.patch('sys.stdout.write')
     def test_question_label_and_arrow_are_plain_purple_and_text_is_plain_black(
         self, mock_write: mock.MagicMock
     ) -> None:
