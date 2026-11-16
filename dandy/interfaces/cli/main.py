@@ -38,8 +38,12 @@ def _dispatch_repl(cli: 'DandyCli', plan: OneShotPlan) -> int:
         if name is None:
             if plan.command != 'resume' or not cli.load_latest_session():
                 return 1
-        elif not cli.load_named_session(name):
-            return 1
+        else:
+            resolved_name = cli.resolve_session_selection(name)
+            if resolved_name is None:
+                return 1
+            if not cli.load_named_session(resolved_name):
+                return 1
 
     if plan.command == 'new':
         cli.run(new_name=plan.name)
@@ -113,6 +117,8 @@ def main() -> int:
         from dandy.interfaces.cli.cli import DandyCli  # noqa: PLC0415
 
         exit_code = _dispatch(DandyCli(), plan)
+    except KeyboardInterrupt:
+        return 130
     except Exception as error:
         log_cli_error(CWD_PATH, 'cli', error)
         crash_term = Terminal()

@@ -9,6 +9,11 @@ from dandy.domain.tool.beat import StoryBeat
 
 EVALUATING_PHRASE_CHANGE_SECONDS = 3.0
 
+# The beat that stands in for the live region while a task has not pushed a
+# story beat yet, so the thinking-phrase animation starts the moment a request
+# is submitted.
+_PLACEHOLDER_BEAT = StoryBeat(description='')
+
 
 class StoryProgress:
     """Thread-safe accumulator for the story beats of a running task.
@@ -46,6 +51,7 @@ class StoryProgress:
         self._evaluating_phrase: str | None = None
         self._evaluating_phrase_since: float = 0.0
         self._live_frame: bool = False
+        self._live_beat: StoryBeat | None = None
         self._live_lines: int = 0
         self._live_desc_index: int = 1
         self._carry_lines: int = 0
@@ -130,9 +136,37 @@ class StoryProgress:
     def drop_live_frame(self) -> None:
         """Forget the live frame so the next write starts on a fresh line."""
         self._live_frame = False
+        self._live_beat = None
         self._live_lines = 0
         self._live_desc_index = 1
         self._carry_lines = 0
+
+    def tick_frame(self) -> str:
+        """One animation step: the frame the render loop should write now.
+
+        While no story beat has arrived yet, the placeholder beat animates the
+        region so the thinking phrase is moving from the moment the request is
+        submitted. The first real beat settles the placeholder region (its
+        empty description line and phrase line) so the beat starts a fresh
+        region with correct layout, even when the beat carries a heading.
+        """
+        with self._lock:
+            has_beats = bool(self._beats)
+
+        if has_beats:
+            settle = self._settle_placeholder_if_live()
+            beat = self.beats[-1]
+        else:
+            settle = ''
+            beat = _PLACEHOLDER_BEAT
+
+        return f'{settle}{self.frame(beat)}'
+
+    def _settle_placeholder_if_live(self) -> str:
+        if not self._live_frame or self._live_beat is not _PLACEHOLDER_BEAT:
+            return ''
+
+        return self.settled_frame(_PLACEHOLDER_BEAT)
 
     def _fresh_line_prefix(self) -> str:
         carry = self._carry_lines
@@ -152,10 +186,9 @@ class StoryProgress:
         with self._lock:
             beats = list(self._beats)
 
-        if not beats:
-            return ''
+        last_beat = beats[-1] if beats else _PLACEHOLDER_BEAT
 
-        return self.settled_frame(beats[-1]) + self._fresh_line_prefix()
+        return self.settled_frame(last_beat) + self._fresh_line_prefix()
 
     def carry_prefix(self) -> str:
         """The cursor move onto a leftover carry line, or '' when there is none."""
@@ -268,5 +301,6 @@ class StoryProgress:
         )
 
         self._live_frame = True
+        self._live_beat = beat
 
         return frame_str

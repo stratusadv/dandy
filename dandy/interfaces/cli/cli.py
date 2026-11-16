@@ -140,18 +140,27 @@ class DandyCli:
 
         return True
 
-    def _session_row(self, record: SessionRecord) -> str:
+    def _session_row(self, number: int, record: SessionRecord) -> str:
         name = f'**{record.name}**' if record.name == self.active_name else record.name
-        updated_at = record.updated_at.strftime('%Y-%m-%d %H:%M')
-        message_count = len(record.session.messages)
-        token_count = record.session.token_count
-        model_name = record.session.model or '-'
 
-        return f'| {name} | {updated_at} | {message_count} | {token_count} | {model_name} |'
+        return f'| {number} | {name} |'
 
-    def _process_resume(self, name: str) -> bool:
-        if not name:
+    def resolve_session_selection(self, selection: str) -> str | None:
+        """Resolve a typed row number or session name, printing the error and None on a miss."""
+        try:
+            return self.session_store.resolve_selection(selection)
+        except AgentExternalError as error:
+            tui.printer.error(error='Could not resume session', description=str(error))
+            return None
+
+    def _process_resume(self, selection: str) -> bool:
+        if not selection:
             self.load_latest_session()
+            return True
+
+        name = self.resolve_session_selection(selection)
+
+        if name is None:
             return True
 
         self.load_named_session(name)
@@ -211,20 +220,35 @@ class DandyCli:
             tui.printer.output('No sessions saved yet. The first turn saves this conversation.')
             return
 
+        oldest_first = sorted(records, key=lambda record: record.updated_at)
         table = (
-            '| Session | Updated | Messages | Tokens | Model |\n'
-            '|---|---|---|---|---|\n' + '\n'.join(self._session_row(record) for record in records)
+            '| # | Session |\n'
+            '|---|---|\n'
+            + '\n'.join(
+                self._session_row(number, record)
+                for number, record in enumerate(oldest_first, start=1)
+            )
+            + '\n\nResume one with `/r <row>` or its name — the newest is on the bottom row.'
         )
 
         tui.printer.output(table)
 
-    def run_in_session(self, name: str | None, request: str) -> bool:
-        """Resume a saved session (the latest if no name) and run one turn inside it."""
-        if name is None:
+    def run_in_session(self, selection: str | None, request: str) -> bool:
+        """Resume a saved session (the latest if no name) and run one turn inside it.
+
+        `selection` is a row number from the /s table or a session name.
+        """
+        if selection is None:
             if not self.load_latest_session():
                 return False
-        elif not self.load_named_session(name):
-            return False
+        else:
+            name = self.resolve_session_selection(selection)
+
+            if name is None:
+                return False
+
+            if not self.load_named_session(name):
+                return False
 
         self.process_user_input(request)
 
@@ -359,13 +383,19 @@ class DandyCli:
 
         tui.printer.welcome()
 
-        while True:
-            user_input = tui.get_user_input()
+        try:
+            while True:
+                user_input = tui.get_user_input()
 
-            if user_input is None:
-                break
+                if user_input is None:
+                    break
 
-            if not self.process_user_input(user_input):
-                break
+                if not self.process_user_input(user_input):
+                    break
+        except KeyboardInterrupt:
+            pass
+        finally:
+            stop_signal.set()
 
         tui.printer.bold_green_divider()
+        tui.printer.output('Bye')

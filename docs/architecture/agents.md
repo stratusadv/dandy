@@ -259,8 +259,9 @@ The save is in a `finally` block on purpose: a turn saves regardless of outcome
 (success, stop, or error), so the conversation always survives the process.
 
 - **Commands:** `/init` (the AGENTS.md generation pass), `/new [name]` (fresh
-  conversation, optionally pre-naming its session), `/sessions [name]` (a table of
-  name/updated/messages/tokens/model, or — with a name — loads that session),
+  conversation, optionally pre-naming its session), `/sessions [name]` (a
+  numbered table of session names, most recently updated last so the newest
+  session is on the bottom row, or — with a name — loads that session),
   `/resume [name]` (the most recently saved session if no name is given),
   `/delete <name>`,
   `/quit`/`/exit` (anything else reports "Unknown command"); every command also

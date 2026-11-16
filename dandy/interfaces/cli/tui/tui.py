@@ -33,7 +33,7 @@ class Tui:
         self, question: str | None = None, choices: list[str] | None = None
     ) -> str | None:
         if question:
-            desktop_notify(question)
+            desktop_notify(question, self.term)
 
             # NB: the heavy-right-quot glyph is the intended question prompt mark.
             self._input_prefix = self.term.purple('❯ ')

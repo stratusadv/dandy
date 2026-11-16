@@ -96,6 +96,54 @@ class TestSessionStore(TestCase):
 
         self.assertEqual(names, ['newer', 'older'])
 
+    def test_resolve_selection_empty_means_latest(self) -> None:
+        self._write_record('one', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+
+        self.assertIsNone(self.store.resolve_selection(''))
+        self.assertIsNone(self.store.resolve_selection('   '))
+
+    def test_resolve_selection_number_picks_the_row_oldest_first(self) -> None:
+        self._write_record('oldest', updated_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=UTC))
+        self._write_record('middle', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+        self._write_record('newest', updated_at=datetime(2026, 1, 3, 0, 0, 0, tzinfo=UTC))
+
+        self.assertEqual(self.store.resolve_selection('1'), 'oldest')
+        self.assertEqual(self.store.resolve_selection('2'), 'middle')
+        self.assertEqual(self.store.resolve_selection('3'), 'newest')
+
+    def test_resolve_selection_unknown_number_lists_available(self) -> None:
+        self._write_record('oldest', updated_at=datetime(2026, 1, 1, 0, 0, 0, tzinfo=UTC))
+        self._write_record('newest', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+
+        for selection in ('0', '3', '99'):
+            with self.assertRaises(AgentExternalError) as context:
+                self.store.resolve_selection(selection)
+
+            message = str(context.exception)
+            self.assertIn(selection, message)
+            self.assertIn('oldest', message)
+            self.assertIn('newest', message)
+
+    def test_resolve_selection_zero_is_not_a_row(self) -> None:
+        self._write_record('0', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+
+        with self.assertRaises(AgentExternalError):
+            self.store.resolve_selection('0')
+
+    def test_resolve_selection_falls_back_to_exact_name(self) -> None:
+        self._write_record('one', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+
+        self.assertEqual(self.store.resolve_selection('one'), 'one')
+
+    def test_resolve_selection_unknown_name_lists_available(self) -> None:
+        self._write_record('one', updated_at=datetime(2026, 1, 2, 0, 0, 0, tzinfo=UTC))
+
+        with self.assertRaises(AgentExternalError) as context:
+            self.store.resolve_selection('missing')
+
+        self.assertIn('missing', str(context.exception))
+        self.assertIn('one', str(context.exception))
+
     def test_new_name_slugifies_request_text(self) -> None:
         name = self.store.new_name('Fix the Login, Bug!')
 

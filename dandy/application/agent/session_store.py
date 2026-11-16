@@ -74,6 +74,46 @@ class SessionStore:
 
         return max(records, key=lambda record: record.updated_at).name
 
+    def resolve_selection(self, selection: str) -> str | None:
+        """Resolve a user-typed resume selection to a session name.
+
+        An empty selection means 'latest' and returns None. A positive
+        integer is a 1-based row of the saved sessions sorted oldest first,
+        so the most recently updated session is always the last row. Any
+        other value is used as an exact session name. An unknown row or
+        name raises `AgentExternalError` listing what is available.
+        """
+        stripped = selection.strip()
+
+        if not stripped:
+            return None
+
+        if stripped.isdigit():
+            row_number = int(stripped)
+            records = sorted(self.list_sessions(), key=lambda record: record.updated_at)
+
+            if 1 <= row_number <= len(records):
+                return records[row_number - 1].name
+
+            self._raise_unknown_selection(f'row {row_number}', records)
+
+        return self._resolve_name(stripped)
+
+    def _resolve_name(self, name: str) -> str:
+        try:
+            self._load_record(name)
+        except AgentExternalError:
+            records = self.list_sessions()
+            self._raise_unknown_selection(f'session "{name}"', records)
+
+        return name
+
+    def _raise_unknown_selection(self, what: str, records: list[SessionRecord]) -> None:
+        available_str = ', '.join(record.name for record in records) if records else '(none)'
+
+        message = f'{what} does not match a saved session. Available sessions: {available_str}'
+        raise AgentExternalError(message)
+
     def list_sessions(self) -> list[SessionRecord]:
         """Every readable session record, newest first."""
         if not self.sessions_path.is_dir():

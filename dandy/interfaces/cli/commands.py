@@ -32,7 +32,7 @@ CLI_COMMANDS = (
         '--sessions',
         '-s',
         'optional',
-        'List saved sessions, or resume one by name',
+        'List saved sessions, or resume one by row number or name',
     ),
     CliCommand(
         'resume', 'r', '--resume', '-r', 'request', 'Run one request inside the latest session'

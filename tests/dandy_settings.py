@@ -7,6 +7,8 @@ BASE_PATH = Path.resolve(Path(__file__)).parent
 
 DEBUG = bool(int(os.getenv('DEBUG', '0') or 0))
 
+DESKTOP_NOTIFICATIONS = True
+
 if DEBUG:
     # DEBUG mode installs the stack-trace warning handler; the star import is
     # deliberate and module-level by design (see dandy/shared/debug.py).

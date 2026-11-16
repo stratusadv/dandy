@@ -138,8 +138,8 @@ project and the banner's `Model` line confirms the switch.
 | `dandy "fix the failing auth test"` | one turn, then exit; auto-saves a session named from the request |
 | `dandy -r "keep going"` | one turn inside the most recently saved session, re-saved under the same name |
 | `dandy -s` | list the saved sessions and exit |
-| `dandy -s <name>` | open the REPL with that session loaded |
-| `dandy -s <name> "keep going"` | one turn inside that named session, re-saved under the same name |
+| `dandy -s <row\|name>` | open the REPL with that session loaded (by its row in the `dandy -s` table, or by name) |
+| `dandy -s <row\|name> "keep going"` | one turn inside that session, re-saved under the same name |
 | `dandy -r` | open the REPL on the most recently saved session |
 | `dandy --init` | explores the project and writes/refreshes `AGENTS.md` |
 
@@ -151,8 +151,8 @@ In the REPL (every command has a one-letter short):
 
 - `/init` (or `/i`) — create or refresh `AGENTS.md` (folded into the agent's system prompt)
 - `/new [name]` (or `/n [name]`) — start a fresh conversation, optionally pre-named
-- `/sessions [name]` (or `/s [name]`) — table of saved conversations (name, updated, messages, tokens); with a name, load that one
-- `/resume [name]` (or `/r [name]`) — load one back into the agent (the most recently saved session if no name is given)
+- `/sessions [row|name]` (or `/s [row|name]`) — table of saved conversations numbered oldest-to-newest (the newest session is on the bottom row); with a row number or name, load that one
+- `/resume [row|name]` (or `/r [row|name]`) — load one back into the agent by its table row number or name (the most recently saved session if neither is given)
 - `/delete <name>` (or `/d <name>`) — remove a saved conversation
 - `/quit` (or `/q`) — exit; **escape twice** stops a running turn, or exits at the prompt
 

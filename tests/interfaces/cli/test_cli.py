@@ -2,12 +2,13 @@ import contextlib
 import io
 import threading
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable
 from unittest import TestCase, mock
 
-from dandy.application.agent.intel import AgentSession
+from dandy.application.agent.intel import AgentSession, SessionRecord
 from dandy.application.agent.session import session
 from dandy.application.agent.session_store import SessionStore
 from dandy.application.agent.intelligence.tools.question import QuestionTool
@@ -18,12 +19,20 @@ from dandy.domain.skill.skill import BaseSkill
 from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import stop_signal
 from dandy.shared.exceptions import RunStoppedError
+from dandy.shared.files import write_to_file
 from dandy.shared.interaction import QuestionGate, question_gate
 from dandy.shared.settings import settings
 
 
 def _make_agent_session(last_request: str) -> AgentSession:
     return AgentSession(last_request=last_request)
+
+
+def _write_session_record(store: SessionStore, name: str, updated: datetime) -> None:
+    record = SessionRecord(
+        name=name, created_at=updated, updated_at=updated, session=_make_agent_session(name)
+    )
+    write_to_file(store._record_path(name), record.model_dump_json())
 
 
 def _construct_cli() -> DandyCli:
@@ -72,6 +81,35 @@ class TestDandyCli(TestCase):
         self.cli.run()
 
         mock_get_user_input.assert_called_once_with()
+
+    @mock.patch.object(tui, 'get_user_input', side_effect=KeyboardInterrupt)
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
+    def test_run_exits_cleanly_on_ctrl_c(
+        self,
+        mock_green_divider: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        mock_get_user_input: mock.MagicMock,
+    ) -> None:
+        self.cli.run()
+
+        mock_get_user_input.assert_called_once_with()
+        mock_green_divider.assert_called_once_with()
+        mock_output.assert_called_once_with('Bye')
+
+    @mock.patch.object(tui, 'get_user_input', return_value=None)
+    @mock.patch.object(tui.printer, 'output')
+    @mock.patch.object(tui.printer, 'bold_green_divider')
+    def test_run_says_bye_on_exit(
+        self,
+        mock_green_divider: mock.MagicMock,
+        mock_output: mock.MagicMock,
+        mock_get_user_input: mock.MagicMock,
+    ) -> None:
+        self.cli.run()
+
+        mock_green_divider.assert_called_once_with()
+        mock_output.assert_called_once_with('Bye')
 
     @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'bold_green_divider')
@@ -389,6 +427,43 @@ class TestDandyCli(TestCase):
         self.assertFalse(any(line.startswith('Saved session') for line in continued_lines))
         self.assertEqual(self.cli.session_store.load(saved_name).last_request, 'Fix the login bug')
 
+    @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
+    def test_run_in_session_by_row_number_runs_the_turn_in_that_session(
+        self, mock_turn: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-02-10-00-newest',
+            datetime(2026, 11, 2, 10, 0, tzinfo=UTC),
+        )
+        mock_turn.return_value = mock.MagicMock(text='answer')
+
+        succeeded = self.cli.run_in_session('2', 'Keep going')
+
+        self.assertTrue(succeeded)
+        self.assertEqual(self.cli.active_name, '2026-11-02-10-00-newest')
+        self.assertEqual(mock_turn.call_args[0][0], 'Keep going')
+
+    @mock.patch.object(tui.printer, 'error')
+    def test_run_in_session_by_out_of_range_row_reports_error(
+        self, mock_error: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+
+        succeeded = self.cli.run_in_session('5', 'Keep going')
+
+        self.assertFalse(succeeded)
+        self.assertIn('row 5', mock_error.call_args.kwargs['description'])
+
     @mock.patch.object(tui.printer, 'error')
     def test_run_in_session_without_name_and_no_sessions_reports_error(
         self, mock_error: mock.MagicMock
@@ -489,13 +564,95 @@ class TestDandyCli(TestCase):
 
         table = mock_output.call_args[0][0]
         self.assertIn('**' + self.cli.active_name + '**', table)
-        self.assertIn('Messages', table)
+        self.assertIn('| # | Session |', table)
 
     @mock.patch.object(tui.printer, 'output')
     def test_sessions_command_reports_empty_state(self, mock_output: mock.MagicMock) -> None:
         self.cli.process_user_input('/sessions')
 
         self.assertIn('No sessions', mock_output.call_args[0][0])
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_sessions_table_is_numbered_with_the_newest_on_the_bottom(
+        self, mock_output: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-02-10-00-newest',
+            datetime(2026, 11, 2, 10, 0, tzinfo=UTC),
+        )
+
+        self.cli.process_user_input('/sessions')
+
+        table = mock_output.call_args[0][0]
+        self.assertIn('| # | Session |', table)
+        self.assertNotIn('Updated', table)
+        self.assertIn('| 1 | 2026-11-01-10-00-oldest |', table)
+        self.assertIn('| 2 | 2026-11-02-10-00-newest |', table)
+        self.assertLess(table.index('| 1 |'), table.index('| 2 |'))
+        self.assertIn('newest is on the bottom row', table)
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_resume_by_row_number_loads_that_session(self, mock_output: mock.MagicMock) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-02-10-00-newest',
+            datetime(2026, 11, 2, 10, 0, tzinfo=UTC),
+        )
+
+        with mock.patch.object(self.cli.agent, 'load_session'):
+            self.cli.process_user_input('/r 1')
+
+        self.assertEqual(self.cli.active_name, '2026-11-01-10-00-oldest')
+
+        with mock.patch.object(self.cli.agent, 'load_session'):
+            self.cli.process_user_input('/r 2')
+
+        self.assertEqual(self.cli.active_name, '2026-11-02-10-00-newest')
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_sessions_short_form_by_row_number_loads_that_session(
+        self, mock_output: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-02-10-00-newest',
+            datetime(2026, 11, 2, 10, 0, tzinfo=UTC),
+        )
+
+        with mock.patch.object(self.cli.agent, 'load_session'):
+            self.cli.process_user_input('/s 1')
+
+        self.assertEqual(self.cli.active_name, '2026-11-02-10-00-newest')
+
+    @mock.patch.object(tui.printer, 'error')
+    def test_resume_out_of_range_row_reports_error_and_keeps_active_session(
+        self, mock_error: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+        self.cli.process_user_input('/r 1')
+        active_name = self.cli.active_name
+
+        self.cli.process_user_input('/r 99')
+
+        self.assertEqual(self.cli.active_name, active_name)
+        description = mock_error.call_args.kwargs['description']
+        self.assertIn('row 99', description)
+        self.assertIn(active_name, description)
 
     @mock.patch(
         'dandy.interfaces.cli.cli.session_name_for_request',
@@ -661,7 +818,7 @@ class TestDandyCli(TestCase):
 
         table = mock_output.call_args[0][0]
         self.assertIn('**' + self.cli.active_name + '**', table)
-        self.assertIn('Messages', table)
+        self.assertIn('| # | Session |', table)
 
     @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'output')

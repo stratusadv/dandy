@@ -1,3 +1,6 @@
+import os
+import types
+from pathlib import Path
 from unittest import TestCase, mock
 
 from blessed import Terminal
@@ -47,6 +50,19 @@ class TestTuiEscapeExit(TestCase):
 
 class TestTuiChoices(TestCase):
     def setUp(self) -> None:
+        self.notifications_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.notifications_enabled', return_value=False
+        )
+        self.notifications_patch.start()
+        self.addCleanup(self.notifications_patch.stop)
+
+        self.session_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.session',
+            new=types.SimpleNamespace(project_base_path=Path('/proj')),
+        )
+        self.session_patch.start()
+        self.addCleanup(self.session_patch.stop)
+
         self.cbreak_patch = mock.patch.object(tui.term, 'cbreak')
         self.cbreak_patch.start()
         self.addCleanup(self.cbreak_patch.stop)
@@ -108,6 +124,14 @@ class TestTuiChoices(TestCase):
 
 class TestTuiQuestionPrompt(TestCase):
     def setUp(self) -> None:
+        env = dict(os.environ)
+        env.pop('DANDY_DESKTOP_NOTIFICATIONS', None)
+        env.pop('KONSOLE_VERSION', None)
+
+        self.env_patch = mock.patch.dict(os.environ, env, clear=True)
+        self.env_patch.start()
+        self.addCleanup(self.env_patch.stop)
+
         self.term = Terminal(force_styling='default')
         self.term_patch = mock.patch.object(tui, 'term', self.term)
         self.term_patch.start()
@@ -116,6 +140,23 @@ class TestTuiQuestionPrompt(TestCase):
         self.printer_term_patch = mock.patch.object(tui.printer, 'term', self.term)
         self.printer_term_patch.start()
         self.addCleanup(self.printer_term_patch.stop)
+
+        self.notifications_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.notifications_enabled', return_value=False
+        )
+        self.notifications_patch.start()
+        self.addCleanup(self.notifications_patch.stop)
+
+        self.session_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.session',
+            new=types.SimpleNamespace(project_base_path=Path('/proj')),
+        )
+        self.session_patch.start()
+        self.addCleanup(self.session_patch.stop)
+
+        self.os_notify_patch = mock.patch('dandy.interfaces.cli.tui.notify.os_desktop_notify')
+        self.os_notify_patch.start()
+        self.addCleanup(self.os_notify_patch.stop)
 
         self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
         self.cbreak_patch.start()
@@ -155,16 +196,20 @@ class TestTuiQuestionPrompt(TestCase):
         self.assertEqual(printed[5], term.purple('─' * term.width))
         mock_write.assert_any_call(term.purple('❯ '))
 
+    @mock.patch(
+        'dandy.interfaces.cli.tui.notify._terminal_supports_notifications', return_value=True
+    )
+    @mock.patch('dandy.interfaces.cli.tui.notify.notifications_enabled', return_value=True)
     @mock.patch('sys.stdout.write')
-    def test_question_prompt_sends_a_desktop_notification(self, mock_write: mock.MagicMock) -> None:
+    def test_question_prompt_sends_a_desktop_notification(
+        self, mock_write: mock.MagicMock, mock_enabled: mock.MagicMock, mock_probe: mock.MagicMock
+    ) -> None:
         with mock.patch.object(self.term, 'inkey', side_effect=[ESCAPE_KEY, ESCAPE_KEY]):
             tui.get_user_input(question='Which color?', choices=['red', 'blue'])
 
         self.assertTrue(
             any(
-                call.args
-                and call.args[0]
-                == '\x1b]777;notify\x07Dandy\x07Which color?\x07\x1b]9;Which color?\x07'
+                call.args and call.args[0] == '\x1b]9;proj — Which color?\x07'
                 for call in mock_write.call_args_list
             )
         )
@@ -201,6 +246,19 @@ class TestTuiQuestionPrompt(TestCase):
 
 class TestTuiCommandCompletion(TestCase):
     def setUp(self) -> None:
+        self.notifications_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.notifications_enabled', return_value=False
+        )
+        self.notifications_patch.start()
+        self.addCleanup(self.notifications_patch.stop)
+
+        self.session_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.session',
+            new=types.SimpleNamespace(project_base_path=Path('/proj')),
+        )
+        self.session_patch.start()
+        self.addCleanup(self.session_patch.stop)
+
         self.term = Terminal(force_styling='default')
         self.term_patch = mock.patch.object(tui, 'term', self.term)
         self.term_patch.start()

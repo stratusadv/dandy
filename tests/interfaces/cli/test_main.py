@@ -161,6 +161,26 @@ class TestCliMain(TestCase):
     @mock.patch.object(cli_main, 'session')
     @mock.patch.object(cli_main, 'check_or_create_settings')
     @mock.patch.object(settings, 'reload_from_os')
+    def test_keyboard_interrupt_exits_cleanly(
+        self,
+        _mock_reload: mock.MagicMock,
+        _mock_check_settings: mock.MagicMock,
+        _mock_session: mock.MagicMock,
+        mock_cli_class: mock.MagicMock,
+    ) -> None:
+        mock_cli_class.return_value.run.side_effect = KeyboardInterrupt()
+
+        with mock.patch.object(sys, 'argv', ['dandy']), redirect_stdout(StringIO()) as out:
+            exit_code = cli_main.main()
+
+        self.assertEqual(exit_code, 130)
+        self.assertNotIn('Traceback', out.getvalue())
+        self.assertNotIn('KeyboardInterrupt', out.getvalue())
+
+    @mock.patch('dandy.interfaces.cli.cli.DandyCli')
+    @mock.patch.object(cli_main, 'session')
+    @mock.patch.object(cli_main, 'check_or_create_settings')
+    @mock.patch.object(settings, 'reload_from_os')
     def test_resume_mode_exits_with_the_turn_outcome(
         self,
         _mock_reload: mock.MagicMock,
@@ -404,6 +424,7 @@ class TestOneShotCommandFlags(TestCase):
         _mock_session: mock.MagicMock,
         mock_cli_class: mock.MagicMock,
     ) -> None:
+        mock_cli_class.return_value.resolve_session_selection.return_value = 'my-session'
         mock_cli_class.return_value.load_named_session.return_value = True
 
         with (
@@ -430,6 +451,7 @@ class TestOneShotCommandFlags(TestCase):
         _mock_session: mock.MagicMock,
         mock_cli_class: mock.MagicMock,
     ) -> None:
+        mock_cli_class.return_value.resolve_session_selection.return_value = 'no-such-session'
         mock_cli_class.return_value.load_named_session.return_value = False
 
         with (

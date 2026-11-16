@@ -13,6 +13,12 @@ CACHE_SQLITE_LIMIT: int = 10000
 
 DEBUG: bool = False
 
+# Ask the terminal for a desktop notification when a request completes or
+# the agent parks a question. Even when true, the sequences are only sent
+# after the terminal answers the OSC 633 support probe, so a terminal that
+# breaks on them (e.g. Konsole) never receives them; set False to disable.
+DESKTOP_NOTIFICATIONS: bool = True
+
 FUTURES_MAX_WORKERS: int = 10
 
 HTTP_CONNECTION_RETRY_COUNT: int = 4

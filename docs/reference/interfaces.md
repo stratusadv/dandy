@@ -27,11 +27,13 @@ the [command registry](#the-command-registry)).
 (`SessionStore.for_project(...)`) over the project's `.dandy/agent/sessions/`, and the
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,
-optionally pre-named), `/sessions [name]` (list saved sessions, or load one by
-name), `/resume [name]` (load one by name, or the most recently saved one if
-no name is given), `/delete <name>`, and `/quit` (or `/exit`), and every
-command also has a one-letter short (`/n`, `/s`, `/r`, `/d`, `/q` — `/i` for
-`/init`); escape twice stops a running turn and, at the prompt, exits the REPL.
+optionally pre-named), `/sessions [row|name]` (list saved sessions as a numbered
+table, newest on the bottom row, or load one by row number or name),
+`/resume [row|name]` (load one by row number or name, or the most recently
+saved one if neither is given), `/delete <name>`, and `/quit` (or `/exit`),
+and every command also has a one-letter short (`/n`, `/s`, `/r`, `/d`, `/q` —
+`/i` for `/init`); escape twice stops a running turn and, at the prompt, exits
+the REPL.
 The welcome banner shows a session-status line.
 
 ::: dandy.interfaces.cli.cli.DandyCli

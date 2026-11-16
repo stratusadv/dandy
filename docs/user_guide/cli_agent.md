@@ -152,10 +152,12 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 - Every command has a one-letter short: `/i` (`/init`) creates or refreshes the
   project `AGENTS.md` (see [Project instructions](#project-instructions-agentsmd));
   `/n [name]` (`/new [name]`) starts a fresh conversation (optionally pre-naming
-  its session file); `/s [name]` (`/sessions [name]`) lists saved sessions, and
-  with a name loads that one; `/r [name]` (`/resume [name]`) loads a session —
-  the most recently saved one if no name is given — and keeps the current agent
-  state; `/d <name>` (`/delete <name>`) removes one;
+  its session file); `/s` (`/sessions`) lists saved sessions as a numbered
+  table, most recently updated on the bottom row, and `/s <row>` (or a name)
+  loads that one; `/r [row|name]` (`/resume [row|name]`) loads a session by
+  its table row number or full name — the most recently saved one if neither
+  is given — and keeps the current agent state; `/d <name>`
+  (`/delete <name>`) removes one;
   `/q` (`/quit`) or `/exit` stop the loop.
 - Commands are discoverable at the prompt: when you type `/` as the first
   character, a grey tail on the input line itself lists every command matching
@@ -171,13 +173,21 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
 - **Desktop notifications**: when a request completes (or the `AGENTS.md`
   init pass finishes) and whenever the agent parks a question on screen, the
-  CLI asks the terminal for a desktop notification with raw OSC sequences —
-  OSC 777 (`xterm`-family terminals such as GNOME Terminal, Kitty, and
-  Alacritty) and OSC 9 (tmux and iTerm2), BEL-terminated, from
-  `dandy/interfaces/cli/tui/notify.py`. The message is the completion line or
-  the question text, folded to one line and capped at 100 characters.
-  Terminals that ignore both sequences are unaffected (no visible output, no
-  sound), and the notification never blocks or crashes the run.
+  CLI raises a desktop notification from `dandy/interfaces/cli/tui/notify.py`
+  so you are alerted even when the terminal window is not focused. The
+  message is the completion line or the question text, folded to one line,
+  capped at 100 characters, and prefixed with the project's directory name
+  (e.g. "dandy — Request Completed in 4.2 seconds") so a popup identifies
+  which project sent it. The first notification asks the terminal the
+  standard OSC 633 support question (a 0.25s probe): a terminal that answers
+  "yes" gets the terminal-native OSC 9 form (tmux / iTerm2 / Wayland-KDE),
+  and every other terminal (e.g. Konsole) gets an OS-level notification
+  instead — `notify-send` on Linux, `osascript` on macOS — so the popup still
+  appears. The whole path is best-effort: the notification never blocks or
+  crashes the run, and a machine without a notification daemon simply never
+  pops up. **Opt-out**: the feature is on by default — disable it with
+  `DESKTOP_NOTIFICATIONS = False` in your `dandy_settings.py` (or
+  `DANDY_DESKTOP_NOTIFICATIONS=0`; the env var wins in either direction).
 - File paths are clickable: a tool beat's description, the final answer's prose
   (paragraphs, headings, list items, table cells, blockquotes, and inline code
   spans), and the file-change sections below the final answer (one
@@ -209,12 +219,14 @@ lives under `.dandy/`, it is gitignored along with the sessions.
 
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token
-count. `/resume [name]` (or the short `/s <name>`) loads the history back into the
-agent — the most recently saved session if no name is given — so the next turn
-continues exactly where that conversation left off; the command line does the
-same with `dandy -s <name>` (by name) or `dandy -r` (the most recently saved
-session) — with a request it runs one turn in that session and exits, without
-one it opens the REPL on it. `/delete <name>` (or `/d <name>`, and one-shot `dandy -d <name>`) removes
+count. `/sessions` shows the saved sessions as a numbered table with the most
+recently updated session on the bottom row, and `/resume [row|name]` (or the
+short `/s <row>`) loads the history back into the agent — by its table row
+number, its full name, or the most recently saved session when neither is
+given — so the next turn continues exactly where that conversation left off;
+the command line does the same with `dandy -s <row|name>` or `dandy -r` (the
+most recently saved session) — with a request it runs one turn in that session
+and exits, without one it opens the REPL on it. `/delete <name>` (or `/d <name>`, and one-shot `dandy -d <name>`) removes
 the file. The store is plain JSON per session, so you can inspect or copy session
 files by hand.
 

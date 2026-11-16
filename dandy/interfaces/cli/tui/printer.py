@@ -92,9 +92,10 @@ class Printer:
         recent beat is rendered with a bold blue thinking-phrase line
         below it (a random phrase held for 3 seconds, so it is clear the
         task is still running). When `work`
-        finishes, a desktop notification asks the terminal to alert the
-        desktop (OSC 777 / OSC 9, so it shows even when the terminal is not
-        focused) and a completion sentence reports the total elapsed time.
+        finishes, a desktop notification alerts the desktop (terminal-native
+        OSC 9 when the terminal supports it, an OS-level notification
+        otherwise, so it shows even when the terminal is not focused) and a
+        completion sentence reports the total elapsed time.
         Rendering happens only on the
         calling thread (`work` runs on a daemon thread), and any exception
         raised by `work` is re-raised here.
@@ -144,11 +145,8 @@ class Printer:
                             sys.stdout.write(progress.settled_frame(beat))
                         settled_count = len(beats) - 1
 
-                    if len(beats) > settled_count:
-                        # A settled beat (e.g. settled by a question pause)
-                        # must not be re-animated: only the last unsettled
-                        # beat animates.
-                        sys.stdout.write(progress.frame(beats[-1]))
+                    if settled_count == 0 or len(beats) > settled_count:
+                        sys.stdout.write(progress.tick_frame())
                         sys.stdout.flush()
 
                     if stop_signal is not None:
@@ -187,7 +185,7 @@ class Printer:
             raise error_holder[0]
 
         duration = format_verbose_duration(perf_counter() - start_time)
-        desktop_notify(f'Request Completed in {duration}')
+        desktop_notify(f'Request Completed in {duration}', self.term)
 
         self.event(
             text=f'\n{self.term.bold_green}Request Completed in {duration}{self.term.normal}'

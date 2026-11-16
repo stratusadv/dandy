@@ -1,4 +1,6 @@
+import os
 import threading
+import types
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -114,7 +116,26 @@ class TestSkillsBannerLine(TestCase):
 
 class TestPrinterStory(TestCase):
     def setUp(self) -> None:
+        env = dict(os.environ)
+        env.pop('DANDY_DESKTOP_NOTIFICATIONS', None)
+        env.pop('KONSOLE_VERSION', None)
+
+        self.env_patch = mock.patch.dict(os.environ, env, clear=True)
+        self.env_patch.start()
+        self.addCleanup(self.env_patch.stop)
+
         self.printer = Printer(Terminal())
+
+        self.os_notify_patch = mock.patch('dandy.interfaces.cli.tui.notify.os_desktop_notify')
+        self.os_notify_patch.start()
+        self.addCleanup(self.os_notify_patch.stop)
+
+        self.session_patch = mock.patch(
+            'dandy.interfaces.cli.tui.notify.session',
+            new=types.SimpleNamespace(project_base_path=Path('/proj')),
+        )
+        self.session_patch.start()
+        self.addCleanup(self.session_patch.stop)
 
         self.stdout_patch = mock.patch('sys.stdout.write')
         self.mock_write = self.stdout_patch.start()
@@ -398,6 +419,39 @@ class TestPrinterStory(TestCase):
 
         self.assertTrue(next_frame.startswith('\x1b[1A\r'))
 
+    def test_tick_frame_animates_the_placeholder_beat_while_idle(self) -> None:
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
+            progress = StoryProgress(Terminal(force_styling='default'))
+            frame = progress.tick_frame()
+            term = progress.term
+
+        lines = frame.split('\n')
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(lines[0], f'\r{term.normal}{term.clear_eol()}')
+        phrase_line = f'{term.bold_grey}✦ Polishing a Cufflink{term.normal}'
+        self.assertIn(phrase_line, lines[1])
+
+    def test_first_beat_settles_the_placeholder_before_animating(self) -> None:
+        beat = StoryBeat(label='Reading', description='src/a.py')
+        progress = StoryProgress(Terminal(force_styling='default'))
+
+        progress.tick_frame()
+        progress.update(beat)
+        frame = progress.tick_frame()
+
+        self.assertTrue(frame.startswith('\x1b[1A\r'))
+        self.assertIn('Reading', frame)
+        self.assertIn('src/a.py', frame)
+        self.assertEqual(progress.carry_prefix(), '')
+
+        settled = progress.settled_frame(beat)
+
+        self.assertIn('src/a.py', settled)
+        self.assertNotIn('Reading', settled)
+
     def test_pause_at_fresh_line_settles_and_lands_on_the_carry_line(self) -> None:
         progress = StoryProgress(Terminal(force_styling='default'))
         beat = StoryBeat(label='Reading', description='src/a.py')
@@ -417,6 +471,30 @@ class TestPrinterStory(TestCase):
         fresh = StoryProgress(Terminal(force_styling='default'))
 
         self.assertEqual(fresh.pause_at_fresh_line(), '\r')
+
+    def test_run_timed_task_does_not_reprint_the_settled_beat_after_the_question(self) -> None:
+        gate = QuestionGate()
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            update(StoryBeat(label='Reading', description='src/a.py'))
+            sleep(0.3)
+            gate.ask('Which color?', ['red', 'blue'])
+            sleep(0.3)
+            return 'done'
+
+        def question_handler(question: str, choices: list[str]) -> str | None:
+            self.mock_write.reset_mock()
+            return 'blue'
+
+        self.printer.run_timed_task(
+            task='pick a color', work=work, question_gate=gate, question_handler=question_handler
+        )
+
+        written = [str(call.args[0]) for call in self.mock_write.call_args_list if call.args]
+
+        # After the question is answered the animation must not re-emit the
+        # beat that was settled above the prompt.
+        self.assertNotIn('src/a.py', ''.join(written))
 
     def test_event_prints_text_without_prefix(self) -> None:
         self.printer.event('Hello')
@@ -456,11 +534,24 @@ class TestPrinterStory(TestCase):
 
         self.assertEqual(len(completion_lines), 1)
 
+    def test_run_timed_task_notifies_on_completion(self) -> None:
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            return 'done'
+
+        with (
+            mock.patch('dandy.interfaces.cli.tui.notify.notifications_enabled', return_value=True),
+            mock.patch(
+                'dandy.interfaces.cli.tui.notify._terminal_supports_notifications',
+                return_value=True,
+            ),
+        ):
+            self.printer.run_timed_task(task='fix bug', work=work)
+
         written_text = ''.join(
             str(call.args[0]) for call in self.mock_write.call_args_list if call.args
         )
-        self.assertIn('\x1b]777;notify\x07Dandy\x07Request Completed in ', written_text)
-        self.assertIn('\x1b]9;Request Completed in ', written_text)
+        self.assertNotIn('\x1b]777;', written_text)
+        self.assertIn('\x1b]9;proj — Request Completed in ', written_text)
 
     def test_run_timed_task_failed_work_does_not_notify(self) -> None:
         def work(update: Callable[[StoryBeat], None]) -> object:
