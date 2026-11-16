@@ -37,7 +37,3 @@ example_book.md
 
 evals/runs/**
 .dandy/
-# Backplan working docs are local planning artifacts, not repo content.
-# (The existing docs under .backplan/ are still tracked; `git rm -r --cached
-# .backplan` is the follow-up if they should stop being versioned.)
-.backplan/
