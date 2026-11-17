@@ -23,6 +23,17 @@ class TestQuestionToolSchema(TestCase):
                 'title': 'Choices',
             },
         )
+        self.assertEqual(
+            parameters['properties']['question_total'],
+            {
+                'anyOf': [{'type': 'integer'}, {'type': 'null'}],
+                'default': None,
+                'title': 'Question Total',
+            },
+        )
+
+    def test_description_mentions_the_question_total(self) -> None:
+        self.assertIn('question_total', QuestionTool.description)
 
 
 class TestQuestionToolHandle(TestCase):
@@ -30,28 +41,28 @@ class TestQuestionToolHandle(TestCase):
         self.assertEqual(QuestionTool().handle('Which color?'), QuestionTool.NO_USER_ANSWER)
 
     def test_handle_returns_the_answer_from_the_injected_ask_user(self) -> None:
-        seen: list[tuple[str, list[str]]] = []
+        seen: list[tuple[str, list[str], int | None]] = []
 
-        def ask_user(question: str, choices: list[str]) -> str:
-            seen.append((question, choices))
+        def ask_user(question: str, choices: list[str], question_total: int | None) -> str:
+            seen.append((question, choices, question_total))
             return 'blue'
 
         tool = QuestionTool(ask_user=ask_user)
 
-        self.assertEqual(tool.handle('Which color?', ['red', 'blue']), 'blue')
-        self.assertEqual(seen, [('Which color?', ['red', 'blue'])])
+        self.assertEqual(tool.handle('Which color?', ['red', 'blue'], 4), 'blue')
+        self.assertEqual(seen, [('Which color?', ['red', 'blue'], 4)])
 
     def test_handle_normalizes_missing_choices_to_an_empty_list(self) -> None:
-        seen: list[tuple[str, list[str]]] = []
+        seen: list[tuple[str, list[str], int | None]] = []
 
-        def ask_user(question: str, choices: list[str]) -> str:
-            seen.append((question, choices))
+        def ask_user(question: str, choices: list[str], question_total: int | None) -> str:
+            seen.append((question, choices, question_total))
             return 'free text'
 
         tool = QuestionTool(ask_user=ask_user)
 
         self.assertEqual(tool.handle('What should I call it?'), 'free text')
-        self.assertEqual(seen, [('What should I call it?', [])])
+        self.assertEqual(seen, [('What should I call it?', [], None)])
 
     def test_question_tool_does_not_emit_a_story_beat(self) -> None:
         self.assertFalse(QuestionTool.emits_story_beat)

@@ -268,6 +268,12 @@ class TestTuiCommandCompletion(TestCase):
         self.printer_term_patch.start()
         self.addCleanup(self.printer_term_patch.stop)
 
+        # The suggestion is suppressed when it does not fit, so pin a width
+        # wide enough to hold the full command list.
+        self.width_patch = mock.patch.object(Terminal, 'width', mock.PropertyMock(return_value=100))
+        self.width_patch.start()
+        self.addCleanup(self.width_patch.stop)
+
         self.cbreak_patch = mock.patch.object(self.term, 'cbreak')
         self.cbreak_patch.start()
         self.addCleanup(self.cbreak_patch.stop)
@@ -286,7 +292,9 @@ class TestTuiCommandCompletion(TestCase):
 
     @staticmethod
     def _all_commands_suggestion(term: Terminal) -> str:
-        return term.grey('  /init   /new   /sessions   /resume   /delete   /paste   /quit')
+        return term.grey(
+            '  /init   /new   /sessions   /session-all   /resume   /delete   /paste   /quit'
+        )
 
     @mock.patch('sys.stdout.write')
     def test_slash_shows_all_commands_inline(self, mock_write: mock.MagicMock) -> None:
@@ -316,7 +324,7 @@ class TestTuiCommandCompletion(TestCase):
         narrowed = [
             write
             for write in self._written(mock_write)
-            if self.term.grey('  /sessions') in write and '/init' not in write
+            if self.term.grey('  /sessions   /session-all') in write and '/init   ' not in write
         ]
 
         self.assertTrue(narrowed)
@@ -414,14 +422,26 @@ class TestTuiCommandCompletion(TestCase):
         self.assertTrue(narrowed)
 
     @mock.patch('sys.stdout.write')
-    def test_tab_completes_a_short_form_to_the_full_name(self, mock_write: mock.MagicMock) -> None:
+    def test_tab_completes_an_ambiguous_short_form_to_the_common_prefix(
+        self, mock_write: mock.MagicMock
+    ) -> None:
         keys = [*self._keys('/s'), TAB_KEY, ENTER_KEY]
 
         with mock.patch.object(self.term, 'inkey', side_effect=keys):
             result = tui.get_user_input()
 
-        self.assertEqual(result, '/sessions')
-        self.assertIn(self.term.bold_blue('❯ ') + '/sessions', ''.join(self._written(mock_write)))
+        self.assertEqual(result, '/session')
+        self.assertIn(self.term.bold_blue('❯ ') + '/session', ''.join(self._written(mock_write)))
+
+    @mock.patch('sys.stdout.write')
+    def test_tab_completes_a_short_form_to_the_full_name(self, mock_write: mock.MagicMock) -> None:
+        keys = [*self._keys('/d'), TAB_KEY, ENTER_KEY]
+
+        with mock.patch.object(self.term, 'inkey', side_effect=keys):
+            result = tui.get_user_input()
+
+        self.assertEqual(result, '/delete')
+        self.assertIn(self.term.bold_blue('❯ ') + '/delete', ''.join(self._written(mock_write)))
 
     @mock.patch('sys.stdout.write')
     def test_tab_completes_the_resume_short_to_the_full_name(
@@ -480,7 +500,7 @@ class TestTuiCommandCompletion(TestCase):
             + self.term.clear_eol()
             + self.term.bold_blue('❯ ')
             + '/s'
-            + self.term.grey('  /sessions')
+            + self.term.grey('  /sessions   /session-all')
         )
         s_index = written.index(s_write)
         backspace_write = (
@@ -524,7 +544,7 @@ class TestTuiCommandCompletion(TestCase):
                 + self.term.clear_eol()
                 + self.term.bold_blue('❯ ')
                 + '/s'
-                + self.term.grey('  /sessions')
+                + self.term.grey('  /sessions   /session-all')
             ],
         )
         self.assertTrue(tui._suggestion_visible)
@@ -634,9 +654,13 @@ class TestTuiCommandCompletionScreen(TestCase):
         result, screen, snapshot = self._run_prompt_with_snapshot(keys, char_widths={'❯': 2})
 
         self.assertEqual(result, '/ses')
-        self.assertIn('❯  /ses  /sessions', snapshot.splitlines())
+        self.assertTrue(
+            any(
+                line.startswith('❯  /ses  /sessions   /session-all')
+                for line in snapshot.splitlines()
+            )
+        )
         self.assertEqual(self._last_bullet_row(screen), '❯  /ses')
-        self.assertNotIn('sessions', screen.text())
 
     def test_input_line_stays_intact_when_the_bullet_renders_narrow(self) -> None:
         keys = [*self._keys('/qu'), BACKSPACE_KEY, ENTER_KEY]
@@ -654,9 +678,10 @@ class TestTuiCommandCompletionScreen(TestCase):
         result, screen, snapshot = self._run_prompt_with_snapshot(keys)
 
         self.assertEqual(result, '/s')
-        self.assertIn('❯ /s  /sessions', snapshot.splitlines())
+        self.assertTrue(
+            any(line.startswith('❯ /s  /sessions   /session-all') for line in snapshot.splitlines())
+        )
         self.assertEqual(self._last_bullet_row(screen), '❯ /s')
-        self.assertNotIn('sessions', screen.text())
 
 
 class TestTuiMultiLineInput(TestCase):

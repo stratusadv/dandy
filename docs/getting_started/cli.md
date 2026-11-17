@@ -151,7 +151,8 @@ In the REPL (every command has a one-letter short):
 
 - `/init` (or `/i`) — create or refresh `AGENTS.md` (folded into the agent's system prompt)
 - `/new [name]` (or `/n [name]`) — start a fresh conversation, optionally pre-named
-- `/sessions [row|name]` (or `/s [row|name]`) — table of saved conversations numbered oldest-to-newest (the newest session is on the bottom row); with a row number or name, load that one
+- `/sessions [row|name]` (or `/s [row|name]`) — table of the 30 most recent saved conversations numbered oldest-to-newest (the newest session is on the bottom row); with a row number or name, load that one
+- `/session-all [row|name]` (or `/a [row|name]`) — table of *every* saved conversation (REPL-only); with a row number or name, load that one
 - `/resume [row|name]` (or `/r [row|name]`) — load one back into the agent by its table row number or name (the most recently saved session if neither is given)
 - `/delete <name>` (or `/d <name>`) — remove a saved conversation
 - `/paste` (or `/p`) — paste multi-line text from stdin until Ctrl-D (REPL-only; no one-shot flag)

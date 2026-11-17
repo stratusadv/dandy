@@ -27,18 +27,25 @@ the [command registry](#the-command-registry)).
 (`SessionStore.for_project(...)`) over the project's `.dandy/agent/sessions/`, and the
 TUI, and processes each typed message as an agent turn. The REPL auto-saves the
 conversation after every turn; the commands are `/new [name]` (fresh conversation,
-optionally pre-named), `/sessions [row|name]` (list saved sessions as a numbered
-table, newest on the bottom row, or load one by row number or name),
+optionally pre-named), `/sessions [row|name]` (list the 30 most recent saved
+sessions as a numbered table, newest on the bottom row, or load one by row
+number or name), `/session-all [row|name]` (list every saved session — or load
+one by row number or name, REPL-only),
 `/resume [row|name]` (load one by row number or name, or the most recently
 saved one if neither is given), `/delete <name>`, and `/quit` (or `/exit`),
-and every command also has a one-letter short (`/n`, `/s`, `/r`, `/d`, `/q` —
-`/i` for `/init`); escape twice stops a running turn and, at the prompt, exits
-the REPL.
-The welcome banner shows a session-status line.
+and every command also has a one-letter short (`/n`, `/s`, `/a`, `/r`, `/d`,
+`/q` — `/i` for `/init`); escape twice stops a running turn and, at the prompt,
+exits the REPL.
+The welcome banner shows a session-status line and a `Config` line (the CLI's
+config name, its model, the settings source file, and the `AGENTS.md` status).
 
 ::: dandy.interfaces.cli.cli.DandyCli
 
 ::: dandy.interfaces.cli.tui.banner.session_banner_line
+
+::: dandy.interfaces.cli.tui.banner.config_banner_line
+
+::: dandy.interfaces.cli.tui.banner.agents_md_status
 
 ::: dandy.interfaces.cli.utils.check_or_create_settings
 

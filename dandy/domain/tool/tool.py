@@ -87,7 +87,7 @@ class BaseTool(HashMixin, ABC):
         return intel_class
 
     @abstractmethod
-    def handle(self, **kwargs: Any) -> str | BaseIntel:
+    def handle(self, *args: Any, **kwargs: Any) -> str | BaseIntel:
         """Execute the tool for the given keyword arguments.
 
         Subclasses override this with typed named parameters; the signature

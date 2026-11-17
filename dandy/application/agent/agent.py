@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 # reproduce-then-fix-then-verify workflow while still bounding a model stuck
 # in a degenerate tool-call loop. Pass max_tool_rounds=None to a specific
 # Agent to disable the cap.
-AGENT_MAX_TOOL_ROUNDS_DEFAULT = 200
+AGENT_MAX_TOOL_ROUNDS_DEFAULT = None
 
 
 class Agent:

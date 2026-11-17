@@ -68,10 +68,15 @@ class Tui:
         print(self.term.clear)
 
     def get_user_input(
-        self, question: str | None = None, choices: list[str] | None = None
+        self,
+        question: str | None = None,
+        choices: list[str] | None = None,
+        index: int = 1,
+        total: int | None = None,
     ) -> str | None:
         if question:
-            desktop_notify(question, self.term)
+            question_title = question if total is None else f'{question} ({index} of {total})'
+            desktop_notify(question_title, self.term)
 
             # NB: the heavy-right-quot glyph is the intended question prompt mark.
             self._input_prefix = self.term.purple('❯ ')
@@ -79,11 +84,13 @@ class Tui:
                 text=f'\n{self.term.purple}{QuestionTool.action_label}{self.term.normal}'
             )
             self.printer.event(
-                text=f'{self.term.purple}↳{self.term.normal} {linkify_file_paths(question)}'
+                text=f'{self.term.purple}↳{self.term.normal} {linkify_file_paths(question_title)}'
             )
 
-            for index, choice in enumerate(choices or [], start=1):
-                self.printer.event(text=f'{self.term.purple}{index}){self.term.normal} {choice}')
+            for choice_index, choice in enumerate(choices or [], start=1):
+                self.printer.event(
+                    text=f'{self.term.purple}{choice_index}){self.term.normal} {choice}'
+                )
 
             self.printer.purple_divider()
 

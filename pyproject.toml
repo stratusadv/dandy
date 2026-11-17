@@ -152,8 +152,9 @@ type = "forbidden"
 source_modules = ["dandy.interfaces"]
 forbidden_modules = ["dandy.infrastructure"]
 ignore_imports = [
-    # The welcome banner displays the resolved CODING config's model name.
-    "dandy.interfaces.cli.tui.printer -> dandy.infrastructure.llm.config",
+    # The welcome Config line (built in the banner module) displays the
+    # resolved CODING config's model name.
+    "dandy.interfaces.cli.tui.banner -> dandy.infrastructure.llm.config",
     # The CLI entry point reaches the LLM adapters transitively through the
     # agent's documented application -> infrastructure seams.
     "dandy.interfaces.cli.cli -> dandy.application.agent.cli.cli_agent",

@@ -19,6 +19,10 @@ from dandy.shared.settings import settings
 
 # Tool name to (path argument, action) for the tools whose calls show up in the
 # file sections the CLI prints below the final answer.
+# How many of the most recent sessions /sessions shows before suggesting
+# /session-all.
+SESSION_TABLE_ROW_LIMIT = 30
+
 FILE_TOOL_ACTIONS = {
     'write_file': ('file_path', 'added'),
     'edit_file': ('file_path', 'modified'),
@@ -64,14 +68,18 @@ class DandyCli:
         sys.stdout.flush()
 
     @staticmethod
-    def _ask_user(question: str, choices: list[str]) -> str:
+    def _ask_user(question: str, choices: list[str], question_total: int | None) -> str:
         """Block the agent until the user answers its question (stop-safe)."""
-        return question_gate.ask(question, choices, stop_signal)
+        return question_gate.ask(question, choices, stop_signal, total=question_total)
 
     @staticmethod
-    def _prompt_question(question: str, choices: list[str]) -> str | None:
+    def _prompt_question(
+        question: str, choices: list[str], index: int, question_total: int | None
+    ) -> str | None:
         """The UI side of an agent question: one prompt on the main thread."""
-        return tui.get_user_input(question=question, choices=choices)
+        return tui.get_user_input(
+            question=question, choices=choices, index=index, total=question_total
+        )
 
     def process_user_input(self, user_input: str) -> bool:
         """Process one user input, returning False to stop the loop.
@@ -113,6 +121,7 @@ class DandyCli:
             'init': (self._process_init, ()),
             'new': (self._process_new, (argument,)),
             'sessions': (self._process_sessions, (argument,)),
+            'session-all': (self._process_session_all, (argument,)),
             'resume': (self._process_resume, (argument,)),
             'delete': (self._process_delete, (argument,)),
         }
@@ -146,9 +155,9 @@ class DandyCli:
         self.active_name = name or None
 
         if name:
-            tui.printer.output(f'Started a new conversation to be saved as "{name}".')
+            tui.printer.output(f'Started a new session! It will be saved as "{name}".')
         else:
-            tui.printer.output('Started a new conversation.')
+            tui.printer.output('Started a new session!')
 
         return True
 
@@ -157,6 +166,14 @@ class DandyCli:
             return self._process_resume(name)
 
         self.print_sessions()
+
+        return True
+
+    def _process_session_all(self, name: str) -> bool:
+        if name:
+            return self._process_resume(name)
+
+        self.print_sessions(show_all=True)
 
         return True
 
@@ -233,7 +250,7 @@ class DandyCli:
 
         return True
 
-    def print_sessions(self) -> None:
+    def print_sessions(self, show_all: bool = False) -> None:
         records = self.session_store.list_sessions()
 
         if not records:
@@ -241,14 +258,35 @@ class DandyCli:
             return
 
         oldest_first = sorted(records, key=lambda record: record.updated_at)
+        resume_hint = (
+            '\n\nResume one with `/r <row>` or its name — the newest is on the bottom row.'
+        )
+
+        if show_all:
+            start_number = 1
+            footer = resume_hint
+        else:
+            shown = len(oldest_first[-SESSION_TABLE_ROW_LIMIT:])
+            start_number = len(oldest_first) - shown + 1
+            footer = (
+                f'\n\nShowing the {shown} most recent of {len(oldest_first)} sessions — '
+                'use /session-all for every one.'
+                if shown < len(oldest_first)
+                else ''
+            ) + resume_hint
+
         table = (
             '| # | Session |\n'
             '|---|---|\n'
             + '\n'.join(
                 self._session_row(number, record)
-                for number, record in enumerate(oldest_first, start=1)
+                for number, record in zip(
+                    range(start_number, len(oldest_first) + 1),
+                    oldest_first[start_number - 1 :],
+                    strict=True,
+                )
             )
-            + '\n\nResume one with `/r <row>` or its name — the newest is on the bottom row.'
+            + footer
         )
 
         tui.printer.output(table)
@@ -329,6 +367,8 @@ class DandyCli:
 
         for issue in attachment_issues:
             tui.printer.error(error='Attachment failed', description=issue)
+
+        question_gate.begin()
 
         try:
             result_intel = tui.printer.run_timed_task(

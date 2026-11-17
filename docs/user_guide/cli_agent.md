@@ -57,8 +57,8 @@ conversation accumulates in it.
 When the project root contains an `AGENTS.md` file, its content is folded into the
 `CodingBot` guidelines as a **Project Instructions** section, so it
 is part of the system message for every turn (and for one-shot mode). The file is read
-at agent construction, and the welcome banner shows a line for it (`found (15.3 KB) -
-loaded into the agent system prompt` or `not found - run /init to create one`).
+at agent construction, and the welcome banner's `Config` line carries a short
+`AGENTS.md Found` / `AGENTS.md Missing` status.
 
 To create or refresh the file, the CLI has an **init pass**: type `/init` in the REPL
 or run `dandy --init` as a one-shot. The pass runs a dedicated `InitBot`
@@ -86,7 +86,10 @@ project-aware toolset (`dandy/application/agent/intelligence/tools/`):
 - **Questions** — `question`, on the CLI agent only (the init pass does
   not ask): the model pauses the turn, shows you a question with
   optional numbered choices, and waits for your answer (a choice number or
-  free text), which it receives as the tool result.
+  free text), which it receives as the tool result. When the model is
+  about to ask a series of questions it passes `question_total` (the
+  total it expects to ask) on each call, and the prompt then shows the
+  running count at the end of the question (`Which color? (1 of 4)`).
 
 Every path resolves against the session's `project_base_path` and refuses paths that
 escape it; every `handle()` returns a string and never raises, so the model can always
@@ -126,10 +129,11 @@ Always deploy with `just deploy`, never push tags by hand.
   `activate_skill` tool. The loader (`dandy/application/skill/loader.py`) registers
   them through the normal `SkillService` path, so activation works exactly as for
   code-defined skills.
-- The welcome banner shows a `Skills` line with the loaded count (active vs
-  passive). Malformed files (missing frontmatter fence, passive without a
-  description, ...) are skipped with one `Skill skipped` notice per file — they
-  never crash the CLI.
+- The welcome banner shows a `Skills` line with the loaded count and the
+  loaded skills grouped active vs passive (up to 20 names per group, `...`
+  when a group is longer). Malformed files (missing frontmatter fence,
+  passive without a description, ...) are skipped with one `Skill skipped`
+  notice per file — they never crash the CLI.
 - Skills are loaded once at process start for both the REPL and one-shot mode.
   `/new` keeps the registration but re-arms passive activation; a **resumed**
   session replays its saved system message, so skill changes only apply after `/new`
@@ -152,12 +156,13 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
 - Every command has a one-letter short: `/i` (`/init`) creates or refreshes the
   project `AGENTS.md` (see [Project instructions](#project-instructions-agentsmd));
   `/n [name]` (`/new [name]`) starts a fresh conversation (optionally pre-naming
-  its session file); `/s` (`/sessions`) lists saved sessions as a numbered
-  table, most recently updated on the bottom row, and `/s <row>` (or a name)
-  loads that one; `/r [row|name]` (`/resume [row|name]`) loads a session by
-  its table row number or full name — the most recently saved one if neither
-  is given — and keeps the current agent state; `/d <name>`
-  (`/delete <name>`) removes one;
+  its session file); `/s` (`/sessions`) lists the 30 most recent saved sessions
+  as a numbered table, most recently updated on the bottom row, and `/s <row>`
+  (or a name) loads that one; `/a` (`/session-all`) lists every saved session —
+  or resumes one by row or name the same way; `/r [row|name]`
+  (`/resume [row|name]`) loads a session by its table row number or full name —
+  the most recently saved one if neither is given — and keeps the current agent
+  state; `/d <name>` (`/delete <name>`) removes one;
   `/q` (`/quit`) or `/exit` stop the loop.
 - Commands are discoverable at the prompt: when you type `/` as the first
   character, a grey tail on the input line itself lists every command matching
@@ -169,7 +174,8 @@ tables), and a running "story" of tool beats ("Reading src/foo.py lines 1-10",
   any running command are interrupted and the prompt returns); at the prompt,
   pressing **escape twice** exits the REPL — and the same rule applies while
   an agent question is on screen: double escape skips the answer and stops
-  the run.
+  the run. After an answered question the thinking-phrase animation resumes,
+  so the model's work on your answer stays visible until the next story beat.
 - `DEBUG = True` in settings prints one line per tool-round event to stdout.
 - **Desktop notifications**: when a request completes (or the `AGENTS.md`
   init pass finishes) and whenever the agent parks a question on screen, the
@@ -219,9 +225,11 @@ lives under `.dandy/`, it is gitignored along with the sessions.
 
 A saved session carries the full message history plus metadata: created/updated
 timestamps, the last request, the model and config name, and an estimated token
-count. `/sessions` shows the saved sessions as a numbered table with the most
-recently updated session on the bottom row, and `/resume [row|name]` (or the
-short `/s <row>`) loads the history back into the agent — by its table row
+count. `/sessions` shows the 30 most recent saved sessions as a numbered
+table with the most recently updated session on the bottom row (a hint line
+offers `/session-all` when there are more), `/session-all` shows every saved
+session, and `/resume [row|name]` (or the short `/s <row>`) loads the history
+back into the agent — by its table row
 number, its full name, or the most recently saved session when neither is
 given — so the next turn continues exactly where that conversation left off;
 the command line does the same with `dandy -s <row|name>` or `dandy -r` (the

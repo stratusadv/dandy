@@ -530,7 +530,7 @@ class TestDandyCli(TestCase):
         self.assertTrue(should_continue)
         self.assertIsNone(self.cli.active_name)
         self.assertEqual(len(self.cli.agent.history), 0)
-        self.assertIn('new conversation', mock_output.call_args[0][0])
+        self.assertIn('Started a new session!', mock_output.call_args[0][0])
 
     @mock.patch(
         'dandy.interfaces.cli.cli.session_name_for_request',
@@ -597,6 +597,81 @@ class TestDandyCli(TestCase):
         self.assertIn('| 2 | 2026-11-02-10-00-newest |', table)
         self.assertLess(table.index('| 1 |'), table.index('| 2 |'))
         self.assertIn('newest is on the bottom row', table)
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_sessions_table_shows_only_the_thirty_most_recent(
+        self, mock_output: mock.MagicMock
+    ) -> None:
+        for index in range(35):
+            day = 1 + (index // 3)
+            hour = 10 + (index % 3)
+            _write_session_record(
+                self.cli.session_store,
+                f'2026-11-{day:02d}-{hour:02d}-00-session-{index:02d}',
+                datetime(2026, 11, day, hour, 0, tzinfo=UTC),
+            )
+
+        self.cli.process_user_input('/sessions')
+
+        table = mock_output.call_args[0][0]
+        self.assertIn('session-34', table)
+        self.assertIn('session-05', table)
+        self.assertNotIn('session-04', table)
+        self.assertNotIn('session-00', table)
+        self.assertIn('30 most recent of 35', table)
+        self.assertIn('/session-all', table)
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_session_all_lists_every_saved_session(self, mock_output: mock.MagicMock) -> None:
+        for index in range(35):
+            day = 1 + (index // 3)
+            hour = 10 + (index % 3)
+            _write_session_record(
+                self.cli.session_store,
+                f'2026-11-{day:02d}-{hour:02d}-00-session-{index:02d}',
+                datetime(2026, 11, day, hour, 0, tzinfo=UTC),
+            )
+
+        self.cli.process_user_input('/session-all')
+
+        table = mock_output.call_args[0][0]
+        self.assertIn('session-00', table)
+        self.assertIn('session-34', table)
+        self.assertNotIn('most recent of', table)
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_session_all_short_form_lists_every_saved_session(
+        self, mock_output: mock.MagicMock
+    ) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+
+        self.cli.process_user_input('/a')
+
+        table = mock_output.call_args[0][0]
+        self.assertIn('oldest', table)
+
+    @mock.patch.object(tui.printer, 'output')
+    def test_session_all_with_row_resumes_that_session(self, mock_output: mock.MagicMock) -> None:
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-01-10-00-oldest',
+            datetime(2026, 11, 1, 10, 0, tzinfo=UTC),
+        )
+        _write_session_record(
+            self.cli.session_store,
+            '2026-11-02-10-00-newest',
+            datetime(2026, 11, 2, 10, 0, tzinfo=UTC),
+        )
+
+        with mock.patch.object(self.cli.agent, 'load_session'):
+            self.cli.process_user_input('/session-all 2')
+
+        self.assertEqual(self.cli.active_name, '2026-11-02-10-00-newest')
+        self.assertIn('Resumed session', mock_output.call_args[0][0])
 
     @mock.patch.object(tui.printer, 'output')
     def test_resume_by_row_number_loads_that_session(self, mock_output: mock.MagicMock) -> None:
@@ -769,6 +844,7 @@ class TestDandyCli(TestCase):
             '/init (or /i)',
             '/new (or /n)',
             '/sessions (or /s)',
+            '/session-all (or /a)',
             '/resume (or /r)',
             '/delete (or /d)',
             '/quit (or /q)',
@@ -806,7 +882,7 @@ class TestDandyCli(TestCase):
         self.assertTrue(should_continue)
         self.assertIsNone(self.cli.active_name)
         self.assertEqual(len(self.cli.agent.history), 0)
-        self.assertIn('new conversation', mock_output.call_args[0][0])
+        self.assertIn('Started a new session!', mock_output.call_args[0][0])
 
     @mock.patch('dandy.application.agent.cli.cli_agent.CliAgent.turn')
     @mock.patch.object(tui.printer, 'output')
@@ -990,7 +1066,7 @@ class TestCliQuestionWiring(TestCase):
             answers: list[str] = []
 
             def worker() -> None:
-                answers.append(DandyCli._ask_user('Which color?', ['red', 'blue']))
+                answers.append(DandyCli._ask_user('Which color?', ['red', 'blue'], None))
 
             thread = threading.Thread(target=worker, daemon=True)
             thread.start()

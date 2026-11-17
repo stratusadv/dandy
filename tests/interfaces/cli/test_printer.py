@@ -13,6 +13,8 @@ from blessed.keyboard import Keystroke
 from dandy.application.agent.session import session
 from dandy.interfaces.cli.tui.banner import (
     agents_md_banner_line,
+    agents_md_status,
+    config_banner_line,
     format_verbose_duration,
     skills_banner_line,
 )
@@ -68,6 +70,71 @@ class TestAgentsMdBannerLine(TestCase):
             'found (2.0 KB) - loaded into the agent system prompt',
         )
 
+    def test_agents_md_status_found(self) -> None:
+        (self.project_base_path / 'AGENTS.md').write_text('small', encoding='utf-8')
+
+        self.assertEqual(agents_md_status(self.project_base_path), 'AGENTS.md Found')
+
+    def test_agents_md_status_missing(self) -> None:
+        self.assertEqual(agents_md_status(self.project_base_path), 'AGENTS.md Missing')
+
+
+class TestConfigBannerLine(TestCase):
+    def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.project_base_path = Path(self.temp_directory_context.name)
+
+    def tearDown(self) -> None:
+        self.temp_directory_context.cleanup()
+
+    def test_config_line_shows_config_model_source_and_agents_md_status(self) -> None:
+        module = types.ModuleType('fake_settings_module')
+        module.__file__ = '/home/user/project/dandy_settings.py'
+
+        with (
+            mock.patch(
+                'dandy.interfaces.cli.tui.banner.get_cli_llm_config', return_value='DEFAULT'
+            ),
+            mock.patch(
+                'dandy.interfaces.cli.tui.banner.LlmConfig',
+                return_value=types.SimpleNamespace(model='stratus.turbo'),
+            ),
+            mock.patch('dandy.shared.settings.settings.settings._user_settings', new=module),
+            mock.patch('dandy.shared.settings.settings.settings._json_settings_path', new=None),
+        ):
+            line = config_banner_line(self.project_base_path)
+
+        self.assertEqual(
+            line,
+            'DEFAULT (stratus.turbo) [/home/user/project/dandy_settings.py] · AGENTS.md Missing',
+        )
+
+    def test_config_line_uses_the_json_settings_path_when_present(self) -> None:
+        (self.project_base_path / 'AGENTS.md').write_text('docs', encoding='utf-8')
+
+        with (
+            mock.patch('dandy.interfaces.cli.tui.banner.get_cli_llm_config', return_value='CODING'),
+            mock.patch(
+                'dandy.interfaces.cli.tui.banner.LlmConfig',
+                return_value=types.SimpleNamespace(model='stratus.max'),
+            ),
+            mock.patch(
+                'dandy.shared.settings.settings.settings._user_settings',
+                new=types.SimpleNamespace(),
+            ),
+            mock.patch(
+                'dandy.shared.settings.settings.settings._json_settings_path',
+                new=self.project_base_path / '.dandy' / 'dandy.json',
+            ),
+        ):
+            line = config_banner_line(self.project_base_path)
+
+        self.assertEqual(
+            line,
+            f'CODING (stratus.max) [{self.project_base_path / ".dandy" / "dandy.json"}] '
+            '· AGENTS.md Found',
+        )
+
 
 class TestSkillsBannerLine(TestCase):
     def test_banner_line_when_no_skills_are_found(self) -> None:
@@ -95,23 +162,45 @@ class TestSkillsBannerLine(TestCase):
         ):
             self.assertEqual(
                 skills_banner_line(Path('/nonexistent')),
-                '3 loaded (2 active, 1 passive): alpha, bravo, charlie',
+                '3 loaded (active: alpha, bravo, passive: charlie)',
             )
 
-    def test_banner_line_lists_only_the_first_ten_skills(self) -> None:
-        skills = [self._skill(f'skill-{index}', True) for index in range(13)]
+    def test_banner_line_lists_only_the_first_twenty_skills_per_group(self) -> None:
+        skills = [self._skill(f'active-{index}', True) for index in range(25)]
+        skills += [self._skill(f'passive-{index}', False) for index in range(3)]
 
         with mock.patch(
             'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
         ):
             line = skills_banner_line(Path('/nonexistent'))
 
-        self.assertIn('13 loaded (13 active, 0 passive): ', line)
-        self.assertIn('skill-0, skill-1, skill-2, skill-3, skill-4, skill-5, skill-6', line)
-        self.assertIn('skill-7, skill-8, skill-9, ... +3 more', line)
-        self.assertNotIn('skill-10', line)
-        self.assertNotIn('skill-11', line)
-        self.assertNotIn('skill-12', line)
+        self.assertTrue(line.startswith('28 loaded (active: '))
+        self.assertIn('active-0, active-1, active-2', line)
+        self.assertIn('active-19', line)
+        self.assertNotIn('active-20', line)
+        self.assertIn('active-19...,', line)
+        self.assertIn('passive: passive-0, passive-1, passive-2)', line)
+
+    def test_banner_line_full_group_names_when_under_the_limit(self) -> None:
+        skills = [self._skill(f'active-{index}', True) for index in range(20)]
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
+        ):
+            line = skills_banner_line(Path('/nonexistent'))
+
+        self.assertIn('active-19)', line)
+        self.assertNotIn('...', line)
+
+    def test_banner_line_all_passive(self) -> None:
+        skills = [self._skill(f'passive-{index}', False) for index in range(3)]
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.banner.load_cli_skills', return_value=(skills, [])
+        ):
+            line = skills_banner_line(Path('/nonexistent'))
+
+        self.assertEqual(line, '3 loaded (passive: passive-0, passive-1, passive-2)')
 
 
 class TestPrinterStory(TestCase):
@@ -472,6 +561,108 @@ class TestPrinterStory(TestCase):
 
         self.assertEqual(fresh.pause_at_fresh_line(), '\r')
 
+    def test_pause_at_fresh_line_on_the_placeholder_clears_only_the_phrase_line(self) -> None:
+        progress = StoryProgress(Terminal(force_styling='default'))
+
+        progress.tick_frame()
+        pause = progress.pause_at_fresh_line()
+
+        # The placeholder region is two lines (blank line + phrase line) and the
+        # cursor sits on the phrase line after the last tick: clear just that
+        # line and climb to the region's blank first line, so the prompt's own
+        # leading newline leaves one blank line of separation instead of the
+        # cleared animation lines piling up in the scrollback.
+        self.assertEqual(pause, '\r\x1b[K\x1b[1A\r')
+
+        progress.resume_animation()
+        progress.tick_frame()
+        second_pause = progress.pause_at_fresh_line()
+
+        self.assertEqual(second_pause, '\r\x1b[K\x1b[1A\r')
+
+    def test_resumed_placeholder_is_animating_and_keeps_the_phrase_until_a_beat(self) -> None:
+        beat = StoryBeat(label='Reading', description='src/a.py')
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
+            progress = StoryProgress(Terminal(force_styling='default'))
+
+            progress.tick_frame()
+            self.assertTrue(progress.is_animating)
+
+            progress.resume_animation()
+            self.assertTrue(progress.is_animating)
+            frame = progress.tick_frame()
+            self.assertIn('✦ Polishing a Cufflink', frame)
+            self.assertTrue(progress.is_animating)
+
+            progress.update(beat)
+            frame = progress.tick_frame()
+
+            # The next real beat settles the resumed placeholder and animates
+            # the beat itself instead of the leftover phrase.
+            self.assertIn('src/a.py', frame)
+            self.assertFalse(progress.is_animating)
+
+    def test_settle_animation_clears_a_leftover_placeholder(self) -> None:
+        progress = StoryProgress(Terminal(force_styling='default'))
+
+        # Nothing animated yet: nothing to clear.
+        self.assertEqual(progress.settle_animation(), '')
+
+        progress.tick_frame()
+        settle = progress.settle_animation()
+
+        # The phrase line is cleared and the cursor climbs back to the
+        # region's blank first line, like a pause.
+        self.assertEqual(settle, '\r\x1b[K\x1b[1A\r')
+
+        # A resumed placeholder (the task ended right after a question) is
+        # cleared the same way.
+        progress.resume_animation()
+        progress.tick_frame()
+        self.assertEqual(progress.settle_animation(), '\r\x1b[K\x1b[1A\r')
+
+        self.assertEqual(progress.settle_animation(), '')
+
+    def test_settle_animation_is_a_no_op_for_a_live_real_beat(self) -> None:
+        beat = StoryBeat(label='Reading', description='src/a.py')
+        progress = StoryProgress(Terminal(force_styling='default'))
+
+        progress.update(beat)
+        progress.frame(beat)
+
+        # The beat region is settled by the caller's settled_frame pass, not
+        # by settle_animation; it must not touch it.
+        self.assertEqual(progress.settle_animation(), '')
+        self.assertFalse(progress.is_animating)
+
+    def test_run_timed_task_clears_the_phrase_when_the_task_ends_after_a_question(self) -> None:
+        gate = QuestionGate()
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            gate.ask('Which color?', ['red', 'blue'])
+            sleep(0.5)
+            return 'done'
+
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
+            return 'blue'
+
+        self.printer.run_timed_task(
+            task='pick a color', work=work, question_gate=gate, question_handler=question_handler
+        )
+
+        written = ''.join(str(call.args[0]) for call in self.mock_write.call_args_list if call.args)
+
+        # The thinking-phrase line that animated while the model worked on the
+        # answer must be cleared before the completion line prints, so it does
+        # not survive as an orphan in the scrollback.
+        self.assertIn(f'{self.printer.term.clear_eol()}\x1b[1A\r', written)
+
     def test_run_timed_task_does_not_reprint_the_settled_beat_after_the_question(self) -> None:
         gate = QuestionGate()
 
@@ -482,7 +673,9 @@ class TestPrinterStory(TestCase):
             sleep(0.3)
             return 'done'
 
-        def question_handler(question: str, choices: list[str]) -> str | None:
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
             self.mock_write.reset_mock()
             return 'blue'
 
@@ -495,6 +688,40 @@ class TestPrinterStory(TestCase):
         # After the question is answered the animation must not re-emit the
         # beat that was settled above the prompt.
         self.assertNotIn('src/a.py', ''.join(written))
+
+    def test_run_timed_task_resumes_the_thinking_animation_after_a_question(self) -> None:
+        gate = QuestionGate()
+        release = threading.Event()
+
+        def work(update: Callable[[StoryBeat], None]) -> object:
+            gate.ask('Which color?', ['red', 'blue'])
+            release.wait()
+            return 'done'
+
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
+            self.mock_write.reset_mock()
+            return 'blue'
+
+        threading.Timer(0.4, release.set).start()
+
+        with mock.patch(
+            'dandy.interfaces.cli.tui.story_progress.thinking_phrase',
+            return_value='Polishing a Cufflink',
+        ):
+            self.printer.run_timed_task(
+                task='pick a color',
+                work=work,
+                question_gate=gate,
+                question_handler=question_handler,
+            )
+
+        written = ''.join(str(call.args[0]) for call in self.mock_write.call_args_list if call.args)
+
+        # After the answer is delivered the thinking-phrase animation restarts
+        # (the placeholder region resuming) while the model works.
+        self.assertIn('✦ Polishing a Cufflink', written)
 
     def test_event_prints_text_without_prefix(self) -> None:
         self.printer.event('Hello')
@@ -693,8 +920,10 @@ class TestPrinterStory(TestCase):
         def work(update: Callable[[StoryBeat], None]) -> object:
             return {'answer': gate.ask('Which color?', ['red', 'blue'])}
 
-        def question_handler(question: str, choices: list[str]) -> str | None:
-            prompts.append((question, choices))
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
+            prompts.append((question, choices, index, total))
             return 'blue'
 
         result = self.printer.run_timed_task(
@@ -702,7 +931,7 @@ class TestPrinterStory(TestCase):
         )
 
         self.assertEqual(result, {'answer': 'blue'})
-        self.assertEqual(prompts, [('Which color?', ['red', 'blue'])])
+        self.assertEqual(prompts, [('Which color?', ['red', 'blue'], 1, None)])
         self.assertIsNone(gate.pending)
 
     def test_run_timed_task_question_prompt_lands_on_a_fresh_line(self) -> None:
@@ -713,7 +942,9 @@ class TestPrinterStory(TestCase):
             sleep(0.3)
             return {'answer': gate.ask('Which color?', ['red', 'blue'])}
 
-        def question_handler(question: str, choices: list[str]) -> str | None:
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
             written = [str(call.args[0]) for call in self.mock_write.call_args_list if call.args]
             self.assertIn(written[-1], ('\x1b[1A\r', '\r'))
             self.assertEqual(question, 'Which color?')
@@ -739,7 +970,9 @@ class TestPrinterStory(TestCase):
 
             return 'unreachable'
 
-        def question_handler(question: str, choices: list[str]) -> str | None:
+        def question_handler(
+            question: str, choices: list[str], index: int, total: int | None
+        ) -> str | None:
             return None
 
         with self.assertRaises(RunStoppedError):

@@ -579,7 +579,7 @@ class TestCliAgentQuestionTool(TestCase):
         self.assertIsNone(self._question_tools(agent)[0].ask_user)
 
     def test_ask_user_reaches_the_question_tool(self) -> None:
-        def ask_user(question: str, choices: list[str]) -> str:
+        def ask_user(question: str, choices: list[str], question_total: int | None) -> str:
             return 'answer'
 
         agent = CliAgent(ask_user=ask_user)
@@ -590,7 +590,7 @@ class TestCliAgentQuestionTool(TestCase):
     def test_turn_feeds_the_user_answer_back_to_the_model(
         self, mock_post_request: mock.MagicMock
     ) -> None:
-        agent = CliAgent(ask_user=lambda _question, _choices: 'blue')
+        agent = CliAgent(ask_user=lambda _question, _choices, _total: 'blue')
         mock_post_request.side_effect = [
             tool_call_response(
                 'question',

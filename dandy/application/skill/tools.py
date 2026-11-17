@@ -39,6 +39,8 @@ class ActivateSkillTool(BaseTool):
         'to follow.'
     )
 
+    action_label = 'Using Skill'
+
     def __init__(self, skill_service: 'SkillService') -> None:
         self._skill_service = skill_service
 
@@ -46,3 +48,6 @@ class ActivateSkillTool(BaseTool):
 
     def handle(self, name: str) -> str:
         return self._skill_service.activate(name)
+
+    def action_output(self, **kwargs: Any) -> str:
+        return str(kwargs.get('name') or '')

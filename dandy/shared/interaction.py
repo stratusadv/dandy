@@ -17,6 +17,8 @@ class UserQuestion:
 
     question: str
     choices: list[str] = field(default_factory=list)
+    index: int = 1
+    total: int | None = None
 
 
 class QuestionGate:
@@ -38,6 +40,12 @@ class QuestionGate:
         self._pending: UserQuestion | None = None
         self._answer: str | None = None
         self._stop_signal: StopSignal | None = None
+        self._question_count = 0
+
+    def begin(self) -> None:
+        """Reset the per-run question counter, called at the start of a run."""
+        with self._lock:
+            self._question_count = 0
 
     @property
     def pending(self) -> UserQuestion | None:
@@ -45,10 +53,20 @@ class QuestionGate:
             return self._pending
 
     def ask(
-        self, question: str, choices: list[str] | None = None, stop_signal: StopSignal | None = None
+        self,
+        question: str,
+        choices: list[str] | None = None,
+        stop_signal: StopSignal | None = None,
+        total: int | None = None,
     ) -> str:
         with self._lock:
-            self._pending = UserQuestion(question=question, choices=list(choices or []))
+            self._question_count += 1
+            self._pending = UserQuestion(
+                question=question,
+                choices=list(choices or []),
+                index=self._question_count,
+                total=total,
+            )
             self._answer = None
             self._stop_signal = stop_signal
             self._answered.clear()

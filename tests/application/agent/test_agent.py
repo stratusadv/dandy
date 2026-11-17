@@ -217,7 +217,9 @@ class TestAgentTurn(TestCase):
         image_path = self.temp_dir / 'shot.png'
         image_path.write_bytes(_MINI_PNG_BYTES)
         attachment = TurnAttachment(source_path=image_path, kind=ATTACHMENT_KIND_IMAGE)
-        mock_post_request.side_effect = [content_response('{"text": "A red circle.", "done": true}')]
+        mock_post_request.side_effect = [
+            content_response('{"text": "A red circle.", "done": true}')
+        ]
 
         result = self.agent.turn('What is in this image?', attachments=[attachment])
 
@@ -241,9 +243,7 @@ class TestAgentTurn(TestCase):
 
         source_path = self.temp_dir / 'rows.csv'
         source_path.write_text('a,b\n1,2\n')
-        delivery_path = (
-            self.temp_dir / '.dandy' / 'attachments' / '20260101T000000__rows.csv'
-        )
+        delivery_path = self.temp_dir / '.dandy' / 'attachments' / '20260101T000000__rows.csv'
         delivery_path.parent.mkdir(parents=True)
         delivery_path.write_text('a,b\n1,2\n')
         attachment = TurnAttachment(

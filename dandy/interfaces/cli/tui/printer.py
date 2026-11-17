@@ -11,11 +11,9 @@ from dandy.domain.tool.beat import StoryBeat
 from dandy.shared.cancellation import StopSignal
 from dandy.shared.constants import __VERSION__
 from dandy.shared.interaction import QuestionGate
-from dandy.shared.settings.load import get_cli_llm_config
-from dandy.infrastructure.llm.config import LlmConfig
 from dandy.interfaces.cli.tui.ascii import DANDY_ASCII
 from dandy.interfaces.cli.tui.banner import (
-    agents_md_banner_line,
+    config_banner_line,
     format_verbose_duration,
     session_banner_line,
     skills_banner_line,
@@ -56,13 +54,9 @@ class Printer:
         self.bold_blue_divider()
         print(self.term.bold_blue('Version      : ') + __VERSION__)
         print(
-            self.term.bold_blue('Model        : ') + LlmConfig(get_cli_llm_config('CODING')).model
+            self.term.bold_blue('Config       : ') + config_banner_line(session.project_base_path)
         )
         print(self.term.bold_blue('Project Dir  : ') + str(session.project_base_path))
-        print(
-            self.term.bold_blue('AGENTS.md    : ')
-            + agents_md_banner_line(session.project_base_path)
-        )
         print(
             self.term.bold_blue('Sessions     : ')
             + session_banner_line(SessionStore.for_project(session.project_base_path))
@@ -77,7 +71,7 @@ class Printer:
         work: Callable[[Callable[[StoryBeat], None]], T],
         stop_signal: StopSignal | None = None,
         question_gate: QuestionGate | None = None,
-        question_handler: Callable[[str, list[str]], str | None] | None = None,
+        question_handler: Callable[[str, list[str], int, int | None], str | None] | None = None,
     ) -> T:
         """Run `work(update_beat)` while animating a story of AI summary beats.
 
@@ -109,11 +103,12 @@ class Printer:
         pauses the animation: the calling thread (the only one allowed to
         touch the terminal) settles every beat the render loop has not
         printed yet, moves the cursor onto the leftover phrase line so the
-        prompt prints at column zero, then calls `question_handler(question,
-        choices)` and delivers its result to the gate, dropping the live
-        frame afterwards so the resumed animation starts on a fresh line. A
-        `None` result means the user stopped the run (the gate then sets the
-        stop signal and answers the worker with a stop sentinel).
+        prompt prints at column zero, then calls
+        `question_handler(question, choices, index, total)` and delivers its
+        result to the gate. The thinking-phrase animation then resumes on the
+        fresh line, so the user keeps seeing the model think on the answer.
+        A `None` result means the user stopped the run (the gate then sets
+        the stop signal and answers the worker with a stop sentinel).
         """
         start_time = perf_counter()
 
@@ -145,7 +140,7 @@ class Printer:
                             sys.stdout.write(progress.settled_frame(beat))
                         settled_count = len(beats) - 1
 
-                    if settled_count == 0 or len(beats) > settled_count:
+                    if settled_count == 0 or len(beats) > settled_count or progress.is_animating:
                         sys.stdout.write(progress.tick_frame())
                         sys.stdout.flush()
 
@@ -168,17 +163,22 @@ class Printer:
             sys.stdout.write(progress.pause_at_fresh_line())
             sys.stdout.flush()
             settled_count = len(progress.beats)
-            answer = question_handler(pending_question.question, pending_question.choices)
+            answer = question_handler(
+                pending_question.question,
+                pending_question.choices,
+                pending_question.index,
+                pending_question.total,
+            )
             question_gate.deliver(answer)
-            progress.drop_live_frame()
+            progress.resume_animation()
 
         for beat in progress.beats[settled_count:]:
             sys.stdout.write(progress.settled_frame(beat))
 
-        carry = progress.carry_prefix()
+        tail = progress.settle_animation() + progress.carry_prefix()
 
-        if carry:
-            sys.stdout.write(carry)
+        if tail:
+            sys.stdout.write(tail)
             sys.stdout.flush()
 
         if error_holder:

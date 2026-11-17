@@ -40,6 +40,14 @@ class StoryProgress:
     frame survives. The leftover phrase line is not deleted but reused as
     the first line of the next region, so beats within a group settle with
     no blank line between them.
+    A question prompt pauses the animation: `pause_at_fresh_line` settles
+    the newest beat (or the placeholder region) and lands on the fresh line
+    below it, and `resume_animation` re-arms the placeholder region after the
+    answer is delivered so the thinking phrase keeps moving while the model
+    works on the answer, until the next real beat settles it. When the task
+    ends with no beat following a question, `settle_animation` clears the
+    leftover placeholder region so no orphaned thinking-phrase line survives
+    above the completion line.
     """
 
     def __init__(self, term: Terminal) -> None:
@@ -55,6 +63,12 @@ class StoryProgress:
         self._live_lines: int = 0
         self._live_desc_index: int = 1
         self._carry_lines: int = 0
+        self._pending_animation: bool = False
+        # The beat count the placeholder region was armed for at
+        # resume_animation time: the placeholder keeps animating until a beat
+        # beyond this count arrives. None while the placeholder is not in a
+        # resumed state (the request-start case).
+        self._animation_base_beat_count: int | None = None
 
     def update(self, beat: StoryBeat) -> None:
         with self._lock:
@@ -141,6 +155,25 @@ class StoryProgress:
         self._live_desc_index = 1
         self._carry_lines = 0
 
+    @property
+    def is_animating(self) -> bool:
+        """Whether the thinking-phrase region is (or is about to be) live."""
+        return self._pending_animation or (
+            self._live_frame and self._live_beat is _PLACEHOLDER_BEAT
+        )
+
+    def resume_animation(self) -> None:
+        """Arm the placeholder region to animate again from the next fresh line.
+
+        Called after a question has been answered on the prompt's line, so the
+        thinking phrase keeps moving while the model works on the answer,
+        until the next real beat settles the region. Beats already in the list
+        are considered settled, so the base count records them.
+        """
+        with self._lock:
+            self._animation_base_beat_count = len(self._beats)
+        self._pending_animation = True
+
     def tick_frame(self) -> str:
         """One animation step: the frame the render loop should write now.
 
@@ -153,8 +186,32 @@ class StoryProgress:
         with self._lock:
             has_beats = bool(self._beats)
 
+        if self._pending_animation:
+            # The region restarts after an answered question: the placeholder
+            # animates on the fresh line below the prompt, and the next real
+            # beat settles it through the normal path.
+            self._pending_animation = False
+
+            return self.frame(_PLACEHOLDER_BEAT)
+
         if has_beats:
+            base_count = self._animation_base_beat_count
+
+            if (
+                self._live_frame
+                and self._live_beat is _PLACEHOLDER_BEAT
+                and base_count is not None
+                and len(self._beats) <= base_count
+            ):
+                # A resumed placeholder: no new beat has arrived yet, so the
+                # phrase keeps animating instead of redrawing an old beat.
+                return self.frame(_PLACEHOLDER_BEAT)
+
             settle = self._settle_placeholder_if_live()
+
+            if settle:
+                self._animation_base_beat_count = None
+
             beat = self.beats[-1]
         else:
             settle = ''
@@ -168,10 +225,58 @@ class StoryProgress:
 
         return self.settled_frame(_PLACEHOLDER_BEAT)
 
+    def _placeholder_pause_settle(self) -> str:
+        """Settle the live placeholder region for a pause.
+
+        The placeholder's live lines hold no description text of their own
+        (only a blank line and the phrase), so the settle is a plain clear
+        rather than `settled_frame` (which would draw the tool-beat arrow
+        prefix onto the prompt's line). The cursor sits on the phrase line
+        after the last tick, so it clears just that line and climbs to the
+        region's blank first line — the same landing a settled beat's phrase
+        line carries — leaving the prompt's own leading newline as the only
+        blank line of separation. Clearing both lines instead left a second
+        blank line in the scrollback between every consecutive question.
+        """
+        live_lines = self._live_lines
+        self._live_frame = False
+        self._live_beat = None
+        self._live_lines = 0
+        self._live_desc_index = 1
+
+        clear_phrase = f'\r{self.term.clear_eol()}'
+        if live_lines > 1:
+            clear_phrase += f'\x1b[{live_lines - 1}A\r'
+
+        return clear_phrase
+
     def _fresh_line_prefix(self) -> str:
         carry = self._carry_lines
         self._carry_lines = 0
         return f'\x1b[{carry}A\r' if carry else '\r'
+
+    def settle_animation(self) -> str:
+        """Clear the live placeholder region when the task ends.
+
+        If the last thing the model did was answer a question (so the region
+        holds the resumed placeholder and no final beat ever arrived to
+        settle it), the phrase line would otherwise survive above the
+        completion line; settle it like a pause does, clearing the phrase and
+        landing on the region's blank line so the completion sentence's
+        leading newline leaves a single blank line of separation.
+        """
+        if not (self._pending_animation or self._live_frame):
+            return ''
+
+        if self._live_beat is not _PLACEHOLDER_BEAT:
+            self._live_frame = False
+            self._live_beat = None
+            self._live_lines = 0
+            self._live_desc_index = 1
+
+            return ''
+
+        return self._placeholder_pause_settle()
 
     def pause_at_fresh_line(self) -> str:
         """Stop the animation and land on a fresh line at column zero.
@@ -182,6 +287,9 @@ class StoryProgress:
         """
         if not self._live_frame:
             return self._fresh_line_prefix()
+
+        if self._live_beat is _PLACEHOLDER_BEAT:
+            return self._placeholder_pause_settle()
 
         with self._lock:
             beats = list(self._beats)
