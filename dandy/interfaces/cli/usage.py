@@ -34,7 +34,12 @@ def _usage_text() -> str:
             '(or /r) to continue one by row number or name (bare for the '
             'most recent), and /quit (or /q) to exit. Bare dandy -r (no '
             'request) opens the interactive session on the most recently saved '
-            'conversation. '
+            'conversation. /paste (or /p) reads multi-line text from stdin until '
+            'Ctrl-D — the fallback for terminals without bracketed paste, which '
+            'the REPL uses to capture pasted multi-line blocks as one message. '
+            'File paths in a message attach to the turn: images and audio go to '
+            'the model as native content, other files are saved under '
+            '.dandy/attachments/ for the agent to read. '
             'Pressing escape twice stops a running turn; '
             'at the prompt, pressing escape twice exits the loop.\n'
         ),

@@ -38,6 +38,7 @@ CLI_COMMANDS = (
         'resume', 'r', '--resume', '-r', 'request', 'Run one request inside the latest session'
     ),
     CliCommand('delete', 'd', '--delete', '-d', 'required', 'Delete a saved session by name'),
+    CliCommand('paste', 'p', None, None, 'none', 'Paste multi-line text from stdin until Ctrl-D'),
     CliCommand('quit', 'q', None, None, 'none', 'Exit the assistant'),
 )
 

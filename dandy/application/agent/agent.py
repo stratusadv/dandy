@@ -4,6 +4,12 @@ from typing import TYPE_CHECKING, Callable, Sequence
 
 from pydantic import ValidationError
 
+from dandy.application.agent.attachments import (
+    ATTACHMENT_KIND_AUDIO,
+    ATTACHMENT_KIND_IMAGE,
+    TurnAttachment,
+    attachments_token_count,
+)
 from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
@@ -93,6 +99,7 @@ class Agent:
         progress_callback: Callable[[StoryBeat], None] | None = None,
         verbose_callback: Callable[[str], None] | None = None,
         tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
+        attachments: list[TurnAttachment] | None = None,
     ) -> IntelType:
         """Run one exchange: prepare, compact, work through any tool rounds, return the answer.
 
@@ -102,6 +109,10 @@ class Agent:
         agent's guards (when given) watch the turn boundaries: a turn-start
         failure stops the turn before any LLM spend, and a combined
         turn-end ``note`` is appended to the next ``run()`` continuation.
+        ``attachments`` join the incoming message: image and audio
+        attachments become native content parts on the same user message,
+        and project-file attachments are named in the message text for the
+        agent to read with its tools.
         """
         if stop_signal.is_set():
             raise RunStoppedError(RUN_STOPPED_MESSAGE)
@@ -112,10 +123,17 @@ class Agent:
         message = self._prepare_message(message, progress_callback, verbose_callback)
         self._watch_turn_start(message, verbose_callback)
         self._compact_history_for_next_message(message, progress_callback)
-        self._ensure_history_fits(message)
+        self._ensure_history_fits(message, attachments)
+
+        prompt = message
+        attachments = attachments or []
+
+        if attachments:
+            self._append_attachment_message(message, attachments)
+            prompt = None
 
         result = self.bot.llm.tools.prompt_to_intel(
-            prompt=message,
+            prompt=prompt,
             tools=self.tools,
             intel_class=self.intel_class,
             message_history=self.history,
@@ -139,6 +157,39 @@ class Agent:
     ) -> Prompt | str | None:
         """Subclass hook to shape the incoming message before it goes to the bot."""
         return message
+
+    def _append_attachment_message(
+        self, message: Prompt | str | None, attachments: list[TurnAttachment]
+    ) -> None:
+        """Add the incoming message to the history together with its attachments.
+
+        Image and audio attachments join the message as native content parts
+        on the same user message (the LLM sees them as one turn of input);
+        project-file attachments are already copied into the project and are
+        named in the message text so the agent reads them with its tools.
+        """
+        text = self._message_as_str(message) or ''
+        image_file_paths = [
+            attachment.source_path
+            for attachment in attachments
+            if attachment.kind == ATTACHMENT_KIND_IMAGE
+        ]
+        audio_file_paths = [
+            attachment.source_path
+            for attachment in attachments
+            if attachment.kind == ATTACHMENT_KIND_AUDIO
+        ]
+
+        for attachment in attachments:
+            if attachment.kind == 'project_file' and attachment.delivery_path:
+                text = f'{text}\nRead the attached file at {attachment.delivery_path}.'
+
+        self.history.add_message(
+            role='user',
+            text=text or None,
+            image_file_paths=image_file_paths,
+            audio_file_paths=audio_file_paths,
+        )
 
     def _watch_turn_start(
         self, message: Prompt | str | None, verbose_callback: Callable[[str], None] | None
@@ -182,7 +233,9 @@ class Agent:
 
         return continuation
 
-    def _ensure_history_fits(self, message: Prompt | str | None) -> None:
+    def _ensure_history_fits(
+        self, message: Prompt | str | None, attachments: list[TurnAttachment] | None = None
+    ) -> None:
         """Fail clearly when compaction could not bring the conversation under the window.
 
         Compaction drops everything it can drop and then gives up without
@@ -190,7 +243,11 @@ class Agent:
         valid request can be built, so callers see this instead of an opaque
         provider 400.
         """
-        total_token_count = self.history.estimated_token_count + self._incoming_token_count(message)
+        total_token_count = (
+            self.history.estimated_token_count
+            + self._incoming_token_count(message)
+            + attachments_token_count(attachments or [])
+        )
 
         if total_token_count <= self.max_context_tokens:
             return

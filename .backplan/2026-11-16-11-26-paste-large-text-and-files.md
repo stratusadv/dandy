@@ -1,7 +1,7 @@
 # Paste large text, images, and files into the CLI input
 
 - Developer: nathanj (nathanj)
-- Status: Planning
+- Status: Executed
 - Date: 2026-11-16-11-26
 
 ## End State
@@ -152,4 +152,91 @@ line will eat a stray Escape/bracket keystroke the user typed by hand.
 
 ## Deviations
 
-none yet
+1. blessed natively parses complete bracketed pastes when its DEC-mode cache
+    marks 2004 enabled, so the TUI uses `term.bracketed_paste(timeout=0.25)`
+    (a 0.25s DECRQM probe, not the 1s default — a non-answering terminal like
+    Konsole would otherwise stall the prompt) and handles three shapes: a
+    blessed `BRACKETED_PASTE` keystroke (whole paste in one key, `.text` is
+    the content), split markers (bare ESC / lone CSI held in
+    `_pending_marker` and matched against `ESC[200~`/`ESC[201~`, flushed on a
+    50ms timeout when the rest never comes), and paste content that streams
+    as ordinary keys between the markers (`_inside_bracketed_paste`).
+    - What: the plan said "buffer the `200~` tail with a short `inkey`
+      timeout" only; the blessed-integrated shape was added and the probe
+      timeout cut to 0.25s.
+    - Why: live-verified in the venv that blessed resolves `ESC[200~...ESC[201~`
+      to one `BRACKETED_PASTE` key when its `_dec_mode_cache[2004] == SET`,
+      but fragments it into CSI + ordinary keys otherwise (unconfirmed mode,
+      e.g. a non-answering terminal).
+2. Attachment detection treats `~` and absolute paths as path-like and
+    `Path(token).expanduser()` is tried for every candidate; a token that is
+    not an existing file simply stays in the text.
+    - What: the plan said "expand `~`, keep the ones that exist" without
+      specifying the token rule.
+    - Why: the first token regex split `a/b.txt` on the slash and left
+      `a.txt` prose alone; the rule had to be token = maximal non-whitespace
+      run + path-likeness (dot/slash/backslash/`~`) + existence check.
+
+3. `Agent.turn`'s attachment path was first tested by appending the user
+    message to history with `prompt=None`; the final shape adds the single
+    multimodal user message via `_append_attachment_message` (image/audio as
+    content parts, project-file paths named in the text) and then calls
+    `prompt_to_intel(prompt=None)` so the connector reads the message from the
+    attached history.
+    - What: the plan described attachments as "joined to the turn's prompt";
+      the mechanism landed as a history append + `prompt=None`.
+    - Why: `prompt_to_intel` with `replace_message_history=True` reads the
+      incoming prompt from the attached history when `prompt` is None, which
+      keeps `Agent._prepare_message` (the CLI's hook) and the guards seeing the
+      original message while the wire message carries the attachments.
+    - Why (again): verified with `tests/application/agent/test_agent.py::
+      TestAgentTurn::test_turn_with_image_attachment_sends_one_multimodal_user_message`
+      (asserts one user message with a text part + an `image_url` data-URI part
+      on the wire) and `...test_turn_with_project_file_attachment_names_the_saved_path_in_the_text`.
+
+4. **Silent-probe bracketed paste: the mode was never actually enabled.**
+    blessed's `bracketed_paste()` context manager only emits the `DECSET ?2004h`
+    enable when the terminal *answers* its DECRQM probe. A terminal that goes
+    silent on the probe (the user's real terminal — `TERM=xterm-256color`, no
+    terminal identity env vars, so blessed can't confirm anything) is left with
+    bracketed paste OFF, so it pastes raw newlines and every line submitted —
+    the exact bug reported after the initial fix.
+    - What: `get_user_input` now calls `_arm_bracketed_paste()`, which forces
+      `?2004h` and marks 2004 SET in blessed's DEC-mode cache even when the
+      probe went silent (so blessed parses a whole paste as one
+      `BRACKETED_PASTE` key), and `_restore_bracketed_paste()` turns the mode
+      back off on exit only if we turned it on (a terminal that already had it
+      on is left alone). The input loop moved into `_read_until_submitted()`.
+    - Why: this was the real gap in the user's environment — the earlier live
+      PTY smoke test had scripted the "terminal" to *answer* the probe, so it
+      never exercised the silent case. Re-verified with a silent PTY: a 3-line
+      paste now submits as one line, `?2004h` is emitted on enter and `?2004l`
+      on leave.
+    - Note: the character-level marker fallback (deviation 1) is retained for
+      the (rarer) terminal that answers the probe but still ignores the enable.
+
+## Completion Log
+
+- 2026-11-16 (post silent-probe fix): full suite `python -m pytest tests/ -q`
+  → **1056 passed, 57 subtests passed**; `ruff check` / `ruff format --check`
+  on `tui.py` clean; `just lint-imports` 6 kept / 0 broken.
+- 2026-11-16 (post silent-probe fix, live PTY with the terminal **silent** on
+  the `?2004` probe — the user's real scenario): a 3-line bracketed paste
+  rendered as one `⤶ 3 lines · 28 B pasted` indicator and submitted as a single
+  line (`SUBMIT0='line one\nline two\nline three'`, exactly one submit);
+  `?2004h` emitted on enter, `?2004l` on leave.
+- 2026-11-16: `PYTHONPATH=. DANDY_SETTINGS_MODULE=tests.dandy_settings
+  python -m pytest tests/interfaces/cli/ -q` → 320 passed (includes the new
+  `test_tui_paste.py` bracketed-paste suite and the updated `test_tui.py`).
+- 2026-11-16: full suite `python -m pytest tests/ -q` → **1056 passed, 57
+  subtests passed** in 168s (the last run included the three new
+  `Agent.turn` attachment tests in `test_agent.py`).
+- 2026-11-16: `ruff check .` → All checks passed; `ruff format --check .` →
+  411 files already formatted; `just lint-imports` → 6 kept, 0 broken.
+- 2026-11-16: `python -m mkdocs build --strict` (CI docs gate) → "Documentation
+  built in 1.38 seconds", no warnings.
+- 2026-11-16 (live smoke, real PTY with a scripted "terminal" answering blessed's
+  init queries, DEC mode 2004 confirmed set): a 3-line bracketed paste rendered
+  as one `⤶ 3 lines · 28 B pasted` indicator (one block, no per-line submit) and
+  returned the verbatim text on enter; double-escape still exits
+  (`get_user_input` → `None` after two ESCs, ~0.3s each, no hang).

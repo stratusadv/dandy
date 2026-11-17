@@ -1,5 +1,6 @@
 import sys
 
+from dandy.application.agent.attachments import detect_attachment_paths, prepare_turn_attachments
 from dandy.application.agent.cli.intelligence.bots.session_naming_bot import SessionNamingBot
 from dandy.application.agent.cli.cli_agent import CliAgent
 from dandy.application.agent.exceptions import AgentExternalError
@@ -105,6 +106,9 @@ class DandyCli:
         if command.name == 'quit':
             return False
 
+        if command.name == 'paste':
+            return self._process_paste()
+
         handlers = {
             'init': (self._process_init, ()),
             'new': (self._process_new, (argument,)),
@@ -115,6 +119,22 @@ class DandyCli:
 
         handler, handler_arguments = handlers[command.name]
         return handler(*handler_arguments)
+
+    def _process_paste(self) -> bool:
+        tui.printer.output('Paste multi-line text, then press Ctrl-D to send it.')
+
+        try:
+            text = ''.join(list(sys.stdin)).strip()
+        except KeyboardInterrupt:
+            tui.printer.output('Paste cancelled.')
+            return True
+
+        if not text:
+            tui.printer.output('Nothing was pasted; the input was discarded.')
+            return True
+
+        self.last_turn_succeeded = self.process_agent_input(text)
+        return True
 
     def _process_init(self) -> bool:
         self.run_init()
@@ -294,14 +314,31 @@ class DandyCli:
             if isinstance(path, str) and path:
                 file_actions[path] = action
 
+        text, attachment_paths = detect_attachment_paths(user_input, session.project_base_path)
+        attachments, attachment_issues = prepare_turn_attachments(
+            attachment_paths, session.project_base_path
+        )
+
+        for attachment in attachments:
+            if attachment.kind == 'project_file':
+                tui.printer.output(
+                    f'Saved "{attachment.source_path.name}" to {attachment.delivery_path}'
+                )
+            else:
+                tui.printer.output(f'Attached "{attachment.source_path.name}" ({attachment.kind})')
+
+        for issue in attachment_issues:
+            tui.printer.error(error='Attachment failed', description=issue)
+
         try:
             result_intel = tui.printer.run_timed_task(
-                task=user_input[:80],
+                task=text[:80],
                 work=lambda update: self.agent.turn(
-                    user_input,
+                    text,
                     progress_callback=update,
                     verbose_callback=self.verbose_callback,
                     tool_call_callback=record_tool_call,
+                    attachments=attachments,
                 ),
                 stop_signal=stop_signal,
                 question_gate=question_gate,

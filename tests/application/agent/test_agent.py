@@ -1,3 +1,5 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
 from dandy.application.agent.agent import Agent
@@ -26,6 +28,11 @@ def _message_text(message: dict) -> str:
         return ''.join(part.get('text') or '' for part in content)
 
     return content or ''
+
+
+# A minimal PNG whose base64 starts with 'iVBORw0KGgo' so the shared
+# base64-to-mime signature check recognizes it as an image.
+_MINI_PNG_BYTES = b'\x89PNG\r\n\x1a\x0a' + b'\x00' * 8
 
 
 class _TurnStartFailingGuard(Guard):
@@ -93,7 +100,12 @@ class _TurnSpyingGuard(Guard):
 
 class TestAgentTurn(TestCase):
     def setUp(self) -> None:
+        self.temp_directory_context = TemporaryDirectory()
+        self.temp_dir = Path(self.temp_directory_context.name)
         self.agent = Agent(ToolBot(), tools=[WeatherTool()])
+
+    def tearDown(self) -> None:
+        self.temp_directory_context.cleanup()
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_turn_returns_final_answer(self, mock_post_request: mock.MagicMock) -> None:
@@ -193,6 +205,73 @@ class TestAgentTurn(TestCase):
 
         with self.assertRaises(AgentExternalError):
             self.agent.turn('This message is far too big for the window.')
+
+        self.assertEqual(len(self.agent.history), 0)
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_with_image_attachment_sends_one_multimodal_user_message(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        from dandy.application.agent.attachments import ATTACHMENT_KIND_IMAGE, TurnAttachment
+
+        image_path = self.temp_dir / 'shot.png'
+        image_path.write_bytes(_MINI_PNG_BYTES)
+        attachment = TurnAttachment(source_path=image_path, kind=ATTACHMENT_KIND_IMAGE)
+        mock_post_request.side_effect = [content_response('{"text": "A red circle.", "done": true}')]
+
+        result = self.agent.turn('What is in this image?', attachments=[attachment])
+
+        self.assertEqual(result.text, 'A red circle.')
+
+        messages = _request_messages_for_call(mock_post_request, 0)
+        user_messages = [message for message in messages if message['role'] == 'user']
+        self.assertEqual(len(user_messages), 1)
+        content = user_messages[0]['content']
+        self.assertIsInstance(content, list)
+        self.assertEqual(content[0]['type'], 'text')
+        self.assertIn('What is in this image?', content[0]['text'])
+        self.assertEqual(content[1]['type'], 'image_url')
+        self.assertTrue(content[1]['image_url']['url'].startswith('data:image/png;base64,'))
+
+    @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
+    def test_turn_with_project_file_attachment_names_the_saved_path_in_the_text(
+        self, mock_post_request: mock.MagicMock
+    ) -> None:
+        from dandy.application.agent.attachments import ATTACHMENT_KIND_PROJECT_FILE, TurnAttachment
+
+        source_path = self.temp_dir / 'rows.csv'
+        source_path.write_text('a,b\n1,2\n')
+        delivery_path = (
+            self.temp_dir / '.dandy' / 'attachments' / '20260101T000000__rows.csv'
+        )
+        delivery_path.parent.mkdir(parents=True)
+        delivery_path.write_text('a,b\n1,2\n')
+        attachment = TurnAttachment(
+            source_path=source_path, kind=ATTACHMENT_KIND_PROJECT_FILE, delivery_path=delivery_path
+        )
+        mock_post_request.side_effect = [content_response('{"text": "Two rows.", "done": true}')]
+
+        self.agent.turn('Summarize this file', attachments=[attachment])
+
+        messages = _request_messages_for_call(mock_post_request, 0)
+        user_messages = [message for message in messages if message['role'] == 'user']
+        self.assertEqual(len(user_messages), 1)
+        content = user_messages[0]['content']
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 1)
+        self.assertEqual(content[0]['type'], 'text')
+        self.assertIn(str(delivery_path), content[0]['text'])
+
+    def test_turn_with_attachments_prices_them_in_the_window_check(self) -> None:
+        from dandy.application.agent.attachments import ATTACHMENT_KIND_IMAGE, TurnAttachment
+
+        self.agent.bot.llm.config.context_size = 1
+        image_path = self.temp_dir / 'shot.png'
+        image_path.write_bytes(_MINI_PNG_BYTES)
+        attachment = TurnAttachment(source_path=image_path, kind=ATTACHMENT_KIND_IMAGE)
+
+        with self.assertRaises(AgentExternalError):
+            self.agent.turn('tiny', attachments=[attachment])
 
         self.assertEqual(len(self.agent.history), 0)
 

@@ -239,8 +239,9 @@ class TestDandyCli(TestCase):
             progress_callback: Callable[[StoryBeat], None] | None = None,
             verbose_callback: Callable[[str], None] | None = None,
             tool_call_callback: Callable[[str, dict[str, object]], None] | None = None,
+            attachments: object | None = None,
         ) -> object:
-            del message, progress_callback, verbose_callback
+            del message, progress_callback, verbose_callback, attachments
 
             tool_call_callback('write_file', {'file_path': 'src/foo.py', 'content': 'x'})
             tool_call_callback(

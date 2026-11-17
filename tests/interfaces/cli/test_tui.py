@@ -286,7 +286,7 @@ class TestTuiCommandCompletion(TestCase):
 
     @staticmethod
     def _all_commands_suggestion(term: Terminal) -> str:
-        return term.grey('  /init   /new   /sessions   /resume   /delete   /quit')
+        return term.grey('  /init   /new   /sessions   /resume   /delete   /paste   /quit')
 
     @mock.patch('sys.stdout.write')
     def test_slash_shows_all_commands_inline(self, mock_write: mock.MagicMock) -> None:

@@ -144,7 +144,7 @@ project and the banner's `Model` line confirms the switch.
 | `dandy --init` | explores the project and writes/refreshes `AGENTS.md` |
 
 One-shot modes exit with code `1` when the turn (or the resume) failed, so they
-script cleanly. Every command also has a long and a short one-shot flag
+script cleanly. The session commands have long and short one-shot flags
 (`--new`/`-n`, `--sessions`/`-s`, `--resume`/`-r`, `--delete`/`-d`,
 `--init`/`-i` — `dandy -h` shows the full table).
 In the REPL (every command has a one-letter short):
@@ -154,6 +154,7 @@ In the REPL (every command has a one-letter short):
 - `/sessions [row|name]` (or `/s [row|name]`) — table of saved conversations numbered oldest-to-newest (the newest session is on the bottom row); with a row number or name, load that one
 - `/resume [row|name]` (or `/r [row|name]`) — load one back into the agent by its table row number or name (the most recently saved session if neither is given)
 - `/delete <name>` (or `/d <name>`) — remove a saved conversation
+- `/paste` (or `/p`) — paste multi-line text from stdin until Ctrl-D (REPL-only; no one-shot flag)
 - `/quit` (or `/q`) — exit; **escape twice** stops a running turn, or exits at the prompt
 
 While it works, the CLI prints a running story (`Executing ↳ pytest -q`,
@@ -162,6 +163,28 @@ clickable file links, and lists Added/Modified/Removed files when it changed any
 Every turn — success, stop, or error — saves the conversation (trimmed at the last
 complete tool round) so a crash never leaves a session that fails on resume.
 
+### Paste large text and files
+
+Pasting multi-line text (or dragging a file) into the prompt works cleanly thanks
+to the terminal's **bracketed paste** mode. A pasted block is captured as one unit
+— it renders on the input line as a compact indicator (`⤶ 142 lines · 6.3 KB
+pasted`) instead of every newline submitting the line, but the full text is sent
+to the agent verbatim when you press enter. Terminals that do not speak bracketed
+paste are still usable: the `/paste` (`/p`) command reads your text from stdin
+until you press Ctrl-D and submits it as one message.
+
+Any file path in your input is picked up as an attachment for that turn:
+
+- **Image and audio files** (`.png .jpg .jpeg .gif .webp` / `.mp3 .wav .ogg .m4a
+  .flac`) are sent to the model as native vision/audio content, so a vision-capable
+  model can actually see them.
+- **Any other file** is copied into `<project>/.dandy/attachments/` (a gitignored
+  timestamped copy) and the agent is handed the saved path to read with its own
+  `read_file` tool.
+
+For example, drop a screenshot and a log into the prompt with a one-line request:
+`"why is this failing? error.log shot.png"`.
+
 ## Where it keeps state
 
 Everything lives under `<project>/.dandy/`, gitignored by default:
@@ -169,6 +192,7 @@ Everything lives under `<project>/.dandy/`, gitignored by default:
 ```text
 .dandy/
  ├── agent/sessions/<name>.json    one file per saved conversation
+ ├── attachments/                  timestamped copies of non-media files pasted into a turn
  ├── recordings/                   optional recording renders
  ├── logs/errors.log               failures with full tracebacks (trimmed to 10000 lines)
  └── dandy.json                    optional project-scoped settings
