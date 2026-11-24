@@ -7,6 +7,9 @@ _EVENT_OBJECT_NAME = 'LLM Tool Service'
 
 
 def recorder_add_tool_call_event(tool_calls_intel: ToolCallsIntel, event_id: str) -> None:
+    if not Recorder.is_recording():
+        return
+
     for tool_call in tool_calls_intel:
         Recorder.add_event(
             Event(
@@ -23,6 +26,9 @@ def recorder_add_tool_call_event(tool_calls_intel: ToolCallsIntel, event_id: str
 
 
 def recorder_add_tool_result_event(tool_name: str, result: str, event_id: str) -> None:
+    if not Recorder.is_recording():
+        return
+
     Recorder.add_event(
         Event(
             id=event_id,

@@ -10,6 +10,7 @@ from dandy.application.agent.attachments import (
     TurnAttachment,
     attachments_token_count,
 )
+from dandy.application.agent.compaction import summarize_and_compact_history
 from dandy.application.agent.exceptions import AgentUsageError, AgentExternalError
 from dandy.application.agent.intel import AgentSession, AgentTurnIntel
 from dandy.application.agent.prompts import continuation_prompt
@@ -20,7 +21,6 @@ from dandy.domain.message.compaction import (
     COMPACTION_TARGET_RATIO,
     COMPACTION_TRIGGER_RATIO,
     DEFAULT_CONTEXT_WINDOW,
-    compact_message_history,
     drop_incomplete_tool_round,
 )
 from dandy.domain.message.message import MessageHistory
@@ -421,4 +421,4 @@ class Agent:
                 )
             )
 
-        compact_message_history(history=self.history, max_context_tokens=target_token_count)
+        summarize_and_compact_history(self.history, target_token_count)

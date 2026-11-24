@@ -5,6 +5,9 @@ from dandy.infrastructure.recorder.recorder import Recorder
 def recorder_add_llm_diligence_event(
     event_id: str, diligence_name: str, event_attributes: list[EventAttribute]
 ) -> None:
+    if not Recorder.is_recording():
+        return
+
     Recorder.add_event(
         Event(
             id=event_id,

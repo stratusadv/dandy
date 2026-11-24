@@ -1,3 +1,5 @@
+from collections import Counter
+
 # Per-character token costs fitted against a BPE tokenizer over representative
 # Python code, JSON, prose, and markdown. Letters tokenize at roughly 4.5
 # characters per token, digits and symbols at 2-1.5 per token, and whitespace
@@ -65,17 +67,17 @@ def get_estimated_token_count_for_string(string: str) -> int:
     space_count = 0
     other_count = 0
 
-    for character in string:
+    for character, count in Counter(string).items():
         if not character.isascii():
-            other_count += 1
+            other_count += count
         elif character.isalpha():
-            alpha_count += 1
+            alpha_count += count
         elif character.isdigit():
-            digit_count += 1
+            digit_count += count
         elif character.isspace():
-            space_count += 1
+            space_count += count
         else:
-            symbol_count += 1
+            symbol_count += count
 
     token_count = (
         _TOKEN_COUNT_FIXED_BASE

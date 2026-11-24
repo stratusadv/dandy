@@ -1,4 +1,4 @@
-from dandy.domain.message.message import MessageHistory
+from dandy.domain.message.message import Message, MessageHistory
 from dandy.domain.tokens.estimate import TOKEN_COUNT_REQUEST_OVERHEAD
 
 # Fallback context window in tokens when the LLM config has no CONTEXT_SIZE.
@@ -12,6 +12,10 @@ COMPACTION_TARGET_RATIO = 0.70
 # down to the target, so a loop whose rounds keep re-adding about what
 # compaction just dropped does not re-compact on every round.
 COMPACTION_TRIGGER_RATIO = 0.80
+
+# When summarizing, the newest rounds up to this many tokens are kept verbatim
+# so the model continues seamlessly; everything older folds into the summary.
+COMPACTION_RECENT_TAIL_TOKENS = 16384
 
 
 def compact_message_history(history: MessageHistory, max_context_tokens: int) -> None:
@@ -159,3 +163,58 @@ def _oldest_droppable_range(history: MessageHistory) -> tuple[int | None, int | 
             return index, index + 1
 
     return None, None
+
+
+def summarizable_middle_range(
+    history: MessageHistory, recent_tail_tokens: int = COMPACTION_RECENT_TAIL_TOKENS
+) -> tuple[int, int]:
+    """Bound the summarizable middle as ``(head_end_index, tail_start_index)``.
+
+    The head is the system slot plus the opening exchange; the tail is the
+    newest rounds up to ``recent_tail_tokens``, cut at a round boundary so it
+    stays wire-valid on its own. When there is nothing to summarize the two
+    indices meet and the middle is empty.
+    """
+    head_end_index = _opening_exchange_end_index(history)
+    tail_start_index = _recent_tail_start_index(history, recent_tail_tokens)
+
+    tail_start_index = max(tail_start_index, head_end_index)
+
+    return head_end_index, tail_start_index
+
+
+def replace_middle_with_summary(
+    history: MessageHistory, head_end_index: int, tail_start_index: int, summary_message: Message
+) -> None:
+    """Replace the middle of ``history`` with one summary message, keeping head and tail."""
+    history.messages = [
+        *history.messages[:head_end_index],
+        summary_message,
+        *history.messages[tail_start_index:],
+    ]
+
+
+def _recent_tail_start_index(history: MessageHistory, recent_tail_tokens: int) -> int:
+    messages = history.messages
+
+    if not messages:
+        return 0
+
+    total_token_count = 0
+    start_index = len(messages)
+
+    for index in range(len(messages) - 1, -1, -1):
+        total_token_count += messages[index].estimated_token_count
+
+        if total_token_count > recent_tail_tokens:
+            break
+
+        if messages[index].role in ('user', 'assistant'):
+            start_index = index
+
+    if start_index == len(messages):
+        for index in range(len(messages) - 1, -1, -1):
+            if messages[index].role in ('user', 'assistant'):
+                return index
+
+    return start_index

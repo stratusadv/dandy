@@ -12,15 +12,12 @@ from dandy.shared.utils import (
     pydantic_validation_error_to_str,
     truncate_output,
 )
+from dandy.application.agent.compaction import summarize_and_compact_history
 from dandy.domain.guard.defaults import default_guards
 from dandy.domain.guard.guard import Guard, GuardChain, GuardEvent
 from dandy.domain.intel.factory import IntelFactory
 from dandy.domain.request.exceptions import LlmUsageError, LlmExternalError
-from dandy.domain.message.compaction import (
-    COMPACTION_TARGET_RATIO,
-    DEFAULT_CONTEXT_WINDOW,
-    compact_message_history,
-)
+from dandy.domain.message.compaction import COMPACTION_TARGET_RATIO, DEFAULT_CONTEXT_WINDOW
 from dandy.domain.tool.beat import StoryBeat
 from dandy.domain.tool.intel import ToolCallIntel, ToolCallsIntel
 from dandy.infrastructure.recorder.tool_events import recorder_add_tool_result_event
@@ -179,7 +176,7 @@ class ToolService(BaseService['dandy.application.tool.mixin.ToolServiceMixin']):
                 )
             )
 
-        compact_message_history(history=self.obj.messages, max_context_tokens=target_token_count)
+        summarize_and_compact_history(self.obj.messages, target_token_count)
 
     def _process_tool_call(
         self,

@@ -14,6 +14,8 @@ _EVENT_OBJECT_NAME = 'Decision Service'
 
 
 def recorder_add_process_decision_value_event(decision: Decision, event_id: str) -> None:
+    if not Recorder.is_recording():
+        return
 
     processed_mapping = {}
     for key, value in decision.keys_values.items():
@@ -39,6 +41,8 @@ def recorder_add_process_decision_value_event(decision: Decision, event_id: str)
 
 
 def recorder_add_chosen_values_event(chosen_values_keys: dict[Any, str], event_id: str) -> None:
+    if not Recorder.is_recording():
+        return
 
     processed_chosen_mappings = {}
     for key, value in chosen_values_keys.items():

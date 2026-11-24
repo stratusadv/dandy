@@ -8,7 +8,6 @@ from unittest import TestCase, mock
 if TYPE_CHECKING:
     from dandy.domain.tool.beat import StoryBeat
 
-from dandy.application.agent.agent import AGENT_MAX_TOOL_ROUNDS_DEFAULT
 from dandy.application.agent.cli.cli_agent import CliAgent
 from dandy.application.agent.exceptions import AgentExternalError
 from dandy.application.agent.session import session
@@ -200,15 +199,17 @@ class TestCliAgentMultiTurn(TestCase):
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_turn_caps_tool_rounds(self, mock_post_request: mock.MagicMock) -> None:
+        max_tool_rounds = 3
+        self.agent.max_tool_rounds = max_tool_rounds
         mock_post_request.side_effect = [
             tool_call_response('search_files', f'{{"query": "needle {index}"}}')
-            for index in range(AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
+            for index in range(max_tool_rounds + 1)
         ]
 
         with self.assertRaises(LlmExternalError):
             self.agent.turn('Find needle')
 
-        self.assertEqual(mock_post_request.call_count, AGENT_MAX_TOOL_ROUNDS_DEFAULT + 1)
+        self.assertEqual(mock_post_request.call_count, max_tool_rounds + 1)
 
     @mock.patch('dandy.infrastructure.http.connector.HttpConnector.request_to_response')
     def test_agent_does_not_compact_within_hysteresis_band(

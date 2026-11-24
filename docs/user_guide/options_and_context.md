@@ -83,21 +83,29 @@ calibrated units.
 
 ## Compaction
 
-`compact_message_history` (domain, `dandy/domain/message/compaction.py`) is what keeps
-long sessions inside the window. It is called automatically:
+Long sessions are kept inside the window by summarizing the older history rather
+than only dropping it. Compaction is called automatically:
 
 - before every coding-agent turn (with the real incoming prompt subtracted from
   the target), and
 - before every tool round by the tool-calling loop.
 
-The rules: the message in the system slot is always kept, and so is the opening
-exchange — the first `user` message is the original request (when that exchange is a
-tool round, its declaration and results are protected along with it, so the kept
-prefix stays valid on the wire); drop oldest tool-use rounds
-first, then oldest plain exchanges; never leave a `tool` result without its assistant
-tool-call, so when the newest message is a tool result its whole round is dropped.
-Compaction reports progress through the agent's `progress_callback` with a
-`kind='compaction'` beat ("Compacting my thoughts into a more manageable size").
+When the history crosses the trigger, `summarize_and_compact_history`
+(application, `dandy/application/agent/compaction.py`) keeps three parts verbatim:
+the system slot (which carries the project `AGENTS.md` and the skills section), the
+opening exchange (the original request), and the newest rounds up to
+`COMPACTION_RECENT_TAIL_TOKENS` (16384). Everything between is handed to a fast
+`CompactionBot`, which returns a compact structured summary (goal, key decisions,
+files touched, commands run and their outcomes, errors and fixes, pending tasks,
+current work, next step); that summary replaces the middle as a single `user`
+message. The kept tail is cut at a round boundary so the result stays valid on the
+wire. If there is nothing to summarize, or the summarizer fails, the drop-only
+`compact_message_history` (domain, `dandy/domain/message/compaction.py`) runs
+instead: it keeps the system slot and opening exchange and drops oldest tool-use
+rounds first, then oldest plain exchanges, never leaving a `tool` result without
+its assistant tool-call. Compaction reports progress through the agent's
+`progress_callback` with a `kind='compaction'` beat ("Compacting my thoughts into a
+more manageable size").
 
 Tool results are capped at 8000 characters (`OUTPUT_CHARACTER_LIMIT`) before they enter the conversation — the
 built-in `read_file`, `list_directory`, and `search_files` tools cap their own output the same way — so

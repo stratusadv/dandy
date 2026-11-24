@@ -8,6 +8,13 @@ from dandy.domain.tokens.estimate import (
     TOKEN_COUNT_REQUEST_OVERHEAD,
     TOKEN_COUNT_ROLE_OVERHEAD,
     TOKEN_COUNT_TOOL_CALL_OVERHEAD,
+    _TOKEN_COUNT_ALPHA_CHAR_COST,
+    _TOKEN_COUNT_DIGIT_CHAR_COST,
+    _TOKEN_COUNT_FIXED_BASE,
+    _TOKEN_COUNT_OTHER_CHAR_COST,
+    _TOKEN_COUNT_SPACE_CHAR_COST,
+    _TOKEN_COUNT_SYMBOL_CHAR_COST,
+    TOKEN_COUNT_CALIBRATION_SCALE,
     get_estimated_token_count_for_audio,
     get_estimated_token_count_for_image,
     get_estimated_token_count_for_string,
@@ -73,6 +80,60 @@ class TestStringTokenEstimation(TestCase):
         )
 
         self.assertGreater(get_estimated_token_count_for_string(json_string), 0)
+
+
+def _per_character_reference_estimate(string: str) -> int:
+    if not string:
+        return 0
+
+    alpha_count = digit_count = symbol_count = space_count = other_count = 0
+
+    for character in string:
+        if not character.isascii():
+            other_count += 1
+        elif character.isalpha():
+            alpha_count += 1
+        elif character.isdigit():
+            digit_count += 1
+        elif character.isspace():
+            space_count += 1
+        else:
+            symbol_count += 1
+
+    token_count = (
+        _TOKEN_COUNT_FIXED_BASE
+        + (alpha_count * _TOKEN_COUNT_ALPHA_CHAR_COST)
+        + (digit_count * _TOKEN_COUNT_DIGIT_CHAR_COST)
+        + (symbol_count * _TOKEN_COUNT_SYMBOL_CHAR_COST)
+        + (space_count * _TOKEN_COUNT_SPACE_CHAR_COST)
+        + (other_count * _TOKEN_COUNT_OTHER_CHAR_COST)
+    )
+
+    return int(token_count * TOKEN_COUNT_CALIBRATION_SCALE)
+
+
+class TestStringEstimatorEquivalence(TestCase):
+    def test_grouped_counting_matches_per_character_reference(self) -> None:
+        samples = [
+            '',
+            'hello world',
+            'The quick brown fox jumps over the lazy dog. ' * 20,
+            '{"a":{"b":[1,2,3,4,5,6,7,8]}}',
+            "def foo():\n    return {'a': 1, 'b': 2}\n",
+            'ünicode tëst 42 ñ café 日本語',
+            ' \t\n\r ',
+            '0123456789',
+            '!@#$%^&*()_+-=[]{}|;:,.<>?/',
+            'a' * 8000,
+            'mixed 123 symbols !@# and ünicode\ttabs\n' * 50,
+        ]
+
+        for sample in samples:
+            with self.subTest(sample=sample[:40]):
+                self.assertEqual(
+                    get_estimated_token_count_for_string(sample),
+                    _per_character_reference_estimate(sample),
+                )
 
 
 class TestContentTypeTokenEstimation(TestCase):

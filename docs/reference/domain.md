@@ -170,8 +170,11 @@ trims it to fit a context window (see [Options and Context](../user_guide/option
             - DEFAULT_CONTEXT_WINDOW
             - COMPACTION_TARGET_RATIO
             - COMPACTION_TRIGGER_RATIO
+            - COMPACTION_RECENT_TAIL_TOKENS
             - compact_message_history
             - drop_incomplete_tool_round
+            - summarizable_middle_range
+            - replace_middle_with_summary
 
 ::: dandy.domain.request.request.LlmRequestBody
 

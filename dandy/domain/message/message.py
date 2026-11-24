@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Iterator, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, PrivateAttr, field_validator
 
 from dandy.shared.files import encode_file_to_base64, get_file_extension_from_url_string
 from dandy.shared.hashing import HashMixin, dump_model
@@ -62,6 +62,8 @@ class Message(HashMixin, BaseModel):
     tool_call_id: str | None = None
     tool_calls: list[dict] | None = None
 
+    _token_count_cache: tuple | None = PrivateAttr(default=None)
+
     def hash_state(self) -> Any:
         return dump_model(super().model_dump)
 
@@ -83,8 +85,40 @@ class Message(HashMixin, BaseModel):
             message_content.text or '' for message_content in self.content if message_content.text
         )
 
+    def _token_count_fingerprint(self) -> tuple:
+        content_key = tuple(
+            (
+                message_content.type,
+                hash(message_content.text) if message_content.text is not None else 0,
+                message_content.image_url.detail if message_content.image_url is not None else None,
+                hash(message_content.input_audio.data)
+                if message_content.input_audio is not None
+                else 0,
+            )
+            for message_content in self.content
+        )
+
+        if self.tool_calls:
+            tool_calls_key = tuple(
+                (
+                    tool_call.get('id'),
+                    hash(str((tool_call.get('function') or {}).get('arguments', ''))),
+                )
+                for tool_call in self.tool_calls
+            )
+        else:
+            tool_calls_key = None
+
+        return (self.role, self.tool_call_id, content_key, tool_calls_key)
+
     @property
     def estimated_token_count(self) -> int:
+        fingerprint = self._token_count_fingerprint()
+        cached = self._token_count_cache
+
+        if cached is not None and cached[0] == fingerprint:
+            return cached[1]
+
         token_count = TOKEN_COUNT_ROLE_OVERHEAD
 
         if self.tool_call_id:
@@ -106,6 +140,8 @@ class Message(HashMixin, BaseModel):
                     token_count += get_estimated_token_count_for_audio(
                         message_content.input_audio.data
                     )
+
+        self._token_count_cache = (fingerprint, token_count)
 
         return token_count
 
